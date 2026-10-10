@@ -1,0 +1,40 @@
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# 虚拟环境
+venv/
+.venv/
+env/
+ENV/
+
+# 打包 / 分发
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# 测试与覆盖率
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# ---- 编辑器 / 系统 ----
+# .vscode 里存的是本机绝对路径（Python 解释器位置），换台电脑就用不了，所以不提交
+.vscode/
+
+# 系统文件
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# ---- 临时文件 ----
+~$*
+*.tmp
+*.bak
+*.log

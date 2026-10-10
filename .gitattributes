@@ -1,0 +1,13 @@
+# 统一换行符，避免 Windows / Linux 之间出现"整个文件都变了"的假改动
+* text=auto eol=lf
+
+# 二进制文件不做换行符转换
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.ico  binary
+*.pdf  binary
+*.zip  binary
+*.xlsx binary
+*.docx binary
