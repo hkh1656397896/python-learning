@@ -58,17 +58,17 @@
 <body>
 
 <h1>Python 自学笔记</h1>
-<p class="meta">hkh ｜ 更新 2026-10-11 ｜ 覆盖：第1章 3 题 + 第2章 9 题（浙大版《Python 程序设计》题目集）</p>
+<p class="meta">hkh ｜ 更新 2026-10-11 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">11</span> 题（浙大版《Python 程序设计》题目集）</p>
 
 <nav id="toc">
   <strong>目录</strong>　<span style="font-size:12px;color:#656d76">（点一下直接跳）</span>
   <ol>
-    <li><a href="#e1" onclick="return go('e1')">易错点（10 条）</a></li>
-    <li><a href="#s1" onclick="return go('s1')">常用代码与拓展（8 类）</a></li>
+    <li><a href="#e1" onclick="return go('e1')">易错点（<span id="ce">10</span> 条）</a></li>
+    <li><a href="#s1" onclick="return go('s1')">常用代码与拓展（<span id="cs">8</span> 类）</a></li>
     <li><a href="#star" onclick="return go('star')">符号速查：* 和 []</a></li>
     <li><a href="#err" onclick="return go('err')">报错速查表</a></li>
     <li><a href="#rule" onclick="return go('rule')">三条铁律</a></li>
-    <li><a href="#review" onclick="return go('review')">真题回顾（14 题）</a></li>
+    <li><a href="#review" onclick="return go('review')">真题回顾（<span id="cr">14</span> 题）</a></li>
   </ol>
 </nav>
 
@@ -818,7 +818,7 @@ d["x"]              # KeyError: 'x'   直接索引不存在的键会报错</code
 ② 两边同时改，很容易出现"本地一份、提交另一份"，而且极难发现
 </div>
 
-<h2 id="review">六、真题回顾（14 题）</h2>
+<h2 id="review">六、真题回顾（<span id="cr2">14</span> 题）</h2>
 
 <div class="box warn">
 <strong>说明：</strong>下面的题目要求是<strong>我按自己的理解概括写的</strong>，不是 PTA 原文。<br>
@@ -1142,6 +1142,36 @@ function go(id){
   }
   return false;                       /* 阻止默认的 #锚点 跳转 */
 }
+
+/* ---- 自动统计文档里的数字，避免手工同步漏改 ----
+   这些数字以前散在页头、目录、章节标题好几处，每次加题都要手工对齐，
+   已经漏改过两次。改成从页面实际内容数出来，就再也不会烂。 */
+function fillCounts(){
+  var h3 = document.querySelectorAll('h3');
+  var errs = 0, total = 0, ch = {};
+  for (var i = 0; i < h3.length; i++){
+    var s = h3[i].textContent || '';
+    if (/^\s*❌\s*\d+\./.test(s)) { errs++; }          /* 易错点：形如「❌ 1. ...」 */
+    var m = s.match(/^\s*(\d+)-(\d+)\s/);             /* 真题：形如「2-11 ...」 */
+    if (m) { ch[m[1]] = (ch[m[1]] || 0) + 1; total++; }
+  }
+
+  /* 常用代码与拓展的「类」数：第二节里以 ①②③… 开头的小节 */
+  var secs = 0, el = document.getElementById('s1');
+  if (el){
+    el = el.nextElementSibling;
+    while (el && el.tagName !== 'H2'){
+      if (el.tagName === 'H3' && /^\s*[①②③④⑤⑥⑦⑧⑨⑩]/.test(el.textContent || '')) { secs++; }
+      el = el.nextElementSibling;
+    }
+  }
+
+  function put(id, v){ var n = document.getElementById(id); if (n){ n.textContent = v; } }
+  put('ce', errs);  put('cs', secs);
+  put('cr', total); put('cr2', total);
+  put('c1', ch['1'] || 0);  put('c2', ch['2'] || 0);
+}
+fillCounts();
 
 /* 滚过一屏后显示「回目录」按钮 */
 function onScroll(){
