@@ -108,7 +108,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>二、常用代码与拓展 <span class="toc-n" id="cs">12</span></summary>
+    <summary>二、常用代码与拓展 <span class="toc-n" id="cs">13</span></summary>
     <ol>
       <li><a onclick="return go('s1-1')">① 读一行数字</a></li>
       <li><a onclick="return go('s1-2')">② range()：生成数字序列</a></li>
@@ -122,6 +122,7 @@
       <li><a onclick="return go('s1-10')">⑩ 常用内置函数：len / sum / max / min / abs / round</a></li>
       <li><a onclick="return go('s1-11')">⑪ 遍历列表 + 挑出满足条件的元素</a></li>
       <li><a onclick="return go('s1-12')">⑫ 列表推导式与生成器表达式（一行写出「筛选 + 变换」）</a></li>
+      <li><a onclick="return go('s1-13')">⑬ 读多行（第一行是数量，后面 N 行数据）</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -1100,6 +1101,63 @@ print(list(g))          # []                        ★ 生成器是一次性的
 　（后者是三目运算，不是筛选）<br>
 ③ <strong>变量不会「漏」到外面</strong>（Python 3 的推导式有自己的作用域）。
 即使外面已经有同名变量也不会被改（实测：外面 x 是 999，跑完还是 999）。
+</div>
+
+<h3 id="s1-13">⑬ 读多行（第一行是数量，后面 N 行数据）</h3>
+
+<p><strong>核心就一句：<code>input()</code> 一次只读一行，读 N 行就调用 N 次。</strong></p>
+
+<p><strong>三种写法（同一份输入，结果完全一样）</strong></p>
+<pre><code># ① 逐行读（最直白，跟题目描述一一对应）
+n = int(input())          # 第一行是数量
+for i in range(n):
+    s = input()           # 再读 n 行
+    # 处理 s
+
+# ② 全部读进来，按行切
+import sys
+lines = sys.stdin.read().splitlines()
+n = int(lines[0])
+for s in lines[1:1+n]:
+    # 处理 s
+
+# ③ 全部读进来，按空白切
+import sys
+data = sys.stdin.read().split()
+n = int(data[0])
+for s in data[1:1+n]:
+    # 处理 s</code></pre>
+
+<div class="box bad">
+<strong>关键区别：<code>split()</code> ≠ <code>splitlines()</code></strong>（有空格时天差地别）<br>
+<code>s = '110105194912310 02X\n12345678901234567 8'</code>
+<pre><code>s.split()       # ['110105194912310', '02X', '12345678901234567', '8']   4 段！
+s.splitlines()  # ['110105194912310 02X', '12345678901234567 8']         2 行 ✅</code></pre>
+· <code>split()</code> 按<strong>任意空白</strong>切 —— 空格、换行、Tab 都算<br>
+· <code>splitlines()</code> 只按<strong>换行</strong>切 —— 空格保留<br>
+<strong>要「一行一行」处理就用 <code>splitlines()</code>；要「所有数字」不分行才用 <code>split()</code>。</strong>
+</div>
+
+<div class="box bad">
+<strong>四个会挂的地方（都实测过）：</strong><br>
+① <strong>只读一次</strong> —— 只写了 <code>s = input()</code>，剩下 n-1 行根本没读。<br>
+② <strong>行尾空格 / Windows 换行</strong> → 用 <code>.strip()</code> 兜住：<br>
+　 输入 <code>'  abc  \n\n\nxyz\n'</code> → 原始 <code>['  abc  ', '', '', 'xyz']</code>，
+　 strip 后 <code>['abc', '', '', 'xyz']</code><br>
+③ <strong>空行会产生空字符串 <code>''</code></strong> —— 按行读又不过滤，数量就对不上。<br>
+④ <strong>切片要写 <code>lines[1:1+n]</code>，不是 <code>lines[1:]</code></strong> ——
+万一输入末尾有多余空行，<code>lines[1:]</code> 会把空字符串也算进来。
+</div>
+
+<div class="box warn">
+<strong>用了 <code>sys.stdin.read()</code> 之后不能再 <code>input()</code></strong> —— 流已经读到末尾了：<br>
+<code>EOFError: EOF when reading a line</code><br>
+两种读法<strong>只能用一种</strong>，不能混着来。
+</div>
+
+<div class="box ok">
+<strong>性能差别可以忽略：</strong>100 行输入，逐行 <code>input()</code> 0.043 秒，一次 <code>read()</code> 0.039 秒。<br>
+<strong>选看得懂的那种。</strong>新手写这题建议逐行读 —— 最直白。
 </div>
 
 <h2 id="star">三、符号速查：* 和 []</h2>
