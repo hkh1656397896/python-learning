@@ -71,7 +71,7 @@
 -->
 
 <h1>Python 自学笔记</h1>
-<p class="meta">hkh ｜ 更新 2026-10-11 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题（浙大版《Python 程序设计》题目集）</p>
+<p class="meta">hkh ｜ 更新 2026-10-11 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">1</span> 题（浙大版《Python 程序设计》题目集）</p>
 
 <nav id="toc">
   <strong>目录</strong>　<span style="font-size:12px;color:#656d76">（点一下直接跳）</span>
@@ -81,7 +81,7 @@
     <li><a href="#star" onclick="return go('star')">符号速查：* 和 []</a></li>
     <li><a href="#err" onclick="return go('err')">报错速查表</a></li>
     <li><a href="#rule" onclick="return go('rule')">三条铁律</a></li>
-    <li><a href="#review" onclick="return go('review')">真题回顾（<span id="cr">17</span> 题）</a></li>
+    <li><a href="#review" onclick="return go('review')">真题回顾（<span id="cr">18</span> 题）</a></li>
   </ol>
 </nav>
 
@@ -1247,7 +1247,7 @@ d["x"]              # KeyError: 'x'   直接索引不存在的键会报错</code
 ② 两边同时改，很容易出现"本地一份、提交另一份"，而且极难发现
 </div>
 
-<h2 id="review">六、真题回顾（<span id="cr2">17</span> 题）</h2>
+<h2 id="review">六、真题回顾（<span id="cr2">18</span> 题）</h2>
 
 <div class="box warn">
 <strong>说明：</strong>下面的题目要求是<strong>我按自己的理解概括写的</strong>，不是 PTA 原文。<br>
@@ -1650,6 +1650,43 @@ if -100&lt;=A&lt;=B&lt;=100:
 可以换成更直白的 <code>for a in range(A, B+1)</code>，少一个变量。
 </div>
 
+<h3>3-1 大于身高的平均值 <span class="tag">通过 10/10</span></h3>
+<p><strong>要求：</strong>一行输入全班身高（空格分隔的<strong>正整数</strong>），输出其中<strong>超过平均值</strong>的那些身高，
+顺序与输入相同，<strong>每个数后面跟一个空格</strong>。<br>
+<strong>样例：</strong><code>143 174 119 127 117 164 110 128</code> →
+<code>143 174 164 </code>（<strong>末尾那个空格是要求里的</strong>）</p>
+<p><strong>我的代码</strong></p>
+<pre><code>nums=list(map(int,input().split()))
+avg=sum(nums)/len(nums)
+for n in nums:
+    if n&gt;avg:
+        print(n,end=" ")</code></pre>
+<div class="box ok">
+<strong>这题最关键的一点：输出末尾【就是要有一个空格】。</strong><br>
+题目原文写着「每个数后面有一个空格」，所以 <code>end=" "</code> 是<strong>正确写法</strong>，不是「将就」——
+换成 <code>print(*above)</code> 反而<strong>会少掉末尾那个空格</strong>，可能判格式错误。<br>
+<strong>先读题目对输出格式的原话，再决定用哪种写法。</strong>
+</div>
+<div class="box bad">
+<strong>我第一版挂在 <code>sep</code> 上：</strong><br>
+写的是 <code>print(n, sep=" ", end="")</code>，想靠 <code>sep</code> 加空格，
+结果输出 <code>'172180'</code> —— 一个空格都没有。<br>
+原因：<code>sep</code> 管的是「<strong>一次 print 里多个值之间</strong>」，而这里每次只传了一个 <code>n</code>，
+不存在「之间」，所以 <code>sep</code> 被<strong>完全忽略</strong>（<code>print(7, sep="!!!")</code> 也只会输出 <code>7</code>）。<br>
+<strong>「每次打完补一个空格」是 <code>end</code> 的活。</strong>
+</div>
+<div class="box warn">
+<strong>把 <code>end</code> 的归属说准确：</strong><br>
+<code>end</code> 属于<strong>每一次 <code>print()</code> 调用</strong>，不属于循环 ——
+循环只是让 <code>print()</code> 被调用了很多次。<br>
+证据：<code>print("a", end=" "); print("b", end=" ")</code> 里没有循环，照样输出 <code>'a b '</code>。
+</div>
+<div class="box ok">
+<strong>这题为什么必须<strong>两趟</strong>：</strong>平均值要等<strong>所有</strong>身高都读完才算得出来，
+所以必须先把数据存下来（<code>list(map(...))</code>），算完平均再遍历一遍挑 ——
+没法「读一个、判断一个」。这是第 3 章的第一个思维转弯。
+</div>
+
 <footer>
 整理自 2026-10 的实战记录 ｜ 每一条都来自真实踩过的坑
 </footer>
@@ -1695,7 +1732,7 @@ function fillCounts(){
   function put(id, v){ var n = document.getElementById(id); if (n){ n.textContent = v; } }
   put('ce', errs);  put('cs', secs);
   put('cr', total); put('cr2', total);
-  put('c1', ch['1'] || 0);  put('c2', ch['2'] || 0);
+  put('c1', ch['1'] || 0);  put('c2', ch['2'] || 0);  put('c3', ch['3'] || 0);
 }
 fillCounts();
 
