@@ -109,7 +109,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>二、常用代码与拓展 <span class="toc-n" id="cs">15</span></summary>
+    <summary>二、常用代码与拓展 <span class="toc-n" id="cs">16</span></summary>
     <ol>
       <li><a onclick="return go('s1-1')">① 读一行数字</a></li>
       <li><a onclick="return go('s1-2')">② range()：生成数字序列</a></li>
@@ -126,6 +126,7 @@
       <li><a onclick="return go('s1-13')">⑬ 读多行（第一行是数量，后面 N 行数据）</a></li>
       <li><a onclick="return go('s1-14')">⑭ 怎么检验一张对照表（防打错字）</a></li>
       <li><a onclick="return go('s1-15')">⑮ 怎么实现「对应关系」（查表）</a></li>
+      <li><a onclick="return go('s1-16')">⑯ 两个实用套路：检查「全是数字」+ 循环外判断「全部合格」</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -1421,6 +1422,117 @@ if m == s[-1]:                                      # 跟实际末位比
     pass          # 有效 —— 题目只输出有问题的，所以这里什么都不做
 else:
     print(s)</code></pre>
+
+<h3 id="s1-16">⑯ 两个实用套路：检查「全是数字」+ 循环外判断「全部合格」</h3>
+
+<p><strong>套路一：检查一个字符串是不是「全是数字」—— <code>isdigit()</code></strong></p>
+<pre><code>s = "320124198808240056"
+s[:17]              # '32012419880824005'   切片：前 17 位（不含第 18 位）
+s[:17].isdigit()    # True                  全数字就是 True
+
+"12010X19890101123".isdigit()   # False   有 X</code></pre>
+
+<p><strong>它还有两个兄弟，宽严不同（实测）：</strong></p>
+<table>
+<tr><th>字符串</th><th><code>isdecimal()</code></th><th><code>isdigit()</code></th><th><code>isnumeric()</code></th><th><code>int()</code> 能转吗</th></tr>
+<tr><td><code>'12345'</code></td><td>True</td><td>True</td><td>True</td><td>能</td></tr>
+<tr><td><code>'12X45'</code></td><td>False</td><td>False</td><td>False</td><td>不能</td></tr>
+<tr><td><code>'-123'</code></td><td>False</td><td>False</td><td>False</td><td><strong>能</strong></td></tr>
+<tr><td><code>'²'</code></td><td>False</td><td><strong>True</strong></td><td>True</td><td><strong>不能</strong></td></tr>
+<tr><td><code>'½'</code></td><td>False</td><td>False</td><td>True</td><td>不能</td></tr>
+<tr><td><code>'一二三'</code></td><td>False</td><td>False</td><td>True</td><td>不能</td></tr>
+</table>
+<p><code>isdecimal()</code> 最严（只认十进制数字）、<code>isdigit()</code> 中间、<code>isnumeric()</code> 最宽。</p>
+
+<div class="box bad">
+<strong>一个坑：<code>'²'.isdigit()</code> 是 <code>True</code>，但 <code>int('²')</code> 会报错！</strong><br>
+<code>ValueError: invalid literal for int() with base 10: '²'</code><br>
+所以「isdigit 通过」不等于「int() 一定能转」。身份证号只有 ASCII 数字和 X，用 <code>isdigit()</code> 就够。
+</div>
+
+<p><strong>备选写法：</strong></p>
+<pre><code># try/except —— 试着转，转不动就是含非数字（检查小数、负数时只能用它）
+try:
+    int(s[:17]); ok = True
+except ValueError:
+    ok = False
+
+# all() + 生成器
+all(c.isdigit() for c in s[:17])</code></pre>
+
+<hr>
+
+<p><strong>套路二：在循环【外面】判断「全部合格」</strong></p>
+
+<div class="box warn">
+<strong>核心难点：循环里每一轮只知道「自己这一轮」，要知道「全部」必须把结果<strong>攒起来</strong>。</strong><br>
+这跟第2章做累加用的 <code>s=0</code> 是<strong>同一个思路</strong>：
+<strong>循环外声明 → 循环里更新 → 循环后看结果。</strong>
+</div>
+
+<pre><code># 方法一：计数器（推荐，跟 2-11 的 s / 2-14 的 cnt 一样）
+bad = 0                      # &lt;- 循环【外】初始化
+for x in data:
+    if 不合格(x):
+        print(x)
+        bad += 1
+if bad == 0:                 # 循环外看结果
+    print("All passed")
+
+# 方法二：标志变量（只关心「有没有」，不关心几个）
+found = False
+for x in data:
+    if 不合格(x):
+        print(x)
+        found = True
+if not found:
+    print("All passed")
+
+# 方法三：收集到列表（后面还要用这些值时选它）
+bad_list = []
+for x in data:
+    if 不合格(x):
+        bad_list.append(x)
+if not bad_list:             # 空列表 = 一个都没有
+    print("All passed")</code></pre>
+<p><strong>三种写法实测等价</strong>（用「有不合格」和「全合格」两组数据各跑一遍，结果一致）。<br>
+<code>if not 列表:</code> 能判断空，是因为<strong>空列表被当成「假」</strong> ——
+跟 <code>''</code>、<code>0</code> 一样：<code>bool([])=False</code>、<code>bool([1])=True</code>。</p>
+
+<div class="box bad">
+<strong>为什么不能用 <code>for...else</code>？（看着很像，但用不了）</strong>
+<pre><code>for x in data:
+    if 不合格(x):
+        print(x)
+else:
+    print("All passed")      # &lt;- 永远会执行</code></pre>
+<code>for...else</code> 的 else 只在「循环没被 <code>break</code> 打断」时执行。<br>
+<strong>但这题不能 break</strong> —— 要把<strong>所有</strong>不合格的都打印出来，一 break 就漏掉后面的。
+既然不 break，else 就<strong>永远执行</strong>，起不到作用。<br>
+<strong>所以必须自己用累计器判断。</strong>
+</div>
+
+<p><strong>第3章-2 的位置图（两件事怎么拼）：</strong></p>
+<pre><code>n = int(input())
+bad = 0                              # (3) 循环【外】初始化
+
+for i in range(n):
+    s = input().strip()
+
+    if not s[:17].isdigit():         # (1) 前17位不是全数字
+        print(s)
+        bad += 1
+        continue                     # 直接进下一轮，不算校验码了
+
+    算出 Z、查出 M[Z]
+    if M[Z] != s[17]:
+        print(s)
+        bad += 1
+
+if bad == 0:                         # (2) 循环【外】统一判断
+    print("All passed")</code></pre>
+<p><strong><code>continue</code> = 「这一轮到此为止，直接开始下一轮」。</strong>
+前 17 位已经非法就不用再算校验码 —— <strong>否则 <code>int('X')</code> 会崩</strong>。</p>
 
 <h2 id="star">三、符号速查：* 和 []</h2>
 
