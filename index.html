@@ -467,6 +467,45 @@ for i in [1, 2, 3]:
     print(i, end=" ")       # 1 2 3 （全在同一行）
 print()                     # 手动换行</code></pre>
 
+<div class="box bad">
+<strong>最容易踩的坑：<code>sep</code> 只在「一次打印多个值」时才有用。</strong><br>
+只有一个值时，<strong><code>sep</code> 被完全忽略</strong>：
+<pre><code>print(7, sep="-")         # 7       <- 不是 '7-' 也不是 '-7'
+print(7, sep="!!!!!!!!")  # 7       <- 写什么都一样，直接无视</code></pre>
+第3章-1 我写了 <code>print(n, sep=" ", end="")</code>，想每两个数之间加空格，
+结果输出 <code>'172180'</code> —— <strong>一个空格都没有</strong>。因为每次只传了 <code>n</code> 一个值，
+根本不存在「之间」。<br>
+<strong>「每次打完补一个空格」是 <code>end</code> 的活，不是 <code>sep</code> 的活：</strong>
+<pre><code>print(n, sep=" ")    # ❌ sep 用不上
+print(n, end=" ")    # ✅ 每个数后面跟一个空格（但结尾会多一个）</code></pre>
+</div>
+
+<div class="box ok">
+<strong>完整的三种写法（第3章-1 实测，输入 <code>150 165 172 180 158</code>，平均 165）：</strong>
+<pre><code># ① 空格放 end —— 结尾多一个空格
+for n in nums:
+    if n > avg:
+        print(n, end=" ")
+# '172 180 '
+
+# ② 先收集再一次性打印 —— 正好（推荐）
+above = []
+for n in nums:
+    if n > avg:
+        above.append(n)
+print(*above)
+# '172 180'
+
+# ③ join
+print(" ".join(str(n) for n in above))
+# '172 180'</code></pre>
+<strong>为什么 ② 能让 <code>sep</code> 生效？因为 <code>*</code> 把列表「摊开」成了多个参数：</strong>
+<pre><code>print(above)             # [172, 180]   1 个值（一个列表）
+print(*above)            # 172 180      2 个值！sep 有用了（默认就是一个空格）
+print(*above, sep=", ")  # 172, 180</code></pre>
+摊开之后才有「之间」，<code>sep</code> 才有东西可插 —— 跟第三部分讲的 <code>*</code> = 摊开是同一件事。
+</div>
+
 <p><strong>整数宽度与更多格式符（第2章-14 要用 <code>:5d</code>）</strong></p>
 <pre><code>n = 42
 
