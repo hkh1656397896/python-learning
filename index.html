@@ -57,6 +57,19 @@
 </head>
 <body>
 
+<!--
+  ============ 维护约定（给自己看的，页面不显示）============
+  1. 全文第一人称，禁止第二人称「你」（「你好」这类问候语除外）。
+     改完跑 _笔记自检.py 验证。
+  2. 页头 / 目录 / 章节标题里的数字：页面 JS 会自动统计，
+     同时静态写一份兜底值。加题时两处都要对，自检脚本会比对。
+  3. 每引入一个没见过的代码/函数，都要写清「怎么用」+「有哪些拓展用法」，
+     并且所有示例输出必须是【实测】结果，不能凭记忆写。
+  4. 题目要求是按自己理解概括的，不抄 PTA 原文（版权）。
+  5. 错误记录保留原样不美化 —— 不完美，回顾时才有感触。
+  ==========================================================
+-->
+
 <h1>Python 自学笔记</h1>
 <p class="meta">hkh ｜ 更新 2026-10-11 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题（浙大版《Python 程序设计》题目集）</p>
 
@@ -64,7 +77,7 @@
   <strong>目录</strong>　<span style="font-size:12px;color:#656d76">（点一下直接跳）</span>
   <ol>
     <li><a href="#e1" onclick="return go('e1')">易错点（<span id="ce">10</span> 条）</a></li>
-    <li><a href="#s1" onclick="return go('s1')">常用代码与拓展（<span id="cs">11</span> 类）</a></li>
+    <li><a href="#s1" onclick="return go('s1')">常用代码与拓展（<span id="cs">12</span> 类）</a></li>
     <li><a href="#star" onclick="return go('star')">符号速查：* 和 []</a></li>
     <li><a href="#err" onclick="return go('err')">报错速查表</a></li>
     <li><a href="#rule" onclick="return go('rule')">三条铁律</a></li>
@@ -919,6 +932,83 @@ above = [h for h in heights if h &gt; avg]</code></pre>
 平均值要等<strong>所有</strong>数据都读完才能算出来，所以必须<strong>两趟</strong> ——
 先把数据<strong>存下来</strong>（<code>list(map(...))</code>），算完平均，再回头遍历一遍挑。<br>
 <strong>没法「读一个、判断一个」。</strong>
+</div>
+
+<h3>⑫ 列表推导式与生成器表达式（一行写出「筛选 + 变换」）</h3>
+
+<p><strong>先看它替代了什么</strong></p>
+<pre><code># 普通写法：4 行
+above = []
+for h in heights:
+    if h &gt; avg:
+        above.append(h)
+
+# 列表推导式：1 行，结果完全一样
+above = [h for h in heights if h &gt; avg]</code></pre>
+
+<p><strong>语法拆解</strong></p>
+<pre><code>above = [  h    for h in heights    if h &gt; avg  ]
+           ↑    ↑                   ↑
+      要放进去的  从哪个列表里取      满足什么条件才要
+        东西                      （不筛选就整段省略）</code></pre>
+
+<p><strong>四种常见形态（实测）</strong></p>
+<pre><code>nums = [1, 2, 3, 4, 5]
+
+[x for x in nums]                     # [1, 2, 3, 4, 5]      ① 原样搬（一般没意义）
+[x for x in nums if x &gt; 3]            # [4, 5]               ② 筛选
+[x * 2 for x in nums]                 # [2, 4, 6, 8, 10]     ③ 变换
+[x * 2 for x in nums if x % 2 == 1]   # [2, 6, 10]           ④ 筛选 + 变换 ← 最常用</code></pre>
+
+<div class="box ok">
+<strong>第3章-1 实测（输入 <code>150 165 172 180 158</code>，平均 165.0）：</strong>
+<pre><code>[n for n in nums if n &gt; avg]                # [172.0, 180.0]
+[f"{n:.2f}" for n in nums if n &gt; avg]       # ['172.00', '180.00']
+print(*[f"{n:.2f}" for n in nums if n &gt; avg])   # 172.00 180.00</code></pre>
+<strong>「筛选 + 顺手转成两位小数的字符串」一行搞定</strong> —— 这就是它比 for 循环省事的地方。
+</div>
+
+<p><strong>换成圆括号，就变成「生成器表达式」</strong></p>
+<pre><code>[x * 2 for x in nums]     # 方括号 -> 立刻算完，得到一个列表（list）
+(x * 2 for x in nums)     # 圆括号 -> 不立刻算，得到一个生成器（generator）</code></pre>
+
+<pre><code>g = (x * 2 for x in nums)
+print(g)                # &lt;generator object ...&gt;   看不到内容
+print(list(g))          # [2, 4, 6, 8, 10]          转成列表才看得到
+print(list(g))          # []                        ★ 生成器是一次性的！</code></pre>
+
+<div class="box warn">
+<strong>生成器「一次性」和 <code>map</code> 对象是同一个道理</strong>（实测对照）：<br>
+<code>map</code> 对象：<code>list(m)</code> 第一次 <code>[1,2,3]</code>，第二次 <code>[]</code><br>
+生成器　　：<code>list(g)</code> 第一次 <code>[1,2,3]</code>，第二次 <code>[]</code><br>
+<strong>都是「惰性 + 一次性」，看过就空了。要反复用就先 <code>list()</code> 存下来。</strong>
+</div>
+
+<div class="box ok">
+<strong>什么时候用方括号、什么时候用圆括号：</strong><br>
+· 结果要<strong>反复用</strong>（<code>len()</code>、切片、再遍历）→ <strong>方括号</strong>，得到列表<br>
+· 只是<strong>喂给</strong> <code>join</code> / <code>sum</code> / <code>max</code> 用一次 → <strong>圆括号</strong>，省内存<br>
+<strong>一句话：要留下来就方括号，用完就扔就圆括号。</strong>
+</div>
+
+<p><strong>也能做字典和集合</strong></p>
+<pre><code>nums = [1, 2, 3, 4]
+{x: x * x for x in nums}    # {1: 1, 2: 4, 3: 9, 4: 16}   字典推导式
+{x * x for x in nums}       # {16, 1, 4, 9}               集合推导式（自动去重）</code></pre>
+<p><strong>注意：圆括号那对是生成器，不是「元组推导式」—— 元组没有推导式。</strong></p>
+
+<div class="box bad">
+<strong>三个容易踩的点（都实测过）：</strong><br>
+① <strong>别用推导式做「打印」或「累加」。</strong>它只负责<strong>造一个新序列</strong>。<br>
+　 <code>[print(x) for x in [1,2,3]]</code> 确实会打印，但副作用是生成了一个全是 <code>None</code> 的列表 ——
+　　副产品不是目的，直接写 for 循环。<br>
+　 <code>sum([x for x in nums])</code> 能算，但 <code>sum(nums)</code> 就够了（不筛选不变换时多此一举）。<br>
+② <strong>条件放「后面」是筛选，放「前面」是变换</strong>，两者完全不同：<br>
+　 <code>[x for x in mixed if x &gt; 0]</code> → 元素<strong>变少</strong>了：<code>[1, 3]</code><br>
+　 <code>[x if x &gt; 0 else 0 for x in mixed]</code> → 元素<strong>一个都没少</strong>：<code>[1, 0, 3, 0, 0]</code>
+　（后者是三目运算，不是筛选）<br>
+③ <strong>变量不会「漏」到外面</strong>（Python 3 的推导式有自己的作用域）。
+即使外面已经有同名变量也不会被改（实测：外面 x 是 999，跑完还是 999）。
 </div>
 
 <h2 id="star">三、符号速查：* 和 []</h2>
