@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Python 自学笔记 · 易错点与常用代码</title>
+<style>
+  :root{
+    --bg:#ffffff; --fg:#1f2328; --muted:#656d76; --line:#d8dee4;
+    --code-bg:#f6f8fa; --pre-bg:#1f2328; --pre-fg:#e6edf3;
+    --warn-bg:#fff8e5; --warn-line:#e0a800;
+    --ok-bg:#eaf7ee; --ok-line:#2da44e;
+    --bad-bg:#fdeceb; --bad-line:#cf222e;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; padding:16px 14px 60px; background:var(--bg); color:var(--fg);
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    font-size:16px; line-height:1.8; -webkit-text-size-adjust:100%;
+  }
+  h1{font-size:22px; line-height:1.4; margin:0 0 6px}
+  h2{font-size:19px; margin:34px 0 12px; padding:8px 0 8px 10px; border-left:4px solid #0969da; background:#f0f6ff}
+  h3{font-size:17px; margin:24px 0 8px; padding-bottom:6px; border-bottom:1px solid var(--line)}
+  p{margin:8px 0}
+  .meta{color:var(--muted); font-size:13px; margin-bottom:14px}
+  code{background:var(--code-bg); padding:1px 5px; border-radius:4px;
+    font-family:ui-monospace,Menlo,Consolas,"Courier New",monospace; font-size:.9em; word-break:break-word}
+  pre{background:var(--pre-bg); color:var(--pre-fg); padding:12px; border-radius:8px;
+    overflow-x:auto; margin:10px 0; font-size:13.5px; line-height:1.6}
+  pre code{background:none; padding:0; color:inherit; font-size:inherit; white-space:pre}
+  table{border-collapse:collapse; width:100%; margin:10px 0; font-size:14.5px; display:block; overflow-x:auto}
+  th,td{border:1px solid var(--line); padding:7px 9px; text-align:left; vertical-align:top}
+  th{background:#f6f8fa; font-weight:600; white-space:nowrap}
+  .box{border-left:4px solid; border-radius:6px; padding:10px 12px; margin:12px 0; font-size:15px}
+  .bad{background:var(--bad-bg); border-color:var(--bad-line)}
+  .ok{background:var(--ok-bg); border-color:var(--ok-line)}
+  .warn{background:var(--warn-bg); border-color:var(--warn-line)}
+  .tag{display:inline-block; font-size:12px; padding:1px 7px; border-radius:10px;
+    background:#eaeef2; color:var(--muted); margin-right:6px; vertical-align:middle}
+  nav{background:#f6f8fa; border:1px solid var(--line); border-radius:8px; padding:10px 14px; margin:16px 0 26px}
+  nav ol{margin:6px 0 0; padding-left:22px}
+  nav a{color:#0969da; text-decoration:none}
+  a{color:#0969da}
+  hr{border:none; border-top:1px solid var(--line); margin:34px 0}
+  .kbd{background:#eaeef2; border:1px solid #d0d7de; border-bottom-width:2px; border-radius:4px;
+    padding:0 5px; font-size:.87em; font-family:inherit}
+  footer{margin-top:40px; color:var(--muted); font-size:13px; text-align:center}
+
+  /* ---- 手机跳转优化 ---- */
+  h2,h3{scroll-margin-top:10px}                 /* 跳过去时标题不贴顶 */
+  nav a{display:block; padding:5px 0}           /* 触摸目标更大，好点 */
+  #totop{position:fixed; right:14px; bottom:16px; z-index:99;
+    display:none; padding:10px 16px; border-radius:24px;
+    background:#0969da; color:#fff; border:none; font-size:14px;
+    font-family:inherit; box-shadow:0 2px 10px rgba(0,0,0,.28); cursor:pointer}
+</style>
+</head>
+<body>
+
+<h1>Python 自学笔记</h1>
+<p class="meta">hkh ｜ 更新 2026-10-11 ｜ 覆盖：第1章 3 题 + 第2章 9 题（浙大版《Python 程序设计》题目集）</p>
+
+<nav id="toc">
+  <strong>目录</strong>　<span style="font-size:12px;color:#656d76">（点一下直接跳）</span>
+  <ol>
+    <li><a href="#e1" onclick="return go('e1')">易错点（10 条）</a></li>
+    <li><a href="#s1" onclick="return go('s1')">常用代码与拓展（8 类）</a></li>
+    <li><a href="#star" onclick="return go('star')">符号速查：* 和 []</a></li>
+    <li><a href="#err" onclick="return go('err')">报错速查表</a></li>
+    <li><a href="#rule" onclick="return go('rule')">三条铁律</a></li>
+    <li><a href="#review" onclick="return go('review')">真题回顾（12 题）</a></li>
+  </ol>
+</nav>
+
+<h2 id="e1">一、易错点</h2>
+
+<h3>❌ 1. 输入分隔符猜错 <span class="tag">第2章-7、2-8</span></h3>
+
+<div class="box bad">
+<strong>症状：</strong>本地能跑，提交报"答案错误"或"非零返回"<br>
+<strong>原因：</strong>题面文字只说"在一行输入两个数"，没说分隔符。你以为空格，其实是逗号。
+</div>
+
+<table>
+<tr><th>样例长这样</th><th>正确写法</th></tr>
+<tr><td><code>45,8</code></td><td><code>input().split(",")</code></td></tr>
+<tr><td><code>3 5</code></td><td><code>input().split()</code> ✨推荐</td></tr>
+</table>
+
+<div class="box ok">
+<strong>铁律：分隔符看【样例】，不看题面文字。</strong><br>
+<code>split()</code> 不带参数 = 按任意空白切（多个空格、Tab 都行），遇到空格分隔就用它；<br>
+遇到逗号必须写 <code>split(",")</code>。
+</div>
+
+<h3>❌ 2. <code>int</code> 和 <code>float</code> 用错 <span class="tag">第2章-3</span></h3>
+
+<div class="box bad">
+<strong>症状：</strong>非零返回，报 <code>ValueError: invalid literal for int() with base 10: '50.5'</code><br>
+<strong>原因：</strong>题目说"月用电量"，没说是整数。测试数据里有小数，<code>int("50.5")</code> 直接崩。
+</div>
+
+<table>
+<tr><th>题目措辞</th><th>用什么</th></tr>
+<tr><td>"正整数"、"整数"</td><td><code>int()</code></td></tr>
+<tr><td>"实数"、"数"、<strong>什么都没说</strong></td><td><code>float()</code> ← 更保险</td></tr>
+</table>
+
+<pre><code>int("50.5")     # ❌ ValueError
+float("50.5")   # ✅ 50.5</code></pre>
+
+<h3>❌ 3. 全角标点 <span class="tag">第2章-3</span></h3>
+
+<div class="box bad">
+<strong>症状：</strong>非零返回，报 <code>SyntaxError: invalid character '：' (U+FF1A)</code><br>
+<strong>原因：</strong>中文输入法下打冒号，出来的是全角 <code>：</code>
+</div>
+
+<table>
+<tr><th>半角（对）</th><th>全角（错）</th></tr>
+<tr><td><code>:</code> <code>;</code> <code>,</code></td><td><code>：</code> <code>；</code> <code>，</code></td></tr>
+<tr><td><code>( )</code> <code>[ ]</code></td><td><code>（ ）</code> <code>【 】</code></td></tr>
+<tr><td><code>" "</code> <code>' '</code></td><td><code>“ ”</code> <code>‘ ’</code></td></tr>
+</table>
+
+<div class="box warn">
+<strong>预防：</strong>在 VS Code 里写代码 —— 语法错误会<strong>立刻标红波浪线</strong>。在 PTA 在线编辑器里写则没有任何提示，只能提交后才发现。<br>
+<strong>报错里出现 <code>U+FFxx</code>，基本就是全角标点。</strong>
+</div>
+
+<h3>❌ 4. 引号让变量变成字面量 <span class="tag">第2章-8</span></h3>
+
+<div class="box bad">
+<strong>症状：</strong><code>ValueError: invalid literal for int() with base 8: 'a'</code><br>
+<strong>原因：</strong>写了 <code>int('a', b)</code>，以为 <code>'a'</code> 是变量 <code>a</code>。加了引号就变成<strong>字母 a 这个字符</strong>了。
+</div>
+
+<table>
+<tr><th>写法</th><th>含义</th></tr>
+<tr><td><code>a</code></td><td><strong>变量</strong> —— 去 a 盒子里拿</td></tr>
+<tr><td><code>'a'</code> / <code>"a"</code></td><td><strong>字符串字面量</strong> —— 就是字母 a 本身</td></tr>
+<tr><td><code>"45"</code></td><td>字符串，内容是两个字符 4 和 5</td></tr>
+</table>
+
+<pre><code>a = "45"
+int("45", 8)   # 37   &lt;- 字面量：直接把值写在这里
+int(a, 8)      # 37   &lt;- 变量：去 a 盒子里拿（结果一样）
+int('a', 8)    # ❌ 拿字母 a 当八进制数</code></pre>
+
+<div class="box warn">
+<strong>为什么不容易发现：</strong><code>print("45")</code> 和 <code>print(a)</code> 输出<strong>一模一样</strong>。<br>
+想看真相用 <code>repr(a)</code>（会带引号 <code>'45'</code>）或 <code>type(a)</code>（<code>&lt;class 'str'&gt;</code>）。
+</div>
+
+<h3>❌ 5. <code>map(int, ...)</code> 会把「每一个」都转掉 <span class="tag">第2章-8</span></h3>
+
+<div class="box bad">
+<strong>写法：</strong><code>a, b = map(int, input().split(","))</code><br>
+<strong>问题：</strong>a 和 b <strong>都</strong>变成整数了。但 <code>int(字符串, 进制)</code> 要求第一个参数<strong>必须是字符串</strong>。<br>
+结果：<code>TypeError: int() can't convert non-string with explicit base</code>
+</div>
+
+<pre><code>map(int, ["45", "8"])   # -> 45 和 8，两个都变整数（不挑）
+
+# 这题需要：第一个是字符串，第二个是整数
+a, b = input().split(",")      # 两个都保持字符串
+print(int(a, int(b)))          # ✅ 37</code></pre>
+
+<h3>❌ 6. 缩进错位：<code>print</code> 掉进循环里 <span class="tag">第2章-1</span></h3>
+
+<div class="box bad">
+<strong>症状：</strong>答案是 1 行，程序输出 79 行<br>
+<strong>原因：</strong><code>print</code> 和循环体缩进相同 → 它在循环<strong>里面</strong>，每转一圈打印一次
+</div>
+
+<pre><code>for i in range(12, m+1):
+    s = s + i
+    print(s)      # ❌ 缩进 4 格 = 在循环里
+
+for i in range(12, m+1):
+    s = s + i
+print(s)          # ✅ 缩进 0 格 = 在循环外</code></pre>
+
+<div class="box ok"><strong>用 4 个空格缩进</strong>（Python 官方规范）。层级看得清楚，不容易放错行。</div>
+
+<h3>❌ 7. 输出格式写着写着就套用了上一题 <span class="tag">第2章-5 vs 2-6</span></h3>
+
+<div class="box bad">
+<strong>症状：</strong>数值算对了，但判"答案错误"<br>
+<strong>原因：</strong>格式多写/少写了一个前缀或空格
+</div>
+
+<table>
+<tr><th>题目</th><th>要求输出</th></tr>
+<tr><td>第2章-5</td><td><code>sum = 2.549541</code>（有前缀）</td></tr>
+<tr><td>第2章-6</td><td><code>0.917</code>（<strong>无前缀</strong>）</td></tr>
+</table>
+
+<pre><code>print(f"sum = {s:.6f}")   # sum = 2.549541
+print(f"{s:.3f}")         # 0.917</code></pre>
+
+<div class="box warn">
+<strong>最容易踩的两种：</strong><br>
+① 上一题带前缀，这题不带 —— <strong>每道题都要重新看输出格式</strong><br>
+② <code>print("sum = ", s)</code> 字符串末尾多了个空格 → 逗号又补一个 → <strong>变成两个空格，直接判错</strong>
+</div>
+
+<h3>❌ 8. 变量名用了内置函数名 <span class="tag">第2章-1/4/5/6</span></h3>
+
+<pre><code>sum = 11            # ❌ 盖掉了内置的 sum() 函数
+print(sum([1,2,3])) # TypeError: 'int' object is not callable
+
+s = 11              # ✅ 换个名字</code></pre>
+
+<p><strong>同样的坑：</strong><code>list</code>、<code>str</code>、<code>int</code>、<code>max</code>、<code>min</code>、<code>len</code>、<code>input</code> 都别当变量名。</p>
+
+<h3>❌ 9. 描述有歧义时靠猜，不靠样例 <span class="tag">第2章-4</span></h3>
+
+<div class="box bad">
+<strong>题目写：</strong><code>a + aa + aaa + … + a…a（n个a）</code><br>
+<strong>容易读成：</strong>数学里的并置相乘，即 a + a² + a³
+</div>
+
+<table>
+<tr><th>读法</th><th>a=2, n=3 算出</th><th>样例是 246</th></tr>
+<tr><td>串接：<code>2 + 22 + 222</code></td><td><strong>246</strong></td><td>✅</td></tr>
+<tr><td>幂：<code>2 + 2² + 2³</code></td><td>14</td><td>❌</td></tr>
+</table>
+
+<div class="box ok">
+<strong>办法：把几种可能的读法都算一遍，哪个匹配样例就是它。</strong><br>
+样例是出题人给的确定信息，比描述文字可靠。
+</div>
+
+<h3>❌ 10. 字符串排序 ≠ 数字排序 <span class="tag">第2章-9</span></h3>
+
+<div class="box bad">
+<strong>症状：</strong>判"部分正确"—— 单位数的测试点过了，多位数的挂了<br>
+<strong>原因：</strong>写了 <code>map(str, ...)</code>，于是 <code>sorted()</code> 按<strong>字典序</strong>排，不是按数值排
+</div>
+
+<table>
+<tr><th>输入</th><th><code>map(str)</code> 排序</th><th><code>map(int)</code> 排序</th></tr>
+<tr><td><code>4 2 8</code></td><td><code>2->4->8</code></td><td><code>2->4->8</code>（一样）</td></tr>
+<tr><td><code>10 2 8</code></td><td><code>10->2->8</code> ❌</td><td><code>2->8->10</code> ✅</td></tr>
+<tr><td><code>100 20 3</code></td><td><code>100->20->3</code> ❌</td><td><code>3->20->100</code> ✅</td></tr>
+<tr><td><code>9 10 1</code></td><td><code>1->10->9</code> ❌</td><td><code>1->9->10</code> ✅</td></tr>
+</table>
+
+<pre><code>print(*sorted(map(str, input().split())), sep="->")   # ❌ 按字典序
+print(*sorted(map(int, input().split())), sep="->")   # ✅ 按数值</code></pre>
+
+<div class="box warn">
+<strong>为什么单位数看不出来：</strong>只有一个字符时，字典序和数值序结果相同。<br>
+<strong>一旦出现多位数就分道扬镳</strong> —— 字符串是<strong>逐字符</strong>比的：<br>
+<code>"10" &lt; "2"</code> 为<strong>真</strong>（字符 <code>1</code> 比 <code>2</code> 小），但 <code>10 &lt; 2</code> 为<strong>假</strong>。<br>
+<strong>所以排序前一定要先转成数字。</strong>
+</div>
+
+<hr>
+
+<h2 id="s1">二、常用代码与拓展（每条都带输出）</h2>
+
+<p class="meta">下面的输出结果全部实测过，可以放心对照。</p>
+
+<h3>① 读一行数字</h3>
+
+<pre><code># 基础：一行两个整数（空格分隔）
+a, b = map(int, input().split())
+# 输入 3 5          结果 a=3, b=5
+
+# 拓展1：一行多个整数 -> 列表
+nums = list(map(int, input().split()))
+# 输入 1 2 3        结果 [1, 2, 3]
+
+# 拓展2：一行直接求和
+print(sum(map(int, input().split())))
+# 输入 11 12 13 14  输出 50
+
+# 拓展3：一行求最值
+print(max(map(int, input().split())))
+# 输入 11 12 13 14  输出 14
+
+# 拓展4：一行是小数
+nums = list(map(float, input().split()))
+# 输入 1.5 2.5      结果 [1.5, 2.5]
+
+# 拓展5：一行逗号分隔（先看题目样例！）
+a, b = input().split(",")
+# 输入 45,8         结果 a='45', b='8'（都是字符串，要自己转）
+
+# 拓展6：一行就一个数
+n = int(input())
+# 输入 90           结果 n=90
+
+# 拓展7：不知道有几个数（全部读进来）
+import sys
+nums = list(map(int, sys.stdin.read().split()))
+# 输入 1 2 3 / 4 5 （分两行也行）  结果 [1, 2, 3, 4, 5]</code></pre>
+
+<h3>② <code>range()</code>：生成数字序列</h3>
+
+<pre><code>list(range(5))          # [0, 1, 2, 3, 4]                    左闭右开，不含 5
+list(range(1, 6))       # [1, 2, 3, 4, 5]
+list(range(1, 11, 2))   # [1, 3, 5, 7, 9]                    第三个参数 = 步长
+list(range(0, 10, 3))   # [0, 3, 6, 9]
+list(range(10, 0, -1))  # [10, 9, 8, 7, 6, 5, 4, 3, 2, 1]    步长为负 = 倒着数
+list(range(5, 0))       # []                                 起 >= 止时是空的</code></pre>
+
+<p><strong>实战：求 1 + 1/3 + 1/5 + … 前 n 项和（第2章-5）</strong></p>
+<pre><code># 写法A：用 2*i-1 造奇数
+s = 0
+for i in range(1, n+1):
+    s = s + 1/(2*i-1)
+
+# 写法B：range 直接生成奇数（更简洁）
+s = 0
+for i in range(1, 2*n, 2):
+    s = s + 1/i
+
+# n=5 时两种写法都得到 1.7873015873015872</code></pre>
+
+<h3>③ 格式化输出</h3>
+
+<pre><code>x = 5.3
+f"{x:.2f}"        # '5.30'        保留 2 位小数
+f"{x:.6f}"        # '5.300000'    保留 6 位
+f"{x:.1f}"        # '5.3'         保留 1 位
+f"{x:>9.3f}"      # '    5.300'   右对齐，总宽度 9
+
+s = 4040
+print(f"sum = {s}")            # sum = 4040
+print(f"sum = {s:.3f}")        # sum = 4040.000
+print(f"f(10.0) = {0.1:.1f}")  # f(10.0) = 0.1</code></pre>
+
+<p><strong>多个值输出（<code>sep</code> 是"之间"的分隔符）</strong></p>
+<pre><code>a, b, c = 1, 2, 3
+print(a, b, c)              # 1 2 3        默认空格分隔
+print(a, b, c, sep="->")    # 1->2->3
+print(a, b, c, sep="")      # 123
+print(a, b, c, sep=", ")    # 1, 2, 3
+
+# end 控制结尾（默认是换行）
+for i in [1, 2, 3]:
+    print(i, end=" ")       # 1 2 3 （全在同一行）
+print()                     # 手动换行</code></pre>
+
+<h3>④ 字符串 ↔ 数字 ↔ 进制</h3>
+
+<pre><code>str(45)              # '45'          数字 -> 字符串
+int("45")            # 45            字符串 -> 整数
+float("4.5")         # 4.5           字符串 -> 小数
+int(4.9)             # 4             小数 -> 整数（截断，不四舍五入！）
+int(-4.9)            # -4            负数是向 0 截断，不是 -5
+
+int("45", 8)         # 37            八进制的 45
+int("ff", 16)        # 255           十六进制
+int("100101", 2)     # 37            二进制
+int("z", 36)         # 35            36 进制也行
+
+oct(37)              # '0o45'        数字 -> 八进制字符串
+hex(255)             # '0xff'
+bin(37)              # '0b100101'
+
+"3" * 5              # '33333'       序列乘法：字符串重复
+"ab" * 3             # 'ababab'
+[0] * 3              # [0, 0, 0]     列表也能重复
+
+"".join(["1","2","3"])     # '123'        拼接（只能拼字符串）
+"->".join(["2","4","8"])   # '2->4->8'
+len("hello")               # 5            长度</code></pre>
+
+<div class="box warn">
+<strong>同一个数，不同写法：</strong>十进制 37 = 八进制 45 = 十六进制 25 = 二进制 100101。<br>
+进制只是写法，不是数字的属性。<code>int("45", 8)</code> 算出来就是一个普通的整数 37。
+</div>
+
+<h3>⑤ 条件判断与分段</h3>
+
+<pre><code># 链式比较（Python 特有，不用写 and）
+20 &lt;= m &lt;= 100          # 等价于 m &gt;= 20 and m &lt;= 100
+
+# 三分支
+if x &lt; 0:
+    print("负")
+elif x == 0:
+    print("零")
+else:
+    print("正")
+
+# 三元表达式（一行搞定 if-else）
+y = 0 if x == 0 else 1/x</code></pre>
+
+<p><strong>实战：阶梯电价（第2章-3）</strong></p>
+<pre><code>x = float(input())
+if x &lt; 0:
+    print("Invalid Value!")
+elif 0 &lt;= x &lt;= 50:
+    print(f"cost = {x*0.53:.2f}")
+else:
+    print(f"cost = {26.5 + (x-50)*0.58:.2f}")
+
+# 输入 10    输出 cost = 5.30
+# 输入 100   输出 cost = 55.50
+# 输入 50.5  输出 cost = 26.79
+# 输入 -5    输出 Invalid Value!</code></pre>
+
+<h3>⑥ 符号交替（交错序列）</h3>
+
+<pre><code># 第2章-6：1 - 2/3 + 3/5 - 4/7 + ...
+
+# 写法A：用幂
+s = 0
+for i in range(1, n+1):
+    s = s + i/(2*i-1) * (-1)**(i+1)
+# n=5 得到 0.9174603174603175  ->  f"{s:.3f}" = '0.917'
+
+# 写法B：翻转符号（更直白，不用算幂）
+sign = 1
+s = 0
+for i in range(1, n+1):
+    s = s + sign * i/(2*i-1)
+    sign = -sign
+# n=5 得到 0.9174603174603175  （和写法A一样）</code></pre>
+
+<div class="box bad">
+<strong>陷阱：</strong>写成 <code>-1**(i+1)</code>（漏括号）→ 结果<strong>永远是 −1</strong>，全错。<br>
+因为 <code>**</code> 的优先级<strong>高于</strong>一元负号：<code>-1**2</code> 被理解为 <code>-(1**2)</code> = −1。
+</div>
+
+<h3>⑦ 排序（第2章-9）</h3>
+
+<pre><code>nums = [4, 2, 8]
+sorted(nums)                     # [2, 4, 8]     返回新列表，原列表不变
+sorted(nums, reverse=True)       # [8, 4, 2]     降序
+max(nums)                        # 8
+min(nums)                        # 2
+len(nums)                        # 3</code></pre>
+
+<div class="box bad">
+<strong>⚠️ <code>sorted()</code> 和 <code>.sort()</code> 的区别：</strong><br>
+<code>b = sorted(a)</code> → b 是排好的<strong>新列表</strong>，a <strong>不变</strong><br>
+<code>b = a.sort()</code> → b 是 <strong>None</strong>，a <strong>被原地改掉</strong>（写成 print(a.sort()) 会输出 None）
+</div>
+
+<pre><code># 输出成 2->4->8（两种写法）
+print(*sorted(nums), sep="->")              # 2->4->8
+print("->".join(map(str, sorted(nums))))    # 2->4->8
+
+# ⚠️ 排序前一定要先转成 int！
+sorted("10 2 8".split())                    # ['10', '2', '8']  ← 字典序，错
+sorted(map(int, "10 2 8".split()))          # [2, 8, 10]        ← 数值序，对</code></pre>
+
+<p><strong>从大到小排（降序）—— 加一个 <code>reverse=True</code></strong></p>
+<pre><code>nums = [4, 2, 8]
+
+sorted(nums, reverse=True)                     # [8, 4, 2]    推荐写法
+sorted(nums)[::-1]                             # [8, 4, 2]    先升序再切片反转
+
+# 降序输出成 8->4->2
+print(*sorted(nums, reverse=True), sep="->")   # 8->4->2
+
+# 原地降序（⚠️ 返回值是 None）
+a = [4, 2, 8]
+a.sort(reverse=True)                           # a 变成 [8, 4, 2]
+
+# 自定义规则 + 降序：按分数从高到低
+scores = [("小明",85), ("小红",92), ("小刚",78)]
+sorted(scores, key=lambda x: x[1], reverse=True)
+# [('小红', 92), ('小明', 85), ('小刚', 78)]</code></pre>
+
+<div class="box warn">
+<strong>⚠️ <code>reverse=True</code> 和 <code>reversed()</code> 不是一回事：</strong><br>
+<code>sorted(x, reverse=True)</code> → <strong>排序</strong>后倒过来<br>
+<code>reversed(x)</code> → <strong>只把顺序倒过来</strong>，不排序<br>
+<code>reversed([3,1,2])</code> 得到 <code>[2,1,3]</code>（没排序！），别用错。
+</div>
+
+<h3>⑧ 累加与递推</h3>
+
+<pre><code># 连续求和（第2章-1）
+s = 0
+for i in range(11, m+1):
+    s = s + i
+# m=90 得到 4040
+
+# 构造重复数字：数学法（第2章-4）
+a, n = 2, 3
+t = 0
+s = 0
+for i in range(1, n+1):
+    t = t*10 + a        # 2 -> 22 -> 222
+    s = s + t           # 累计
+# 得到 246
+
+# 构造重复数字：字符串法（第2章-7）
+int(str(3) * 5)         # 33333
+int(str(9) * 10)        # 9999999999</code></pre>
+
+<hr>
+
+<h2 id="star">三、符号速查：* 和 []</h2>
+
+<h3>——— 第一部分：星号 <code>*</code> ———</h3>
+
+<div class="box ok">
+<strong>一句话核心：</strong><code>*</code> = <strong>摊开 / 收拢</strong>，方向取决于它站在哪一边。<br>
+在<strong>调用 / 取值</strong>的地方 → <strong>摊开</strong>（一个整体拆成多个）<br>
+在<strong>定义 / 赋值</strong>的地方 → <strong>收拢</strong>（多个装成一个）
+</div>
+
+<h3>① 调用时摊开（最常用）</h3>
+
+<pre><code>nums = [2, 4, 8]
+
+print(nums)              # [2, 4, 8]    传进去的是【1 个】列表
+print(*nums)             # 2 4 8        摊成【3 个】参数
+print(nums, sep="->")    # [2, 4, 8]    sep 没生效！
+print(*nums, sep="->")   # 2->4->8      ✅</code></pre>
+
+<div class="box warn">
+<strong>为什么 <code>print(nums, sep="->")</code> 不行：</strong><code>sep</code> 是"多个参数<strong>之间</strong>"的分隔符。只有 1 个参数时没有"之间"，用不上。<br>
+<strong>星号做的事</strong>：把 <code>[2, 4, 8]</code> 这个整体，摊成 <code>2</code>、<code>4</code>、<code>8</code> 三个独立参数。
+</div>
+
+<h3>② 定义函数时收拢：<code>*args</code></h3>
+
+<pre><code>def show(*args):
+    print(args)
+
+show(1)          # (1,)
+show(1, 2, 3)    # (1, 2, 3)
+show(*nums)      # (2, 4, 8)   传进去时摊开，函数里又收拢成元组</code></pre>
+
+<h3>③ 赋值时收拢：<code>a, *rest = ...</code></h3>
+
+<pre><code>a, *rest = [1, 2, 3, 4]
+# a = 1,  rest = [2, 3, 4]
+
+first, *mid, last = [1, 2, 3, 4, 5]
+# first = 1,  mid = [2, 3, 4],  last = 5</code></pre>
+
+<h3>④ 双星 <code>**</code> 是"字典版"</h3>
+
+<pre><code>def info(**kwargs):         # 收拢关键字参数成字典
+    print(kwargs)
+info(name="黄", age=18)      # {'name': '黄', 'age': 18}
+
+{**d1, **d2}                # 合并字典</code></pre>
+
+<h3>⑤ 别搞混：两个值"之间"的 <code>*</code> 是乘法</h3>
+
+<table>
+<tr><th>写法</th><th>结果</th><th>含义</th></tr>
+<tr><td><code>2 * 3</code></td><td><code>6</code></td><td>数字相乘</td></tr>
+<tr><td><code>'3' * 5</code></td><td><code>'33333'</code></td><td>字符串重复（第2章-7 用过）</td></tr>
+<tr><td><code>[0] * 3</code></td><td><code>[0, 0, 0]</code></td><td>列表重复</td></tr>
+<tr><td><code>2 ** 3</code></td><td><code>8</code></td><td>幂运算（双星）</td></tr>
+<tr><td><code>(-1) ** (i+1)</code></td><td>±1 交替</td><td>符号交替（第2章-6 用过）</td></tr>
+</table>
+
+<h3>一表总结</h3>
+
+<table>
+<tr><th>写在哪</th><th>例子</th><th>含义</th></tr>
+<tr><td>两个值中间</td><td><code>a * b</code></td><td>乘法 / 序列重复</td></tr>
+<tr><td><strong>函数调用里</strong></td><td><strong><code>f(*seq)</code></strong></td><td><strong>摊开成多个参数</strong></td></tr>
+<tr><td>函数定义里</td><td><code>def f(*args)</code></td><td>收拢成元组</td></tr>
+<tr><td>赋值左边</td><td><code>a, *rest = seq</code></td><td>收拢成列表</td></tr>
+<tr><td>两个值中间</td><td><code>a ** b</code></td><td>幂</td></tr>
+<tr><td>函数定义里</td><td><code>def f(**kw)</code></td><td>收拢成字典</td></tr>
+<tr><td>函数调用里</td><td><code>f(**d)</code></td><td>摊开字典成关键字参数</td></tr>
+</table>
+
+<div class="box ok">
+<strong>口诀：</strong>调用摊开，定义收拢；左边收拢，右边摊开。<strong>单星管序列，双星管字典。</strong>
+</div>
+
+<h3>——— 第二部分：中括号 <code>[]</code> ———</h3>
+
+<div class="box ok">
+<strong>三个身份：</strong><br>
+<code>[1, 2, 3]</code> → <strong>造一个列表</strong><br>
+<code>nums[0]</code> → <strong>索引</strong>：取出<strong>一个</strong>元素<br>
+<code>nums[1:3]</code> → <strong>切片</strong>：取出<strong>一段</strong><br>
+<strong>记忆：括号里是"内容" → 造列表；是"数字或冒号" → 取东西。</strong>
+</div>
+
+<h3>① 创建列表</h3>
+<pre><code>[1, 2, 3]                 # [1, 2, 3]
+[]                        # []              空列表
+[0] * 3                   # [0, 0, 0]       序列乘法
+list(range(5))            # [0, 1, 2, 3, 4]
+[x*2 for x in [1,2,3]]    # [2, 4, 6]       列表推导式</code></pre>
+
+<h3>② 索引：取【一个】元素</h3>
+<pre><code>nums = [10, 20, 30, 40, 50]
+nums[0]    # 10    第一个（从 0 开始数！）
+nums[2]    # 30
+nums[-1]   # 50    最后一个（负数从右边数）
+nums[-2]   # 40    倒数第二个
+
+"Python"[0]   # 'P'     字符串也能索引
+"Python"[-1]  # 'n'
+
+nums[10]      # IndexError: list index out of range   越界报错</code></pre>
+
+<h3>③ 切片：取【一段】 —— <code>[起:止:步长]</code>，左闭右开</h3>
+<pre><code>nums = [10, 20, 30, 40, 50]
+
+nums[1:3]    # [20, 30]             第1到第2个（不含3）
+nums[:2]     # [10, 20]             前两个（冒号前省略 = 从头）
+nums[2:]     # [30, 40, 50]         从第2个到末尾
+nums[:]      # [10,20,30,40,50]     全部（相当于复制一份）
+nums[::2]    # [10, 30, 50]         隔一个取一个（步长 2）
+nums[::-1]   # [50,40,30,20,10]     反转！
+
+"人生苦短，我学Python"[::-1]   # 'nohtyP学我，短苦生人'</code></pre>
+
+<div class="box ok">
+<strong><code>[::-1]</code> 你已经用过两次：</strong><br>
+第1章「逆序三位数」：<code>a[::-1]</code> 把 <code>"530"</code> 变成 <code>"035"</code><br>
+第2章-9 降序：<code>sorted(nums)[::-1]</code>
+</div>
+
+<h3>④ 修改元素</h3>
+<pre><code>a = [1, 2, 3]
+a[0] = 99         # a = [99, 2, 3]
+a[1:3] = [7, 8]   # a = [99, 7, 8]      切片也能赋值
+
+# ⚠️ 字符串不能改（不可变类型）
+s = "abc"
+s[0] = "X"        # TypeError: 'str' object does not support item assignment</code></pre>
+
+<h3>⑤ 字典也用中括号</h3>
+<pre><code>d = {"name": "hkh", "age": 18}
+d["name"]           # 'hkh'      索引 = 按键取值
+d["age"]            # 18
+d["city"] = "武汉"   # 新增 / 修改
+d.get("x", 0)       # 0            键不存在时返回默认值（不报错）
+
+d["x"]              # KeyError: 'x'   直接索引不存在的键会报错</code></pre>
+
+<h3>⑥ 三种括号的分工</h3>
+<table>
+<tr><th>括号</th><th>用途</th><th>例子</th></tr>
+<tr><td><code>()</code></td><td>元组 / <strong>函数调用</strong> / 分组</td><td><code>(1, 2)</code>、<code>print(1)</code>、<code>(1+2)*3</code></td></tr>
+<tr><td><strong><code>[]</code></strong></td><td><strong>列表 / 索引 / 切片 / 推导式</strong></td><td><code>[1,2]</code>、<code>nums[0]</code>、<code>nums[::-1]</code></td></tr>
+<tr><td><code>{}</code></td><td>字典 / 集合 / <strong>f-string 表达式</strong></td><td><code>{'a':1}</code>、<code>{1,2}</code>、<code>f"{x}"</code></td></tr>
+</table>
+
+<h3>⑦ 三个最容易错的点</h3>
+<div class="box bad">
+<strong>1. 从 0 开始数，不是从 1</strong><br>
+<code>[10, 20, 30]</code> 的下标是 <code>[0] [1] [2]</code> —— <strong>第一个是 <code>[0]</code></strong>。<br><br>
+<strong>2. 切片不含结尾</strong><br>
+<code>nums[1:3]</code> 得到 <code>[20, 30]</code>，<strong>不是</strong> <code>[20, 30, 40]</code>。<br><br>
+<strong>3. 索引和切片写法不同</strong><br>
+第 2 个元素 → <code>nums[1]</code>；前 2 个元素 → <code>nums[:2]</code>
+</div>
+
+<hr>
+
+<h2 id="err">四、报错速查表</h2>
+
+<table>
+<tr><th>报错</th><th>含义</th><th>怎么办</th></tr>
+<tr>
+  <td><code>SyntaxError</code></td>
+  <td><strong>语法错，程序一行都不跑</strong></td>
+  <td>先看有没有全角标点；看报错里的行号</td>
+</tr>
+<tr>
+  <td><code>invalid character '：' (U+FF1A)</code></td>
+  <td>全角标点</td>
+  <td>把 <code>：</code> 改成 <code>:</code></td>
+</tr>
+<tr>
+  <td><code>invalid literal for int() with base 10: 'a,n'</code></td>
+  <td>想转成整数，但它不是整数</td>
+  <td><strong>看单引号里的内容 —— 那就是程序实际读到的</strong></td>
+</tr>
+<tr>
+  <td><code>invalid literal for int() with base 10: '10.5'</code></td>
+  <td>输入是小数，却用了 <code>int()</code></td>
+  <td>改成 <code>float()</code></td>
+</tr>
+<tr>
+  <td><code>int() can't convert non-string with explicit base</code></td>
+  <td>带进制时第一个参数是整数</td>
+  <td>第一个参数保持字符串</td>
+</tr>
+<tr>
+  <td><code>'str' object cannot be interpreted as an integer</code></td>
+  <td>该给整数的地方给了字符串</td>
+  <td>比如 <code>int()</code> 的第二个参数要 <code>int(b)</code></td>
+</tr>
+<tr>
+  <td><code>'int' object is not callable</code></td>
+  <td>你把函数名当变量用了（如 <code>sum = 11</code>）</td>
+  <td>换个变量名</td>
+</tr>
+</table>
+
+<div class="box ok">
+<strong>关键区分：</strong><br>
+<code>SyntaxError</code> = <strong>语法错</strong>，程序根本没开始跑 → 改运行时逻辑没用！<br>
+<code>ValueError</code> / <code>TypeError</code> = <strong>运行时错</strong>，跑到那一行才崩。
+</div>
+
+<hr>
+
+<h2 id="rule">五、三条铁律</h2>
+
+<h3>1. 先看「输入格式」和「输出格式」，再动手写</h3>
+<p>分隔符、整数还是小数、要不要前缀、保留几位 —— <strong>全在这两栏里</strong>。<br>
+题面文字可能含糊（"一行输入两个数"），<strong>但样例不会含糊</strong>。</p>
+
+<h3>2. 交之前，本地跑四类数据</h3>
+<table>
+<tr><th>类别</th><th>举例</th></tr>
+<tr><td>样例</td><td>题目给的那组</td></tr>
+<tr><td>边界值</td><td>最小值、最大值、0、负数</td></tr>
+<tr><td><strong>小数</strong></td><td>最容易漏的一类（第2章-3 就栽在这）</td></tr>
+<tr><td>空输入 / 特殊格式</td><td>无输入、逗号分隔</td></tr>
+</table>
+
+<h3>3. 只在一处写代码</h3>
+<p>在 <strong>VS Code</strong> 里写、本地跑通、<strong>整段复制</strong>到 PTA 提交。<br>
+改了也只在 VS Code 改，再重新整段复制。</p>
+
+<div class="box warn">
+<strong>为什么要这样：</strong><br>
+① VS Code 会标红语法错误，PTA 编辑器不会<br>
+② 两边同时改，很容易出现"本地一份、提交另一份"，而且极难发现
+</div>
+
+<h2 id="review">六、真题回顾（12 题）</h2>
+
+<div class="box warn">
+<strong>说明：</strong>下面的题目要求是<strong>我按自己的理解概括写的</strong>，不是 PTA 原文。<br>
+这样做是为了以后万一要把笔记公开（比如放 GitHub），不会涉及别人的版权内容。<strong>你自己记笔记时也建议这么做。</strong>
+</div>
+
+<h3>1-1 从键盘输入两个数求和 <span class="tag">一次通过</span></h3>
+<p><strong>要求：</strong>读两个整数，输出它们的和。<br>
+<strong>输入：</strong>分两行，每行一个数 ｜ <strong>输出：</strong>一行，和值 ｜ <strong>样例：</strong><code>18</code>、<code>-48</code> → <code>-30</code></p>
+<p><strong>我的代码</strong></p>
+<pre><code>a=int(input(""))
+b=int(input(""))
+print(a+b)</code></pre>
+<div class="box ok">
+<strong>关键：</strong>题目写"在另<strong>一行</strong>中给出"，所以要写<strong>两次</strong> <code>input()</code>。<br>
+如果图省事写 <code>map(int, input().split())</code>，这题只读到第一行，会输出 <code>18</code> —— <strong>不报错，但答案错</strong>（这种"静默错误"最难查）。
+</div>
+<p><strong>可以更好：</strong><code>input("")</code> 里的空字符串是多余的，写 <code>input()</code> 就行。等号两边建议加空格。</p>
+
+<h3>1-2 按公式输出 b²−4ac <span class="tag">一次通过</span></h3>
+<p><strong>要求：</strong>读三个数 a、b、c，输出 <code>b*b-4*a*c</code>。<br>
+<strong>输入：</strong>一行，空格分隔 ｜ <strong>输出：</strong>一行数值 ｜ <strong>样例：</strong><code>3 4 5</code> → <code>-44</code></p>
+<p><strong>我的代码</strong></p>
+<pre><code>a,b,c=map(int,input().split())
+print(b*b-4*a*c)</code></pre>
+<div class="box ok">
+<strong>关键：</strong>这题和 1-1 的输入格式<strong>相反</strong>（一行空格分隔），所以写法也要换。<br>
+<strong>同一个"读两个数"，格式不同写法就不同 —— 读题比会写更重要。</strong>
+</div>
+
+<h3>1-3 输出固定字符串 <span class="tag">一次通过</span></h3>
+<p><strong>要求：</strong>无输入，直接输出一行文字。<br>
+<strong>输出：</strong><code>人生苦短，我学Python</code></p>
+<p><strong>我的代码</strong></p>
+<pre><code>print("人生苦短，我学Python")</code></pre>
+<div class="box ok">
+<strong>关键：</strong>描述栏写"无"，输入样例是空的 → <strong>绝对不要写 <code>input()</code></strong>。<br>
+没有输入时调用 <code>input()</code> 会直接崩：<code>EOFError: EOF when reading a line</code>。
+</div>
+
+<h3>2-1 计算 11+12+13+…+m <span class="tag">卡了两轮</span></h3>
+<p><strong>要求：</strong>从 11 累加到 m。<br>
+<strong>输入：</strong>一个正整数 m（20 ≤ m ≤ 100）｜ <strong>输出：</strong><code>sum = S</code> ｜ <strong>样例：</strong><code>90</code> → <code>sum = 4040</code></p>
+<p><strong>我的第一版（错）</strong> —— <code>print</code> 在循环里，输出 79 行</p>
+<pre><code>for i in range(12,m+1):
+   sum=sum+i
+   print(sum)        # ← 缩进 3 格，和循环体对齐 = 在循环里</code></pre>
+<p><strong>最终版（通过）</strong></p>
+<pre><code>m=int(input())
+sum=11
+if 20&lt;=m&lt;=100:
+   for i in range(12,m+1):
+      sum=sum+i
+print("sum =",sum)</code></pre>
+<div class="box ok">
+<strong>两处关键：</strong><br>
+① <code>print</code> 要<strong>移出循环</strong>（缩进回到 0）<br>
+② 输出要有 <code>sum = </code> 前缀 —— 只输出数字会判"答案错误"
+</div>
+<p><strong>可以更好：</strong>去掉 <code>if</code>（题目保证了范围）；变量名 <code>sum</code> 改成 <code>s</code>（别盖掉内置函数）；缩进统一 4 格。</p>
+
+<h3>2-2 计算分段函数[1] <span class="tag">一次通过</span></h3>
+<p><strong>要求：</strong>x ≠ 0 时输出 1/x，x = 0 时输出 0。<br>
+<strong>输入：</strong>一个实数 x ｜ <strong>输出：</strong><code>f(x) = result</code>，x 和 result <strong>都保留一位小数</strong> ｜ <strong>样例：</strong><code>10</code> → <code>f(10.0) = 0.1</code>，<code>0</code> → <code>f(0.0) = 0.0</code></p>
+<p><strong>我的代码</strong></p>
+<pre><code>x=float(input())
+if x==0:
+    print(f"f(0.0) = 0.0")
+else:
+    print(f"f({x:.1f}) = {1/x:.1f}")</code></pre>
+<div class="box ok">
+<strong>关键：</strong>输出里的 <code>f(10.0)</code> 中，<code>10.0</code> 是<strong>输入的那个值</strong>，不是字母 x。很多人会直接打印 <code>f(x)</code>。
+</div>
+<p><strong>可以更好：</strong>先把结果算出来，最后只 <code>print</code> 一次 —— 格式串就不用写两遍：</p>
+<pre><code>x = float(input())
+y = 0 if x == 0 else 1 / x
+print(f"f({x:.1f}) = {y:.1f}")</code></pre>
+
+<h3>2-3 阶梯电价 <span class="tag">踩了两个坑</span></h3>
+<p><strong>要求：</strong>用电量 50 度以内按 0.53 元/度，超出部分按 0.58 元/度；用电量为负则输出 <code>Invalid Value!</code><br>
+<strong>输入：</strong>一行一个用电量 ｜ <strong>输出：</strong><code>cost = 金额</code>（两位小数）｜ <strong>样例：</strong><code>10</code> → <code>cost = 5.30</code>，<code>100</code> → <code>cost = 55.50</code></p>
+<p><strong>我踩的两个坑</strong></p>
+<pre><code>x=int(input())        # ❌ 坑1：用的是 int
+if x&lt;0:
+    print("Invalid Value!")
+elif 0&lt;=x&lt;=50:
+    print(f"cost = {x*0.53:.2f}")
+else：                 # ❌ 坑2：这是【全角冒号】
+    print(f"cost = {26.5+(x-50)*0.58:.2f}")</code></pre>
+<p><strong>最终版（通过）</strong></p>
+<pre><code>x=float(input())
+if x&lt;0:
+    print("Invalid Value!")
+elif 0&lt;=x&lt;=50:
+    print(f"cost = {x*0.53:.2f}")
+else:
+    print(f"cost = {26.5+(x-50)*0.58:.2f}")</code></pre>
+<div class="box bad">
+<strong>坑1 —— int vs float：</strong>题目只说"用电量"，没说是整数。测试数据有 <code>50.5</code> 这种小数，<code>int("50.5")</code> 直接崩。<br>
+<strong>坑2 —— 全角冒号：</strong>报错是 <code>SyntaxError: invalid character '：' (U+FF1A)</code>。<br>
+<strong>注意：SyntaxError 是语法错，程序一行都不会跑</strong> —— 所以当时把 int 改成 float 完全没用，因为程序根本没跑到那一行。
+</div>
+
+<h3>2-4 特殊 a 串数列求和 <span class="tag">卡最久的一题</span></h3>
+<p><strong>要求：</strong>求 a + aa + aaa + …（共 n 项，每项比前一项多一个 a）的和。<br>
+<strong>输入：</strong>一行 a 和 n ｜ <strong>输出：</strong><code>s = S</code> ｜ <strong>样例：</strong><code>2 3</code> → <code>s = 246</code></p>
+<p><strong>我的代码（通过）</strong></p>
+<pre><code>a,n=map(int,input().split())
+if 1&lt;=a&lt;=9 and 1&lt;=n&lt;=9:
+    s=0
+    for i in range(1,n+1):
+       s=s+int(str(a)*i)
+print(f"s = {s}")</code></pre>
+<div class="box ok">
+<strong>这题的核心是「串接」，不是「幂」：</strong><br>
+<code>aa</code> 在数学排版里是 a×a，容易读成次幂。但样例 <code>246</code> 只有 <code>2 + 22 + 222</code> 能算出来（<code>2 + 4 + 8 = 14</code>）。<br>
+<strong>描述有歧义时，用样例验算 —— 样例是出题人给的确定信息。</strong>
+</div>
+<p><strong>两层结构（容易混）：</strong></p>
+<table>
+<tr><th>层次</th><th>做什么</th><th>结果</th></tr>
+<tr><td>第一层：构造每一项</td><td>把 a <strong>串接</strong> i 次</td><td><code>int(str(a)*i)</code> → 2、22、222</td></tr>
+<tr><td>第二层：汇总</td><td>把各项<strong>相加</strong></td><td>2 + 22 + 222 = <strong>246</strong></td></tr>
+</table>
+<p><strong>不用字符串的写法（数学法）：</strong></p>
+<pre><code>t = 0
+for i in range(1, n+1):
+    t = t*10 + a      # 2 -> 22 -> 222
+    s = s + t</code></pre>
+<p><strong>可以更好：</strong>去掉 <code>if</code>；缩进统一 4 格。</p>
+
+<h3>2-5 求奇数分之一序列前N项和 <span class="tag">一次通过</span></h3>
+<p><strong>要求：</strong>求 1 + 1/3 + 1/5 + … 前 N 项之和。<br>
+<strong>输入：</strong>正整数 N ｜ <strong>输出：</strong><code>sum = S</code>（6 位小数）｜ <strong>样例：</strong><code>23</code> → <code>sum = 2.549541</code></p>
+<p><strong>我的代码</strong></p>
+<pre><code>N=int(input())
+sum=0
+for i in range(1,N+1):
+    sum=sum+1/(2*i-1)
+print(f"sum = {sum:.6f}")</code></pre>
+<div class="box ok">
+<strong>关键：</strong><code>2*i-1</code> 生成 1、3、5、7…（i = 1,2,3,4 时）。<br>
+<strong>这题的输出有 <code>sum = </code> 前缀</strong> —— 记住，下一题就没有了。
+</div>
+<p><strong>可以更好：</strong><code>range(1, 2*N, 2)</code> 直接生成奇数，连 <code>2*i-1</code> 都不用算；变量名 <code>sum</code> 改成 <code>s</code>。</p>
+
+<h3>2-6 求交错序列前N项和 <span class="tag">一次通过</span></h3>
+<p><strong>要求：</strong>求 1 − 2/3 + 3/5 − 4/7 + … 前 N 项之和。<br>
+<strong>输入：</strong>正整数 N ｜ <strong>输出：</strong><strong>只输出数值</strong>（<strong>无前缀</strong>），3 位小数 ｜ <strong>样例：</strong><code>5</code> → <code>0.917</code></p>
+<p><strong>我的代码</strong></p>
+<pre><code>N=int(input())
+sum=0
+for i in range(1,N+1):
+    sum=sum+i/(2*i-1)*(-1)**(i+1)
+print(f"{sum:.3f}")</code></pre>
+<div class="box ok">
+<strong>两处关键：</strong><br>
+① <strong>输出格式和 2-5 不一样</strong> —— 这题<strong>没有</strong> <code>sum = </code> 前缀。<strong>别惯性照抄上一题。</strong><br>
+② <code>(-1)**(i+1)</code> 的<strong>括号必须有</strong>。漏掉写成 <code>-1**(i+1)</code>，因为 <code>**</code> 优先级高于一元负号，结果<strong>永远是 −1</strong>，全错。
+</div>
+<p><strong>另一种写法（翻转符号，不用幂）：</strong></p>
+<pre><code>sign = 1
+for i in range(1, n+1):
+    s = s + sign * i/(2*i-1)
+    sign = -sign</code></pre>
+
+<h3>2-7 产生每位数字相同的 n 位数 <span class="tag">一次通过</span></h3>
+<p><strong>要求：</strong>输入一个数字 A 和一个位数 B，输出由 B 个 A 组成的数。<br>
+<strong>输入：</strong>一行 <code>A,B</code>（<strong>逗号分隔</strong>，实测确认）｜ <strong>输出：</strong>该数 ｜ <strong>例：</strong>A=3、B=5 → <code>33333</code></p>
+<p><strong>我的代码</strong></p>
+<pre><code>A,  B=map(int,input().split(","))
+if 1&lt;=A&lt;=9 and 1&lt;=B&lt;=10:
+    s=int(str(A)*B)
+print(f"{s}")</code></pre>
+<div class="box ok">
+<strong>关键：</strong><code>str(A) * B</code> —— <strong>序列乘法</strong>。字符串乘几就重复几次：<code>"3" * 5</code> → <code>"33333"</code>。<br>
+再用 <code>int()</code> 转回数字。<br>
+<strong>这题输入是逗号分隔</strong>（和 2-8 一样）—— 看样例，别看题面文字。
+</div>
+<p><strong>可以更好：</strong>去掉 <code>if</code>；<code>A,  B</code> 中间的两个空格收成一个。</p>
+
+<h3>2-8 转换函数使用 <span class="tag">卡了一轮</span></h3>
+<p><strong>要求：</strong>输入一个"某进制下的数字"和那个进制，输出它的十进制值。<br>
+<strong>输入：</strong>一行 <code>数字,进制</code>（逗号分隔）｜ <strong>输出：</strong>十进制数值 ｜ <strong>样例：</strong><code>45,8</code> → <code>37</code></p>
+<p><strong>我的第一版（三个问题）</strong></p>
+<pre><code>a,b=map(int,input().split(","))
+if b==2:
+    c=int('a',b)        # 问题1：引号；问题2：a 被 map 转成了整数
+    print(f"{c}")
+if b==8:
+    c=int('a',b)        # 问题3：三个 if 是多余的
+    print(f"{c}")
+if b==16:
+    c=int('a',b)
+    print(f"{c}")</code></pre>
+<p><strong>最终版（通过，30/30）</strong></p>
+<pre><code>a,b=input().split(",")
+b=int(b)
+c=int(a,b)
+print(f"{c}")</code></pre>
+<p><strong>还能更短：</strong></p>
+<pre><code>a, b = input().split(",")
+print(int(a, int(b)))</code></pre>
+<div class="box bad">
+<strong>三个问题分别是：</strong><br>
+① <strong>引号</strong>：<code>'a'</code> 是字母 a，不是变量 <code>a</code>。变量不加引号。<br>
+② <code>map(int, ...)</code> 把 <code>a</code> 也转成了整数，但 <code>int(字符串, 进制)</code> 要求第一个参数<strong>必须是字符串</strong> → <code>TypeError</code>。<br>
+③ <strong>三个 <code>if</code> 多余</strong>：<code>int(a, b)</code> 对 2～36 任何进制都管用。而且原来只写了 2/8/16，如果 b=7 就什么都不输出。
+</div>
+<div class="box ok">
+<strong>题目名就是提示：</strong>「转换函数使用」= 用内置函数 <code>int(字符串, 进制)</code>。<br>
+<strong>同一个数，不同写法：</strong>十进制 37 = 八进制 45 = 十六进制 25 = 二进制 100101。进制只是写法，不是数字的属性。
+</div>
+
+<h3>2-9 比较大小 <span class="tag">通过 10/10</span></h3>
+<p><strong>要求：</strong>把输入的三个整数从小到大输出，用 <code>-&gt;</code> 连接。<br>
+<strong>输入：</strong>一行，空格分隔 ｜ <strong>输出：</strong><code>2-&gt;4-&gt;8</code> 这种形式</p>
+<p><strong>我的代码（部分正确）</strong></p>
+<pre><code>nums=map(str,input().split())
+print(*sorted(nums),sep='->')</code></pre>
+<p><strong>改成数字排序（通过）</strong></p>
+<pre><code>print(*sorted(map(int, input().split())), sep="->")</code></pre>
+<div class="box bad">
+<strong>挂在哪：</strong><code>map(str, ...)</code> 让 <code>sorted()</code> 按<strong>字典序</strong>排，不是按数值。<br>
+单个数位时两种排序结果相同，所以样例级测试点过了；<strong>一旦出现多位数就错</strong>：<br>
+<code>10 2 8</code> → <code>10-&gt;2-&gt;8</code>（应为 <code>2-&gt;8-&gt;10</code>）
+</div>
+<div class="box ok">
+<strong>这题的两个要点：</strong><br>
+① 名字叫"比较大小"，但正确做法不是"比较"，而是<strong>排序</strong>（<code>sorted()</code> 一行搞定）。<br>
+② 分支结构（if/else）要到教材第 3 章才教 —— 这题在第 2 章，<strong>说明它本来就设计成不用 if 的解法。</strong>
+</div>
+
+<footer>
+整理自 2026-10 的实战记录 ｜ 每一条都来自真实踩过的坑
+</footer>
+
+<button id="totop" onclick="go('toc')">↑ 回目录</button>
+
+<script>
+/* 手机浏览器对本地文件的 #锚点 支持不好，改用 JS 滚动定位 */
+function go(id){
+  var el = document.getElementById(id);
+  if(!el){ return false; }
+  try{
+    el.scrollIntoView({behavior:'smooth', block:'start'});
+  }catch(e){
+    el.scrollIntoView(true);          /* 老浏览器兜底 */
+  }
+  return false;                       /* 阻止默认的 #锚点 跳转 */
+}
+
+/* 滚过一屏后显示「回目录」按钮 */
+function onScroll(){
+  var b = document.getElementById('totop');
+  if(!b){ return; }
+  var y = window.pageYOffset || document.documentElement.scrollTop || 0;
+  b.style.display = (y > 400) ? 'block' : 'none';
+}
+window.addEventListener('scroll', onScroll, false);
+window.addEventListener('touchmove', onScroll, false);
+onScroll();
+</script>
+
+</body>
+</html>
