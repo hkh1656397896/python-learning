@@ -109,7 +109,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>二、常用代码与拓展 <span class="toc-n" id="cs">18</span></summary>
+    <summary>二、常用代码与拓展 <span class="toc-n" id="cs">19</span></summary>
     <ol>
       <li><a onclick="return go('s1-1')">① 读一行数字</a></li>
       <li><a onclick="return go('s1-2')">② range()：生成数字序列</a></li>
@@ -129,6 +129,7 @@
       <li><a onclick="return go('s1-16')">⑯ 两个实用套路：检查「全是数字」+ 循环外判断「全部合格」</a></li>
       <li><a onclick="return go('s1-17')">⑰ 切片 vs range：取一段内容，还是造一串序号</a></li>
       <li><a onclick="return go('s1-18')">⑱ 字符串清理：strip / lstrip / rstrip</a></li>
+      <li><a onclick="return go('s1-19')">⑲ continue：这一轮到此为止（含卫语句写法）</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -1737,6 +1738,111 @@ s[17] = '6'      &lt;- 第 18 位，正确
 s[-1] = ' '      &lt;- 最后一个字符是空格！</code></pre>
 用 <code>s[-1]</code> 取校验码时，一个尾随空格就能让所有号码判错。<br>
 <strong>读输入的标准写法：<code>s = input().strip()</code></strong>
+</div>
+
+<h3 id="s1-19">⑲ continue：这一轮到此为止（含卫语句写法）</h3>
+
+<pre><code>for x in [1, 2, 3, 4, 5]:
+    if x == 3:
+        continue          # &lt;- 碰到它就跳回循环开头
+    print(x)
+# 输出: 1 2 4 5</code></pre>
+
+<div class="box warn">
+<strong><code>continue</code> 丢掉的是「本轮剩下的语句」，不是循环本身。</strong>
+<pre><code>第1轮开始 / 第1轮结尾 / 第1轮最后一行
+第2轮开始 / 第2轮结尾 / 第2轮最后一行
+第3轮开始 / 第3轮遇到 continue -&gt; 后面的全部跳过    &lt;- 只到这
+第4轮开始 / 第4轮结尾 / 第4轮最后一行               &lt;- 循环没结束！
+第5轮开始 / 第5轮结尾 / 第5轮最后一行</code></pre>
+</div>
+
+<div class="box bad">
+<strong>和 <code>break</code> 的对照（最容易混的一对）：</strong>
+<pre><code>if x == 3: continue      # -&gt;  1 2 4 5      这一轮不干了，循环继续
+if x == 3: break         # -&gt;  1 2          整个循环不干了，后面全不跑</code></pre>
+<strong>一句话：<code>continue</code> 管「这一轮」，<code>break</code> 管「整个循环」。</strong>
+</div>
+
+<p><strong>为什么第3章-2 里它是关键 —— 不用它会怎样：</strong></p>
+<pre><code>if v[:17].isdigit():
+    # 校验码计算（缩进 8 格）
+    ...
+    if M[Z] != v[17]:
+        print(v)          # &lt;- 这一对
+        bad += 1          # &lt;- 出现第 1 次
+else:
+    print(v)              # &lt;- 又出现一次
+    bad += 1              # &lt;- 又出现一次</code></pre>
+<p>两个毛病：① 缩进多一层；② <strong><code>print(v)</code> 和 <code>bad += 1</code> 写了两遍</strong>
+（以后改一处忘了另一处就是 bug）。</p>
+
+<pre><code>if not v[:17].isdigit():
+    print(v)              # &lt;- 只出现这一次
+    bad += 1
+    continue              # &lt;- 剩下的不用管
+
+# 校验码计算（缩进 4 格，不用再套一层 if）
+...
+if M[Z] != v[17]:
+    print(v)              # &lt;- 复用同一对
+    bad += 1</code></pre>
+<p><strong>两种写法实测在两个样例上输出完全相同</strong> —— 所以 <code>continue</code> 不是为了「能跑通」，
+而是为了<strong>更安全、更易读</strong>。</p>
+
+<div class="box ok">
+<strong>它在这题做了两件事：</strong><br>
+<strong>① 防崩溃</strong> —— 格式非法的号码被挡在门外，永远走不到 <code>int('X')</code><br>
+<strong>② 结构扁平 + 不重复</strong> —— 校验码不用再套一层 <code>if</code>，<code>print/bad</code> 只写一遍<br>
+<strong>没有第 ① 条程序直接崩；没有第 ② 条代码能跑但很脆。</strong>
+</div>
+
+<p><strong>这个模式有名字：卫语句（guard clause）</strong></p>
+<div class="box ok">
+<strong>先处理「不合格 / 特殊」的情况，处理完立刻 <code>continue</code>（或 <code>return</code>），
+把正常流程留在最外层。</strong>
+<pre><code>if 不合格:
+    处理
+    continue        # &lt;- 卫兵把不合格的挡在门外
+
+# 下面才是「正常情况」的代码，不用再套一层 if</code></pre>
+<strong>把嵌套压平：</strong>
+<pre><code>【嵌套写法】                    【卫语句写法】
+if 条件1:                       if not 条件1:
+    if 条件2:                       处理1
+        if 条件3:                   continue
+            真正要做的           if not 条件2:
+        else:                       处理2
+            处理3                   continue
+    else:                        if not 条件3:
+        处理2                       处理3
+else:                               continue
+    处理1                       真正要做的</code></pre>
+<strong>3 层嵌套压成 1 层，而且不用写 <code>else</code>。</strong>
+</div>
+
+<div class="box bad">
+<strong>四个常见错误（都实测过）：</strong><br>
+① <strong>写在循环外面</strong> → <code>SyntaxError: 'continue' not properly in loop</code><br>
+② <strong>写在 <code>continue</code> 后面的代码</strong> → <strong>永不执行</strong>，但 Python <strong>不报错</strong>（白写）<br>
+③ <strong><code>while</code> 里跳过了「改变条件」那一步</strong> → <strong>死循环</strong>：
+<pre><code>i = 0
+while i &lt; 3:
+    if i == 1:
+        continue     # ❌ i 永远不增加 -&gt; 死循环
+    i += 1
+
+# ✅ 正确：把 i += 1 放在 continue 之前
+i = 0
+while i &lt; 3:
+    i += 1           # 先加，再判断
+    if i == 2:
+        continue
+    print(i)
+# 输出: 1 / 3 / 结束</code></pre>
+④ <strong>嵌套循环里以为能跳外层</strong> → 只跳<strong>当前这一层</strong>，外层照跑<br>
+<code>for i in [1,2]: for j in [10,20,30]: if j==20: continue</code> →
+输出 <code>1 10 / 1 30 / 2 10 / 2 30</code>（外层两轮都跑了）
 </div>
 
 <h2 id="star">三、符号速查：* 和 []</h2>
