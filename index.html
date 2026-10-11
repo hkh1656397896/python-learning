@@ -333,6 +333,32 @@ print(f"sum = {s}")            # sum = 4040
 print(f"sum = {s:.3f}")        # sum = 4040.000
 print(f"f(10.0) = {0.1:.1f}")  # f(10.0) = 0.1</code></pre>
 
+<p><strong>对齐（第2章-10 用过）</strong></p>
+<pre><code>c = 0.0
+
+f"{c:&gt;6.1f}"    # '   0.0'    右对齐，总宽度 6
+f"{c:&lt;6.1f}"    # '0.0   '    左对齐
+f"{c:^6.1f}"    # ' 0.0  '    居中
+f"{c:06.1f}"    # '0000.0'    补零
+f"{c:6.1f}"     # '   0.0'    不写符号 = 右对齐（数字默认右边）
+
+# 宽度 = 整个数字占几个字符位
+v = -17.2
+f"{v:&gt;6.1f}"    # ' -17.2'    总长 6
+f"{v:&gt;8.1f}"    # '   -17.2'  总长 8
+
+# 宽度不够会自动撑开，不会截断
+big = 1234.5
+f"{big:&gt;6.1f}"  # '1234.5'    正好 6 位
+f"{big:&gt;8.1f}"  # '  1234.5'  补到 8 位</code></pre>
+
+<div class="box ok">
+<strong>第2章-10 的实际用法：</strong><br>
+<code>print(f"{F}{C:&gt;6.1f}")</code> —— F 直接拼上，C 占 6 位右对齐：<br>
+<code>F=32</code> → <code>'32   0.0'</code>　　<code>F=100</code> → <code>'100  37.8'</code><br>
+<strong>这样小数点能对齐，表格才好看。</strong>
+</div>
+
 <p><strong>多个值输出（<code>sep</code> 是"之间"的分隔符）</strong></p>
 <pre><code>a, b, c = 1, 2, 3
 print(a, b, c)              # 1 2 3        默认空格分隔
@@ -967,6 +993,49 @@ print(*sorted(nums),sep='->')</code></pre>
 <strong>这题的两个要点：</strong><br>
 ① 名字叫"比较大小"，但正确做法不是"比较"，而是<strong>排序</strong>（<code>sorted()</code> 一行搞定）。<br>
 ② 分支结构（if/else）要到教材第 3 章才教 —— 这题在第 2 章，<strong>说明它本来就设计成不用 if 的解法。</strong>
+</div>
+
+<h3>2-10 输出华氏-摄氏温度转换表 <span class="tag">通过 15/15</span></h3>
+<p><strong>要求：</strong>输入两个整数 <code>lower</code> 和 <code>upper</code>，输出华氏-摄氏温度转换表：华氏温度从 <code>lower</code> 到 <code>upper</code>，<strong>每次增加 2℉</strong>，每行一个华氏温度 + 对应的摄氏温度。表头是 <code>fahr celsius</code>。<br>
+公式：<code>C = 5 × (F − 32) / 9</code>，摄氏温度<strong>保留一位小数、宽度 6、右对齐</strong>。<br>
+<strong>输入：</strong><code>32 35</code> ｜ <strong>我的代码实测输出</strong>（已逐字符核对）：</p>
+<pre><code>fahr celsius
+32   0.0
+34   1.1</code></pre>
+<p><strong>我的代码（一次通过，这题是我自己写的）</strong></p>
+<pre><code>lower,upper=map(int,input().split())
+F=lower
+if 1&lt;=lower&lt;=upper&lt;=100:
+    print("fahr celsius")
+    for i in range(0,upper-lower+1,2):
+        F=lower+i
+        C=5*(F-32)/9
+        print(f"{F}{C:&gt;6.1f}")
+else:
+    print("Invalid.")</code></pre>
+<div class="box ok">
+<strong>这题的三个要点：</strong><br>
+① <strong>表头是输出的一部分</strong> —— <code>"fahr celsius"</code> 要自己打出来，不是评测系统给的。漏了整道题就没法过。<br>
+② <strong>步长 2 换个写法更省事：</strong>不写 <code>range(lower, upper+1, 2)</code> 而是 <code>range(0, upper-lower+1, 2)</code>，再用 <code>F=lower+i</code> 还原。<br>
+两者等价，但第二种把"需要循环多少次"和"温度是多少"分开了。<br>
+③ <strong>宽度 6 右对齐就是 <code>:&gt;6.1f</code></strong> —— <code>&gt;</code> 右对齐、<code>6</code> 总宽 6 格、<code>.1f</code> 一位小数。宽度含小数点，所以 <code>1.1</code> 前面会补 3 个空格（实测 <code>f"{1.1:&gt;6.1f}"</code> → <code>"   1.1"</code>）。
+</div>
+<div class="box bad">
+<strong>一个我没发现、但测试点也没抓到的漏洞：</strong><br>
+<code>f"{F}{C:&gt;6.1f}"</code> 里 <code>F</code> <strong>没有指定宽度</strong>，所以两列只在"华氏温度都是两位数"时才对齐。<br>
+实测 <code>lower=1</code> 的情况：<br>
+<pre><code>1 -17.2
+3 -16.1
+5 -15.0</code></pre>
+对比 <code>32 35</code> 的 <code>32   0.0</code> —— 摄氏温度那列没对齐了。<br>
+<strong>但这题我拿了 15/15</strong>，说明测试点里 <code>lower</code> 都是两位数，这个错位从没被触发。<br>
+<strong>教训：</strong>"通过" ≠ "正确"。评测只覆盖它想到的情况，自己多想一步边界（比如最小的输入、1 位数）才叫真做对。
+</div>
+<div class="box ok">
+<strong>这题的范围校验</strong><br>
+题目给了 <code>1 ≤ lower ≤ upper ≤ 100</code> 这个范围，所以我在前面加了 <code>if 1&lt;=lower&lt;=upper&lt;=100</code>，不合法就输出 <code>Invalid.</code>。<br>
+实测 <code>0 10</code> 和 <code>50 40</code>（lower 比 upper 大）都走 <code>Invalid.</code> 分支。<br>
+<strong>看到题目给了范围，就顺手想一下：范围外怎么办？</strong>
 </div>
 
 <footer>
