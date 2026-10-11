@@ -1996,6 +1996,53 @@ d["x"]              # KeyError: 'x'   直接索引不存在的键会报错</code
 <tr><td><code>{}</code></td><td>字典 / 集合 / <strong>f-string 表达式</strong></td><td><code>{'a':1}</code>、<code>{1,2}</code>、<code>f"{x}"</code></td></tr>
 </table>
 
+<p><strong><code>[]</code> 其实有【四种】完全不同的身份，靠「位置」区分：</strong></p>
+<pre><code>① 建列表         nums = [1, 2, 3]
+                         ^ 单独出现在等号右边
+
+② 取一个元素     nums[0]     v[17]     M[Z]
+                      ^ 紧跟在「东西」后面
+
+③ 取一段（切片） nums[:2]    v[:17]    nums[1:4]
+                      ^ 中括号里有冒号
+
+④ 列表推导式     [x * 2 for x in nums]
+                   ^ 中括号里有 for</code></pre>
+
+<table>
+<tr><th>身份</th><th>必须用 <code>[]</code> 吗</th><th>说明</th></tr>
+<tr><td>② 索引</td><td><strong>必须</strong></td><td>唯一的「取一个」语法，没有替代</td></tr>
+<tr><td>③ 切片</td><td><strong>必须</strong></td><td>唯一的「取一段」语法</td></tr>
+<tr><td>④ 推导式</td><td><strong>必须</strong></td><td>用 <code>()</code> 会变成<strong>生成器</strong>（一次性、不能 <code>len</code>/切片，见 ⑫）</td></tr>
+<tr><td>① 建列表</td><td><strong>不必须</strong></td><td>元组、<code>list()</code> 都行，见下</td></tr>
+</table>
+
+<div class="box ok">
+<strong>「建一个列表」其实有三种写法，查表结果完全一样：</strong>
+<pre><code>m = ['1','0','X','9','8','7','6','5','4','3','2']   # 列表（推荐）
+m = '1','0','X','9','8','7','6','5','4','3','2'     # 元组（不加括号也行）
+m = list('10X98765432')                             # 用 list() 拆字符串</code></pre>
+实测三种写法 <code>m[Z]</code> 在 Z=0~10 上<strong>结果全部相同</strong>。<br>
+<strong>那为什么还推荐 <code>[]</code>？</strong>
+① 一眼看出「一串东西」，可读性最好　② 列表能改（<code>append</code>/<code>pop</code>），元组不能<br>
+③ 元组只有一个元素时要写 <code>('a',)</code> —— <strong>那个逗号很容易漏</strong>：
+<pre><code>列表   ['a']    -&gt; ['a']       长度 1
+元组   ('a')    -&gt; 'a'         ★ 类型是 str，根本不是元组！
+元组   ('a',)   -&gt; ('a',)      类型 tuple</code></pre>
+</div>
+
+<div class="box warn">
+<strong>第3章-2 里 <code>[]</code> 的每一处都在干什么：</strong>
+<pre><code>if not v[:17].isdigit():          # ③ 切片
+V=[int(v[j]) for j in range(17)]  # ④ 推导式（里面还有 ② 索引 v[j]）
+w=[7,9,10,5,8,4,2,1,6,3,7,9,10,5,8,4,2]   # ① 建列表
+weighted_sum=sum(V[j]*w[j] for j in range(17))   # ② 索引 V[j]、w[j]
+M=['1','0','X','9','8','7','6','5','4','3','2']  # ① 建列表
+m=M[Z]                            # ② 索引
+if m!=v[17]:                      # ② 索引</code></pre>
+<strong>其中只有 ②③④ 是必须用 <code>[]</code> 的</strong>，三处 <code>①</code> 换个写法也能跑。
+</div>
+
 <h3 id="star-15">⑦ 三个最容易错的点</h3>
 <div class="box bad">
 <strong>1. 从 0 开始数，不是从 1</strong><br>
