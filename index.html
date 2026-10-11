@@ -64,7 +64,7 @@
   <strong>目录</strong>　<span style="font-size:12px;color:#656d76">（点一下直接跳）</span>
   <ol>
     <li><a href="#e1" onclick="return go('e1')">易错点（<span id="ce">10</span> 条）</a></li>
-    <li><a href="#s1" onclick="return go('s1')">常用代码与拓展（<span id="cs">8</span> 类）</a></li>
+    <li><a href="#s1" onclick="return go('s1')">常用代码与拓展（<span id="cs">9</span> 类）</a></li>
     <li><a href="#star" onclick="return go('star')">符号速查：* 和 []</a></li>
     <li><a href="#err" onclick="return go('err')">报错速查表</a></li>
     <li><a href="#rule" onclick="return go('rule')">三条铁律</a></li>
@@ -442,6 +442,36 @@ for i in [1, 2, 3]:
     print(i, end=" ")       # 1 2 3 （全在同一行）
 print()                     # 手动换行</code></pre>
 
+<p><strong>整数宽度与更多格式符（第2章-14 要用 <code>:5d</code>）</strong></p>
+<pre><code>n = 42
+
+f"{n:5d}"      # '   42'      整数：总宽度 5，右对齐
+f"{n:&lt;5d}"     # '42   '      左对齐
+f"{n:^6d}"     # '  42  '     居中
+f"{n:05d}"     # '00042'      补零
+f"{n:+d}"      # '+42'        + 强制显示正负号
+f"{1234567:,}" # '1,234,567'  千分位
+
+# 负数：宽度算上负号
+f"{-3:5d}"     # '   -3'      3 个空格 + 负号 + 3
+f"{-3:05d}"    # '-0003'      负号在零前面
+
+# 宽度是"至少"，超了不截断
+f"{123456:5d}" # '123456'
+
+# 百分号（自动 ×100）
+f"{0.5:.0%}"   # '50%'
+
+# 进制 —— 跟 int(串, base) 正好反着来
+f"{255:x}"     # 'ff'        十六进制
+f"{255:X}"     # 'FF'        大写
+f"{255:o}"     # '377'       八进制
+f"{255:b}"     # '11111111'  二进制
+f"{255:#x}"    # '0xff'      带 0x 前缀
+
+# 想在 f-string 里打大括号本身：写两个
+f"{{x}}"       # '{x}'</code></pre>
+
 <h3>④ 字符串 ↔ 数字 ↔ 进制</h3>
 
 <pre><code>str(45)              # '45'          数字 -> 字符串
@@ -595,6 +625,48 @@ int(str(3) * 5)         # 33333
 int(str(9) * 10)        # 9999999999</code></pre>
 
 <hr>
+
+<h3>⑨ 一行固定输出几个（第2章-14 用）</h3>
+
+<pre><code># 每行 5 个、每个占 5 位宽
+cnt = 0
+for x in range(A, B+1):
+    print(f"{x:5d}", end="")     # ① 打出来，但不换行
+    cnt += 1                     # ② 记一笔「已经打了几个」
+    if cnt % 5 == 0:             # ③ 满 5 个就换行
+        print()                  #    print() 空参 = 只输出一个换行
+if cnt % 5 != 0:                 # ④ 最后一行没满
+    print()                      #    补一个换行</code></pre>
+
+<div class="box warn">
+<strong>两个必踩的坑：</strong><br>
+① <strong>别拿「数值本身」当计数器。</strong>写成 <code>if x % 5 == 0: print()</code> 看着更短，
+但那是在 <strong>x 等于 0、5、10</strong> 时换行，跟「打了几个」毫无关系 ——
+只有数据刚好从 1 开始时两者才碰巧一致。<br>
+实测：<code>1~12</code> 时它看着是对的（5、5、2）；换成 <code>0~10</code> 一带负数就变成 <strong>4 个、5 个、5 个</strong>。<br>
+② <strong>最后一行没满必须补换行。</strong>否则紧接着要输出的 <code>Sum = ...</code> 会黏在最后一个数字后面：
+<code>   7    8    9   10Sum = 30</code>
+</div>
+
+<div class="box ok">
+<strong>另一种写法：切片分批</strong>
+<pre><code>for k in range(0, len(nums), 5):
+    print("".join(f"{x:5d}" for x in nums[k:k+5]))</code></pre>
+每次都自带换行，不用管最后那个。但它要求<strong>先有整个列表</strong>；
+如果要一边输出一边累加求和，还是用上面的计数器写法。<br>
+<strong>要改「每行几个」，只换那两个 5，逻辑一个字都不用动。</strong>
+</div>
+
+<p><strong>实测一（每行 5 个、宽 5）：</strong></p>
+<pre><code>   -3   -2   -1    0    1
+    2    3    4    5    6
+    7    8    9   10</code></pre>
+<p><strong>实测二（每行 3 个、宽 4）—— 只换参数：</strong></p>
+<pre><code>  -3  -2  -1
+   0   1   2
+   3   4   5
+   6   7   8
+   9  10</code></pre>
 
 <h2 id="star">三、符号速查：* 和 []</h2>
 
