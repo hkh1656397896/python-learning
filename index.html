@@ -84,6 +84,12 @@
      并且所有示例输出必须是【实测】结果，不能凭记忆写。
   4. 题目要求是按自己理解概括的，不抄 PTA 原文（版权）。
   5. 错误记录保留原样不美化 —— 不完美，回顾时才有感触。
+  6. 【笔记更新不用先问，直接改，改完报摘要】（2026-10-12 定的）。
+  7. 笔记要装的四样东西：我的错误 / 易错点 / 用过的代码 / 拓展与优化用法。
+  8. 【真题小节的固定顺序】要求 → 我的代码 → 优化用法 → 要点与实测证据。
+     「优化用法」永远紧跟在「我的代码」后面。
+  9. 【每行代码后面都要跟注释】，说明这一行起什么作用（含错误版的代码块）。
+     例外：纯样例输出、以及只作示意、已经自带注释的片段。
   ==========================================================
 -->
 
@@ -2415,9 +2421,10 @@ if m!=v[17]:                      # ② 索引</code></pre>
 <p><strong>要求：</strong>读两个整数，输出它们的和。<br>
 <strong>输入：</strong>分两行，每行一个数 ｜ <strong>输出：</strong>一行，和值 ｜ <strong>样例：</strong><code>18</code>、<code>-48</code> → <code>-30</code></p>
 <p><strong>我的代码</strong></p>
-<pre><code>a=int(input(""))
-b=int(input(""))
-print(a+b)</code></pre>
+<pre><code>a=int(input(""))                                # 读第一行，转成整数；这里没有输入提示语，input 的括号是空的
+b=int(input(""))                                # 读第二行，转成整数（每题只在第一次调用 input，就会去读下一行）
+print(a+b)                                      # 两个整数相加后输出：int+int 得整数，不需要再转成字符串</code></pre>
+<p><strong>优化用法：</strong>① <code>input("")</code> 里的空字符串是多余的，写 <code>input()</code> 就行。② 等号两边加空格（<code>a = int(input())</code>），可读性立刻不一样。③ 这两行读法只适合「分两行给」；换成一行空格分隔就要用 1-2 那种 <code>map</code> 写法 —— <strong>输入格式决定读法</strong>。</p>
 <div class="box ok">
 <strong>关键：</strong>题目写"在另<strong>一行</strong>中给出"，所以要写<strong>两次</strong> <code>input()</code>。<br>
 如果图省事写 <code>map(int, input().split())</code>，这题只读到第一行，会输出 <code>18</code> —— <strong>不报错，但答案错</strong>（这种"静默错误"最难查）。
@@ -2428,8 +2435,9 @@ print(a+b)</code></pre>
 <p><strong>要求：</strong>读三个数 a、b、c，输出 <code>b*b-4*a*c</code>。<br>
 <strong>输入：</strong>一行，空格分隔 ｜ <strong>输出：</strong>一行数值 ｜ <strong>样例：</strong><code>3 4 5</code> → <code>-44</code></p>
 <p><strong>我的代码</strong></p>
-<pre><code>a,b,c=map(int,input().split())
-print(b*b-4*a*c)</code></pre>
+<pre><code>a,b,c=map(int,input().split())                  # 读一行 → 按空格切成 3 段 → map(int) 把每一段都转成整数 → 依次赋给 a、b、c
+print(b*b-4*a*c)                                # 直接按公式算并输出（Python 的整数运算不会溢出，不用管范围）</code></pre>
+<p><strong>优化用法：</strong>① 等号两边加空格：<code>a, b, c = map(int, input().split())</code>；② 公式可以直接写在 <code>print</code> 里；要多次用就先 <code>d = b*b - 4*a*c</code> 存下来（一次算清、一处修改）；③ <strong>这题和 1-1 的输入格式相反</strong>（1-1 分两行、1-2 一行空格分隔），所以读法必须换 —— 同一个「读两个数」，格式不同写法就不同，<strong>读输入格式比会写代码更重要</strong>。</p>
 <div class="box ok">
 <strong>关键：</strong>这题和 1-1 的输入格式<strong>相反</strong>（一行空格分隔），所以写法也要换。<br>
 <strong>同一个"读两个数"，格式不同写法就不同 —— 读题比会写更重要。</strong>
@@ -2439,7 +2447,8 @@ print(b*b-4*a*c)</code></pre>
 <p><strong>要求：</strong>无输入，直接输出一行文字。<br>
 <strong>输出：</strong><code>人生苦短，我学Python</code></p>
 <p><strong>我的代码</strong></p>
-<pre><code>print("人生苦短，我学Python")</code></pre>
+<pre><code>print("人生苦短，我学Python")                          # 题目没有输入，所以【不能写 input()】——没有输入时调用 input 会 EOFError 直接崩</code></pre>
+<p><strong>优化用法：</strong>纯输出题没有优化空间，但两个习惯值得固定：① 中文标点要跟题目<strong>一模一样</strong>（全角逗号「，」不能写成半角 <code>,</code>，判错就死在这）；② <strong>不能写 <code>input()</code></strong> —— 输入栏是空的，一调用就 <code>EOFError</code> 崩掉。</p>
 <div class="box ok">
 <strong>关键：</strong>描述栏写"无"，输入样例是空的 → <strong>绝对不要写 <code>input()</code></strong>。<br>
 没有输入时调用 <code>input()</code> 会直接崩：<code>EOFError: EOF when reading a line</code>。
@@ -2453,55 +2462,57 @@ print(b*b-4*a*c)</code></pre>
    sum=sum+i
    print(sum)        # ← 缩进 3 格，和循环体对齐 = 在循环里</code></pre>
 <p><strong>最终版（通过）</strong></p>
-<pre><code>m=int(input())
-sum=11
-if 20&lt;=m&lt;=100:
-   for i in range(12,m+1):
-      sum=sum+i
-print("sum =",sum)</code></pre>
+<pre><code>m=int(input())                                  # 读入 m，转成整数（本来就要从 11 加到 m）
+sum=11                                          # 累加器：从 11 起步，因为序列是从 11 开始的，不是从 0
+if 20&lt;=m&lt;=100:                            # 判断 m 在题目给的范围内（其实评测保证了这个范围，这行是多余的）
+   for i in range(12,m+1):                      # 从 12 加到 m（11 已经放进累加器了，所以从 12 起）
+      sum=sum+i                                 # 每一项累加进 sum（缩进 6 格，在 for 里面）
+print("sum =",sum)                              # 循环结束后才输出（缩进 0，在 for 外面）—— 必须在循环外，否则每轮都打一行</code></pre>
+<p><strong>优化用法：</strong>① 去掉 <code>if</code>（评测保证了 20 ≤ m ≤ 100，范围外的输入不存在）；② 累加器改名 <code>s</code>，别用 <code>sum</code> —— 那会盖掉内置函数 <code>sum()</code>（见 ❌8）；③ 缩进统一成 4 格（原代码是 3 格）；④ 更 Python 的写法是 <code>s = 11 + sum(range(12, m+1))</code> 一行搞定。</p>
 <div class="box ok">
 <strong>两处关键：</strong><br>
 ① <code>print</code> 要<strong>移出循环</strong>（缩进回到 0）<br>
 ② 输出要有 <code>sum = </code> 前缀 —— 只输出数字会判"答案错误"
 </div>
-<p><strong>可以更好：</strong>去掉 <code>if</code>（题目保证了范围）；变量名 <code>sum</code> 改成 <code>s</code>（别盖掉内置函数）；缩进统一 4 格。</p>
 
 <h3 id="review-5">2-2 计算分段函数[1] <span class="tag">一次通过</span></h3>
 <p><strong>要求：</strong>x ≠ 0 时输出 1/x，x = 0 时输出 0。<br>
 <strong>输入：</strong>一个实数 x ｜ <strong>输出：</strong><code>f(x) = result</code>，x 和 result <strong>都保留一位小数</strong> ｜ <strong>样例：</strong><code>10</code> → <code>f(10.0) = 0.1</code>，<code>0</code> → <code>f(0.0) = 0.0</code></p>
 <p><strong>我的代码</strong></p>
-<pre><code>x=float(input())
-if x==0:
-    print(f"f(0.0) = 0.0")
-else:
-    print(f"f({x:.1f}) = {1/x:.1f}")</code></pre>
+<pre><code>x=float(input())                                # 读入 x：题目说实数，可能是小数，所以用 float
+if x==0:                                        # 单独处理 x=0 的情况（0 不能做分母）
+    print(f"f(0.0) = 0.0")                      # x=0 时结果就是 0，直接写死输出（注意输出的是 0.0 而不是 x 本身）
+else:                                           # 其他情况
+    print(f"f({x:.1f}) = {1/x:.1f}")            # f-string 两个占位：x 保留 1 位小数、1/x 也保留 1 位小数（题目要求两位都带小数）</code></pre>
+<pre><code>x = float(input())                              # 读入 x
+y = 0 if x == 0 else 1 / x                      # 三元表达式：条件成立取 0，否则取 1/x —— 把「算结果」和「输出」分开
+print(f"f({x:.1f}) = {y:.1f}")                  # 只写一次 print，格式串就不用抄两遍（少一处抄错的机会）</code></pre>
+<p><strong>优化用法：</strong>先把结果算出来、最后只 <code>print</code> 一次 —— 格式串只写一遍，少一处抄错的机会；分支里也只剩「算」，不再夹着「打」。</p>
+
 <div class="box ok">
-<strong>关键：</strong>输出里的 <code>f(10.0)</code> 中，<code>10.0</code> 是<strong>输入的那个值</strong>，不是字母 x。很多人会直接打印 <code>f(x)</code>。
+<strong>要点：</strong>输出里的 <code>f(10.0)</code> 里，<code>10.0</code> 是<strong>输入的那个值</strong>，不是字母 x —— 直接打印 <code>f(x)</code> 就错了。
 </div>
-<p><strong>可以更好：</strong>先把结果算出来，最后只 <code>print</code> 一次 —— 格式串就不用写两遍：</p>
-<pre><code>x = float(input())
-y = 0 if x == 0 else 1 / x
-print(f"f({x:.1f}) = {y:.1f}")</code></pre>
 
 <h3 id="review-6">2-3 阶梯电价 <span class="tag">踩了两个坑</span></h3>
 <p><strong>要求：</strong>用电量 50 度以内按 0.53 元/度，超出部分按 0.58 元/度；用电量为负则输出 <code>Invalid Value!</code><br>
 <strong>输入：</strong>一行一个用电量 ｜ <strong>输出：</strong><code>cost = 金额</code>（两位小数）｜ <strong>样例：</strong><code>10</code> → <code>cost = 5.30</code>，<code>100</code> → <code>cost = 55.50</code></p>
 <p><strong>我踩的两个坑</strong></p>
-<pre><code>x=int(input())        # ❌ 坑1：用的是 int
-if x&lt;0:
+<pre><code>x=int(input())        # ❌ 坑1：用的是 int（测试数据有 50.5，会崩）
+if x&lt;0:                           # 用电量为负 → 输出固定的英文提示语
     print("Invalid Value!")
-elif 0&lt;=x&lt;=50:
+elif 0&lt;=x&lt;=50:                    # 第一档：50 度以内，单价 0.53
     print(f"cost = {x*0.53:.2f}")
-else：                 # ❌ 坑2：这是【全角冒号】
-    print(f"cost = {26.5+(x-50)*0.58:.2f}")</code></pre>
+else：                 # ❌ 坑2：这个冒号是【全角】，Python 只认半角 :，直接 SyntaxError
+    print(f"cost = {26.5+(x-50)*0.58:.2f}")   # 26.5 = 前 50 度的钱（50×0.53）</code></pre>
 <p><strong>最终版（通过）</strong></p>
-<pre><code>x=float(input())
-if x&lt;0:
-    print("Invalid Value!")
-elif 0&lt;=x&lt;=50:
-    print(f"cost = {x*0.53:.2f}")
-else:
-    print(f"cost = {26.5+(x-50)*0.58:.2f}")</code></pre>
+<pre><code>x=float(input())                                # 改成 float：用电量可能是小数（这就是坑1的修法）
+if x&lt;0:                                      # 用电量为负 → 输出固定的英文提示语
+    print("Invalid Value!")                     # 第一档：50 度以内，单价 0.53
+elif 0&lt;=x&lt;=50:                            # 第一档的金额 = 度数 × 0.53
+    print(f"cost = {x*0.53:.2f}")               # 第二档：超过 50 度（冒号改成半角，这就是坑2的修法）
+else:                                           # 第二档 = 前 50 度的 26.5 元 + 超出部分 × 0.58
+    print(f"cost = {26.5+(x-50)*0.58:.2f}")     # 输出统一是 cost = 金额，保留 2 位小数</code></pre>
+<p><strong>优化用法：</strong>① 等号两边加空格；② 两个分支的 <code>print</code> 可以合并：先把金额算给 <code>cost</code>，最后统一 <code>print(f"cost = {cost:.2f}")</code>；③ 用电量为负的提示语是<strong>英文</strong>，别惯性写成 <code>Invalid.</code>；④ 边界要想清：<code>x=0</code> → <code>cost = 0.00</code>；<code>x=50</code> → 26.5；<code>x=50.5</code> 才是逼出 float 的那个点。</p>
 <div class="box bad">
 <strong>坑1 —— int vs float：</strong>题目只说"用电量"，没说是整数。测试数据有 <code>50.5</code> 这种小数，<code>int("50.5")</code> 直接崩。<br>
 <strong>坑2 —— 全角冒号：</strong>报错是 <code>SyntaxError: invalid character '：' (U+FF1A)</code>。<br>
@@ -2512,12 +2523,12 @@ else:
 <p><strong>要求：</strong>求 a + aa + aaa + …（共 n 项，每项比前一项多一个 a）的和。<br>
 <strong>输入：</strong>一行 a 和 n ｜ <strong>输出：</strong><code>s = S</code> ｜ <strong>样例：</strong><code>2 3</code> → <code>s = 246</code></p>
 <p><strong>我的代码（通过）</strong></p>
-<pre><code>a,n=map(int,input().split())
-if 1&lt;=a&lt;=9 and 1&lt;=n&lt;=9:
-    s=0
-    for i in range(1,n+1):
-       s=s+int(str(a)*i)
-print(f"s = {s}")</code></pre>
+<pre><code>a,n=map(int,input().split())                    # 一行读两个整数：a 是要重复的数字，n 是项数
+if 1&lt;=a&lt;=9 and 1&lt;=n&lt;=9:             # 判断 a 和 n 都在题目给的范围内（评测保证了，这行多余）
+    s=0                                         # 累加器写在循环【外面】——写进循环里会只剩最后一项（见 ❌6）
+    for i in range(1,n+1):                      # 第 1 项到第 n 项：i 同时是「项号」和「这一项里有几个 a」
+       s=s+int(str(a)*i)                        # 构造第 i 项：str(a)*i 把字符重复 i 次（2→22→222），int() 再转回数字，然后累加
+print(f"s = {s}")                               # 输出要带 s = 前缀，且等号后有一个空格</code></pre>
 <div class="box ok">
 <strong>这题的核心是「串接」，不是「幂」：</strong><br>
 <code>aa</code> 在数学排版里是 a×a，容易读成次幂。但样例 <code>246</code> 只有 <code>2 + 22 + 222</code> 能算出来（<code>2 + 4 + 8 = 14</code>）。<br>
@@ -2529,85 +2540,89 @@ print(f"s = {s}")</code></pre>
 <tr><td>第一层：构造每一项</td><td>把 a <strong>串接</strong> i 次</td><td><code>int(str(a)*i)</code> → 2、22、222</td></tr>
 <tr><td>第二层：汇总</td><td>把各项<strong>相加</strong></td><td>2 + 22 + 222 = <strong>246</strong></td></tr>
 </table>
-<p><strong>不用字符串的写法（数学法）：</strong></p>
-<pre><code>t = 0
-for i in range(1, n+1):
-    t = t*10 + a      # 2 -> 22 -> 222
-    s = s + t</code></pre>
-<p><strong>可以更好：</strong>去掉 <code>if</code>；缩进统一 4 格。</p>
+<p><strong>优化用法（不用字符串的数学法）：</strong></p>
+<pre><code>t = 0                                           # t 是「当前这一项」，从 0 开始
+for i in range(1, n+1):                         # 第 1 项到第 n 项
+    t = t*10 + a      # 2 -> 22 -> 222          # 每一步：上一项整体左移一位（×10）再补一个 a —— 这就是 2→22→222，不用字符串
+    s = s + t                                   # 把这一项加进总和 s（s 要在循环外先 s=0）</code></pre>
+<p><strong>优化用法：</strong>① 去掉 <code>if</code>（评测保证 1≤a≤9、1≤n≤9）；② 缩进统一 4 格；③ 变量名 <code>s</code> 比 <code>sum</code> 安全（<code>sum</code> 是内置函数名，见 ❌8）；④ 两种思路都值得会：字符串法（<code>int(str(a)*i)</code>）和数学法（<code>t = t*10 + a</code>），后者不碰字符串。</p>
+
 
 <h3 id="review-8">2-5 求奇数分之一序列前N项和 <span class="tag">一次通过</span></h3>
 <p><strong>要求：</strong>求 1 + 1/3 + 1/5 + … 前 N 项之和。<br>
 <strong>输入：</strong>正整数 N ｜ <strong>输出：</strong><code>sum = S</code>（6 位小数）｜ <strong>样例：</strong><code>23</code> → <code>sum = 2.549541</code></p>
 <p><strong>我的代码</strong></p>
-<pre><code>N=int(input())
-sum=0
-for i in range(1,N+1):
-    sum=sum+1/(2*i-1)
-print(f"sum = {sum:.6f}")</code></pre>
+<pre><code>N=int(input())                                  # 读入项数 N
+sum=0                                           # 累加器写在循环【外面】（写进循环里就白加了，见 ❌6）
+for i in range(1,N+1):                          # i 从 1 数到 N，共 N 项
+    sum=sum+1/(2*i-1)                           # 第 i 项是 1/(2i-1)：i=1,2,3 时分母是 1,3,5 —— 奇数序列就这么出来的
+print(f"sum = {sum:.6f}")                       # 输出带 sum = 前缀（等号后一个空格），保留 6 位小数</code></pre>
+<p><strong>优化用法：</strong>① <code>range(1, 2*N, 2)</code> 直接生成 1、3、5…，循环里就不用再算 <code>2*i-1</code>：<code>for d in range(1, 2*N, 2): s += 1/d</code>；② 累加器改名 <code>s</code>，别用 <code>sum</code>。</p>
 <div class="box ok">
 <strong>关键：</strong><code>2*i-1</code> 生成 1、3、5、7…（i = 1,2,3,4 时）。<br>
 <strong>这题的输出有 <code>sum = </code> 前缀</strong> —— 下一题（2-6）就没有了。
 </div>
-<p><strong>可以更好：</strong><code>range(1, 2*N, 2)</code> 直接生成奇数，连 <code>2*i-1</code> 都不用算；变量名 <code>sum</code> 改成 <code>s</code>。</p>
 
 <h3 id="review-9">2-6 求交错序列前N项和 <span class="tag">一次通过</span></h3>
 <p><strong>要求：</strong>求 1 − 2/3 + 3/5 − 4/7 + … 前 N 项之和。<br>
 <strong>输入：</strong>正整数 N ｜ <strong>输出：</strong><strong>只输出数值</strong>（<strong>无前缀</strong>），3 位小数 ｜ <strong>样例：</strong><code>5</code> → <code>0.917</code></p>
 <p><strong>我的代码</strong></p>
-<pre><code>N=int(input())
-sum=0
-for i in range(1,N+1):
-    sum=sum+i/(2*i-1)*(-1)**(i+1)
-print(f"{sum:.3f}")</code></pre>
+<pre><code>N=int(input())                                  # 读入项数 N
+sum=0                                           # 累加器，必须在循环外
+for i in range(1,N+1):                          # i 既是项号，也是分子的那个整数
+    sum=sum+i/(2*i-1)*(-1)**(i+1)               # 第 i 项 = i/(2i-1) × 符号；(-1)**(i+1) 给出 +1、-1、+1、-1…（括号不能省，见要点②）
+print(f"{sum:.3f}")                             # 这题【没有】sum = 前缀，只输出数值、保留 3 位小数</code></pre>
 <div class="box ok">
 <strong>两处关键：</strong><br>
 ① <strong>输出格式和 2-5 不一样</strong> —— 这题<strong>没有</strong> <code>sum = </code> 前缀。<strong>别惯性照抄上一题。</strong><br>
 ② <code>(-1)**(i+1)</code> 的<strong>括号必须有</strong>。漏掉写成 <code>-1**(i+1)</code>，因为 <code>**</code> 优先级高于一元负号，结果<strong>永远是 −1</strong>，全错。
 </div>
 <p><strong>另一种写法（翻转符号，不用幂）：</strong></p>
-<pre><code>sign = 1
-for i in range(1, n+1):
-    s = s + sign * i/(2*i-1)
-    sign = -sign</code></pre>
+<pre><code>sign = 1                                        # 用一个变量记符号，初始为 +1
+for i in range(1, n+1):                         # 第 1 项到第 n 项
+    s = s + sign * i/(2*i-1)                    # 符号 × 本项，累加进 s（s 在循环外先 s=0）
+    sign = -sign                                # 每轮把符号翻转一次：+1 → -1 → +1 …… 比 (-1)**(i+1) 更直白</code></pre>
+<p><strong>优化用法：</strong>用变量翻转符号代替幂运算（见下面第二段）—— 少一次幂计算，也少一个「括号必须写对」的坑。另外 <code>(-1)**(i+1)</code> 的<strong>括号不能省</strong>：写成 <code>-1**(i+1)</code> 因为 <code>**</code> 优先级高于一元负号，结果<strong>永远是 −1</strong>。</p>
 
 <h3 id="review-10">2-7 产生每位数字相同的 n 位数 <span class="tag">一次通过</span></h3>
 <p><strong>要求：</strong>输入一个数字 A 和一个位数 B，输出由 B 个 A 组成的数。<br>
 <strong>输入：</strong>一行 <code>A,B</code>（<strong>逗号分隔</strong>，实测确认）｜ <strong>输出：</strong>该数 ｜ <strong>例：</strong>A=3、B=5 → <code>33333</code></p>
 <p><strong>我的代码</strong></p>
-<pre><code>A,  B=map(int,input().split(","))
-if 1&lt;=A&lt;=9 and 1&lt;=B&lt;=10:
-    s=int(str(A)*B)
-print(f"{s}")</code></pre>
+<pre><code>A,  B=map(int,input().split(","))               # 按【逗号】切分再转整数（分隔符看样例，别看题面文字）
+if 1&lt;=A&lt;=9 and 1&lt;=B&lt;=10:            # 范围校验（评测保证合法，多余）
+    s=int(str(A)*B)                             # 核心一行：把 A 转成字符串重复 B 次，再转回整数
+print(f"{s}")                                   # 输出这个数</code></pre>
+<p><strong>优化用法：</strong>① 去掉 <code>if</code>（评测保证合法）；② <code>A,  B</code> 中间的两个空格收成一个；③ <code>int(str(A)*B)</code> 是「转字符串 → 重复 → 再转回数字」，也可以用数学法避开字符串：<code>t = t*10 + A</code> 循环 B 次（和第 2-4 题第二种写法同一个手法）。</p>
 <div class="box ok">
 <strong>关键：</strong><code>str(A) * B</code> —— <strong>序列乘法</strong>。字符串乘几就重复几次：<code>"3" * 5</code> → <code>"33333"</code>。<br>
 再用 <code>int()</code> 转回数字。<br>
 <strong>这题输入是逗号分隔</strong>（和 2-8 一样）—— 看样例，别看题面文字。
 </div>
-<p><strong>可以更好：</strong>去掉 <code>if</code>；<code>A,  B</code> 中间的两个空格收成一个。</p>
 
 <h3 id="review-11">2-8 转换函数使用 <span class="tag">卡了一轮</span></h3>
 <p><strong>要求：</strong>输入一个"某进制下的数字"和那个进制，输出它的十进制值。<br>
 <strong>输入：</strong>一行 <code>数字,进制</code>（逗号分隔）｜ <strong>输出：</strong>十进制数值 ｜ <strong>样例：</strong><code>45,8</code> → <code>37</code></p>
 <p><strong>我的第一版（三个问题）</strong></p>
-<pre><code>a,b=map(int,input().split(","))
-if b==2:
-    c=int('a',b)        # 问题1：引号；问题2：a 被 map 转成了整数
-    print(f"{c}")
+<pre><code>a,b=map(int,input().split(","))      # ❌ 问题2：map(int) 把 a 也变成了整数
+if b==2:                              # ❌ 问题3：三个 if 是多余的，int(a,b) 对任何进制都管用
+    c=int('a',b)        # 问题1：引号 —— 'a' 是字母 a 这个字符，不是变量 a
+    print(f"{c}")                     # 而且还只写了 2/8/16，别的进制什么都不输出
 if b==8:
-    c=int('a',b)        # 问题3：三个 if 是多余的
+    c=int('a',b)        # 同一个错：引号 + a 已经是整数
     print(f"{c}")
 if b==16:
     c=int('a',b)
     print(f"{c}")</code></pre>
 <p><strong>最终版（通过，30/30）</strong></p>
-<pre><code>a,b=input().split(",")
-b=int(b)
-c=int(a,b)
-print(f"{c}")</code></pre>
-<p><strong>还能更短：</strong></p>
-<pre><code>a, b = input().split(",")
-print(int(a, int(b)))</code></pre>
+<pre><code>a,b=input().split(",")                          # 只切分、不转换 —— a 必须保持【字符串】，因为 int(字符串, 进制) 只吃字符串
+b=int(b)                                        # 只把进制转成整数（它是 int() 的第二个参数）
+c=int(a,b)                                      # 核心：int(某进制的写法, 那个进制) → 直接得到十进制值
+print(f"{c}")                                   # 输出十进制结果</code></pre>
+<p><strong>优化用法（还能更短）：</strong></p>
+<pre><code>a, b = input().split(",")                       # 切分（a 仍是字符串）
+print(int(a, int(b)))                           # 一行搞定：中间结果不用起名字，直接当参数传进去</code></pre>
+<p><strong>优化用法：</strong>三个 <code>if</code> 全删掉 —— <code>int(a, b)</code> 对 2～36 进制都管用（原写法只处理 2/8/16，输入 7 进制就什么都不输出）。再看最后的「还能更短」：连中间变量 <code>c</code> 都不用，一行 <code>print(int(a, int(b)))</code>。</p>
+
 <div class="box bad">
 <strong>三个问题分别是：</strong><br>
 ① <strong>引号</strong>：<code>'a'</code> 是字母 a，不是变量 <code>a</code>。变量不加引号。<br>
@@ -2623,10 +2638,11 @@ print(int(a, int(b)))</code></pre>
 <p><strong>要求：</strong>把输入的三个整数从小到大输出，用 <code>-&gt;</code> 连接。<br>
 <strong>输入：</strong>一行，空格分隔 ｜ <strong>输出：</strong><code>2-&gt;4-&gt;8</code> 这种形式</p>
 <p><strong>我的代码（部分正确）</strong></p>
-<pre><code>nums=map(str,input().split())
-print(*sorted(nums),sep='->')</code></pre>
+<pre><code>nums=map(str,input().split())        # ❌ map(str) 让后面按【字典序】排，不是按数值
+print(*sorted(nums),sep='->')         # * 把结果摊开成多个参数，再用 -> 连接（这行本身没错）</code></pre>
 <p><strong>改成数字排序（通过）</strong></p>
-<pre><code>print(*sorted(map(int, input().split())), sep="->")</code></pre>
+<pre><code>print(*sorted(map(int, input().split())), sep="->")# map(int) 先转成整数 → sorted 按数值排 → * 摊开 → sep="->" 用箭头连接</code></pre>
+<p><strong>优化用法：</strong>这题最终就一行 —— <code>print(*sorted(map(int, input().split())), sep="->")</code>。关键是 <code>map(int)</code> 的位置：<strong>必须在 <code>sorted</code> 里面</strong>，先转整数再排序 —— 一旦出现多位数，字典序和数值序就会分岔（<code>10 2 8</code> 字典序给 <code>10-&gt;2-&gt;8</code>，正确是 <code>2-&gt;8-&gt;10</code>）。</p>
 <div class="box bad">
 <strong>挂在哪：</strong><code>map(str, ...)</code> 让 <code>sorted()</code> 按<strong>字典序</strong>排，不是按数值。<br>
 单个数位时两种排序结果相同，所以样例级测试点过了；<strong>一旦出现多位数就错</strong>：<br>
@@ -2646,16 +2662,16 @@ print(*sorted(nums),sep='->')</code></pre>
 32   0.0
 34   1.1</code></pre>
 <p><strong>我的代码（一次通过，这题是我自己写的）</strong></p>
-<pre><code>lower,upper=map(int,input().split())
-F=lower
-if 1&lt;=lower&lt;=upper&lt;=100:
-    print("fahr celsius")
-    for i in range(0,upper-lower+1,2):
-        F=lower+i
-        C=5*(F-32)/9
-        print(f"{F}{C:&gt;6.1f}")
-else:
-    print("Invalid.")</code></pre>
+<pre><code>lower,upper=map(int,input().split())            # 读入起点和终点两个整数
+F=lower                                         # 当前的华氏温度，从起点开始
+if 1&lt;=lower&lt;=upper&lt;=100:               # 范围校验：1 ≤ lower ≤ upper ≤ 100，不合法就输出 Invalid.（题目给了范围就顺手想范围外）
+    print("fahr celsius")                       # 表头是【输出的一部分】，要自己打出来，漏了整题不过
+    for i in range(0,upper-lower+1,2):          # 步长 2：每轮涨 2℉；循环次数 = (终点-起点)/2 + 1，不直接写 range(lower, upper+1, 2) 是为了让 i 只管「第几轮」
+        F=lower+i                               # 第 i 轮对应的华氏温度 = 起点 + i（把「第几轮」还原成温度）
+        C=5*(F-32)/9                            # 换算公式 C = 5×(F−32)/9
+        print(f"{F}{C:&gt;6.1f}")               # 输出：F 直接拼上，C 占 6 格、右对齐、1 位小数（宽度含小数点，所以 1.1 前面补 3 个空格）
+else:                                           # 范围不合法的情况
+    print("Invalid.")                           # 输出 Invalid.（注意有个句点，和别的题的提示语都不一样）</code></pre>
 <div class="box ok">
 <strong>这题的三个要点：</strong><br>
 ① <strong>表头是输出的一部分</strong> —— <code>"fahr celsius"</code> 要自己打出来，不是评测系统给的。漏了整道题就没法过。<br>
@@ -2670,6 +2686,7 @@ else:
 <pre><code>1 -17.2
 3 -16.1
 5 -15.0</code></pre>
+<p><strong>优化用法：</strong>① 删掉 <code>F = lower</code>（循环里已经用 <code>F = lower + i</code> 重算，第一次赋值白给）；② <code>range(0, upper-lower+1, 2)</code> 可换成更直白的 <code>for F in range(lower, upper+1, 2)</code>，循环变量直接用真正的温度，连「还原」都省了；③ 表头 <code>"fahr celsius"</code> 是<strong>输出的一部分</strong>，漏了整题不过；④ 宽度 6 右对齐就是 <code>:&gt;6.1f</code>（<code>&gt;</code> 右对齐、<code>6</code> 总宽、<code>.1f</code> 一位小数，宽度含小数点）。</p>
 对比 <code>32 35</code> 的 <code>32   0.0</code> —— 摄氏温度那列没对齐了。<br>
 <strong>但这题我拿了 15/15</strong>，说明测试点里 <code>lower</code> 都是两位数，这个错位从没被触发。<br>
 <strong>教训：</strong>"通过" ≠ "正确"。评测只覆盖它想到的情况，自己多想一步边界（比如最小的输入、1 位数）才叫真做对。
@@ -2686,12 +2703,13 @@ else:
 <code>i² + 1/i</code> 之和，保留 6 位小数。<br>
 <strong>输入：</strong><code>1 3</code> ｜ <strong>输出：</strong><code>sum = 15.833333</code>（注意 <code>sum =</code> 后面有个空格）</p>
 <p><strong>我的代码（一次通过）</strong></p>
-<pre><code>m,n=map(int,input().split())
-if m&lt;=n:
-    s=0
-    for i in range (0,n-m+1):
-        s=s+(m+i)**2+1/(m+i)
-print(f"sum = {s:.6f}")</code></pre>
+<pre><code>m,n=map(int,input().split())                    # 读入 m 和 n（求和范围）
+if m&lt;=n:                                     # 判断 m ≤ n（评测保证，多余；但 print 在 if 外面有隐患，见下面的说明）
+    s=0                                         # 累加器，必须在循环【外面】
+    for i in range (0,n-m+1):                   # 循环次数 = n-m+1 次；i 只表示「第几轮」
+        s=s+(m+i)**2+1/(m+i)                    # 第 i 轮要用的数是 m+i：分别算它的平方和倒数，再加进总和（** 是幂）
+print(f"sum = {s:.6f}")                         # 输出带 sum = 前缀，保留 6 位小数</code></pre>
+<p><strong>优化用法：</strong>① <code>range(0, n-m+1)</code> 配 <code>m+i</code> 可以换成更直白的 <code>for i in range(m, n+1): s += i**2 + 1/i</code>；② 那个 <code>print</code> 建议缩进到 <code>if</code> 里面（下面有实测：m&gt;n 时它会 <code>NameError</code> 崩掉）。</p>
 <div class="box ok">
 <strong>这题的三个要点：</strong><br>
 ① <code>range(0, n-m+1)</code> 配 <code>m+i</code> —— 跟 2-10 是<strong>同一个手法</strong>：
@@ -2715,14 +2733,15 @@ print(f"sum = {s:.6f}")</code></pre>
 不能构成就输出一句英文提示。<br>
 <strong>输入：</strong><code>3 4 5</code> ｜ <strong>输出：</strong><code>area = 6.00; perimeter = 12.00</code></p>
 <p><strong>我的代码（一次通过）</strong></p>
-<pre><code>a,b,c=map(int,input().split())
-if a+b&gt;c and a+c&gt;b and b+c&gt;a:
-    s=(a+b+c)/2
-    area=(s*(s-a)*(s-b)*(s-c))**0.5
-    perimeter=a+b+c
-    print(f"area = {area:.2f}; perimeter = {perimeter:.2f}")
-else:
-    print("These sides do not correspond to a valid triangle")</code></pre>
+<pre><code>a,b,c=map(int,input().split())                  # 读入三条边
+if a+b&gt;c and a+c&gt;b and b+c&gt;a:          # 三角形判定：任意两边之和大于第三边，三个条件用 and 连起来
+    s=(a+b+c)/2                                 # 海伦公式的半周长 s
+    area=(s*(s-a)*(s-b)*(s-c))**0.5             # 面积 = √(s(s-a)(s-b)(s-c))；**0.5 就是开平方（第 2 章还没学 import math）
+    perimeter=a+b+c                             # 周长就是三边之和
+    print(f"area = {area:.2f}; perimeter = {perimeter:.2f}")# 输出格式：area = 面积; perimeter = 周长，两个都保留 2 位小数
+else:                                           # 不合法的情况
+    print("These sides do not correspond to a valid triangle")# 不合法时输出的是这句英文，不是 Invalid. —— 每题的「不合格输出」都不一样，照抄上一题必挂</code></pre>
+<p><strong>优化用法：</strong>① 既然是边长，读入用 <code>float</code> 更稳（题目说整数才用 int）；② 等号两边加空格；③ 也可以用 <code>s = sum([a, b, c]) / 2</code> 一行写半周长。</p>
 <div class="box ok">
 <strong>这题的四个要点：</strong><br>
 ① <strong>先判能不能构成三角形</strong>：三条边两两之和都要大于第三边，三个条件用 <code>and</code> 连起来。<br>
@@ -2742,13 +2761,14 @@ else:
 <p><strong>要求：</strong>输入用水量 <code>x</code>，按分段公式算水费，保留 2 位小数。<br>
 <strong>输入：</strong><code>12</code> ｜ <strong>输出：</strong><code>16.00</code></p>
 <p><strong>我的代码（一次通过）</strong></p>
-<pre><code>x=float(input())
-if x&lt;=15:
-    y=4*x/3
-    print(f"{y:.2f}")
-elif x&gt;15:
-    y=2.5*x-17.5
-    print(f"{y:.2f}")</code></pre>
+<pre><code>x=float(input())                                # 只有一个数，直接 float(input())，不用套 map（map 是「一行多个值」用的）
+if x&lt;=15:                                    # 第一段：15 吨及以内
+    y=4*x/3                                     # 第一段公式 y = 4x/3
+    print(f"{y:.2f}")                           # 输出保留 2 位小数（这题输出【没有】前缀，只有一个数）
+elif x&gt;15:                                   # 第二段：超过 15 吨
+    y=2.5*x-17.5                                # 第二段公式 y = 2.5x − 17.5
+    print(f"{y:.2f}")                           # 同样保留 2 位小数</code></pre>
+<p><strong>优化用法：</strong>① 两个分支的 <code>print</code> 可以合并：先算 <code>y</code>，最后统一输出一次；② <code>elif x&gt;15</code> 直接写 <code>else</code> 更省（上面已经排除了 ≤15）；③ <code>4*x/3</code> 写成 <code>4 * x / 3</code>，可读性更好。</p>
 <div class="box ok">
 <strong>这题的三个要点：</strong><br>
 ① <strong>只有一个数，就别套 <code>map</code></strong> —— 直接 <code>float(input())</code>。
@@ -2776,20 +2796,21 @@ elif x&gt;15:
     7    8    9   10
 Sum = 49</code></pre>
 <p><strong>我的代码（提交版，15/15）</strong></p>
-<pre><code>A,B=map(int,input().split())
-if -100&lt;=A&lt;=B&lt;=100:
-    x=0
-    cnt=0
-    for i in range(0,B-A+1):
-        a=A+i
-        x=x+a
-        print(f"{a:&gt;5d}",end="")
-        cnt+=1
-        if cnt%5==0:
-            print()
-    if cnt%5!=0:
-            print()
-    print(f"Sum = {x}")</code></pre>
+<pre><code>A,B=map(int,input().split())                    # 读入区间两端 A、B
+if -100&lt;=A&lt;=B&lt;=100:                    # 范围校验（评测保证合法，多余）
+    x=0                                         # x 是累加器，必须在循环外
+    cnt=0                                       # cnt 数「已经打了几个」，也必须在循环外（放进去就永远数不到 5）
+    for i in range(0,B-A+1):                    # cnt 数「已经打了几个」，也必须在循环外（放进去就永远数不到 5）
+        a=A+i                                   # 循环次数 = B-A+1；i 只表示第几轮，真正的数是 A+i
+        x=x+a                                   # 本轮要打印的数
+        print(f"{a:&gt;5d}",end="")             # 累加进总和
+        cnt+=1                                  # 每个数占 5 格右对齐、不换行（end="" 让下一个接着打）
+        if cnt%5==0:                            # 计数器 +1（必须在循环外先 cnt=0）
+            print()                             # 每满 5 个换一行
+    if cnt%5!=0:                                # 循环结束后：最后一行如果没满 5 个
+            print()                             # 补一个空 print()，把这一行结束掉
+    print(f"Sum = {x}")                         # 输出总和（Sum 首字母大写、等号两边各一个空格）</code></pre>
+<p><strong>优化用法：</strong>① 最后那个 <code>print()</code> 缩进跳级了（12 格），按「一级 4 格」应是 8 格；② <code>range(0, B-A+1)</code> 配 <code>A+i</code> 换成更直白的 <code>for a in range(A, B+1)</code>，少一个变量；③ 累加可以省掉 <code>x=x+a</code>，最后用 <code>sum(range(A, B+1))</code> 直接算；④ 边界：总数<strong>恰好是 5 的倍数</strong>时不能再补空行（第一版就挂在这，13/15）。</p>
 <div class="box bad">
 <strong>我第一交挂在一个测试点上（13/15，报「格式错误」）</strong> ——
 补换行写成了<strong>无条件</strong>的，少了 <code>if cnt%5!=0:</code> 这个条件。<br>
@@ -2799,7 +2820,7 @@ if -100&lt;=A&lt;=B&lt;=100:
 在 <code>-100≤A≤B≤100</code> 的全部 <strong>20301</strong> 种合法输入里，有 <strong>3980 种（19.6%）</strong>会踩到。
 </div>
 <div class="box warn">
-<strong>代码里还有两处可以更好：</strong><br>
+<strong>另外两处补充：</strong><br>
 ① <strong>缩进跳级了。</strong>最后那个 <code>print()</code> 我缩进了 12 格，而它所属的
 <code>if</code> 在 4 格 —— 中间跳了 8 格。Python 不报错（同一块内缩进一致就行），
 但按「一级 4 空格」的规范应该是 <strong>8 格</strong>，跳级容易看错层级。<br>
@@ -2813,11 +2834,12 @@ if -100&lt;=A&lt;=B&lt;=100:
 <strong>样例：</strong><code>143 174 119 127 117 164 110 128</code> →
 <code>143 174 164 </code>（<strong>末尾那个空格是要求里的</strong>）</p>
 <p><strong>我的代码</strong></p>
-<pre><code>nums=list(map(int,input().split()))
-avg=sum(nums)/len(nums)
-for n in nums:
-    if n&gt;avg:
-        print(n,end=" ")</code></pre>
+<pre><code>nums=list(map(int,input().split()))             # 必须先把数据全存下来：平均值要等所有身高都读完才算得出来（这题得走两趟）
+avg=sum(nums)/len(nums)                         # 平均值 = 总和 ÷ 个数（sum 和 len 都是内置函数）
+for n in nums:                                  # 第二趟：再遍历一遍，挑出超过平均值的
+    if n&gt;avg:                                # 判断（严格大于，等于的不算）
+        print(n,end=" ")                        # 输出这个数并在后面补一个空格；题目原文要求「每个数后面有一个空格」，所以末尾那个空格是对的</code></pre>
+<p><strong>优化用法：</strong>① <code>sum(nums)/len(nums)</code> 很好，也可以先把统计量算清楚再进循环；② <strong>严格大于</strong>要保留（题目是「超过平均值」，等于的不输出）；③ 想收集起来再统一输出可以用 <code>[n for n in nums if n &gt; avg]</code>（见 ⑫）；④ 变量名 <code>n</code> 和 <code>nums</code> 太像，叫 <code>h</code> / <code>heights</code> 更不容易看混。</p>
 <div class="box ok">
 <strong>这题最关键的一点：输出末尾【就是要有一个空格】。</strong><br>
 题目原文写着「每个数后面有一个空格」，所以 <code>end=" "</code> 是<strong>正确写法</strong>，不是「将就」——
@@ -2852,25 +2874,25 @@ for n in nums:
 对 11 取模得 Z，再查表得 M。</p>
 
 <p><strong>我的代码（通过 15/15）</strong></p>
-<pre><code>N=int(input())
-bad=0
-for i in range(N):
-    v=input().strip()
-    if not v[:17].isdigit():
-         print(f"{v}")
-         bad+=1
-         continue
-    V=[int(v[j]) for j in range(17)]
-    w=[7,9,10,5,8,4,2,1,6,3,7,9,10,5,8,4,2]
-    weighted_sum=sum(V[j]*w[j] for j in range(17))
-    Z=weighted_sum%11
-    M=['1','0','X','9','8','7','6','5','4','3','2']
-    m=M[Z]
-    if m!=v[17]:
-        print(f"{v}")
-        bad+=1
-if bad==0:
-    print("All passed")</code></pre>
+<pre><code>N=int(input())                                  # 先读身份证的个数 N（第一行）
+bad=0                                           # 计数器：记录有几个不合格；必须在循环【外面】（在里面每轮都被清零）
+for i in range(N):                              # 循环 N 次，每次读一行
+    v=input().strip()                           # 读一行并 strip() 去掉首尾空白（Windows 换行/行尾空格就靠它兜住）
+    if not v[:17].isdigit():                    # 前 17 位不是全数字 → 格式非法
+         print(f"{v}")                          # 打印这个有问题的号码（v 本来就是字符串，f-string 是多余的）
+         bad+=1                                 # 不合格数 +1
+         continue                               # 直接进下一轮：既防住下面的 int('X') 崩溃，又把嵌套压平（卫语句）
+    V=[int(v[j]) for j in range(17)]            # 把前 17 位拆成一个个整数，存进列表 V
+    w=[7,9,10,5,8,4,2,1,6,3,7,9,10,5,8,4,2]     # 权重表：17 位各对应一个权重
+    weighted_sum=sum(V[j]*w[j] for j in range(17))# 加权求和：V[j]*w[j] 逐项相乘再全部相加
+    Z=weighted_sum%11                           # 对 11 取模得到 Z（0～10）
+    M=['1','0','X','9','8','7','6','5','4','3','2']# Z 对应的校验码表（注意 'X' 在里面，所以列表里是字符串）
+    m=M[Z]                                      # 取出应有的校验码
+    if m!=v[17]:                                # 和实际输入的最后一位比较（都是字符串，比较才有效——见 ❌11）
+        print(f"{v}")                           # 不一致 → 这就是不合格的号码
+        bad+=1                                  # 打印这个不合格的号码
+if bad==0:                                      # 不合格数 +1
+    print("All passed")                         # 循环全部结束后再判断：一个都不合格才输出 All passed（放在循环里会打好多次）</code></pre>
 
 <div class="box ok">
 <strong>这一题一口气串起了好几个新东西：</strong><br>
@@ -2893,17 +2915,18 @@ if bad==0:
 
 <div class="box ok">
 <strong>修法就三处 + 一个 <code>continue</code>：</strong>
-<pre><code>bad = 0                    # ① 挪到循环【外面】
-for i in range(N):
-    v = input().strip()
-    if not v[:17].isdigit():
-        print(v)
-        bad += 1
-        continue           # ② 顺手把非法的挡在门外
-    # 校验码计算挪到这儿（缩进 4 格，跟 if 同层）
-    ...
-if bad == 0:               # ③ 挪到循环【外面】
-    print("All passed")</code></pre>
+<pre><code>bad = 0                    # ① 挪到循环【外面】         # ① 挪到循环外面：否则每轮都被清零，永远数不满
+for i in range(N):                              # 循环 N 次，每次读一行
+    v = input().strip()                         # 读一行 + 去空白
+    if not v[:17].isdigit():                    # 前 17 位不是全数字 → 格式非法
+        print(v)                                # 直接打印（v 本身是字符串，不用 f-string）
+        bad += 1                                # 计数器 +1
+        continue           # ② 顺手把非法的挡在门外       # ② continue：挡在门外，让后面的代码不必再套一层 if
+    # 校验码计算挪到这儿（缩进 4 格，跟 if 同层）                 # 校验码的计算放在这一层（和 if 同缩进），才走得到正常的号码
+    ...                                         # 这一步就是全部的校验码计算（省略号代表这里的那几行）
+if bad == 0:               # ③ 挪到循环【外面】         # ③ 循环外判断：一次都没不合格，才输出 All passed
+    print("All passed")                         # 只有全对时才打这一行</code></pre>
+<p><strong>优化用法：</strong>① <code>print(f"{v}")</code> 里的 f-string 多余（<code>v</code> 本来就是字符串），写 <code>print(v)</code>；② 缩进 9 格、8 格混用，统一成 8 格更清楚；③ 权重表和校验码表提到循环外面定义一次（现在每轮都重建一遍列表）；④ <code>weighted_sum</code> 可写成 <code>sum(int(c)*w for c, w in zip(v[:17], w))</code>；⑤ 这题一口气串起了读 N 行（⑬）、查表（⑮⑰）、<code>isdigit()</code>（⑯）、循环外汇总判断（⑯）、<code>strip()</code>（⑱）、<code>continue</code>（⑲）—— <strong>第 3 章真正的分水岭</strong>。</p>
 <code>continue</code> 一次解决两件事：<strong>防止 <code>int('X')</code> 崩溃</strong>、
 <strong>让结构扁平且不重复</strong>（详见 ⑲）。
 </div>
@@ -2924,14 +2947,15 @@ if bad == 0:               # ③ 挪到循环【外面】
 <code>11 p / 10 p / 8 s / 7 s / 5 s / 4 p / 3 s / 0 p</code></p>
 
 <p><strong>我的代码（通过 15/15）</strong></p>
-<pre><code>m=list(input())
-a,b=input().split()
-L=[]
-for i,ch in enumerate(m):
-    if a==ch or b==ch:
-        L.append(i)
-for i in sorted(L,reverse=True):
-    print(i,m[i])</code></pre>
+<pre><code>m=list(input())                                 # 读入字符串（转成 list 其实多余，字符串本来就能按下标取、也能 enumerate）
+a,b=input().split()                             # 第二行是两个字符，空格分隔 → 拆成 a 和 b
+L=[]                                            # 空列表：准备收集所有命中的位置；必须在循环【外面】
+for i,ch in enumerate(m):                       # enumerate 同时给出位置 i 和那个位置上的字符 ch
+    if a==ch or b==ch:                          # 当前字符等于 a 或者等于 b（两个目标字符都算）
+        L.append(i)                             # 只把【位置】记下来（字符要用时用 m[i] 现取，所以不用存一对）
+for i in sorted(L,reverse=True):                # 循环外排序再输出：一定要在循环外，循环里每轮只有 1 个元素，排了等于没排
+    print(i,m[i])                               # 索引从大到小的顺序输出：左边是位置、右边是那个字符（print 默认用空格隔开）</code></pre>
+<p><strong>优化用法：</strong>① <code>m = list(input())</code> 里的 <code>list()</code> 是多余的 —— 字符串本来就能按下标取、能被 <code>enumerate</code> 遍历，转成列表只是多花一份内存；② <code>L</code>、<code>m</code> 这种单字母名在这题有两个概念（字符串、位置）时容易看混，叫 <code>s</code>、<code>pos</code> 更清楚；③ <code>print(i, m[i])</code> 靠默认空格分隔没问题，想统一风格可写 <code>print(f"{i} {m[i]}")</code>；④ 排序想让「只按位置」说话，显式写 <code>key=lambda t: t[0]</code>（这题元组只存了位置，省了也对）。</p>
 
 <div class="box ok">
 <strong>思路：分三步，不边找边打。</strong><br>
