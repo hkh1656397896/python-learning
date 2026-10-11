@@ -2043,6 +2043,67 @@ if m!=v[17]:                      # ② 索引</code></pre>
 <strong>其中只有 ②③④ 是必须用 <code>[]</code> 的</strong>，三处 <code>①</code> 换个写法也能跑。
 </div>
 
+<div class="box ok">
+<strong>一眼分辨的规则（最实用）—— 看中括号【里面】是什么：</strong>
+<table>
+<tr><th>里面是</th><th>身份</th></tr>
+<tr><td><strong>冒号 <code>:</code></strong></td><td>③ 切片</td></tr>
+<tr><td><strong><code>for</code></strong></td><td>④ 推导式</td></tr>
+<tr><td><strong>数字或变量</strong>（且前面跟着东西）</td><td>② 索引</td></tr>
+<tr><td><strong>一串字面量</strong>（且单独在 <code>=</code> 右边）</td><td>① 建列表</td></tr>
+</table>
+</div>
+
+<p><strong>第3章-2 的代码里，<code>[]</code> 一共出现 9 次，四种身份全齐：</strong></p>
+<pre><code> 5|     if not v[:17].isdigit():                    # ③ 切片
+ 9|     V=[int(v[j]) for j in range(17)]            # ④ 推导式（内含 ② 索引 v[j]）
+10|     w=[7,9,10,5,8,4,2,1,6,3,7,9,10,5,8,4,2]     # ① 建列表
+11|     weighted_sum=sum(V[j]*w[j] for j in range(17))   # ② 索引 ×2
+13|     M=['1','0','X','9','8','7','6','5','4','3','2']   # ① 建列表
+14|     m=M[Z]                                      # ② 索引
+15|     if m!=v[17]:                                # ② 索引</code></pre>
+<table>
+<tr><th>身份</th><th>出现</th><th>在哪</th></tr>
+<tr><td>① 建列表</td><td>2 处</td><td>第 10、13 行</td></tr>
+<tr><td>② 索引</td><td>5 处</td><td><code>v[j]</code> <code>V[j]</code> <code>w[j]</code> <code>M[Z]</code> <code>v[17]</code></td></tr>
+<tr><td>③ 切片</td><td>1 处</td><td>第 5 行 <code>v[:17]</code></td></tr>
+<tr><td>④ 推导式</td><td>1 处</td><td>第 9 行</td></tr>
+</table>
+<p><strong>只有 ②③④ 是必须用 <code>[]</code> 的</strong>，两处 ①（<code>w=</code> 和 <code>M=</code>）换个写法也能跑。</p>
+
+<div class="box warn">
+<strong>用真号码 <code>320124198808240056</code> 把每处算出来：</strong>
+<pre><code>第 5 行  v[:17]  = '32012419880824005'   -> 取前 17 个字符
+         .isdigit() = True               -> 不进 if
+
+第 9 行  V = [3,2,0,1,2,4,1,9,8,8,0,8,2,4,0,0,5]   len=17
+         （j 从 0 到 16，逐个 v[j] 取字符再 int）
+
+第10行  w = [7,9,10,5,8,4,2,1,6,3,7,9,10,5,8,4,2]  len=17
+
+第11行  j=0:  3*7=21    累计 21
+         j=1:  2*9=18    累计 39
+         ...
+         j=16: 5*2=10    累计 281
+
+第13行  M = ['1','0','X','9','8','7','6','5','4','3','2']  len=11
+
+第14行  Z = 281 % 11 = 6      M[6] = '6'
+
+第15行  m='6'   v[17]='6'     相等 -> 有效，不打印</code></pre>
+</div>
+
+<div class="box bad">
+<strong>另外两个号码走的是另外两条路：</strong><br>
+<strong><code>110108196711301866</code></strong>（格式合法，校验码错）：<br>
+　<code>v[:17].isdigit() = True</code> → 不被 <code>continue</code> 挡 → 加权和 219，Z=10，
+<code>M[10]='2'</code>，而 <code>v[17]='6'</code> → <strong>无效，打印</strong><br>
+　<strong>证明：格式合法 ≠ 校验码对，两种检查缺一不可。</strong><br><br>
+<strong><code>12010X198901011234</code></strong>（前 17 位含 X）：<br>
+　<code>v[:17] = '12010X19890101123'</code> → <code>isdigit()=False</code> → 进 if → 打印 → <code>continue</code><br>
+　<strong><code>continue</code> 让程序永远走不到第 9 行</strong>，否则 <code>int('X')</code> 会崩。
+</div>
+
 <h3 id="star-15">⑦ 三个最容易错的点</h3>
 <div class="box bad">
 <strong>1. 从 0 开始数，不是从 1</strong><br>
