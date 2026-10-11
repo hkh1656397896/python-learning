@@ -58,7 +58,7 @@
 <body>
 
 <h1>Python 自学笔记</h1>
-<p class="meta">hkh ｜ 更新 2026-10-11 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">12</span> 题（浙大版《Python 程序设计》题目集）</p>
+<p class="meta">hkh ｜ 更新 2026-10-11 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">13</span> 题（浙大版《Python 程序设计》题目集）</p>
 
 <nav id="toc">
   <strong>目录</strong>　<span style="font-size:12px;color:#656d76">（点一下直接跳）</span>
@@ -68,7 +68,7 @@
     <li><a href="#star" onclick="return go('star')">符号速查：* 和 []</a></li>
     <li><a href="#err" onclick="return go('err')">报错速查表</a></li>
     <li><a href="#rule" onclick="return go('rule')">三条铁律</a></li>
-    <li><a href="#review" onclick="return go('review')">真题回顾（<span id="cr">15</span> 题）</a></li>
+    <li><a href="#review" onclick="return go('review')">真题回顾（<span id="cr">16</span> 题）</a></li>
   </ol>
 </nav>
 
@@ -349,6 +349,20 @@ a, b = input().split(",")
 # 拓展6：一行就一个数
 n = int(input())
 # 输入 90           结果 n=90
+
+# 拓展6b：就一个数、但可能是小数（第2章-13 计算居民水费）
+x = float(input())
+# 输入 15.5         结果 x=15.5
+# float() 自己会吃掉首尾空格，所以 "  15.5  " 也能读，不用先 split()
+
+# 拓展6c：一个数也想用 map ？必须加逗号解包，否则拿到的是 map 对象
+x, = map(float, input().split())
+# 输入 15.5         结果 x=15.5（float）
+# 写成 x = map(...) 就错了：
+#   x = map(float, input().split())
+#   x <= 15     ->  TypeError: '<=' not supported between
+#                   instances of 'map' and 'int'
+# 注意 map 是一次性的：list(m) 看过一次，再看就是空的 []
 
 # 拓展7：不知道有几个数（全部读进来）
 import sys
@@ -818,7 +832,7 @@ d["x"]              # KeyError: 'x'   直接索引不存在的键会报错</code
 ② 两边同时改，很容易出现"本地一份、提交另一份"，而且极难发现
 </div>
 
-<h2 id="review">六、真题回顾（<span id="cr2">15</span> 题）</h2>
+<h2 id="review">六、真题回顾（<span id="cr2">16</span> 题）</h2>
 
 <div class="box warn">
 <strong>说明：</strong>下面的题目要求是<strong>我按自己的理解概括写的</strong>，不是 PTA 原文。<br>
@@ -1150,6 +1164,35 @@ else:
 <code>1 1 1</code> → <code>area = 0.43; perimeter = 3.00</code><br>
 <code>5 5 6</code> → <code>area = 12.00; perimeter = 16.00</code><br>
 <code>1 2 3</code>、<code>2 2 5</code> → 都走英文提示分支（前者是两边之和<strong>等于</strong>第三边，同样不成立）
+</div>
+
+<h3>2-13 分段计算居民水费 <span class="tag">通过 10/10</span></h3>
+<p><strong>要求：</strong>输入用水量 <code>x</code>，按分段公式算水费，保留 2 位小数。<br>
+<strong>输入：</strong><code>12</code> ｜ <strong>输出：</strong><code>16.00</code></p>
+<p><strong>我的代码（一次通过）</strong></p>
+<pre><code>x=float(input())
+if x&lt;=15:
+    y=4*x/3
+    print(f"{y:.2f}")
+elif x&gt;15:
+    y=2.5*x-17.5
+    print(f"{y:.2f}")</code></pre>
+<div class="box ok">
+<strong>这题的三个要点：</strong><br>
+① <strong>只有一个数，就别套 <code>map</code></strong> —— 直接 <code>float(input())</code>。
+前几题都是 <code>map(int,input().split())</code>，那是"一行多个值"的写法；这题只有一个值，
+硬套 <code>map</code> 反而要写成 <code>x, = map(float, input().split())</code>（逗号不能少），
+否则 <code>x</code> 拿到的是 map 对象，一比较就 <code>TypeError</code>。详见上面 <strong>拓展6b / 6c</strong>。<br>
+② <strong>两段接得上</strong>：<code>x=15</code> 时两个公式都算出 <code>20.0</code>（我实测核对过），
+所以分界点不会出现"跳一下"。这题的两个公式是被设计成连续的。<br>
+③ <strong>用 <code>float</code> 不用 <code>int</code></strong>：水量可能是小数；而且就算输入是整数，
+<code>4*x/3</code> 里的 <code>/</code> 是真除法，结果照样是小数。
+</div>
+<div class="box warn">
+<strong>实测核对的 8 组（期望值用分数精确算，不用浮点自己验自己）：</strong><br>
+<code>12</code>→16.00　<code>15</code>→20.00　<code>20</code>→32.50　<code>15.1</code>→20.25<br>
+<code>0</code>→0.00　<code>0.5</code>→0.67　<code>100</code>→232.50　<code>20.5</code>→33.75<br>
+另外 <code>x=15.0000001</code> 和 <code>x=14.9999999</code> 都输出 <code>20.00</code>，浮点这边也没问题。
 </div>
 
 <footer>
