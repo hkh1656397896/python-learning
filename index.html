@@ -64,7 +64,7 @@
   <strong>目录</strong>　<span style="font-size:12px;color:#656d76">（点一下直接跳）</span>
   <ol>
     <li><a href="#e1" onclick="return go('e1')">易错点（<span id="ce">10</span> 条）</a></li>
-    <li><a href="#s1" onclick="return go('s1')">常用代码与拓展（<span id="cs">9</span> 类）</a></li>
+    <li><a href="#s1" onclick="return go('s1')">常用代码与拓展（<span id="cs">10</span> 类）</a></li>
     <li><a href="#star" onclick="return go('star')">符号速查：* 和 []</a></li>
     <li><a href="#err" onclick="return go('err')">报错速查表</a></li>
     <li><a href="#rule" onclick="return go('rule')">三条铁律</a></li>
@@ -744,6 +744,64 @@ for x in range(A, B+1):
    3   4   5
    6   7   8
    9  10</code></pre>
+
+<h3>⑩ 常用内置函数：len / sum / max / min / abs / round</h3>
+
+<pre><code>nums = [150, 165, 172, 180, 158]
+
+len(nums)        # 5       个数（"里面有几个"）
+sum(nums)        # 825     求和
+max(nums)        # 180     最大
+min(nums)        # 150     最小
+abs(-7)          # 7       绝对值
+round(3.567, 2)  # 3.57    保留 2 位</code></pre>
+
+<p><strong><code>len()</code> 能数哪些东西（实测）</strong></p>
+<table>
+<tr><th>传进去</th><th>结果</th><th>说明</th></tr>
+<tr><td><code>"abc"</code></td><td>3</td><td>字符个数</td></tr>
+<tr><td><code>"你好世界"</code></td><td>4</td><td>中文一个字算 1 个</td></tr>
+<tr><td><code>[1,2,3,4]</code></td><td>4</td><td>元素个数</td></tr>
+<tr><td><code>{"a":1,"b":2}</code></td><td>2</td><td>字典数的是<strong>键值对</strong>个数</td></tr>
+<tr><td><code>range(-3,11)</code></td><td>14</td><td><strong>range 也能直接 len</strong>，不用先转 list</td></tr>
+<tr><td><code>"1 2 3".split()</code></td><td>3</td><td>数「一行有几个数」<strong>不用转 int</strong></td></tr>
+</table>
+
+<div class="box bad">
+<strong><code>len()</code> 不能用在单个数字上：</strong><br>
+<code>len(42)</code> → <code>TypeError: object of type 'int' has no len()</code><br>
+<code>len(3.14)</code> → <code>TypeError: object of type 'float' has no len()</code><br>
+<strong>一句话记：<code>len()</code> 只吃「容器」（能装东西的），不吃「单个值」。</strong>
+</div>
+
+<div class="box warn">
+<strong>重点：<code>map</code> 对象没有长度！</strong><br>
+<code>m = map(int, "1 2 3".split())</code> 之后 <code>len(m)</code> →
+<code>TypeError: object of type 'map' has no len()</code><br>
+必须先 <code>nums = list(map(int, ...))</code>，再 <code>len(nums)</code> 才是 3。<br>
+<strong>这就是为什么读一行数字要写 <code>list(map(...))</code></strong> ——
+不是为了好看，是为了后面能对结果用 <code>len()</code>、切片、重复遍历。
+</div>
+
+<div class="box ok">
+<strong>别和 <code>count()</code> 搞混：<code>len</code> 数<strong>总数</strong>，
+<code>count</code> 数<strong>某个值出现几次</strong>。</strong><br>
+<code>"banana"</code> → <code>len</code> 是 6，<code>count("a")</code> 是 3，<code>count("an")</code> 是 2<br>
+<code>[1,2,2,3,2]</code> → <code>len</code> 是 5，<code>count(2)</code> 是 3
+</div>
+
+<div class="box bad">
+<strong><code>round()</code> 不是四舍五入，是「银行家舍入」：</strong><br>
+<code>round(2.5)</code> → <code>2</code>　　<code>round(3.5)</code> → <code>4</code>
+（碰到 .5 往<strong>偶数</strong>靠）<br>
+<strong>所以 PTA 上要保留几位小数，用 <code>f"{x:.2f}"</code>，别用 <code>round()</code>。</strong>
+</div>
+
+<div class="box warn">
+<strong>空列表算平均会「除以 0」：</strong><br>
+<code>sum([]) / len([])</code> → <code>ZeroDivisionError: division by zero</code><br>
+PTA 一般不会给空输入，但自己写程序时心里要有数。
+</div>
 
 <h2 id="star">三、符号速查：* 和 []</h2>
 
