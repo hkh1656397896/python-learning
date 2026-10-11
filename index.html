@@ -58,7 +58,7 @@
 <body>
 
 <h1>Python 自学笔记</h1>
-<p class="meta">hkh ｜ 更新 2026-10-11 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">13</span> 题（浙大版《Python 程序设计》题目集）</p>
+<p class="meta">hkh ｜ 更新 2026-10-11 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题（浙大版《Python 程序设计》题目集）</p>
 
 <nav id="toc">
   <strong>目录</strong>　<span style="font-size:12px;color:#656d76">（点一下直接跳）</span>
@@ -68,7 +68,7 @@
     <li><a href="#star" onclick="return go('star')">符号速查：* 和 []</a></li>
     <li><a href="#err" onclick="return go('err')">报错速查表</a></li>
     <li><a href="#rule" onclick="return go('rule')">三条铁律</a></li>
-    <li><a href="#review" onclick="return go('review')">真题回顾（<span id="cr">16</span> 题）</a></li>
+    <li><a href="#review" onclick="return go('review')">真题回顾（<span id="cr">17</span> 题）</a></li>
   </ol>
 </nav>
 
@@ -981,7 +981,7 @@ d["x"]              # KeyError: 'x'   直接索引不存在的键会报错</code
 ② 两边同时改，很容易出现"本地一份、提交另一份"，而且极难发现
 </div>
 
-<h2 id="review">六、真题回顾（<span id="cr2">16</span> 题）</h2>
+<h2 id="review">六、真题回顾（<span id="cr2">17</span> 题）</h2>
 
 <div class="box warn">
 <strong>说明：</strong>下面的题目要求是<strong>我按自己的理解概括写的</strong>，不是 PTA 原文。<br>
@@ -1342,6 +1342,46 @@ elif x&gt;15:
 <code>12</code>→16.00　<code>15</code>→20.00　<code>20</code>→32.50　<code>15.1</code>→20.25<br>
 <code>0</code>→0.00　<code>0.5</code>→0.67　<code>100</code>→232.50　<code>20.5</code>→33.75<br>
 另外 <code>x=15.0000001</code> 和 <code>x=14.9999999</code> 都输出 <code>20.00</code>，浮点这边也没问题。
+</div>
+
+<h3>2-14 求整数段和 <span class="tag">通过 15/15</span></h3>
+<p><strong>要求：</strong>输入 A、B，顺序输出 A 到 B 的所有整数，
+<strong>每行 5 个、每个数字占 5 个字符宽、向右对齐</strong>，最后一行输出 <code>Sum = 总和</code>。<br>
+<strong>输入：</strong><code>-3 10</code> ｜ <strong>输出：</strong></p>
+<pre><code>   -3   -2   -1    0    1
+    2    3    4    5    6
+    7    8    9   10
+Sum = 49</code></pre>
+<p><strong>我的代码（提交版，15/15）</strong></p>
+<pre><code>A,B=map(int,input().split())
+if -100&lt;=A&lt;=B&lt;=100:
+    x=0
+    cnt=0
+    for i in range(0,B-A+1):
+        a=A+i
+        x=x+a
+        print(f"{a:&gt;5d}",end="")
+        cnt+=1
+        if cnt%5==0:
+            print()
+    if cnt%5!=0:
+            print()
+    print(f"Sum = {x}")</code></pre>
+<div class="box bad">
+<strong>我第一交挂在一个测试点上（13/15，报「格式错误」）</strong> ——
+补换行写成了<strong>无条件</strong>的，少了 <code>if cnt%5!=0:</code> 这个条件。<br>
+满 5 个时循环里已经换过行了，这里再换一次就<strong>多出一个空行</strong>；<br>
+而总数不是 5 的倍数时，这一行正好补上，<strong>看起来完全正常</strong>。<br>
+所以<strong>只有「总数是 5 的倍数」的测试点会挂</strong> —— 实测 <code>1 5</code> 输出 3 行，期望 2 行。<br>
+在 <code>-100≤A≤B≤100</code> 的全部 <strong>20301</strong> 种合法输入里，有 <strong>3980 种（19.6%）</strong>会踩到。
+</div>
+<div class="box warn">
+<strong>代码里还有两处可以更好：</strong><br>
+① <strong>缩进跳级了。</strong>最后那个 <code>print()</code> 我缩进了 12 格，而它所属的
+<code>if</code> 在 4 格 —— 中间跳了 8 格。Python 不报错（同一块内缩进一致就行），
+但按「一级 4 空格」的规范应该是 <strong>8 格</strong>，跳级容易看错层级。<br>
+② <code>x=x+a</code> 和 <code>a=A+i</code> 都是必要的，但 <code>range(0,B-A+1)</code> 配 <code>A+i</code>
+可以换成更直白的 <code>for a in range(A, B+1)</code>，少一个变量。
 </div>
 
 <footer>
