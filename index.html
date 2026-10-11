@@ -1105,6 +1105,79 @@ print(list(g))          # []                        ★ 生成器是一次性的
 
 <h3 id="s1-13">⑬ 读多行（第一行是数量，后面 N 行数据）</h3>
 
+<p><strong>为什么这样写就能读到 N 行？—— <code>input()</code> 是一个「有记忆的取行动作」</strong></p>
+
+<div class="box ok">
+<strong>整份输入在内存里就是一个字符串：</strong><br>
+<code>'3\n11010519491231002X\n110105194912310021\n123456789012345678\n'</code><br>
+里面那些 <code>\n</code> 就是<strong>行的分界</strong>。<br>
+<code>input()</code> 每次做的事：<strong>从光标处取到下一个 <code>\n</code>（不含它），再把光标跳过这个 <code>\n</code></strong>。
+</div>
+
+<pre><code>【初始】已读=''
+        待读='3\n11010519491231002X\n110105194912310021\n123456789012345678\n'
+
+── 第 1 次 input() ──
+   返回值 = '3'
+   已读='3\n'                        &lt;- 光标前进了
+   待读='11010519491231002X\n...'    &lt;- '3' 不会再来了
+
+── 第 2 次 input() ──
+   返回值 = '11010519491231002X'     &lt;- 从【上次停下的地方】继续
+   已读='3\n11010519491231002X\n'
+   待读='110105194912310021\n...'</code></pre>
+
+<div class="box warn">
+<strong>证明它有记忆：</strong><code>a=input(); b=input(); c=input()</code> 连续三次拿到
+<code>'3'</code>、<code>'11010519491231002X'</code>、<code>'110105194912310021'</code> —— <strong>三次完全不同</strong>。<br>
+对比<strong>纯函数</strong> <code>len("abc")</code> 调三次永远是 <code>3</code>：同样的输入给同样的输出才叫纯函数。<br>
+<code>input()</code> 没有参数却每次给不同结果，因为它读的是<strong>外部状态</strong>（输入流）。<br>
+<strong>「从上次停下的地方继续」就是记忆；取走的字符不会回来。</strong>
+</div>
+
+<p><strong>所以这三行是这样拼起来的</strong></p>
+<pre><code>n = int(input())
+    +--+ +----+
+      |      +--- (1) 先执行：取走第一行 '3'
+      +---------- (2) 再执行：int('3') -&gt; 3
+
+for i in range(n):
+    +-----+
+          +--- 让下面这段【重复 n 次】
+
+    s = input()
+        +--+
+           +--- 每重复一次，就再取走一行</code></pre>
+<p><strong>「读 n 行」不是一条指令，而是「取 n 次」这个动作，用 <code>for</code> 组合出来的。</strong>
+手动把循环展开成 <code>s=input()</code> 写三遍，结果<strong>完全一样</strong>。</p>
+
+<div class="box ok">
+<strong><code>i</code> 其实用不上：</strong>
+<code>for i in range(n)</code> 和 <code>for _ in range(n)</code> 完全等价。<br>
+下划线 <code>_</code> <strong>不是特殊语法</strong>，只是约定俗成的名字，表示「这个值我不关心」——
+叫 <code>for abc in range(n)</code> 也一样。
+</div>
+
+<div class="box bad">
+<strong>读多 / 读少分别会怎样：</strong><br>
+· <strong>n 说 5，实际只有 4 行</strong> → 第 5 次 <code>input()</code> 没东西可读，报
+<code>EOFError: EOF when reading a line</code><br>
+· <strong>n 说 2，实际有 4 行</strong> → 不报错，但剩下 2 行<strong>悄悄留在流里</strong>，
+后面若还有 <code>input()</code> 就会读到它们
+</div>
+
+<div class="box warn">
+<strong>换个角度：<code>input()</code> 等价于「从流里取下一个」</strong>
+<pre><code>import sys
+it = iter(sys.stdin)      # 把输入变成「一次取一个」的迭代器
+n = int(next(it))         # next() = 取下一个
+for i in range(n):
+    s = next(it)</code></pre>
+<strong>这跟 <code>map</code>、生成器「一次性」是同一个道理</strong>：凡是「从流里取」的东西，取过就没了。<br>
+⚠ 两种读法<strong>只能用一种</strong> —— 用了 <code>sys.stdin.read()</code>（把流读空）之后再 <code>input()</code>，
+就会 <code>EOFError</code>。
+</div>
+
 <p><strong>核心就一句：<code>input()</code> 一次只读一行，读 N 行就调用 N 次。</strong></p>
 
 <p><strong>三种写法（同一份输入，结果完全一样）</strong></p>
