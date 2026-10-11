@@ -68,7 +68,7 @@
     <li><a href="#star" onclick="return go('star')">符号速查：* 和 []</a></li>
     <li><a href="#err" onclick="return go('err')">报错速查表</a></li>
     <li><a href="#rule" onclick="return go('rule')">三条铁律</a></li>
-    <li><a href="#review" onclick="return go('review')">真题回顾（12 题）</a></li>
+    <li><a href="#review" onclick="return go('review')">真题回顾（13 题）</a></li>
   </ol>
 </nav>
 
@@ -255,6 +255,20 @@ print(*sorted(map(int, input().split())), sep="->")   # ✅ 按数值</code></pr
 <strong>一旦出现多位数就分道扬镳</strong> —— 字符串是<strong>逐字符</strong>比的：<br>
 <code>"10" &lt; "2"</code> 为<strong>真</strong>（字符 <code>1</code> 比 <code>2</code> 小），但 <code>10 &lt; 2</code> 为<strong>假</strong>。<br>
 <strong>所以排序前一定要先转成数字。</strong>
+</div>
+
+<div class="box ok">
+<strong>同一个原理，出了代码照样管 —— 文件名也是字典序：</strong><br>
+我原来的自学文件叫 <code>第2章-1_累加求和.py</code>、…、<code>第2章-10 输出华氏….py</code>，
+结果 <code>第2章-10</code> 排到了 <code>第2章-1</code> 前面。<br>
+<strong>原因跟上面一模一样：</strong><code>第2章-1</code> 是 <code>第2章-10</code> 的<strong>前缀</strong>，
+逐字符比到第 6 位才分出胜负 —— 一个是 <code>0</code>（48），一个是 <code>_</code>（95），
+<code>0</code> 小，所以带 <code>10</code> 的排前面。<strong>跟「1 和 10 谁大」毫无关系。</strong><br>
+<strong>解法也只有补零一种：</strong><code>第02章-01_累加求和.py</code> … <code>第02章-10_输出华氏-摄氏温度转换表.py</code>，
+让 <code>01</code> 和 <code>10</code> 在<strong>同一位</strong>上比。<br>
+<strong>顺带一个实测冷知识：</strong>换个排序算法也救不了 —— VS Code 用序数比较、PowerShell 用文化相关比较，
+补零<strong>之前</strong>这两个算法给出<strong>不同</strong>的顺序（所以你在两处看到的顺序不一样），
+补零<strong>之后</strong>才<strong>完全一致</strong>。
 </div>
 
 <hr>
@@ -761,7 +775,7 @@ d["x"]              # KeyError: 'x'   直接索引不存在的键会报错</code
 ② 两边同时改，很容易出现"本地一份、提交另一份"，而且极难发现
 </div>
 
-<h2 id="review">六、真题回顾（12 题）</h2>
+<h2 id="review">六、真题回顾（13 题）</h2>
 
 <div class="box warn">
 <strong>说明：</strong>下面的题目要求是<strong>我按自己的理解概括写的</strong>，不是 PTA 原文。<br>
