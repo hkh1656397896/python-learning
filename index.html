@@ -64,7 +64,7 @@
   <strong>目录</strong>　<span style="font-size:12px;color:#656d76">（点一下直接跳）</span>
   <ol>
     <li><a href="#e1" onclick="return go('e1')">易错点（<span id="ce">10</span> 条）</a></li>
-    <li><a href="#s1" onclick="return go('s1')">常用代码与拓展（<span id="cs">10</span> 类）</a></li>
+    <li><a href="#s1" onclick="return go('s1')">常用代码与拓展（<span id="cs">11</span> 类）</a></li>
     <li><a href="#star" onclick="return go('star')">符号速查：* 和 []</a></li>
     <li><a href="#err" onclick="return go('err')">报错速查表</a></li>
     <li><a href="#rule" onclick="return go('rule')">三条铁律</a></li>
@@ -275,7 +275,7 @@ s = 11              # ✅ 换个名字</code></pre>
 样例是出题人给的确定信息，比描述文字可靠。
 </div>
 
-<h3>❌ 10. 字符串排序 ≠ 数字排序 <span class="tag">第2章-9</span></h3>
+<h3>❌ 10. 字符串比较 ≠ 数字比较（排序和比大小都中招） <span class="tag">第2章-9、第3章-1</span></h3>
 
 <div class="box bad">
 <strong>症状：</strong>判"部分正确"—— 单位数的测试点过了，多位数的挂了<br>
@@ -312,6 +312,31 @@ print(*sorted(map(int, input().split())), sep="->")   # ✅ 按数值</code></pr
 <strong>顺带一个实测冷知识：</strong>换个排序算法也救不了 —— VS Code 用序数比较、PowerShell 用文化相关比较，
 补零<strong>之前</strong>这两个算法给出<strong>不同</strong>的顺序（所以我在两处看到的顺序不一样），
 补零<strong>之后</strong>才<strong>完全一致</strong>。
+</div>
+
+<div class="box bad">
+<strong>同一个坑还有第二个出口：拿字符串<strong>比大小</strong>。</strong><br>
+<code>input().split()</code> 出来的是字符串列表，直接拿去比就是<strong>逐字符比字典序</strong>。<br>
+实测 20 万组随机数的规律：
+</div>
+
+<table>
+<tr><th>情况</th><th>组数</th><th>字符串比较 vs 数字比较，一致率</th></tr>
+<tr><td><strong>两个数位数相同</strong></td><td>163,655</td><td><strong>100.00%</strong>（永远一致）</td></tr>
+<tr><td><strong>两个数位数不同</strong></td><td>36,345</td><td><strong>50.04%</strong> —— 基本是<strong>抛硬币</strong></td></tr>
+</table>
+
+<pre><code>150 vs 99     字符串 False   数字 True     ★ 不同
+9   vs 150    字符串 True    数字 False    ★ 不同
+150 vs 120    字符串 True    数字 True     一致（位数相同）
+1000 vs 999   字符串 False   数字 True     ★ 不同</code></pre>
+
+<div class="box warn">
+<strong>为什么位数相同就碰巧对：</strong>字符串逐字符比，而 <code>'0' &lt; '1' &lt; … &lt; '9'</code>。
+位数相同时从最高位开始比，效果和数字比较<strong>一模一样</strong>；
+位数不同时先比的是「第一位」，跟真实大小无关。<br>
+<strong>这个 bug 最危险的地方：不报错、不崩溃，只是得到一个「一半概率正确」的答案。</strong><br>
+<strong>所以：一读进来就转数字</strong> —— <code>nums = list(map(float, line.split()))</code>。
 </div>
 
 <hr>
@@ -801,6 +826,60 @@ round(3.567, 2)  # 3.57    保留 2 位</code></pre>
 <strong>空列表算平均会「除以 0」：</strong><br>
 <code>sum([]) / len([])</code> → <code>ZeroDivisionError: division by zero</code><br>
 PTA 一般不会给空输入，但自己写程序时心里要有数。
+</div>
+
+<h3>⑪ 遍历列表 + 挑出满足条件的元素</h3>
+
+<p><strong>第一步：逐个取出</strong>（<code>for</code> 直接遍历元素，不用管下标）</p>
+<pre><code>heights = [150, 165, 172, 180, 158]
+
+for h in heights:
+    print(h)          # 150 / 165 / 172 / 180 / 158
+
+# 只有需要知道「第几个」时才按下标取：
+for i in range(len(heights)):
+    print(i, heights[i])</code></pre>
+
+<p><strong>第二步：比大小</strong>（6 个比较运算符）</p>
+<pre><code>h &gt;  avg    大于          h &gt;= avg    大于或等于
+h &lt;  avg    小于          h &lt;= avg    小于或等于
+h == avg    等于          h != avg    不等于
+
+# ⚠ 最常错：把「等于」写成 h = avg —— 那是赋值，不是比较</code></pre>
+
+<p><strong>第三步：挑出来</strong>（三种写法）</p>
+<pre><code>avg = sum(heights) / len(heights)      # 165.0
+
+# 写法一：收集到新列表（后面还要用就选这个）
+above = []
+for h in heights:
+    if h &gt; avg:
+        above.append(h)
+# -> [172, 180]
+
+# 写法二：直接打印（不用收集）
+for h in heights:
+    if h &gt; avg:
+        print(f"{h:.2f}")
+
+# 写法三：列表推导式（一行，和写法一完全等价）
+above = [h for h in heights if h &gt; avg]</code></pre>
+
+<div class="box ok">
+<strong>模板（记住这个就够）：</strong>
+<pre><code>for x in 列表:
+    if 条件(x):
+        处理(x)        # 打印 / 收集 / 累加 / 数个数</code></pre>
+「处理」有四种常见形态：<br>
+<code>above.append(x)</code> 收集　｜　<code>print(x)</code> 输出　｜　
+<code>cnt += 1</code> 数个数　｜　<code>total += x</code> 求和
+</div>
+
+<div class="box bad">
+<strong>「大于平均值」这类题，顺序不能颠倒：</strong><br>
+平均值要等<strong>所有</strong>数据都读完才能算出来，所以必须<strong>两趟</strong> ——
+先把数据<strong>存下来</strong>（<code>list(map(...))</code>），算完平均，再回头遍历一遍挑。<br>
+<strong>没法「读一个、判断一个」。</strong>
 </div>
 
 <h2 id="star">三、符号速查：* 和 []</h2>
@@ -1479,7 +1558,7 @@ function fillCounts(){
   if (el){
     el = el.nextElementSibling;
     while (el && el.tagName !== 'H2'){
-      if (el.tagName === 'H3' && /^\s*[①②③④⑤⑥⑦⑧⑨⑩]/.test(el.textContent || '')) { secs++; }
+      if (el.tagName === 'H3' && /^\s*[\u2460-\u2473]/.test(el.textContent || '')) { secs++; }
       el = el.nextElementSibling;
     }
   }
