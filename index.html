@@ -1956,18 +1956,88 @@ B = [1, 2]; B.extend([3, 4]);  print(B)   # [1, 2, 3, 4]     倒出来摊平（�
 后者是<strong>改原来那个</strong> —— 小数据看不出差别，但这就是「累加器被清零」（❌6）那一类 bug 的温床。
 </div>
 
-<p><strong><code>enumerate</code>：一边给下标、一边给字符</strong>（第3章-3 第一次正式用它）</p>
-<pre><code>s = "pmispsissippi"
-list(enumerate(s))[:4]      # [(0, 'p'), (1, 'm'), (2, 'i'), (3, 's')]
+<p><strong><code>enumerate</code>：把「位置号 + 元素」配成一对（每轮交出一对）</strong>（第3章-3 第一次正式用它）</p>
+<p>它<strong>不计算任何东西</strong>，只做一件事：把可迭代对象变成配对流。<code>"abc"</code> → <code>(0,'a') (1,'b') (2,'c')</code></p>
+<pre><code>print(enumerate("abc"))          # &lt;enumerate object at 0x...&gt;   直接打印没用
+print(type(enumerate("abc")))    # &lt;class 'enumerate'&gt;
+print(list(enumerate("abc")))    # [(0, 'a'), (1, 'b'), (2, 'c')]  想看内容才 list()
 
-for i, ch in enumerate(s):  # i 是位置，ch 是那个位置上的字符
-    if ch == "p":
-        print(i, ch, end="  |  ")
-# 0 p  |  4 p  |  10 p  |  11 p  |</code></pre>
+for i, ch in enumerate("abc"):
+    ...
+# 0 a | 1 b | 2 c</code></pre>
+<p><strong>为什么写 <code>i, ch</code> 就能各拿一个：这叫「元组拆包」</strong> ——
+和 <code>a, b = input().split()</code> 是<strong>同一个机制</strong>，只是以前不知道它有名字。<br>
+<code>i, ch = (0, 'a')</code> → i 拿 0，ch 拿 'a'。写成
+<code>for i, (n, sc) in enumerate(zip(...))</code> 就是<strong>拆两层</strong>（enumerate 一层，zip 再一层）。</p>
+<pre><code>names = ["甲", "乙"]; scores = [90, 85]
+for i, (n, sc) in enumerate(zip(names, scores), 1):
+    print("第%d名 %s %d" % (i, n, sc))
+# 第1名 甲 90
+# 第2名 乙 85</code></pre>
+
+<div class="box warn">
+<strong>它是「懒」的：只能消费一次，也不能按下标取（都实测过）</strong>
+<pre><code>en = enumerate("abc")
+list(en)      # [(0, 'a'), (1, 'b'), (2, 'c')]
+list(en)      # []                                        ← 第二次空了！
+enumerate("abc")[0]   # TypeError: 'enumerate' object is not subscriptable</code></pre>
+想反复看就先 <code>list()</code> 存下来，别对着 enumerate 对象反复遍历。
+</div>
+
+<div class="box ok">
+<strong>拓展：<code>start</code> 参数 —— 编号从几开始</strong>
+<pre><code>list(enumerate("abc", 1))     # [(1, 'a'), (2, 'b'), (3, 'c')]    从 1 起
+list(enumerate("abc", 10))    # [(10, 'a'), (11, 'b'), (12, 'c')] 从任意数起</code></pre>
+<strong>凡是「给人看的编号从 1 开始」（名次、页码、第 N 个），用 <code>start=1</code>，
+就不用到处写 <code>i+1</code>。</strong>（第3章-3 要的是<strong>下标</strong>，从 0 算，所以那题<strong>不加</strong> start。）
+</div>
+
+<div class="box ok">
+<strong>拓展：和 <code>range(len(x))</code> 完全等价（三条路产出一样）</strong>
+<pre><code>[(i, ch) for i, ch in enumerate("ab")]     # [(0, 'a'), (1, 'b')]
+[(i, "ab"[i]) for i in range(len("ab"))]   # [(0, 'a'), (1, 'b')]
+list(zip(range(len("ab")), "ab"))          # [(0, 'a'), (1, 'b')]
+# 三者相等 -> True</code></pre>
+<strong>选哪个：</strong>下标和元素<strong>都要用</strong> → <code>enumerate</code>（省掉 <code>s[i]</code> 的噪音）；
+只要「第几次」、不关心元素 → <code>range(len(x))</code> 也行（⑨ 用的就是 range 那套）。
+</div>
+
+<div class="box ok">
+<strong>拓展：什么都能 enumerate —— 但不同容器的「元素」不一样</strong>
+<pre><code>list(enumerate(["x", "y"]))           # [(0, 'x'), (1, 'y')]
+list(enumerate({"k1": 1, "k2": 2}))   # [(0, 'k1'), (1, 'k2')]   ← 给的是【键】！
+list(enumerate(("t1", "t2"), 1))      # [(1, 't1'), (2, 't2')]</code></pre>
+<strong>字典那条单独记：</strong>想要「序号 + 键值对」得写 <code>enumerate(d.items())</code>。<br>
+<strong>集合的顺序不稳定</strong>（实测连开 8 个进程跑 <code>{'a','b','c','d','e'}</code>，8 次排列全不同）——
+需要固定顺序就先 <code>sorted()</code> 再 enumerate。
+</div>
+
+<div class="box ok">
+<strong>为什么第3章-3 非要它：<code>find</code> 办不到</strong>
+<pre><code>s = "pmispsissippi"
+s.find("p")                                   # 0                 ← 只给【第一个】
+[i for i, c in enumerate(s) if c == "p"]      # [0, 4, 10, 11]    ← 全部位置</code></pre>
+<strong><code>find</code> 找到就停，<code>enumerate</code> 能扫完整个串。</strong>题目要<strong>每一个</strong>匹配位置，
+所以 <code>find</code> 天然不够用。
+</div>
+
 <div class="box warn">
 <strong>别把两条路混着用：</strong><code>for ch in s</code> 拿到的是<strong>字符</strong>（不是下标），
 <code>for i in range(len(s))</code> 拿到的是<strong>下标</strong>（字符要 <code>s[i]</code> 再取）。
 写成 <code>s[ch]</code> 会 <code>TypeError</code>：字符不能当索引。
+</div>
+
+<div class="box ok">
+<strong>判据：哪些函数返回 <code>None</code>、哪些必须接住</strong>
+<table>
+<tr><th>类型</th><th>函数</th><th>返回值</th><th>怎么用</th></tr>
+<tr><td><strong>干活型</strong></td><td><code>print</code>、<code>append</code>、<code>sort</code>、<code>extend</code></td>
+<td>结果留在<strong>原地</strong>，返回 <code>None</code></td><td>当语句用；<code>=</code> 接住就毁（❌13）</td></tr>
+<tr><td><strong>产出型</strong></td><td><code>sorted</code>、<code>enumerate</code>、<code>zip</code>、<code>map</code>、<code>split</code></td>
+<td>返回<strong>新东西</strong></td><td>就是拿来接住或遍历的</td></tr>
+</table>
+<strong>记法：<code>sort()</code> 原地改、<code>sorted()</code> 返回新的；<code>append</code> 原地加、<code>+</code> 返回新的。</strong>
+拿不准就看它返回的是不是 <code>None</code>。
 </div>
 
 <p><strong>字典的默认排序：排的是「键」，不是「值」（❌11「字符串比较」的亲戚）</strong></p>
