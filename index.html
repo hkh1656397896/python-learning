@@ -109,7 +109,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>二、常用代码与拓展 <span class="toc-n" id="cs">17</span></summary>
+    <summary>二、常用代码与拓展 <span class="toc-n" id="cs">18</span></summary>
     <ol>
       <li><a onclick="return go('s1-1')">① 读一行数字</a></li>
       <li><a onclick="return go('s1-2')">② range()：生成数字序列</a></li>
@@ -128,6 +128,7 @@
       <li><a onclick="return go('s1-15')">⑮ 怎么实现「对应关系」（查表）</a></li>
       <li><a onclick="return go('s1-16')">⑯ 两个实用套路：检查「全是数字」+ 循环外判断「全部合格」</a></li>
       <li><a onclick="return go('s1-17')">⑰ 切片 vs range：取一段内容，还是造一串序号</a></li>
+      <li><a onclick="return go('s1-18')">⑱ 字符串清理：strip / lstrip / rstrip</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -1678,6 +1679,64 @@ total = sum(a * b for a, b in zip(v, w))       # 后面直接乘</code></pre>
 <code>lst=[1,2,3,4,5]</code>；<code>copy=lst[0:3]</code>；<code>copy[0]=999</code> →
 <code>copy</code> 变成 <code>[999,2,3]</code>，但 <code>lst</code> <strong>还是 <code>[1,2,3,4,5]</code></strong><br>
 ③ 需要「第几轮」这个计数（比如每 5 个换行）
+</div>
+
+<h3 id="s1-18">⑱ 字符串清理：strip / lstrip / rstrip</h3>
+
+<pre><code>s.strip()      # 去掉【首尾】的空白
+s.lstrip()     # l = left，只删左边
+s.rstrip()     # r = right，只删右边
+s.strip("0")   # 从两端删掉 '0'（参数是「一组字符」）</code></pre>
+
+<p><strong>"空白"不只是空格</strong>（实测 <code>' \t\n\r\u3000abc \t\n\r\u3000'.strip()</code> → <code>'abc'</code>）：</p>
+<pre><code>空格 ' '    制表符 '\t'    换行 '\n'    回车 '\r'    全角空格 '　'(U+3000)</code></pre>
+
+<div class="box bad">
+<strong>★★ 关键：只删【首尾】，中间的一个都不动。</strong>
+<pre><code>'  a b c  '   ->  'a b c'      两端没了，中间完好
+'a  b'        ->  'a  b'       没变！</code></pre>
+<strong><code>strip()</code> 不是「删除所有空格」。</strong>想删掉所有空白要用：
+<pre><code>" ".join(s.split())      # 'a  b   c' -> 'a b c'</code></pre>
+</div>
+
+<div class="box bad">
+<strong>带参数时，参数是「一组字符」，不是「一个子串」：</strong>
+<pre><code>'xxabcxx'.strip('x')    ->  'abc'
+'axbxc'.strip('x')      ->  'axbxc'     &lt;- 中间的 x 不动
+'abcba'.strip('ab')     ->  'c'</code></pre>
+<code>'abcba'.strip('ab')</code> 的意思是「从两端开始，只要字符是 <code>a</code> <strong>或</strong>
+<code>b</code> 就删掉」—— <strong>不是</strong>「删掉子串 <code>ab</code>」。<br>
+验证：<code>strip('ab')</code> 和 <code>strip('ba')</code> 结果一样（都是 <code>'c'</code>），说明它不看顺序。<br>
+常见用法：去掉数字两端多余的 0 —— <code>'000123000'.strip('0')</code> → <code>'123'</code>；
+<code>'000'.strip('0')</code> → <code>''</code>（全删光，返回空字符串）。
+</div>
+
+<div class="box warn">
+<strong>它【不改】原字符串</strong>（字符串是不可变的）：
+<pre><code>s = '  abc  '
+t = s.strip()      # t = 'abc'
+# 但 s 还是 '  abc  ' ！
+
+s.strip()          # ❌ 结果丢了
+s = s.strip()      # ✅ 必须接住返回值</code></pre>
+</div>
+
+<div class="box ok">
+<strong>为什么读输入要写 <code>input().strip()</code> —— 第3章-2 实测：</strong>
+<table>
+<tr><th><code>raw</code></th><th>判定</th></tr>
+<tr><td><code>'320124198808240056'</code></td><td>有效</td></tr>
+<tr><td><code>'320124198808240056 '</code></td><td><strong>无效（校验码不符）</strong></td></tr>
+<tr><td><code>'  320124198808240056'</code></td><td><strong>无效（前17位含非数字）</strong></td></tr>
+<tr><td><code>'320124198808240056\r'</code></td><td><strong>无效（校验码不符）</strong></td></tr>
+</table>
+加上 <code>.strip()</code> 之后 5 种情况全部判对。<br>
+<strong>根因：</strong>
+<pre><code>s = '320124198808240056 '
+s[17] = '6'      &lt;- 第 18 位，正确
+s[-1] = ' '      &lt;- 最后一个字符是空格！</code></pre>
+用 <code>s[-1]</code> 取校验码时，一个尾随空格就能让所有号码判错。<br>
+<strong>读输入的标准写法：<code>s = input().strip()</code></strong>
 </div>
 
 <h2 id="star">三、符号速查：* 和 []</h2>
