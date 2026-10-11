@@ -701,8 +701,28 @@ for x in range(A, B+1):
 但那是在 <strong>x 等于 0、5、10</strong> 时换行，跟「打了几个」毫无关系 ——
 只有数据刚好从 1 开始时两者才碰巧一致。<br>
 实测：<code>1~12</code> 时它看着是对的（5、5、2）；换成 <code>0~10</code> 一带负数就变成 <strong>4 个、5 个、5 个</strong>。<br>
-② <strong>最后一行没满必须补换行。</strong>否则紧接着要输出的 <code>Sum = ...</code> 会黏在最后一个数字后面：
-<code>   7    8    9   10Sum = 30</code>
+② <strong>补换行这一步有「两个方向」的错法，都要躲开。</strong>正确写法是<strong>有条件</strong>地补：
+<code>if cnt % 5 != 0: print()</code><br>
+<strong>补少了</strong>（干脆没写）→ <code>Sum</code> 黏在最后一个数字后面：<code>   7    8    9   10Sum = 49</code><br>
+<strong>补多了</strong>（写成无条件 <code>print()</code>）→ 总数恰好是 5 的倍数时<strong>多出一个空行</strong>。
+这就是第2章-14 实际挂掉的那个测试点（13/15，报「格式错误」）。
+</div>
+
+<div class="box bad">
+<strong>第2章-14 真实踩坑：把补换行写成了无条件的</strong>
+<pre><code>    for i in range(0, B-A+1):
+        ...
+        if cnt % 5 == 0:
+            print()          # 满 5 个 -> 换行（对）
+    print()                  # ❌ 无条件又补一个
+    print(f"Sum = {x}")</code></pre>
+满 5 个时上面已经换过行了，这里再换一次，就多出一个空行。<br>
+<strong>实测 <code>1 5</code>（共 5 个数）：</strong><br>
+实际输出 3 行 —— <code>    1    2    3    4    5</code> ／ <code>（空行）</code> ／ <code>Sum = 15</code><br>
+期望 2 行 —— <code>    1    2    3    4    5</code> ／ <code>Sum = 15</code><br>
+而 <code>1 3</code>（3 个数）时两种写法<strong>都对</strong> —— 所以这个 bug
+<strong>只在「总数是 5 的倍数」时暴露</strong>。<br>
+在 <code>-100≤A≤B≤100</code> 的全部 20301 种合法输入里，有 <strong>3980 种（19.6%）</strong>会踩到。
 </div>
 
 <div class="box ok">
