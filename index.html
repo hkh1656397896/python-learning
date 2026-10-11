@@ -638,6 +638,63 @@ for x in range(A, B+1):
 if cnt % 5 != 0:                 # ④ 最后一行没满
     print()                      #    补一个换行</code></pre>
 
+<p><strong>先说清楚 <code>cnt</code> 是什么</strong></p>
+<div class="box warn">
+<strong><code>cnt</code> 不是 Python 的关键字，也不是内置函数 —— 它只是随手起的变量名</strong>
+（count「计数」的缩写）。换成 <code>count</code>、<code>n</code>、<code>k</code> 完全一样，
+推荐用 <code>count</code> 更好读。<br>
+但 <strong><code>sum</code> / <code>max</code> / <code>min</code> 绝不能当变量名</strong> ——
+它们是内置函数，被覆盖后会报 <code>TypeError: 'int' object is not callable</code>（见上面 ❌ 8）。
+</div>
+
+<p><strong>为什么非要自己数：<code>for</code> 给的是「值」，不是「第几个」</strong></p>
+<pre><code>for x in [-3, 100, 7]:
+    print(x)          # 依次输出 -3 / 100 / 7
+
+# x 是【数值本身】，它不知道自己是第几个。
+# for 只负责给出值，不负责记数 —— 得自己拿个变量记。</code></pre>
+
+<p><strong><code>cnt</code> 三步曲</strong></p>
+<pre><code>cnt = 0                  # ① 初始化，必须在循环【外面】
+for x in range(A, B+1):
+    cnt += 1             # ② 每轮加 1（等价于 cnt = cnt + 1）
+    if cnt % 5 == 0:     # ③ 用余数判断「是不是第 5、10、15…个」
+        ...</code></pre>
+
+<p><strong>逐轮追踪（每行 5 个，<code>-3~10</code>）：</strong></p>
+<pre><code>第几轮    x    打完后的cnt   cnt%5   动作
+   1     -3        1          1     继续打
+   2     -2        2          2     继续打
+   3     -1        3          3     继续打
+   4      0        4          4     继续打
+   5      1        5          0     ★ 换行     <- 第5个，5%5=0
+   6      2        6          1     继续打
+   ...
+  10      6       10          0     ★ 换行
+  14     10       14          4     继续打（最后一行没满，循环外再补一次）</code></pre>
+
+<div class="box bad">
+<strong>把 <code>cnt = 0</code> 写进循环里会怎样</strong> —— 跟第2章-11 的 <code>s=0</code> 是<strong>同一个坑</strong>：<br>
+<code>cnt</code> 每轮都被清零成 0，加 1 之后<strong>永远等于 1</strong>，<code>cnt % 5</code> 永远是 1，
+换行条件永远不成立，结果是 14 个数<strong>全挤在一行</strong>：<br>
+<code>   -3   -2   -1    0    1    2    3    4    5    6    7    8    9   10</code><br>
+<strong>累加器（<code>s</code>）和计数器（<code>cnt</code>）的初始化，都必须在循环外面。</strong>
+</div>
+
+<div class="box ok">
+<strong>更省事的写法：<code>enumerate()</code> —— 内置的计数器，不用自己声明</strong>
+<pre><code>for cnt, x in enumerate(range(A, B+1), start=1):
+    print(f"{x:5d}", end="")
+    if cnt % 5 == 0:
+        print()</code></pre>
+<code>enumerate</code> 每轮<strong>同时给出序号和值</strong>；<code>start=1</code> 让序号从 1 开始（默认是 0）：<br>
+<code>enumerate("abc")</code> → <code>(0,'a') (1,'b') (2,'c')</code>　
+<code>enumerate("abc", start=1)</code> → <code>(1,'a') (2,'b') (3,'c')</code><br>
+<strong>一个容易搞混的差别：</strong><code>enumerate</code> 的序号在<strong>每轮开头</strong>就更新好了，
+所以直接写 <code>if cnt % 5 == 0</code>，<strong>不需要先 <code>cnt += 1</code></strong>。<br>
+实测对拍（每行 1/2/3/4/5/7/14/20 个共 8 种参数）：两种写法输出<strong>完全一致</strong>。
+</div>
+
 <div class="box warn">
 <strong>两个必踩的坑：</strong><br>
 ① <strong>别拿「数值本身」当计数器。</strong>写成 <code>if x % 5 == 0: print()</code> 看着更短，
