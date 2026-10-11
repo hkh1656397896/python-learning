@@ -187,6 +187,15 @@
       <li><a onclick="return go('review-20')">3-3 输出字母在字符串中位置索引</a></li>
     </ol>
   </details>
+  <details class="toc-g">
+    <summary>七、速查总表</summary>
+    <ol>
+      <li><a onclick="return go('quick-1')">① 内置函数总表</a></li>
+      <li><a onclick="return go('quick-2')">② 方法总表（字符串 / 列表 / 字典）</a></li>
+      <li><a onclick="return go('quick-3')">③ 格式化与输出参数</a></li>
+      <li><a onclick="return go('quick-4')">④ 用途分类索引（把「二、常用代码」20 节按用途归位）</a></li>
+    </ol>
+  </details>
 </nav>
 
 <h2 id="e1">一、易错点</h2>
@@ -2969,6 +2978,200 @@ for i in sorted(L,reverse=True):
 · 两个目标字符相同时 → 每个位置只打一次，不重复<br>
 · 最坏规模（10000 字符）→ <strong>99 ms</strong>（限 400 ms）<br>
 · <code>py_compile</code> 通过
+</div>
+
+<h2 id="quick">七、速查总表</h2>
+
+<p><strong>为什么单独开一章：</strong>前面是按「遇到的顺序」记的，翻起来像流水账。
+这一章是三张<strong>按用途分类</strong>的总表 —— 想不起某个功能叫什么、该用哪个，从这儿往回找。
+<strong>表里的输出全部实测过（Python 3.9.0）。</strong></p>
+
+<h3 id="quick-1">① 内置函数总表</h3>
+
+<table>
+<tr><th>函数</th><th>用途</th><th>怎么用</th><th>用在哪</th></tr>
+
+<tr><td><code>input()</code></td><td>读一行（返回<strong>字符串</strong>）</td>
+<td><code>s = input()</code>　<code>a, b = map(int, input().split())</code></td>
+<td>全部题；❌12 的括号坑</td></tr>
+
+<tr><td><code>print()</code></td><td>输出；多个参数默认空格隔开</td>
+<td><code>print(i, m[i])</code>　<code>print(x, end=" ")</code>　<code>print(*nums, sep="->")</code></td>
+<td>全部题；③ 格式化、⑨ 一行几个</td></tr>
+
+<tr><td><code>int()</code> / <code>float()</code></td><td>转整数 / 转小数</td>
+<td><code>int("45")</code> <code>45</code>｜<code>int("1010", 2)</code> <code>10</code>｜<code>float("3.5")</code> <code>3.5</code></td>
+<td>读数据；❌2 该用哪个</td></tr>
+
+<tr><td><code>str()</code></td><td>转字符串（拼字符串前必备）</td>
+<td><code>str(45)</code> <code>'45'</code>｜<code>str(a) * i</code></td>
+<td>④ 类型转换；2-4、2-7</td></tr>
+
+<tr><td><code>len()</code></td><td>数<strong>个数</strong>（只能吃容器）</td>
+<td><code>len("你好")</code> <code>2</code>｜<code>len([1,2,3])</code> <code>3</code>｜<code>len(range(5))</code> <code>5</code></td>
+<td>⑩；<code>len(42)</code> 会 <code>TypeError</code></td></tr>
+
+<tr><td><code>sum()</code> <code>max()</code> <code>min()</code></td><td>求和 / 最大值 / 最小值</td>
+<td><code>sum([1,2,3])</code> <code>6</code>｜<code>max([3,1,2])</code> <code>3</code>｜<code>min([3,1,2])</code> <code>1</code></td>
+<td>⑩；第2章-1、2-9、3-1</td></tr>
+
+<tr><td><code>abs()</code> / <code>round()</code></td><td>绝对值 / 取整</td>
+<td><code>abs(-7)</code> <code>7</code>｜<code>round(3.14159, 2)</code> <code>3.14</code>｜⚠️ <code>round(2.5)</code> <code>2</code>（银行家舍入）</td>
+<td>⑩；<strong>要保留小数用 f-string，不用 round</strong></td></tr>
+
+<tr><td><code>sorted()</code></td><td>排序，<strong>返回新列表</strong></td>
+<td><code>sorted([3,1,2])</code> <code>[1, 2, 3]</code>｜<code>sorted(x, reverse=True)</code>｜<code>sorted(x, key=lambda t: t[0])</code></td>
+<td>⑦；❌10、第3章-3</td></tr>
+
+<tr><td><code>reversed()</code></td><td>只<strong>倒顺序</strong>，不排序</td>
+<td><code>list(reversed([3,1,2]))</code> <code>[2, 1, 3]</code></td>
+<td>⑦；和 <code>reverse=True</code> 不是一回事</td></tr>
+
+<tr><td><code>range()</code></td><td>造一串序号（左闭右开）</td>
+<td><code>list(range(3))</code> <code>[0, 1, 2]</code>｜<code>list(range(1, 6, 2))</code> <code>[1, 3, 5]</code></td>
+<td>②；⑨、⑰</td></tr>
+
+<tr><td><code>map()</code></td><td>对<strong>每一个</strong>元素做同一件事</td>
+<td><code>a, b = map(int, input().split())</code>｜<code>list(map(float, line.split()))</code></td>
+<td>①；❌5（会把每一个都转）、❌10</td></tr>
+
+<tr><td><code>enumerate()</code></td><td>位置号 + 元素，<strong>配成一对</strong></td>
+<td><code>for i, ch in enumerate(s):</code>｜<code>enumerate(s, 1)</code> 从 1 编号</td>
+<td>⑳；第3章-3。它是<strong>懒</strong>的，只能消费一次</td></tr>
+
+<tr><td><code>zip()</code> / <code>list()</code></td><td>多个序列并排走 / 转成列表</td>
+<td><code>list(zip([1,2], ["a","b"]))</code> <code>[(1, 'a'), (2, 'b')]</code>｜<code>list("ab")</code> <code>['a', 'b']</code></td>
+<td>⑮、⑰、⑳</td></tr>
+
+<tr><td><code>type()</code> / <code>repr()</code></td><td><strong>查真相</strong>：看到底是什么类型 / 带引号的样子</td>
+<td><code>type("45")</code> <code>&lt;class 'str'&gt;</code>｜<code>repr("45")</code> <code>'45'</code></td>
+<td>❌4、❌11；<code>print</code> 看不出字符串和数字的区别</td></tr>
+
+<tr><td><code>all()</code> / <code>any()</code></td><td>全部成立 / 有一个成立</td>
+<td><code>all([True, True])</code> <code>True</code>｜<code>any([False, True])</code> <code>True</code>｜<code>any([])</code> <code>False</code></td>
+<td>⑯；<code>all(c.isdigit() for c in s[:17])</code></td></tr>
+</table>
+
+<h3 id="quick-2">② 方法总表（字符串 / 列表 / 字典）</h3>
+
+<table>
+<tr><th>方法</th><th>用途</th><th>怎么用（实测输出）</th><th>用在哪</th></tr>
+
+<tr><td><code>.strip()</code></td><td>去<strong>首尾</strong>空白（不是"删除所有空格"）</td>
+<td><code>" 12 34 \t\n".strip()</code> <code>'12 34'</code>；<code>.lstrip()</code> 只去左、<code>.rstrip()</code> 只去右</td>
+<td>⑱；读输入的标准写法 <code>input().strip()</code></td></tr>
+
+<tr><td><code>.split()</code></td><td>按空白切开（<strong>返回列表</strong>）</td>
+<td><code>"a  b   c".split()</code> <code>['a', 'b', 'c']</code>｜<code>"45,8".split(",")</code> <code>['45', '8']</code>｜<code>"a b c".split(" ", 1)</code> <code>['a', 'b c']</code></td>
+<td>①；❌1 分隔符看样例。⚠️ 加 <code>list()</code> 是另一回事</td></tr>
+
+<tr><td><code>.splitlines()</code></td><td>只按<strong>换行</strong>切（保留行内空格）</td>
+<td><code>"ab\ncd".splitlines()</code> <code>['ab', 'cd']</code></td>
+<td>⑬；<strong>要一行一行就用它，别用 split</strong></td></tr>
+
+<tr><td><code>.join()</code></td><td>把列表拼成一个字符串</td>
+<td><code>"-".join(["1","2","3"])</code> <code>'1-2-3'</code>｜<code>"".join(["a","b"])</code> <code>'ab'</code></td>
+<td>⑮、⑰；拆是 split，拼是 join</td></tr>
+
+<tr><td><code>.find()</code></td><td>找<strong>第一个</strong>位置，找不到给 <code>-1</code></td>
+<td><code>"pmispsissippi".find("s")</code> <code>3</code>；<code>.find("z")</code> <code>-1</code></td>
+<td>第3章-3；<strong>要全部位置得用 enumerate</strong>（⑳）</td></tr>
+
+<tr><td><code>.count()</code></td><td>数出现<strong>几次</strong>（≠ <code>len</code> 数总数）</td>
+<td><code>"banana".count("a")</code> <code>3</code>｜<code>"banana".count("an")</code> <code>2</code></td>
+<td>⑩；<code>len("banana")</code> 是 6</td></tr>
+
+<tr><td><code>.isdigit()</code></td><td>问「是不是全是数字」</td>
+<td><code>"12".isdigit()</code> <code>True</code>｜<code>"12a".isdigit()</code> <code>False</code></td>
+<td>⑯；⚠️ <code>'²'.isdigit()</code> 也是 True，但 <code>int()</code> 转不动</td></tr>
+
+<tr><td><code>.upper()</code> / <code>.lower()</code></td><td>转大写 / 小写</td>
+<td><code>"abc".upper()</code> <code>'ABC'</code>｜<code>"ABC".lower()</code> <code>'abc'</code></td>
+<td>⑮；字母不区分大小写时先统一</td></tr>
+
+<tr><td><code>.replace()</code></td><td>替换（第 3 个参数限次数）</td>
+<td><code>"a-b-c".replace("-", "+")</code> <code>'a+b+c'</code>｜<code>.replace("-", "+", 1)</code> <code>'a+b-c'</code></td>
+<td>⑮ 的亲戚；<strong>返回新字符串，要接住</strong></td></tr>
+
+<tr><td><code>.zfill()</code></td><td>左边补 0 到指定位数</td>
+<td><code>"7".zfill(3)</code> <code>'007'</code></td>
+<td>③ 的亲戚；补零输出（文件名补零就是这思路）</td></tr>
+
+<tr><td><code>.center()</code> <code>.ljust()</code> <code>.rjust()</code></td><td>居中对齐 / 左对齐 / 右对齐</td>
+<td><code>"ab".center(6,".")</code> <code>'..ab..'</code>｜<code>"ab".ljust(4,".")</code> <code>'ab..'</code>｜<code>"ab".rjust(4,".")</code> <code>'..ab'</code></td>
+<td>③ 的亲戚；做表格/对齐输出</td></tr>
+
+<tr><td><code>.append()</code> / <code>.extend()</code></td><td>列表末尾加<strong>一个</strong> / 加<strong>一串摊平</strong></td>
+<td><code>L=[1,2]; L.append([3,4])</code> <code>[1, 2, [3, 4]]</code>｜<code>L.extend([3,4])</code> <code>[1, 2, 3, 4]</code></td>
+<td>⑳；两者<strong>返回值都是 <code>None</code></strong></td></tr>
+
+<tr><td><code>.sort()</code></td><td>原地排序（<strong>不返回新列表</strong>）</td>
+<td><code>M=[3,1,2]; M.sort(reverse=True)</code> → M 变 <code>[3, 2, 1]</code></td>
+<td>⑦；和 <code>sorted()</code> 的区别就是返回 <code>None</code></td></tr>
+
+<tr><td><code>.reverse()</code></td><td>原地倒顺序</td>
+<td><code>M.reverse()</code> → <code>[1, 2, 3]</code></td>
+<td>⑦；同样返回 <code>None</code></td></tr>
+
+<tr><td><code>.insert()</code> <code>.pop()</code> <code>.remove()</code> <code>.index()</code></td><td>插入 / 弹出 / 按值删 / 找下标</td>
+<td><code>L.insert(0, 9)</code>｜<code>L.pop()</code> 返回被弹掉的值｜<code>L.remove(2)</code>｜<code>L.index(4)</code> <code>3</code></td>
+<td>⑮ 查表的另一种写法</td></tr>
+
+<tr><td><code>d.get()</code> <code>d.items()</code> <code>d.keys()</code> <code>d.update()</code> <code>d.setdefault()</code></td>
+<td>字典取值（找不到给默认值）/ 取键值对 / 取键 / 合并 / 有则取无则设</td>
+<td><code>{"a":1}.get("b")</code> <code>None</code>｜<code>.get("b", 0)</code> <code>0</code>｜<code>{}</code> 上 <code>.setdefault("c", 9)</code> 后变 <code>{'c': 9}</code></td>
+<td>⑮ 查表；<code>.get()</code> 能防 <code>KeyError</code></td></tr>
+</table>
+
+<h3 id="quick-3">③ 格式化与输出参数</h3>
+
+<table>
+<tr><th>写法</th><th>效果（实测）</th><th>用在哪</th></tr>
+<tr><td><code>f"{x:.2f}"</code></td><td>保留 2 位小数</td><td>③；<strong>PTA 要小数就用它，不用 round</strong></td></tr>
+<tr><td><code>f"{C:&gt;6.1f}"</code></td><td>占 6 位、右对齐、1 位小数</td><td>③；2-10 温度表</td></tr>
+<tr><td><code>f"{n:5d}"</code></td><td>整数占 5 位、右对齐</td><td>③；2-14 求整数段和</td></tr>
+<tr><td><code>print(a, b)</code></td><td><code>11 p</code>（默认空格隔开）</td><td>第3章-3；最省事的竖排</td></tr>
+<tr><td><code>print(x, sep=" ")</code></td><td>⭐ <strong>只有 1 个参数时 sep 完全无效</strong></td><td>③；2-14 就栽在这（要 1 个参数内自己加空格）</td></tr>
+<tr><td><code>print(*nums, sep="->")</code></td><td>把列表摊开成多个参数，再用 <code>-&gt;</code> 拼</td><td>⑦；2-9 的 <code>2-&gt;4-&gt;8</code></td></tr>
+<tr><td><code>print(x, end="")</code></td><td>不换行，下次接着写</td><td>⑨；2-14、3-1 末尾那个空格</td></tr>
+</table>
+
+<h3 id="quick-4">④ 用途分类索引（把「二、常用代码」20 节按用途归位）</h3>
+
+<table>
+<tr><th>想知道的事</th><th>看哪几节</th></tr>
+<tr><td><strong>怎么把数据读进来</strong></td>
+<td>① 读一行数字（含「一行多个值」的各种形状）｜⑬ 读多行｜⑱ strip 清掉行尾空白</td></tr>
+
+<tr><td><strong>怎么算数、累加、递推</strong></td>
+<td>② range 造序号｜⑧ 累加与递推｜⑩ len/sum/max/min/abs/round｜⑥ 符号交替</td></tr>
+
+<tr><td><strong>怎么控制输出格式</strong></td>
+<td>③ 格式化输出｜⑨ 一行固定输出几个｜⑦ 排序后输出｜<strong>本表 ③ 格式化与输出参数</strong></td></tr>
+
+<tr><td><strong>怎么处理字符串</strong></td>
+<td>④ 字符串↔数字↔进制｜⑰ 切片 vs range｜⑱ strip 清理｜⑳ enumerate 找位置｜<strong>本表 ② 字符串方法</strong></td></tr>
+
+<tr><td><strong>怎么存和查数据</strong></td>
+<td>⑪ 遍历列表挑元素｜⑫ 列表推导式｜⑮ 查表（对应关系）｜⑳ append/元组/字典排序</td></tr>
+
+<tr><td><strong>怎么排序、怎么比大小</strong></td>
+<td>⑦ 排序（升级版在 ⑳：元组排序、平局规则）｜❌10 字符串比较 ≠ 数字比较</td></tr>
+
+<tr><td><strong>怎么检验自己没写错</strong></td>
+<td>⑭ 检验对照表（防打错字）｜⑯ 检查「全是数字」｜五、三条铁律 第 2 条（本地跑四类数据）</td></tr>
+
+<tr><td><strong>怎么控制流程走法</strong></td>
+<td>⑤ 条件判断与分段｜⑯ 循环外判断「全部合格」｜⑲ continue 与卫语句</td></tr>
+</table>
+
+<div class="box ok">
+<strong>找不到东西时的顺序：</strong>
+① 先看<strong>本章的用途分类索引</strong>（按「我想干什么」找）
+→ ② 再查<strong>函数 / 方法总表</strong>（想起名字了，想看怎么用）
+→ ③ 翻<strong>二、常用代码</strong>里对应的那一节（看完整例子）
+→ ④ 还不行就看<strong>四、报错速查表</strong>（报错信息反查）。<br>
+<strong>要加新东西时：</strong>新函数/方法 → 加进本章的表；新套路 → 加进「二、常用代码」并在这里的索引里挂上。
 </div>
 
 <footer>
