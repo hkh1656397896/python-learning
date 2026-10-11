@@ -58,7 +58,7 @@
 <body>
 
 <h1>Python 自学笔记</h1>
-<p class="meta">hkh ｜ 更新 2026-10-11 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">11</span> 题（浙大版《Python 程序设计》题目集）</p>
+<p class="meta">hkh ｜ 更新 2026-10-11 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">12</span> 题（浙大版《Python 程序设计》题目集）</p>
 
 <nav id="toc">
   <strong>目录</strong>　<span style="font-size:12px;color:#656d76">（点一下直接跳）</span>
@@ -68,7 +68,7 @@
     <li><a href="#star" onclick="return go('star')">符号速查：* 和 []</a></li>
     <li><a href="#err" onclick="return go('err')">报错速查表</a></li>
     <li><a href="#rule" onclick="return go('rule')">三条铁律</a></li>
-    <li><a href="#review" onclick="return go('review')">真题回顾（<span id="cr">14</span> 题）</a></li>
+    <li><a href="#review" onclick="return go('review')">真题回顾（<span id="cr">15</span> 题）</a></li>
   </ol>
 </nav>
 
@@ -78,7 +78,7 @@
 
 <div class="box bad">
 <strong>症状：</strong>本地能跑，提交报"答案错误"或"非零返回"<br>
-<strong>原因：</strong>题面文字只说"在一行输入两个数"，没说分隔符。你以为空格，其实是逗号。
+<strong>原因：</strong>题面文字只说"在一行输入两个数"，没说分隔符。我以为空格，其实是逗号。
 </div>
 
 <table>
@@ -310,7 +310,7 @@ print(*sorted(map(int, input().split())), sep="->")   # ✅ 按数值</code></pr
 <strong>解法也只有补零一种：</strong><code>第02章-01_累加求和.py</code> … <code>第02章-10_输出华氏-摄氏温度转换表.py</code>，
 让 <code>01</code> 和 <code>10</code> 在<strong>同一位</strong>上比。<br>
 <strong>顺带一个实测冷知识：</strong>换个排序算法也救不了 —— VS Code 用序数比较、PowerShell 用文化相关比较，
-补零<strong>之前</strong>这两个算法给出<strong>不同</strong>的顺序（所以你在两处看到的顺序不一样），
+补零<strong>之前</strong>这两个算法给出<strong>不同</strong>的顺序（所以我在两处看到的顺序不一样），
 补零<strong>之后</strong>才<strong>完全一致</strong>。
 </div>
 
@@ -701,7 +701,7 @@ nums[::-1]   # [50,40,30,20,10]     反转！
 "人生苦短，我学Python"[::-1]   # 'nohtyP学我，短苦生人'</code></pre>
 
 <div class="box ok">
-<strong><code>[::-1]</code> 你已经用过两次：</strong><br>
+<strong><code>[::-1]</code> 我已经用过两次：</strong><br>
 第1章「逆序三位数」：<code>a[::-1]</code> 把 <code>"530"</code> 变成 <code>"035"</code><br>
 第2章-9 降序：<code>sorted(nums)[::-1]</code>
 </div>
@@ -780,7 +780,7 @@ d["x"]              # KeyError: 'x'   直接索引不存在的键会报错</code
 </tr>
 <tr>
   <td><code>'int' object is not callable</code></td>
-  <td>你把函数名当变量用了（如 <code>sum = 11</code>）</td>
+  <td>函数名被当成变量用了（如 <code>sum = 11</code>）</td>
   <td>换个变量名</td>
 </tr>
 </table>
@@ -818,11 +818,11 @@ d["x"]              # KeyError: 'x'   直接索引不存在的键会报错</code
 ② 两边同时改，很容易出现"本地一份、提交另一份"，而且极难发现
 </div>
 
-<h2 id="review">六、真题回顾（<span id="cr2">14</span> 题）</h2>
+<h2 id="review">六、真题回顾（<span id="cr2">15</span> 题）</h2>
 
 <div class="box warn">
 <strong>说明：</strong>下面的题目要求是<strong>我按自己的理解概括写的</strong>，不是 PTA 原文。<br>
-这样做是为了以后万一要把笔记公开（比如放 GitHub），不会涉及别人的版权内容。<strong>你自己记笔记时也建议这么做。</strong>
+这样做是为了把笔记放到 GitHub 上时不涉及别人的版权内容。
 </div>
 
 <h3>1-1 从键盘输入两个数求和 <span class="tag">一次通过</span></h3>
@@ -961,7 +961,7 @@ for i in range(1,N+1):
 print(f"sum = {sum:.6f}")</code></pre>
 <div class="box ok">
 <strong>关键：</strong><code>2*i-1</code> 生成 1、3、5、7…（i = 1,2,3,4 时）。<br>
-<strong>这题的输出有 <code>sum = </code> 前缀</strong> —— 记住，下一题就没有了。
+<strong>这题的输出有 <code>sum = </code> 前缀</strong> —— 下一题（2-6）就没有了。
 </div>
 <p><strong>可以更好：</strong><code>range(1, 2*N, 2)</code> 直接生成奇数，连 <code>2*i-1</code> 都不用算；变量名 <code>sum</code> 改成 <code>s</code>。</p>
 
@@ -1122,6 +1122,34 @@ print(f"sum = {s:.6f}")</code></pre>
 <strong>但评测没触发</strong>（测试点里 <code>m ≤ n</code> 恒成立），所以我拿了 15/15。<br>
 把那行 <code>print</code> 缩进到 <code>if</code> 里面就彻底安全了。<br>
 <strong>又是老话：通过 ≠ 正确。</strong>
+</div>
+
+<h3>2-12 输出三角形面积和周长 <span class="tag">一次通过</span></h3>
+<p><strong>要求：</strong>输入三条边长 <code>a b c</code>：能构成三角形就输出面积（保留 2 位小数）和周长，
+不能构成就输出一句英文提示。<br>
+<strong>输入：</strong><code>3 4 5</code> ｜ <strong>输出：</strong><code>area = 6.00; perimeter = 12.00</code></p>
+<p><strong>我的代码（一次通过）</strong></p>
+<pre><code>a,b,c=map(int,input().split())
+if a+b&gt;c and a+c&gt;b and b+c&gt;a:
+    s=(a+b+c)/2
+    area=(s*(s-a)*(s-b)*(s-c))**0.5
+    perimeter=a+b+c
+    print(f"area = {area:.2f}; perimeter = {perimeter:.2f}")
+else:
+    print("These sides do not correspond to a valid triangle")</code></pre>
+<div class="box ok">
+<strong>这题的四个要点：</strong><br>
+① <strong>先判能不能构成三角形</strong>：三条边两两之和都要大于第三边，三个条件用 <code>and</code> 连起来。<br>
+② <strong>海伦公式</strong>：半周长 <code>s=(a+b+c)/2</code>，面积 <code>(s*(s-a)*(s-b)*(s-c))**0.5</code>。<br>
+③ <strong>开平方用 <code>**0.5</code></strong> —— 第 2 章还没学 <code>import math</code>，这个写法正好绕开它。<br>
+④ <strong>不合法时输出的是英文句子</strong>，不是 <code>Invalid.</code> —— 每道题的「不合格输出」都不一样，照抄上一题必挂。
+</div>
+<div class="box warn">
+<strong>实测核对（面积我用坐标法独立算了一遍，不走海伦公式，避免用同一个公式验自己）：</strong><br>
+<code>3 4 5</code> → <code>area = 6.00; perimeter = 12.00</code><br>
+<code>1 1 1</code> → <code>area = 0.43; perimeter = 3.00</code><br>
+<code>5 5 6</code> → <code>area = 12.00; perimeter = 16.00</code><br>
+<code>1 2 3</code>、<code>2 2 5</code> → 都走英文提示分支（前者是两边之和<strong>等于</strong>第三边，同样不成立）
 </div>
 
 <footer>
