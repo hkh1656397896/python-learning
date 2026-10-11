@@ -109,7 +109,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>二、常用代码与拓展 <span class="toc-n" id="cs">16</span></summary>
+    <summary>二、常用代码与拓展 <span class="toc-n" id="cs">17</span></summary>
     <ol>
       <li><a onclick="return go('s1-1')">① 读一行数字</a></li>
       <li><a onclick="return go('s1-2')">② range()：生成数字序列</a></li>
@@ -127,6 +127,7 @@
       <li><a onclick="return go('s1-14')">⑭ 怎么检验一张对照表（防打错字）</a></li>
       <li><a onclick="return go('s1-15')">⑮ 怎么实现「对应关系」（查表）</a></li>
       <li><a onclick="return go('s1-16')">⑯ 两个实用套路：检查「全是数字」+ 循环外判断「全部合格」</a></li>
+      <li><a onclick="return go('s1-17')">⑰ 切片 vs range：取一段内容，还是造一串序号</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -1450,6 +1451,47 @@ s[:17].isdigit()    # True                  全数字就是 True
 所以「isdigit 通过」不等于「int() 一定能转」。身份证号只有 ASCII 数字和 X，用 <code>isdigit()</code> 就够。
 </div>
 
+<div class="box warn">
+<strong>它是【方法】，不是函数 —— 这是最容易混的一点：</strong>
+<pre><code>s.isdigit()          # ✅ 字符串在【点号前面】
+isdigit(s)           # ❌ NameError: name 'isdigit' is not defined</code></pre>
+<table>
+<tr><th>函数（东西放括号里）</th><th>方法（东西放点号前）</th></tr>
+<tr><td><code>len(s)</code> <code>int(s)</code> <code>float(s)</code></td><td><code>s.isdigit()</code> <code>s.upper()</code></td></tr>
+<tr><td><code>sum(nums)</code> <code>max(nums)</code></td><td><code>s.split()</code> <code>s.strip()</code></td></tr>
+<tr><td><code>abs(-7)</code> <code>round(x, 2)</code></td><td><code>s.count("a")</code></td></tr>
+</table>
+<strong>语法：</strong><code>字符串.isdigit()</code> —— 点号前是「谁的方法」，<strong>括号里不放任何东西</strong>，
+返回 <code>True</code> 或 <code>False</code>。
+</div>
+
+<p><strong>各种边界（实测）：</strong></p>
+<table>
+<tr><th>字符串</th><th><code>isdigit()</code></th><th>说明</th></tr>
+<tr><td><code>'123'</code></td><td>True</td><td></td></tr>
+<tr><td><code>'12X45'</code></td><td>False</td><td>有字母</td></tr>
+<tr><td><code>''</code></td><td><strong>False</strong></td><td>★ <strong>空字符串是 False</strong>，不是 True</td></tr>
+<tr><td><code>'  123  '</code></td><td>False</td><td>★ 有空格就不算</td></tr>
+<tr><td><code>'-123'</code></td><td>False</td><td>★ 负号不算数字</td></tr>
+<tr><td><code>'12.5'</code></td><td>False</td><td>★ 小数点不算</td></tr>
+<tr><td><code>'０１２'</code></td><td>True</td><td>全角数字也算</td></tr>
+<tr><td><code>'²'</code></td><td>True</td><td>★ 上标也算，但 <code>int()</code> 转不动</td></tr>
+<tr><td><code>'一二'</code></td><td>False</td><td>中文数字不在范围内</td></tr>
+</table>
+
+<div class="box bad">
+<strong>三种典型错误：</strong>
+<pre><code>isdigit(s)      # NameError（没有这个函数）
+123.isdigit()   # AttributeError: 'int' object has no attribute 'isdigit'
+s.isdigit       # &lt;built-in method isdigit ...&gt;  忘了括号，拿到的是方法本身
+s.isdigit()     # True   ✅</code></pre>
+</div>
+
+<p><strong>在第3章-2 里的写法（从左往右读）：</strong>
+<code>if not s[:17].isdigit():</code> ——
+<code>s[:17]</code> 切片拿到前 17 个字符 → <code>.isdigit()</code> 问它「是不是全是数字」 →
+<code>not</code> 取反（<strong>不是</strong>全数字才进入 if）。</p>
+
 <p><strong>备选写法：</strong></p>
 <pre><code># try/except —— 试着转，转不动就是含非数字（检查小数、负数时只能用它）
 try:
@@ -1533,6 +1575,46 @@ if bad == 0:                         # (2) 循环【外】统一判断
     print("All passed")</code></pre>
 <p><strong><code>continue</code> = 「这一轮到此为止，直接开始下一轮」。</strong>
 前 17 位已经非法就不用再算校验码 —— <strong>否则 <code>int('X')</code> 会崩</strong>。</p>
+
+<h3 id="s1-17">⑰ 切片 vs range：取一段内容，还是造一串序号</h3>
+
+<div class="box warn">
+<strong>两者产出物完全不同 —— 这是最容易搞混的地方。</strong>
+<pre><code>range(17)   # range(0, 17)              一串【整数序号】0,1,2,…,16
+s[:17]      # '32012419880824005'       一段【字符】，是字符串
+nums[1:4]   # [20, 30, 40]              一段【元素】，是列表</code></pre>
+<strong>range 产出「序号」，切片产出「内容」。</strong>
+</div>
+
+<table>
+<tr><th></th><th><code>range(17)</code></th><th><code>s[:17]</code></th></tr>
+<tr><td>产出</td><td>整数<strong>序号</strong> 0~16</td><td><strong>内容</strong>（原来是啥，切出来就是啥）</td></tr>
+<tr><td>类型</td><td>range 对象</td><td>str</td></tr>
+<tr><td>能直接运算吗</td><td><strong>不行</strong>，得 <code>s[j]</code> 取出来</td><td><strong>行</strong>，本身就能 <code>.isdigit()</code></td></tr>
+<tr><td>典型用途</td><td>循环控制 / 当下标</td><td>取一段内容</td></tr>
+<tr><td>能改原数据吗</td><td>能（<code>lst[j] = x</code>）</td><td><strong>不能</strong>（拿到的是副本）</td></tr>
+</table>
+
+<div class="box ok">
+<strong>切片就是「range + 逐个取」的简写</strong>（实测两者结果完全一样）：
+<pre><code># range 写法
+result = []
+for j in range(17):
+    result.append(s[j])
+
+# 切片写法
+s[:17]</code></pre>
+<strong>能用切片时就不用写 range。</strong>
+</div>
+
+<div class="box bad">
+<strong>那什么时候还必须用 range？</strong><br>
+① 需要<strong>位置</strong>本身（跟另一个列表按位置配对）—— 不过这种情况 <code>zip()</code> 更好<br>
+② 需要<strong>改</strong>原列表的元素 —— <strong>切片拿到的是副本</strong>：<br>
+<code>lst=[1,2,3,4,5]</code>；<code>copy=lst[0:3]</code>；<code>copy[0]=999</code> →
+<code>copy</code> 变成 <code>[999,2,3]</code>，但 <code>lst</code> <strong>还是 <code>[1,2,3,4,5]</code></strong><br>
+③ 需要「第几轮」这个计数（比如每 5 个换行）
+</div>
 
 <h2 id="star">三、符号速查：* 和 []</h2>
 
