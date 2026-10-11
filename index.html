@@ -108,7 +108,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>二、常用代码与拓展 <span class="toc-n" id="cs">13</span></summary>
+    <summary>二、常用代码与拓展 <span class="toc-n" id="cs">14</span></summary>
     <ol>
       <li><a onclick="return go('s1-1')">① 读一行数字</a></li>
       <li><a onclick="return go('s1-2')">② range()：生成数字序列</a></li>
@@ -123,6 +123,7 @@
       <li><a onclick="return go('s1-11')">⑪ 遍历列表 + 挑出满足条件的元素</a></li>
       <li><a onclick="return go('s1-12')">⑫ 列表推导式与生成器表达式（一行写出「筛选 + 变换」）</a></li>
       <li><a onclick="return go('s1-13')">⑬ 读多行（第一行是数量，后面 N 行数据）</a></li>
+      <li><a onclick="return go('s1-14')">⑭ 怎么检验一张对照表（防打错字）</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -1231,6 +1232,62 @@ s.splitlines()  # ['110105194912310 02X', '12345678901234567 8']         2 行 �
 <div class="box ok">
 <strong>性能差别可以忽略：</strong>100 行输入，逐行 <code>input()</code> 0.043 秒，一次 <code>read()</code> 0.039 秒。<br>
 <strong>选看得懂的那种。</strong>新手写这题建议逐行读 —— 最直白。
+</div>
+
+<h3 id="s1-14">⑭ 怎么检验一张对照表（防打错字）</h3>
+
+<p><strong>背景：</strong>像第3章-2 的 <code>Z→M</code> 对照表（11 项）和权重表（17 项），
+<strong>打错一个字符不会报错，只会悄悄算错</strong>。所以要主动检验。</p>
+
+<pre><code>M = ['1','0','X','9','8','7','6','5','4','3','2']   # 下标就是 Z
+W = [7,9,10,5,8,4,2,1,6,3,7,9,10,5,8,4,2]           # 17 个权重</code></pre>
+
+<p><strong>四步检验法</strong></p>
+<pre><code># (1) 打印出来，用眼睛跟题目对一遍 —— 防打错字
+print("Z :" + "".join("%3d" % z for z in range(11)))
+print("M :" + "".join("%3s" % m for m in M))
+
+# (2) 写成断言，跑一遍 —— 防以后改坏
+expect = ['1','0','X','9','8','7','6','5','4','3','2']
+assert M == expect
+
+# (3) 故意弄错一个，确认检查会报 —— 防「检查是摆设」
+#     临时把 M[2] 改成 'Y'，看断言是否失败；不失败说明检查没用
+
+# (4) 用已知答案的样例端到端算一遍 —— 防算法错（最有力）
+#     样例 11010519491231002X 的末位是 X；
+#     只要权重表或对照表有一个错，就凑不出这个 X</code></pre>
+
+<div class="box ok">
+<strong>实测第3章-2 的样例（这一步同时验证了【两张表】）：</strong>
+<pre><code>号码 11010519491231002X
+前 17 位 11010519491231002 逐位乘权重后求和 = 167
+Z = 167 % 11 = 2
+M[2] = 'X'    &lt;- 与原号码末位一致 ✅</code></pre>
+只要权重表或 Z-M 对照表有一个字符错，结果就凑不出这个 <code>X</code>。
+</div>
+
+<div class="box warn">
+<strong>两条「不依赖题目」的结构检查：</strong><br>
+① <strong>项数</strong>：<code>M</code> 必须 11 项、<code>W</code> 必须 17 项（对应前 17 位）<br>
+② <strong>编号范围 / 唯一性</strong>：<code>Z</code> 必须正好是 <code>0~10</code>；
+<code>M</code> 里 11 个值必须<strong>互不相同</strong>（否则反查有歧义）—— 实测 11 个全不同<br>
+<strong>任何一条不对，表就一定是错的 —— 不用翻题目也能查出来。</strong>
+</div>
+
+<div class="box bad">
+<strong>为什么第 (3) 步最重要：一个抓不到错误的检查，等于没有检查。</strong><br>
+这跟本笔记的自检脚本是同一个道理 —— 改完自检逻辑后，都会<strong>故意塞一个错误进去</strong>，
+确认它真的会报，而不是「永远通过」。
+</div>
+
+<div class="box ok">
+<strong>实现上的小技巧：编号从 0 连续时，下标就是编号。</strong><br>
+因为 <code>Z</code> 正好是 <code>0~10</code> 的连续整数，所以：
+<pre><code>M = ['1','0','X','9','8','7','6','5','4','3','2']
+M[Z]                 # 下标就是 Z，不必用字典
+"10X98765432"[Z]     # 或者直接用字符串，结果一样</code></pre>
+<strong>只有编号不连续（比如 1、3、7）才需要字典。</strong>
 </div>
 
 <h2 id="star">三、符号速查：* 和 []</h2>
