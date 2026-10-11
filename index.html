@@ -1607,6 +1607,70 @@ s[:17]</code></pre>
 <strong>能用切片时就不用写 range。</strong>
 </div>
 
+<p><strong>切片能用在哪些东西上：</strong></p>
+<table>
+<tr><th>类型</th><th>原值</th><th><code>x[:3]</code> 的结果</th></tr>
+<tr><td>字符串</td><td><code>'abcdef'</code></td><td><code>'abc'</code></td></tr>
+<tr><td>列表</td><td><code>[1,2,3,4,5,6]</code></td><td><code>[1,2,3]</code></td></tr>
+<tr><td>元组</td><td><code>(1,2,3,4,5,6)</code></td><td><code>(1,2,3)</code></td></tr>
+<tr><td>range</td><td><code>range(6)</code></td><td><code>range(0,3)</code></td></tr>
+<tr><td>字节</td><td><code>b'abcdef'</code></td><td><code>b'abc'</code></td></tr>
+</table>
+<p><strong>不能切片的</strong>（都是 <code>TypeError</code>）：整数、小数、字典、集合。<br>
+<strong>口诀：能「按顺序取第几个」的东西才能切片。</strong>
+<code>int</code>/<code>float</code> 报 <code>not subscriptable</code>，<code>set</code> 也一样，
+<code>dict</code> 报 <code>unhashable type: 'slice'</code>。</p>
+
+<div class="box warn">
+<strong>★★ 最容易踩的一点：切出来还是「原来的类型」。</strong>
+<pre><code>s = '320124198808240056'
+v = list(s)
+
+s[:17]        # '32012419880824005'      type = str
+v[:17]        # ['3','2','0',…,'5']       type = list</code></pre>
+<strong>字符串切出字符串，列表切出列表 —— 类型不变。</strong><br>
+这决定了它身上有哪些方法可用：
+<table>
+<tr><th>字符串有</th><th>列表有</th></tr>
+<tr><td><code>.isdigit()</code> <code>.upper()</code> <code>.strip()</code></td>
+    <td><code>.append()</code> <code>.index()</code> <code>.sort()</code></td></tr>
+</table>
+<strong>两者不通用！</strong>
+<pre><code>v[:17].isdigit()
+# AttributeError: 'list' object has no attribute 'isdigit'
+
+s[:17].isdigit()
+# True   ✅</code></pre>
+<strong>列表能用切片，但列表没有 <code>isdigit</code> 方法。</strong>
+</div>
+
+<div class="box ok">
+<strong>手上只有列表时，怎么检查「全是数字」：</strong>
+<pre><code># 办法一：all() 逐个判断
+all(c.isdigit() for c in v[:17])
+
+# 办法二：拼回字符串再判断
+"".join(v[:17]).isdigit()
+
+# 办法三（最省事）：一开始就别转成列表
+s = input().strip()        # 保持字符串
+s[:17].isdigit()           # 直接就能用</code></pre>
+<strong>要检查的是「字符串」，就别提前把它拆成列表。</strong>
+</div>
+
+<p><strong>第3章-2 的两种思路（实测加权和完全相同，都是 281）：</strong></p>
+<pre><code># 思路 A：全程用字符串
+s = input().strip()
+if not s[:17].isdigit(): ...
+total = sum(int(c) * ww for c, ww in zip(s[:17], w))
+
+# 思路 B：先转成数字列表
+s = input().strip()
+if not all(c.isdigit() for c in s[:17]): ...   # 在字符串上检查
+v = [int(c) for c in s[:17]]                   # 集中转换
+total = sum(a * b for a, b in zip(v, w))       # 后面直接乘</code></pre>
+<p><strong>A 更短；B 把「字符 → 数字」集中做掉，后面算的时候更干净。</strong>两种都对。</p>
+
 <div class="box bad">
 <strong>那什么时候还必须用 range？</strong><br>
 ① 需要<strong>位置</strong>本身（跟另一个列表按位置配对）—— 不过这种情况 <code>zip()</code> 更好<br>
