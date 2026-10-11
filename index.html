@@ -88,12 +88,12 @@
 -->
 
 <h1>Python 自学笔记</h1>
-<p class="meta">hkh ｜ 更新 2026-10-11 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">2</span> 题（浙大版《Python 程序设计》题目集）</p>
+<p class="meta">hkh ｜ 更新 2026-10-11 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">3</span> 题（浙大版《Python 程序设计》题目集）</p>
 
 <nav id="toc">
   <div class="toc-head">目录　<span class="toc-hint">点标题展开 · 点条目直接跳</span></div>
   <details class="toc-g">
-    <summary>一、易错点 <span class="toc-n" id="ce">11</span></summary>
+    <summary>一、易错点 <span class="toc-n" id="ce">13</span></summary>
     <ol>
       <li><a onclick="return go('e1-1')">❌ 1. 输入分隔符猜错</a></li>
       <li><a onclick="return go('e1-2')">❌ 2. int 和 float 用错</a></li>
@@ -106,10 +106,12 @@
       <li><a onclick="return go('e1-10')">❌ 9. 描述有歧义时靠猜，不靠样例</a></li>
       <li><a onclick="return go('e1-11')">❌ 10. 字符串比较 ≠ 数字比较（排序和比大小都中招）</a></li>
       <li><a onclick="return go('e1-12')">❌ 11. 整数 ≠ 字符串：类型不同，相等判断永远是 False</a></li>
+      <li><a onclick="return go('e1-13')">❌ 12. 忘了 input 后面那对括号</a></li>
+      <li><a onclick="return go('e1-14')">❌ 13. 把 print 塞进了 sorted() 里面</a></li>
     </ol>
   </details>
   <details class="toc-g">
-    <summary>二、常用代码与拓展 <span class="toc-n" id="cs">19</span></summary>
+    <summary>二、常用代码与拓展 <span class="toc-n" id="cs">20</span></summary>
     <ol>
       <li><a onclick="return go('s1-1')">① 读一行数字</a></li>
       <li><a onclick="return go('s1-2')">② range()：生成数字序列</a></li>
@@ -130,6 +132,7 @@
       <li><a onclick="return go('s1-17')">⑰ 切片 vs range：取一段内容，还是造一串序号</a></li>
       <li><a onclick="return go('s1-18')">⑱ 字符串清理：strip / lstrip / rstrip</a></li>
       <li><a onclick="return go('s1-19')">⑲ continue：这一轮到此为止（含卫语句写法）</a></li>
+      <li><a onclick="return go('s1-20')">⑳ 列表追加：append / 元组 / enumerate（第3章-3 用）</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -160,7 +163,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>六、真题回顾 <span class="toc-n" id="cr">19</span></summary>
+    <summary>六、真题回顾 <span class="toc-n" id="cr">20</span></summary>
     <ol>
       <li><a onclick="return go('review-1')">1-1 从键盘输入两个数求和</a></li>
       <li><a onclick="return go('review-2')">1-2 按公式输出 b²−4ac</a></li>
@@ -181,6 +184,7 @@
       <li><a onclick="return go('review-17')">2-14 求整数段和</a></li>
       <li><a onclick="return go('review-18')">3-1 大于身高的平均值</a></li>
       <li><a onclick="return go('review-19')">3-2 查验身份证</a></li>
+      <li><a onclick="return go('review-20')">3-3 输出字母在字符串中位置索引</a></li>
     </ol>
   </details>
 </nav>
@@ -503,6 +507,57 @@ M = ['1','0','X','9','8','7','6','5','4','3','2']   # ✅ 全部字符串</code>
 <code>"10" &gt; 9</code> → 直接 <code>TypeError</code>（字符串和整数不能比大小）<br>
 <code>"10" &gt; "9"</code> → True，但 <code>10 &gt; 9</code> 也是 True（位数相同碰巧对，见 ❌ 10）<br>
 <strong>口诀：比之前先看两边类型是不是一回事。</strong>
+</div>
+
+<h3 id="e1-13">❌ 12. 忘了 <code>input</code> 后面那对括号 <span class="tag">第3章-3</span></h3>
+
+<div class="box bad">
+<strong>报错：</strong><code>AttributeError: 'builtin_function_or_method' object has no attribute 'split'</code><br>
+<strong>症状：</strong>程序读到第二行就崩，报错对象是「内置函数」而不是「字符串」。
+</div>
+
+<p><strong>原因：<code>input</code> 没加括号时，它是个「函数对象」，不是一行文本。</strong></p>
+<pre><code>input            # &lt;built-in function input&gt;   一个函数，没有 .split()
+input()          # 's p'                       一行文本，才能切片/分割
+
+a, b = input.split()      # ❌ AttributeError
+a, b = input().split()    # ✅ a='s'  b='p'</code></pre>
+
+<div class="box warn">
+<strong>为什么难自查：</strong>同一个 <code>input</code>，在同一段代码里出现两次，
+第一行写了 <code>input()</code>、第二行写成 <code>input.split()</code> —— 一对括号之差，
+而且<strong>没括号的那种写法长得还挺像「正经代码」</strong>（像模块里的什么东西）。<br>
+<strong>记法：</strong>凡是「用」一个函数，后面必定跟一对括号；<strong>光看到函数名不跟括号，它就是没被调用</strong>。
+</div>
+
+<h3 id="e1-14">❌ 13. 把 <code>print</code> 塞进了 <code>sorted()</code> 里面 <span class="tag">第3章-3</span></h3>
+
+<div class="box bad">
+<strong>报错：</strong><code>TypeError: 'NoneType' object is not iterable</code><br>
+<strong>当时的代码：</strong><code>sorted(print(i,ch),reverse=True)</code>
+</div>
+
+<p><strong>读法错了：<code>print(i,ch)</code> 会先执行完，然后把它的「返回值」交给 <code>sorted</code>。</strong>
+而 <code>print</code> 的返回值<strong>永远是 <code>None</code></strong> —— 它的活儿是打到屏幕上，不是算出个值。</p>
+
+<pre><code>r = print("x")                    # 屏幕先打出 x
+print(r)                          # None          ← 返回值
+print(type(r))                    # &lt;class 'NoneType'&gt;
+
+sorted(print("y"), reverse=True)  # TypeError: 'NoneType' object is not iterable</code></pre>
+
+<div class="box warn">
+<strong>这类报错要连语气一起读：</strong><strong>报错行（<code>sorted(...)</code>）不是凶手行</strong> ——
+<code>print</code> 自己一点错都没有，它老老实实干活了（屏幕上那个 <code>0 p</code> 就是它打的）。
+<strong>「是谁把它交给谁的」比「谁报的错」更值得看。</strong>
+</div>
+
+<p><strong>顺带两条：</strong></p>
+<div class="box bad">
+① <strong><code>sorted</code> 不原地改，它返回新列表 —— 必须用变量接住</strong>：
+<code>结果 = sorted(...)</code> ✅ ｜ <code>sorted(...)</code> 单独一行 ⚠️ 排了但立刻扔掉（不报错，白干）。<br>
+② 就算把括号调对写成 <code>print(sorted(...))</code>，<strong>放在循环里面照样是错的</strong> ——
+每一轮列表里只有一个元素，没得比。详见 ⑳。
 </div>
 
 <h2 id="s1">二、常用代码与拓展（每条都带输出）</h2>
@@ -1846,6 +1901,86 @@ while i &lt; 3:
 输出 <code>1 10 / 1 30 / 2 10 / 2 30</code>（外层两轮都跑了）
 </div>
 
+<h3 id="s1-20">⑳ 列表追加：<code>append</code> / 元组 / <code>enumerate</code>（第3章-3 用）</h3>
+
+<p><strong>为什么要先攒再输出：</strong>「找出来」和「打出来」必须<strong>分两步</strong>。
+边找边 <code>print</code>，东西一打出去就收不回来了 —— 想再排序、再计数、再判断都没机会。</p>
+
+<div class="box bad">
+<strong>排序写进循环里 = 白排（而且不报错）。</strong><br>
+循环进行到第 k 轮时，列表里<strong>只有刚加进去的那一个元素</strong>，
+对 1 个元素排序，排出来还是它自己 —— 循环里排 N 次，等于一次没排。
+</div>
+
+<p><strong>正确顺序（三步分开）：</strong></p>
+<pre><code>命中 = []                          # ① 循环【外】建空列表
+for i, ch in enumerate(s):
+    if 命中条件:
+        命中.append(??)            # ② 循环里只负责【收集】
+结果 = sorted(..., reverse=True)   # ③ 循环【外】排序，并且用变量接住
+for x in 结果:
+    print(x)                       # ④ 最后才输出</code></pre>
+
+<p><strong><code>append</code> 的用法</strong>：往列表<strong>末尾加一个</strong>元素，就两个位置 —— 谁加、加什么。</p>
+<pre><code>L = []
+L.append(3)
+L.append(7)
+print(L)              # [3, 7]
+
+L.append((11, "p"))   # 塞【一对】进去（两层括号：append 的 + 元组的）
+L.append((8, "s"))
+print(L)              # [3, (11, 'p'), (8, 's')]
+print(L[1])           # (11, 'p')
+print(L[1][0])        # 11       取那一对里的第一个
+print(L[1][1])        # p        取那一对里的第二个</code></pre>
+
+<div class="box bad">
+<strong>⚠️ <code>append</code> 的返回值也是 <code>None</code> —— 和 <code>print</code>、<code>sort()</code> 同一族。</strong><br>
+它们都是「干活型」：干完活把结果<strong>留在原地</strong>（<code>print</code> 留在屏幕、<code>append</code> 留在列表里），
+<strong>不能用 <code>=</code> 接住</strong>。
+<table>
+<tr><th>写法</th><th>结果</th></tr>
+<tr><td><code>L.append(x)</code></td><td>✅ 列表真的变了</td></tr>
+<tr><td><code>L = L.append(x)</code></td><td>❌ <strong>L 变成 <code>None</code></strong>，攒的数据全丢（还不报错）</td></tr>
+<tr><td><code>L.append(x).append(y)</code></td><td>❌ <code>AttributeError: 'NoneType' object has no attribute 'append'</code></td></tr>
+</table>
+<strong>实测：</strong><code>L=[]; L=L.append(1); print(L)</code> → <code>None</code>；
+再 <code>L.append(2)</code> → 报上面那个错。
+</div>
+
+<div class="box warn">
+<strong><code>append</code> 和 <code>extend</code> 差在哪（实测）：</strong>
+<pre><code>A = [1, 2]; A.append([3, 4]);  print(A)   # [1, 2, [3, 4]]   隔壁塞个小盒子（长度 +1）
+B = [1, 2]; B.extend([3, 4]);  print(B)   # [1, 2, 3, 4]     倒出来摊平（长度 +2）</code></pre>
+还有一个更隐蔽的：<code>L += [x]</code> 和 <code>L.append(x)</code> 效果一样，但前者是<strong>造一个新列表再换名</strong>，
+后者是<strong>改原来那个</strong> —— 小数据看不出差别，但这就是「累加器被清零」（❌6）那一类 bug 的温床。
+</div>
+
+<p><strong><code>enumerate</code>：一边给下标、一边给字符</strong>（第3章-3 第一次正式用它）</p>
+<pre><code>s = "pmispsissippi"
+list(enumerate(s))[:4]      # [(0, 'p'), (1, 'm'), (2, 'i'), (3, 's')]
+
+for i, ch in enumerate(s):  # i 是位置，ch 是那个位置上的字符
+    if ch == "p":
+        print(i, ch, end="  |  ")
+# 0 p  |  4 p  |  10 p  |  11 p  |</code></pre>
+<div class="box warn">
+<strong>别把两条路混着用：</strong><code>for ch in s</code> 拿到的是<strong>字符</strong>（不是下标），
+<code>for i in range(len(s))</code> 拿到的是<strong>下标</strong>（字符要 <code>s[i]</code> 再取）。
+写成 <code>s[ch]</code> 会 <code>TypeError</code>：字符不能当索引。
+</div>
+
+<p><strong>字典的默认排序：排的是「键」，不是「值」（❌11「字符串比较」的亲戚）</strong></p>
+<pre><code>sorted({"s": 8, "p": 11}, reverse=True)   # ['s', 'p']     ← 按【键】排
+sorted({"s": 8, "p": 11}.items(), key=lambda kv: kv[1], reverse=True)
+# [('p', 11), ('s', 8)]                     ← 用 key 指到【值】才是想要的</code></pre>
+<div class="box bad">
+<strong>嵌套的值要「指到底」</strong>：值本身是列表（比如存了好几个位置）时，
+<code>key=lambda kv: kv[1]</code> 是拿<strong>整个列表</strong>去比 —— 比的是<strong>列表的第一个元素</strong>，不是最大值。<br>
+想按「最大位置」排，得写 <code>key=lambda kv: max(kv[1])</code>。
+<strong>拿不准就把中间结果 <code>print</code> 出来看</strong>，别猜排序结果。
+</div>
+
 <h2 id="star">三、符号速查：* 和 []</h2>
 
 <h3 id="star-1">——— 第一部分：星号 <code>*</code> ———</h3>
@@ -2190,7 +2325,7 @@ if m!=v[17]:                      # ② 索引</code></pre>
 ② 两边同时改，很容易出现"本地一份、提交另一份"，而且极难发现
 </div>
 
-<h2 id="review">六、真题回顾（<span id="cr2">19</span> 题）</h2>
+<h2 id="review">六、真题回顾（<span id="cr2">20</span> 题）</h2>
 
 <div class="box warn">
 <strong>说明：</strong>下面的题目要求是<strong>我按自己的理解概括写的</strong>，不是 PTA 原文。<br>
@@ -2699,6 +2834,71 @@ if bad == 0:               # ③ 挪到循环【外面】
 ① <code>print(f"{v}")</code> —— <code>v</code> 本来就是字符串，f-string 是多余的，
 写 <code>print(v)</code> 就行。<br>
 ② 缩进有 9 格、8 格混用。按「一级 4 格」统一成 8 格更清楚。
+</div>
+
+<h3 id="review-20">3-3 输出字母在字符串中位置索引 <span class="tag">通过 15/15</span></h3>
+<p><strong>要求：</strong>第一行是一个字符串，第二行是两个字符（空格分隔）。
+把字符串里<strong>等于这两个字符的每一个位置</strong>找出来，按<strong>从右往左</strong>（索引从大到小）输出，
+每行一个，格式是「<strong>索引 字符</strong>」。</p>
+
+<p><strong>样例：</strong><code>pmispsissippi</code> + <code>s p</code> → 输出 8 行：
+<code>11 p / 10 p / 8 s / 7 s / 5 s / 4 p / 3 s / 0 p</code></p>
+
+<p><strong>我的代码（通过 15/15）</strong></p>
+<pre><code>m=list(input())
+a,b=input().split()
+L=[]
+for i,ch in enumerate(m):
+    if a==ch or b==ch:
+        L.append(i)
+for i in sorted(L,reverse=True):
+    print(i,m[i])</code></pre>
+
+<div class="box ok">
+<strong>思路：分三步，不边找边打。</strong><br>
+① <code>L=[]</code> 在循环<strong>外面</strong>建 → ② 循环里只 <code>append</code> 位置 → ③ 循环外 <code>sorted</code> 再打印。<br>
+<strong>只存位置、不存字符</strong>是这份代码最省的地方：字符要用的时候 <code>m[i]</code> 现取就行，
+所以列表里存一个纯数字列表就够（排序也更简单）。
+</div>
+
+<div class="box bad">
+<strong>我在这题连撞三次，错的全是「顺序」和「括号」：</strong><br>
+① <code>a,b=input.split()</code> → <code>AttributeError</code>（❌12）<br>
+② <code>sorted(print(i,ch),reverse=True)</code> → <code>TypeError</code>（❌13）<br>
+③ 把排序写在 for 循环里 → <strong>一次都没排上，还不报错</strong>（⑳）<br>
+<strong>零件一个都没错，错的全是「谁先谁后」「谁在谁的括号里」。</strong>
+</div>
+
+<div class="box warn">
+<strong>这题的坑：<code>sorted(L, reverse=True)</code> 和 <code>sorted(L, key=lambda t: t[0], reverse=True)</code> 不是一回事。</strong><br>
+如果列表里存的是<strong>元组</strong> <code>(索引, 字符)</code>，Python 默认<strong>先比索引、索引相同再比字符的 ASCII</strong>。实测：<br>
+<code>sorted([(5,'s'),(5,'a')], reverse=True)</code> → <code>[(5, 's'), (5, 'a')]</code>
+（平局时 <code>'s'</code> 的 ASCII 更大，所以它在前）<br>
+<strong>这件事在这题里对我没有影响，但不是因为我谨慎，是因为运气：</strong>平局只出现在
+「两个字符最大位置相同」——而一个位置只有一个字符，频率相同时它们的最大位置就是我扫过去的那个位置，
+于是「按索引排」和「按字符 ASCII 排」<strong>结果完全一样</strong>。频率不同的时候才会分岔。<br>
+<strong>结论：想让排序只按一个键说话，就把 <code>key</code> 明确写出来</strong>，
+别依赖元组的「默认比较规则」—— 那是一条看不见的备用规则，不知道它存在的时候，出错都找不到原因。
+</div>
+
+<div class="box warn">
+<strong>可以更好（不影响得分）：</strong><br>
+① <code>m=list(input())</code> —— 字符串本来就<strong>可以按下标取、可以被 <code>enumerate</code> 遍历</strong>，
+<code>list()</code> 是多余的（转成列表只是多花一份内存）。直接 <code>m=input()</code> 就行。<br>
+② <code>print(i,m[i])</code> 靠 <code>print</code> 的默认空格分隔，没问题；
+想统一风格可以写 <code>print(f"{i} {m[i]}")</code>（跟前面几题一致）。<br>
+③ <code>L</code>、<code>m</code>、<code>a</code>、<code>b</code> 这种单字母名在短题里能看懂，
+但这题有「位置」「目标字符」两个概念，叫 <code>pos</code>、<code>target</code> 会更不容易搞混。
+</div>
+
+<div class="box ok">
+<strong>实测验收（不是嘴上说对）：</strong><br>
+· 样例 ✅ 逐行一致（11 p / 10 p / 8 s / 7 s / 5 s / 4 p / 3 s / 0 p）<br>
+· <strong>随机对拍 3000 组，0 失败</strong>（期望值用「按索引倒序」独立算出，不复用同一套写法）<br>
+· 边界：两字符都不在 → 不输出任何东西；只有 1 个字符在 → 只打它的位置；字符串只有 1 个字 → 正常<br>
+· 两个目标字符相同时 → 每个位置只打一次，不重复<br>
+· 最坏规模（10000 字符）→ <strong>99 ms</strong>（限 400 ms）<br>
+· <code>py_compile</code> 通过
 </div>
 
 <footer>
