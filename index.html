@@ -109,7 +109,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>二、常用代码与拓展 <span class="toc-n" id="cs">14</span></summary>
+    <summary>二、常用代码与拓展 <span class="toc-n" id="cs">15</span></summary>
     <ol>
       <li><a onclick="return go('s1-1')">① 读一行数字</a></li>
       <li><a onclick="return go('s1-2')">② range()：生成数字序列</a></li>
@@ -125,6 +125,7 @@
       <li><a onclick="return go('s1-12')">⑫ 列表推导式与生成器表达式（一行写出「筛选 + 变换」）</a></li>
       <li><a onclick="return go('s1-13')">⑬ 读多行（第一行是数量，后面 N 行数据）</a></li>
       <li><a onclick="return go('s1-14')">⑭ 怎么检验一张对照表（防打错字）</a></li>
+      <li><a onclick="return go('s1-15')">⑮ 怎么实现「对应关系」（查表）</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -1341,6 +1342,85 @@ M[Z]                 # 下标就是 Z，不必用字典
 "10X98765432"[Z]     # 或者直接用字符串，结果一样</code></pre>
 <strong>只有编号不连续（比如 1、3、7）才需要字典。</strong>
 </div>
+
+<h3 id="s1-15">⑮ 怎么实现「对应关系」（查表）</h3>
+
+<div class="box warn">
+<strong>先想清楚：Python 不知道任何对应关系，必须自己写进代码。</strong><br>
+题目给的 <code>Z → M</code> 表，对 Python 来说只是两行文字 ——
+不写进代码，它不会「自动知道」Z=0 对应 <code>'1'</code>。<br>
+<strong>所谓「实现对应」，就是把这个关系用某种数据结构表达出来。</strong>
+</div>
+
+<pre><code>     Z :  0  1  2  3  4  5  6  7  8  9 10
+     M :  1  0  X  9  8  7  6  5  4  3  2</code></pre>
+
+<p><strong>写法一：一条一条 <code>if</code>（最直白，也最啰嗦）</strong></p>
+<pre><code>if z == 0:      m = '1'
+elif z == 1:    m = '0'
+elif z == 2:    m = 'X'
+    ...
+elif z == 10:   m = '2'</code></pre>
+<p>能工作，但表有 100 项就要写 100 个 <code>elif</code>。</p>
+
+<div class="box ok">
+<strong>写法二（推荐）：关键洞察 —— Z 就是「第几项」</strong><br>
+<code>Z</code> 是 <code>0,1,2,…,10</code> —— <strong>连续、从 0 开始</strong>；
+而列表的下标也正好是 <code>0,1,2,…</code>。<br>
+所以把 M 那一行<strong>按顺序</strong>装进列表，<code>Z</code> 就天然成了下标：
+<pre><code>M = ['1','0','X','9','8','7','6','5','4','3','2']
+      ^    ^
+     Z=0  Z=1      &lt;- 下标就是 Z
+
+m = M[Z]</code></pre>
+<strong>这就是「查表」的本质：把结果按序号排好，用输入当下标去取。</strong>
+</div>
+
+<p><strong>五种写法实测完全等价（11 项逐个对比，结果全同）</strong></p>
+<table>
+<tr><th>写法</th><th>代码</th></tr>
+<tr><td>① 列表</td><td><code>M = ['1','0','X',…]</code> → <code>M[Z]</code></td></tr>
+<tr><td>② 字符串</td><td><code>M = "10X98765432"</code> → <code>M[Z]</code></td></tr>
+<tr><td>③ 字典</td><td><code>M = {0:'1', 1:'0', …}</code> → <code>M[Z]</code></td></tr>
+<tr><td>④ 两个列表 + <code>index()</code></td><td><code>M_TABLE[Z_TABLE.index(Z)]</code></td></tr>
+<tr><td>⑤ <code>if/elif</code> 链</td><td>11 条分支</td></tr>
+</table>
+<p>②③④⑤ 取值语法都是 <code>M[Z]</code>，<strong>只是 M 的类型不同</strong>。</p>
+
+<div class="box bad">
+<strong>什么时候【必须】用字典：输入不连续时。</strong><br>
+能用下标，前提是输入正好是 <code>0,1,2,…</code> 连续从 0 开始。<br>
+如果对应关系是跳着的：
+<pre><code>     Z :  1    3    7
+     M : 'a'  'b'  'c'
+
+M2 = {1:'a', 3:'b', 7:'c'}     # 只能这样
+M2[3]                          # 'b'</code></pre>
+<strong>没有「第 3 项」这种东西，列表下标就用不了。</strong>
+</div>
+
+<div class="box ok">
+<strong>一句话选型：</strong><br>
+· 输入是 <code>0,1,2,…</code> 连续整数 → <strong>列表 / 字符串</strong>，下标就是输入<br>
+· 输入是跳着的数字、或字符串键 → <strong>字典</strong>，输入当键
+</div>
+
+<div class="box warn">
+<strong>顺带：这张表其实有一点规律，但不值得用。</strong><br>
+Z=3~10 时 <code>M = 12 - Z</code>（9,8,7,6,5,4,3,2 全对）；<br>
+但 Z=0,1,2 不符合（12-0=12、12-1=11、12-2=10，都不是单个字符）。<br>
+<strong>「找公式」要么更绕、要么有例外 —— 人造对照表直接查表最稳、最不容易写错。</strong>
+</div>
+
+<p><strong>整条链拼起来（第3章-2）：</strong></p>
+<pre><code>M = ['1','0','X','9','8','7','6','5','4','3','2']   # 把对应关系写进代码
+
+Z = 加权和 % 11                                      # 算出来
+m = M[Z]                                            # 查表：应该是什么
+if m == s[-1]:                                      # 跟实际末位比
+    pass          # 有效 —— 题目只输出有问题的，所以这里什么都不做
+else:
+    print(s)</code></pre>
 
 <h2 id="star">三、符号速查：* 和 []</h2>
 
