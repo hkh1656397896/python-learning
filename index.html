@@ -94,7 +94,7 @@
 -->
 
 <h1>Python 自学笔记</h1>
-<p class="meta">hkh ｜ 更新 2026-10-11 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">3</span> 题（浙大版《Python 程序设计》题目集）</p>
+<p class="meta">hkh ｜ 更新 2026-10-11 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">4</span> 题（浙大版《Python 程序设计》题目集）</p>
 
 <nav id="toc">
   <div class="toc-head">目录　<span class="toc-hint">点标题展开 · 点条目直接跳</span></div>
@@ -117,7 +117,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>二、常用代码与拓展 <span class="toc-n" id="cs">20</span></summary>
+    <summary>二、常用代码与拓展 <span class="toc-n" id="cs">21</span></summary>
     <ol>
       <li><a onclick="return go('s1-1')">① 读一行数字</a></li>
       <li><a onclick="return go('s1-2')">② range()：生成数字序列</a></li>
@@ -139,6 +139,7 @@
       <li><a onclick="return go('s1-18')">⑱ 字符串清理：strip / lstrip / rstrip</a></li>
       <li><a onclick="return go('s1-19')">⑲ continue：这一轮到此为止（含卫语句写法）</a></li>
       <li><a onclick="return go('s1-20')">⑳ 列表追加：append / 元组 / enumerate（第3章-3 用）</a></li>
+      <li><a onclick="return go('s1-21')">㉑ 查找位置：in / find / rfind / index / rindex / count</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -169,7 +170,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>六、真题回顾 <span class="toc-n" id="cr">20</span></summary>
+    <summary>六、真题回顾 <span class="toc-n" id="cr">21</span></summary>
     <ol>
       <li><a onclick="return go('review-1')">1-1 从键盘输入两个数求和</a></li>
       <li><a onclick="return go('review-2')">1-2 按公式输出 b²−4ac</a></li>
@@ -191,6 +192,7 @@
       <li><a onclick="return go('review-18')">3-1 大于身高的平均值</a></li>
       <li><a onclick="return go('review-19')">3-2 查验身份证</a></li>
       <li><a onclick="return go('review-20')">3-3 输出字母在字符串中位置索引</a></li>
+      <li><a onclick="return go('review-21')">3-4 查找指定字符</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -2066,6 +2068,73 @@ sorted({"s": 8, "p": 11}.items(), key=lambda kv: kv[1], reverse=True)
 <strong>拿不准就把中间结果 <code>print</code> 出来看</strong>，别猜排序结果。
 </div>
 
+<h3 id="s1-21">㉑ 查找位置：<code>in</code> / <code>find</code> / <code>rfind</code> / <code>index</code> / <code>rindex</code> / <code>count</code></h3>
+
+<div class="box ok">
+<strong>一句话分工：问「有没有」用 <code>in</code>；问「在哪」用 <code>find</code>（从左）或 <code>rfind</code>（从右）；
+问「有几个」用 <code>count</code>。</strong>
+</div>
+
+<pre><code>s = "programming"
+
+"m" in s            # True     有没有（真假值）
+"z" in s            # False
+s.find("m")         # 6        从左往右数，第一个 m 的位置
+s.rfind("m")        # 7        从右往左数，第一个 m 的位置（= 最后一次出现）
+s.find("z")         # -1       找不到给 -1
+s.rfind("z")        # -1
+s.count("m")        # 2        出现几次
+s.find("ing")       # 8        找子串也行（不是只能找单个字符）
+s.rfind("mm")       # 6        "programming" 的 6、7 位正好是 m m</code></pre>
+
+<div class="box bad">
+<strong>⚠️ <code>find</code> / <code>rfind</code> 找不到给 <code>-1</code>；<code>index</code> / <code>rindex</code> 找不到<strong>直接崩</strong>：</strong>
+<pre><code>s.find("z")      # -1                             可以拿 -1 判断
+s.rfind("z")     # -1
+s.index("z")     # ValueError: substring not found  不 try 就崩
+s.rindex("z")    # ValueError: substring not found</code></pre>
+<strong>所以 PTA 上优先用 <code>find</code> / <code>rfind</code></strong> —— 找不到也不崩，一个 <code>if p != -1</code> 就能处理。
+<code>index</code> 要配 <code>try / except</code>，麻烦得多。
+</div>
+
+<div class="box warn">
+<strong>实战：第3章-4「查找指定字符」要的是「最后一次出现的位置」。</strong><br>
+我当时的写法是「<strong>把所有位置收集起来，再取最大值</strong>」（<code>enumerate</code> + <code>max</code>，见真题 3-4），
+而 <code>rfind</code> 一行就能给出同一个答案 —— 实测三种写法结果完全一致：
+<pre><code>n, m = "programming", "m"
+n.rfind(m)                                       # 7
+max(i for i, c in enumerate(n) if c == m)        # 7
+[i for i in range(len(n)-1, -1, -1) if n[i] == m][0]   # 7   反向自己扫</code></pre>
+<strong>但两个写法该用哪个，取决于题目问的是什么：</strong><br>
+· 问「<strong>最后一次</strong>在哪」→ <code>rfind</code> 最省；<br>
+· 问「<strong>所有</strong>位置 / 第几次出现」→ 只能老老实实遍历（<code>enumerate</code>）；<br>
+· <code>rfind</code> 是<strong>专用工具</strong>，通用思路（遍历 + 收集）才是能迁移的。
+</div>
+
+<div class="box ok">
+<strong>扩展：为什么内置方法比我手写的循环快这么多（实测 10000 字符，各跑 2000 次）</strong>
+<pre><code>rfind("m")                          0.0010 秒     ← C 语言实现，直接跳着找
+max(i for i, c in enumerate(...))   0.4607 秒     ← 我手写：每个字符都要走一趟 Python 层</code></pre>
+<strong>差了约 460 倍。</strong>所以「能用内置方法就别手写循环」不只是写着短，
+<strong>性能也是实打实的</strong>。但这题时间限制 400 ms，两种写法都过得去 ——
+<strong>先写对、再写短、最后才谈快</strong>。
+</div>
+
+<div class="box warn">
+<strong>配套提醒：<code>max</code> / <code>min</code> 要看见「整批数据」才能给答案。</strong>
+<pre><code>L = []
+for i, ch in enumerate(n):
+    if m == ch:
+        L.append(i)
+        print(max(L))     # ❌ 循环里：跑到第 6 位只看到 [6]，先打出 6，再打出 7
+print(max(L))             # ✅ 循环外：这时 L 才是全部位置
+</code></pre>
+<strong>实测（输入 m / programming）</strong>：写在循环里输出 <code>6</code> 然后 <code>7</code>（题目只要 <code>7</code>，多出来那行是错的）；
+写在循环外只输出 <code>7</code>。<br>
+<strong>这跟「排序写在循环里 = 白排」（⑳）是同一个坑的第二个症状</strong>：
+<strong>收集归循环，计算/判断归循环外。</strong>
+</div>
+
 <h2 id="star">三、符号速查：* 和 []</h2>
 
 <h3 id="star-1">——— 第一部分：星号 <code>*</code> ———</h3>
@@ -2410,7 +2479,7 @@ if m!=v[17]:                      # ② 索引</code></pre>
 ② 两边同时改，很容易出现"本地一份、提交另一份"，而且极难发现
 </div>
 
-<h2 id="review">六、真题回顾（<span id="cr2">20</span> 题）</h2>
+<h2 id="review">六、真题回顾（<span id="cr2">21</span> 题）</h2>
 
 <div class="box warn">
 <strong>说明：</strong>下面的题目要求是<strong>我按自己的理解概括写的</strong>，不是 PTA 原文。<br>
@@ -3004,6 +3073,50 @@ for i in sorted(L,reverse=True):                # 循环外排序再输出：一
 · <code>py_compile</code> 通过
 </div>
 
+<h3 id="review-21">3-4 查找指定字符 <span class="tag">通过 15/15</span></h3>
+<p><strong>要求：</strong>第一行是要找的字符，第二行是一个字符串（不超过 80 个字符）。
+找到就输出 <code>index = 下标</code>（该字符在字符串中<strong>最大</strong>的下标，从 0 开始）；
+找不到就输出 <code>Not Found</code>。<br>
+<strong>样例：</strong><code>m</code> + <code>programming</code> → <code>index = 7</code></p>
+
+<p><strong>我的代码（通过 15/15）</strong></p>
+<pre><code>m=input()                                       # 第一行：要找的字符
+n=input()                                       # 第二行：被查找的字符串
+yes=0                                           # 找到几次；也当「找到没找到」的开关用
+L=[]                                            # 存所有命中的位置，必须在循环【外面】
+for i,ch in enumerate(n):                       # enumerate 同时给出位置 i 和字符 ch
+    if m==ch:                                   # 这个位置上的字符就是要找的
+        yes+=1                                  # 命中数 +1
+        L.append(i)                             # 把位置记下来（只存位置，字符要用时用 n[i] 取）
+if yes!=0:                                      # 至少命中过一次 —— 注意这两个 if 都在【循环外】
+    print(f"index = {max(L)}")                   # 题目要最大下标，而 L 现在才是完整的，max 才有意义
+if yes==0:                                      # 一次都没命中
+    print("Not Found")                          # 题目指定的提示语（大小写、空格都要照抄）</code></pre>
+
+<p><strong>优化用法：</strong>① 第二个 <code>if yes==0</code> 换成 <code>else</code> —— 上面已经排除了"找到"的情况，不用再判一次；
+② <code>yes</code> 这个计数器其实可以省掉：<strong>空列表本身就是「假」</strong>（见 ⑯、㉑），
+写 <code>if L:</code> 就等价于"找到了"，少维护一个变量；③ 这题的本质是「<strong>最后一次出现的位置</strong>」，
+<code>n.rfind(m)</code> 一行就够（返回 <code>-1</code> 表示没有）—— 见 ㉑ 的对比；
+④ <code>max</code> 必须写在<strong>循环外</strong>，否则每轮只看到一部分位置，会打出多个错值。</p>
+
+<div class="box warn">
+<strong>我想过但写错的写法：把 <code>max(L)</code> 挪进循环里（和 <code>L.append(i)</code> 对齐）</strong><br>
+实测输入 <code>m</code> + <code>programming</code>：
+<pre><code>index = 6      ← 跑到第 6 位时 L = [6]，max 只能给出 6
+index = 7      ← 跑到第 7 位时 L = [6, 7]，这才对</code></pre>
+题目只要一行 <code>index = 7</code>，所以多出来的那行不是"多余"而是<strong>输出格式错</strong>。<br>
+<strong>根因：<code>max</code> 得看见整批数据才能定最大值</strong> —— 和「排序写在循环里 = 白排」（⑳）是同一个坑的第二个症状。
+</div>
+
+<div class="box ok">
+<strong>实测验收</strong><br>
+· 样例 ✅ <code>m</code> + <code>programming</code> → <code>index = 7</code><br>
+· 固定 8 组全过：找不到 → <code>Not Found</code>；命中第 0 位 → <code>index = 0</code>；
+命中最后一位 → <code>index = 10</code>；单字符串；大小写敏感（<code>M</code> → <code>Not Found</code>）；全同字符 → 最大下标<br>
+· <strong>随机 2000 组对拍 0 失败</strong>（期望值用 <code>rfind</code> 独立算，不复用 max 思路）<br>
+· <code>py_compile</code> 通过
+</div>
+
 <h2 id="quick">七、速查总表</h2>
 
 <p><strong>为什么单独开一章：</strong>前面是按「遇到的顺序」记的，翻起来像流水账。
@@ -3097,9 +3210,12 @@ for i in sorted(L,reverse=True):                # 循环外排序再输出：一
 <td><code>"-".join(["1","2","3"])</code> <code>'1-2-3'</code>｜<code>"".join(["a","b"])</code> <code>'ab'</code></td>
 <td>⑮、⑰；拆是 split，拼是 join</td></tr>
 
-<tr><td><code>.find()</code></td><td>找<strong>第一个</strong>位置，找不到给 <code>-1</code></td>
-<td><code>"pmispsissippi".find("s")</code> <code>3</code>；<code>.find("z")</code> <code>-1</code></td>
-<td>第3章-3；<strong>要全部位置得用 enumerate</strong>（⑳）</td></tr>
+<tr><td><code>.find()</code> / <code>.rfind()</code></td><td>找<strong>第一个</strong>位置（左）/ <strong>最后一个</strong>位置（右），找不到都给 <code>-1</code></td>
+<td><code>"programming".find("m")</code> <code>6</code>；<code>.rfind("m")</code> <code>7</code>；找不到 <code>-1</code></td>
+<td>3-3、3-4；<strong>要全部位置得用 enumerate</strong>（⑳、㉑）</td></tr>
+<tr><td><code>.index()</code> / <code>.rindex()</code></td><td>同上，但<strong>找不到直接 ValueError</strong></td>
+<td><code>"programming".index("z")</code> → <code>ValueError</code></td>
+<td>㉑；<strong>PTA 上优先 find / rfind</strong></td></tr>
 
 <tr><td><code>.count()</code></td><td>数出现<strong>几次</strong>（≠ <code>len</code> 数总数）</td>
 <td><code>"banana".count("a")</code> <code>3</code>｜<code>"banana".count("an")</code> <code>2</code></td>
@@ -3235,7 +3351,7 @@ function fillCounts(){
   if (el){
     el = el.nextElementSibling;
     while (el && el.tagName !== 'H2'){
-      if (el.tagName === 'H3' && /^\s*[\u2460-\u2473]/.test(el.textContent || '')) { secs++; }
+      if (el.tagName === 'H3' && /^\s*[\u2460-\u2473\u3251-\u325f]/.test(el.textContent || '')) { secs++; }
       el = el.nextElementSibling;
     }
   }
