@@ -68,7 +68,7 @@
     <li><a href="#star" onclick="return go('star')">符号速查：* 和 []</a></li>
     <li><a href="#err" onclick="return go('err')">报错速查表</a></li>
     <li><a href="#rule" onclick="return go('rule')">三条铁律</a></li>
-    <li><a href="#review" onclick="return go('review')">真题回顾（13 题）</a></li>
+    <li><a href="#review" onclick="return go('review')">真题回顾（14 题）</a></li>
   </ol>
 </nav>
 
@@ -166,7 +166,7 @@ int('a', 8)    # ❌ 拿字母 a 当八进制数</code></pre>
 a, b = input().split(",")      # 两个都保持字符串
 print(int(a, int(b)))          # ✅ 37</code></pre>
 
-<h3>❌ 6. 缩进错位：<code>print</code> 掉进循环里 <span class="tag">第2章-1</span></h3>
+<h3>❌ 6. 缩进的两种翻车：<code>print</code> 掉进循环 / 累加器被清零 <span class="tag">第2章-1、2-11</span></h3>
 
 <div class="box bad">
 <strong>症状：</strong>答案是 1 行，程序输出 79 行<br>
@@ -182,6 +182,49 @@ for i in range(12, m+1):
 print(s)          # ✅ 缩进 0 格 = 在循环外</code></pre>
 
 <div class="box ok"><strong>用 4 个空格缩进</strong>（Python 官方规范）。层级看得清楚，不容易放错行。</div>
+
+<h3>——— 同一个根因，第二个症状：累加器被清零 ———</h3>
+
+<div class="box bad">
+<strong>症状：</strong>累加求和的结果<strong>只等于最后一项</strong>（第2章-11 实测）<br>
+<strong>原因：</strong>初始化 <code>s=0</code> 和循环体缩进相同 → 它在循环<strong>里面</strong>，
+每一轮开头都把前面累加的结果<strong>清零</strong>了
+</div>
+
+<pre><code>s = 0                    # ✅ 和 for 同列 = 循环外，只在开头执行一次
+for i in range(0, n-m+1):
+    s = s + (m+i)**2 + 1/(m+i)
+
+for i in range(0, n-m+1):
+    s = 0                # ❌ 比 for 深一层 = 循环内，每一轮都清零
+    s = s + (m+i)**2 + 1/(m+i)</code></pre>
+
+<table>
+<tr><th><code>s=0</code> 的位置</th><th>输入 <code>1 3</code> 的输出</th><th>核对</th></tr>
+<tr><td>循环<strong>外面</strong>（和 <code>for</code> 同列）</td><td><code>sum = 15.833333</code></td><td>✅ 2 + 4.5 + 9.333333</td></tr>
+<tr><td>循环<strong>里面</strong>（比 <code>for</code> 深一层）</td><td><code>sum = 9.333333</code></td><td>❌ 只剩最后一项</td></tr>
+</table>
+
+<pre><code># 放进循环里，内部过程是这样的：
+第1轮: s=0 → s=2.0
+第2轮: s=0 → s=4.5        ← 上一轮的 2.0 被抹掉了
+第3轮: s=0 → s=9.333...   ← 4.5 又被抹掉了</code></pre>
+
+<div class="box warn">
+<strong>为什么"放在上面任意位置都行"：</strong><br>
+只要 <code>s=0</code> 在循环<strong>外面</strong>，它就只执行一次，作用仅仅是「给 s 一个初始值 0」。<br>
+放在 <code>if</code> 之前、<code>if</code> 之内、<code>for</code> 之前 —— 都在循环外，效果<strong>完全一样</strong>。<br>
+<strong>所以位置不重要，"在循环内还是循环外"才重要。</strong>
+</div>
+
+<div class="box ok">
+<strong>一个根因，两个完全不同的症状：</strong><br>
+把语句多缩进一层，就把它从「循环外」搬到了「循环内」。<br>
+搬 <code>print</code> 进去 → 输出行数爆炸（第2章-1，答案 1 行却输出 79 行）<br>
+搬 <code>s=0</code> 进去 → 累加被清零（第2章-11，只剩最后一项）<br>
+<strong>Python 没有 <code>{}</code>，缩进就是语法。</strong>它不是在「排版好看」，
+而是在告诉 Python 这条语句<strong>属于谁</strong>。
+</div>
 
 <h3>❌ 7. 输出格式写着写着就套用了上一题 <span class="tag">第2章-5 vs 2-6</span></h3>
 
@@ -775,7 +818,7 @@ d["x"]              # KeyError: 'x'   直接索引不存在的键会报错</code
 ② 两边同时改，很容易出现"本地一份、提交另一份"，而且极难发现
 </div>
 
-<h2 id="review">六、真题回顾（13 题）</h2>
+<h2 id="review">六、真题回顾（14 题）</h2>
 
 <div class="box warn">
 <strong>说明：</strong>下面的题目要求是<strong>我按自己的理解概括写的</strong>，不是 PTA 原文。<br>
@@ -1050,6 +1093,35 @@ else:
 题目给了 <code>1 ≤ lower ≤ upper ≤ 100</code> 这个范围，所以我在前面加了 <code>if 1&lt;=lower&lt;=upper&lt;=100</code>，不合法就输出 <code>Invalid.</code>。<br>
 实测 <code>0 10</code> 和 <code>50 40</code>（lower 比 upper 大）都走 <code>Invalid.</code> 分支。<br>
 <strong>看到题目给了范围，就顺手想一下：范围外怎么办？</strong>
+</div>
+
+<h3>2-11 求平方与倒数序列的部分和 <span class="tag">通过 15/15</span></h3>
+<p><strong>要求：</strong>输入两个正整数 <code>m</code> 和 <code>n</code>，求 i 从 m 到 n 的
+<code>i² + 1/i</code> 之和，保留 6 位小数。<br>
+<strong>输入：</strong><code>1 3</code> ｜ <strong>输出：</strong><code>sum = 15.833333</code>（注意 <code>sum =</code> 后面有个空格）</p>
+<p><strong>我的代码（一次通过）</strong></p>
+<pre><code>m,n=map(int,input().split())
+if m&lt;=n:
+    s=0
+    for i in range (0,n-m+1):
+        s=s+(m+i)**2+1/(m+i)
+print(f"sum = {s:.6f}")</code></pre>
+<div class="box ok">
+<strong>这题的三个要点：</strong><br>
+① <code>range(0, n-m+1)</code> 配 <code>m+i</code> —— 跟 2-10 是<strong>同一个手法</strong>：
+让循环变量只管"第几轮"，实际要用的数 <code>m+i</code> 另外算。<br>
+② <strong>累加器 <code>s=0</code> 必须在循环外面</strong>。这题我一开始把它放进循环里试过，
+结果只剩最后一项 —— 详细过程见上面 <strong>❌ 6</strong>。<br>
+③ 输出是 <code>sum = </code>（等号后有一个空格）加 6 位小数，不是只打一个数字。格式抄错整题就废。
+</div>
+<div class="box bad">
+<strong>这题代码里还埋着一个隐患：</strong><br>
+第 6 行 <code>print</code> 写在<strong>第 0 列</strong>，也就是在 <code>if</code> <strong>外面</strong>。
+如果 <code>m &gt; n</code>，<code>if</code> 不成立，<code>s</code> 从头到尾没被赋值 —— 实测直接崩：<br>
+<code>NameError: name 's' is not defined</code><br>
+<strong>但评测没触发</strong>（测试点里 <code>m ≤ n</code> 恒成立），所以我拿了 15/15。<br>
+把那行 <code>print</code> 缩进到 <code>if</code> 里面就彻底安全了。<br>
+<strong>又是老话：通过 ≠ 正确。</strong>
 </div>
 
 <footer>
