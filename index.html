@@ -88,7 +88,7 @@
 -->
 
 <h1>Python 自学笔记</h1>
-<p class="meta">hkh ｜ 更新 2026-10-11 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">1</span> 题（浙大版《Python 程序设计》题目集）</p>
+<p class="meta">hkh ｜ 更新 2026-10-11 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">2</span> 题（浙大版《Python 程序设计》题目集）</p>
 
 <nav id="toc">
   <div class="toc-head">目录　<span class="toc-hint">点标题展开 · 点条目直接跳</span></div>
@@ -160,7 +160,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>六、真题回顾 <span class="toc-n" id="cr">18</span></summary>
+    <summary>六、真题回顾 <span class="toc-n" id="cr">19</span></summary>
     <ol>
       <li><a onclick="return go('review-1')">1-1 从键盘输入两个数求和</a></li>
       <li><a onclick="return go('review-2')">1-2 按公式输出 b²−4ac</a></li>
@@ -180,6 +180,7 @@
       <li><a onclick="return go('review-16')">2-13 分段计算居民水费</a></li>
       <li><a onclick="return go('review-17')">2-14 求整数段和</a></li>
       <li><a onclick="return go('review-18')">3-1 大于身高的平均值</a></li>
+      <li><a onclick="return go('review-19')">3-2 查验身份证</a></li>
     </ol>
   </details>
 </nav>
@@ -2081,7 +2082,7 @@ d["x"]              # KeyError: 'x'   直接索引不存在的键会报错</code
 ② 两边同时改，很容易出现"本地一份、提交另一份"，而且极难发现
 </div>
 
-<h2 id="review">六、真题回顾（<span id="cr2">18</span> 题）</h2>
+<h2 id="review">六、真题回顾（<span id="cr2">19</span> 题）</h2>
 
 <div class="box warn">
 <strong>说明：</strong>下面的题目要求是<strong>我按自己的理解概括写的</strong>，不是 PTA 原文。<br>
@@ -2519,6 +2520,77 @@ for n in nums:
 <strong>这题为什么必须<strong>两趟</strong>：</strong>平均值要等<strong>所有</strong>身高都读完才算得出来，
 所以必须先把数据存下来（<code>list(map(...))</code>），算完平均再遍历一遍挑 ——
 没法「读一个、判断一个」。这是第 3 章的第一个思维转弯。
+</div>
+
+<h3 id="review-19">3-2 查验身份证 <span class="tag">通过 15/15</span></h3>
+<p><strong>要求：</strong>先读 N，再读 N 行身份证号。检查两件事：
+① 前 17 位是不是<strong>全数字</strong>；② 最后一位<strong>校验码</strong>对不对。<br>
+<strong>只输出有问题的号码</strong>（按输入顺序，每行一个）；一个都没有则输出 <code>All passed</code>。<br>
+校验码算法：前 17 位按权重 <code>7,9,10,5,8,4,2,1,6,3,7,9,10,5,8,4,2</code> 加权求和，
+对 11 取模得 Z，再查表得 M。</p>
+
+<p><strong>我的代码（通过 15/15）</strong></p>
+<pre><code>N=int(input())
+bad=0
+for i in range(N):
+    v=input().strip()
+    if not v[:17].isdigit():
+         print(f"{v}")
+         bad+=1
+         continue
+    V=[int(v[j]) for j in range(17)]
+    w=[7,9,10,5,8,4,2,1,6,3,7,9,10,5,8,4,2]
+    weighted_sum=sum(V[j]*w[j] for j in range(17))
+    Z=weighted_sum%11
+    M=['1','0','X','9','8','7','6','5','4','3','2']
+    m=M[Z]
+    if m!=v[17]:
+        print(f"{v}")
+        bad+=1
+if bad==0:
+    print("All passed")</code></pre>
+
+<div class="box ok">
+<strong>这一题一口气串起了好几个新东西：</strong><br>
+读 N 行（⑬）、查表（⑮、⑰）、<code>isdigit()</code>（⑯）、
+循环外判断「全部合格」（⑯）、<code>strip()</code>（⑱）、<code>continue</code>（⑲）。<br>
+<strong>它是第 3 章真正的分水岭</strong> —— 前面 14 题都只读一行，这题第一次要
+「读多行 + 两种检查 + 汇总判断」。
+</div>
+
+<div class="box bad">
+<strong>我卡最久的地方是「结构」，不是语法。</strong><br>
+第二版我把<strong>整个校验码计算都缩进了 <code>if not v[:17].isdigit():</code> 里面</strong>，
+结果两个方向同时错：<br>
+· 格式<strong>合法</strong>的号码走不进 if → <strong>校验码根本没算</strong>（该报的没报）<br>
+· 格式<strong>非法</strong>的号码反而进去算 → <code>int('X')</code> 直接
+<code>ValueError</code> 崩掉<br>
+<strong>零件全对，位置全错</strong> —— 这是「缩进决定语句属于谁」（❌6）后果最严重的一次：
+前面几次是「多输出几行」「累加被清零」，这次是<strong>整个逻辑走错分支</strong>。
+</div>
+
+<div class="box ok">
+<strong>修法就三处 + 一个 <code>continue</code>：</strong>
+<pre><code>bad = 0                    # ① 挪到循环【外面】
+for i in range(N):
+    v = input().strip()
+    if not v[:17].isdigit():
+        print(v)
+        bad += 1
+        continue           # ② 顺手把非法的挡在门外
+    # 校验码计算挪到这儿（缩进 4 格，跟 if 同层）
+    ...
+if bad == 0:               # ③ 挪到循环【外面】
+    print("All passed")</code></pre>
+<code>continue</code> 一次解决两件事：<strong>防止 <code>int('X')</code> 崩溃</strong>、
+<strong>让结构扁平且不重复</strong>（详见 ⑲）。
+</div>
+
+<div class="box warn">
+<strong>还能更规整的两处（不影响正确性）：</strong><br>
+① <code>print(f"{v}")</code> —— <code>v</code> 本来就是字符串，f-string 是多余的，
+写 <code>print(v)</code> 就行。<br>
+② 缩进有 9 格、8 格混用。按「一级 4 格」统一成 8 格更清楚。
 </div>
 
 <footer>
