@@ -93,7 +93,7 @@
 <nav id="toc">
   <div class="toc-head">目录　<span class="toc-hint">点标题展开 · 点条目直接跳</span></div>
   <details class="toc-g">
-    <summary>一、易错点 <span class="toc-n" id="ce">10</span></summary>
+    <summary>一、易错点 <span class="toc-n" id="ce">11</span></summary>
     <ol>
       <li><a onclick="return go('e1-1')">❌ 1. 输入分隔符猜错</a></li>
       <li><a onclick="return go('e1-2')">❌ 2. int 和 float 用错</a></li>
@@ -105,6 +105,7 @@
       <li><a onclick="return go('e1-9')">❌ 8. 变量名用了内置函数名</a></li>
       <li><a onclick="return go('e1-10')">❌ 9. 描述有歧义时靠猜，不靠样例</a></li>
       <li><a onclick="return go('e1-11')">❌ 10. 字符串比较 ≠ 数字比较（排序和比大小都中招）</a></li>
+      <li><a onclick="return go('e1-12')">❌ 11. 整数 ≠ 字符串：类型不同，相等判断永远是 False</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -446,6 +447,57 @@ print(*sorted(map(int, input().split())), sep="->")   # ✅ 按数值</code></pr
 </div>
 
 <hr>
+
+<h3 id="e1-12">❌ 11. 整数 ≠ 字符串：类型不同，相等判断永远是 False <span class="tag">第3章-2</span></h3>
+
+<div class="box bad">
+<strong>症状：</strong>样例过了，其它测试点全挂（"答案错误"）<br>
+<strong>原因：</strong>对照表里数字和字符混着写，而号码最后一位是<strong>字符串</strong> ——
+<code>1 == '1'</code> 永远是 <code>False</code>
+</div>
+
+<pre><code>M = [1, 0, 'X', 9, 8, 7, 6, 5, 4, 3, 2]     # ❌ 混用：10 个 int + 1 个 str
+M = ['1','0','X','9','8','7','6','5','4','3','2']   # ✅ 全部字符串</code></pre>
+
+<table>
+<tr><th>Z</th><th>应得字符</th><th>混用表 <code>M[Z]</code></th><th>类型</th><th>判定</th></tr>
+<tr><td>0</td><td><code>'1'</code></td><td><code>1</code></td><td>int</td><td>❌ 无效</td></tr>
+<tr><td>1</td><td><code>'0'</code></td><td><code>0</code></td><td>int</td><td>❌ 无效</td></tr>
+<tr><td><strong>2</strong></td><td><code>'X'</code></td><td><code>'X'</code></td><td><strong>str</strong></td><td><strong>✅ 有效</strong></td></tr>
+<tr><td>3~10</td><td><code>'9'</code>…<code>'2'</code></td><td>整数</td><td>int</td><td>❌ 无效</td></tr>
+</table>
+
+<div class="box warn">
+<strong>11 种 Z 里有 10 种会出错，只有 1 种对。</strong><br>
+而题目样例 <code>11010519491231002X</code> 算出来的 Z <strong>恰好是 2</strong>，
+落在<strong>唯一正确</strong>的那一种上 —— 所以<strong>样例必过、其它全挂</strong>。<br>
+端到端复现（都是<strong>合法</strong>号码）：<br>
+<code>440524188001010014</code> → Z=8，混用表 <code>4 == '4'</code> → False → 判成无效 ❌<br>
+<code>110101199003070003</code> → Z=9，混用表 <code>3 == '3'</code> → False → 判成无效 ❌
+</div>
+
+<div class="box ok">
+<strong>「对照」的本质是两步：</strong>
+<pre><code>应该是什么 = M[Z]         # 用 Z 当下标去查表
+实际是什么 = s[-1]        # 号码最后一位（也可写 s[17]）
+判断       = M[Z] == s[-1]</code></pre>
+<strong>比之前先确认两边类型一致</strong> —— 这是所有相等判断的前提。
+</div>
+
+<div class="box bad">
+<strong>几种写法的对错：</strong><br>
+<code>if Z == M</code> → ❌ 拿<strong>整数 Z</strong>跟<strong>整个列表</strong>比，永远 False<br>
+<code>if Z == M[Z]</code> → ❌ 拿 Z 跟<strong>校验码字符</strong>比（Z 是 0~10 的编号，不是校验码）<br>
+<code>if M[Z] == s[-1]</code> → ✅ 正确
+</div>
+
+<div class="box warn">
+<strong>同一个坑还有无数个变种</strong>（因为 <code>input()</code> 永远返回字符串）：<br>
+<code>input() == 5</code> → 永远 False（要写 <code>int(input()) == 5</code>）<br>
+<code>"10" &gt; 9</code> → 直接 <code>TypeError</code>（字符串和整数不能比大小）<br>
+<code>"10" &gt; "9"</code> → True，但 <code>10 &gt; 9</code> 也是 True（位数相同碰巧对，见 ❌ 10）<br>
+<strong>口诀：比之前先看两边类型是不是一回事。</strong>
+</div>
 
 <h2 id="s1">二、常用代码与拓展（每条都带输出）</h2>
 
