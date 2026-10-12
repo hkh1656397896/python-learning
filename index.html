@@ -94,7 +94,7 @@
 -->
 
 <h1>Python 自学笔记</h1>
-<p class="meta">hkh ｜ 更新 2026-10-11 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">8</span> 题（浙大版《Python 程序设计》题目集）</p>
+<p class="meta">hkh ｜ 更新 2026-10-11 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">9</span> 题（浙大版《Python 程序设计》题目集）</p>
 
 <nav id="toc">
   <div class="toc-head">目录　<span class="toc-hint">点标题展开 · 点条目直接跳</span></div>
@@ -175,7 +175,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>六、真题回顾 <span class="toc-n" id="cr">25</span></summary>
+    <summary>六、真题回顾 <span class="toc-n" id="cr">26</span></summary>
     <ol>
       <li><a onclick="return go('review-1')">1-1 从键盘输入两个数求和</a></li>
       <li><a onclick="return go('review-2')">1-2 按公式输出 b²−4ac</a></li>
@@ -202,6 +202,7 @@
       <li><a onclick="return go('review-23')">3-6 求整数序列中出现次数最多的数</a></li>
       <li><a onclick="return go('review-24')">3-7 求最大值及其下标</a></li>
       <li><a onclick="return go('review-25')">3-8 字符串逆序</a></li>
+      <li><a onclick="return go('review-26')">3-9 字符串转换成十进制整数</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -2915,7 +2916,7 @@ if m!=v[17]:                      # ② 索引</code></pre>
 ② 两边同时改，很容易出现"本地一份、提交另一份"，而且极难发现
 </div>
 
-<h2 id="review">六、真题回顾（<span id="cr2">25</span> 题）</h2>
+<h2 id="review">六、真题回顾（<span id="cr2">26</span> 题）</h2>
 
 <div class="box warn">
 <strong>说明：</strong>下面的题目要求是<strong>我按自己的理解概括写的</strong>，不是 PTA 原文。<br>
@@ -3778,6 +3779,95 @@ print(a[::-1])                                  # 步长 -1 = 从右往左取，
 · 数字串 <code>1234567890</code> → <code>0987654321</code>（<strong>不丢前导 0</strong>）✅<br>
 · 空行探底：不崩，输出一个空行 ✅<br>
 · 三种写法（切片 / <code>reversed</code> / 逆序索引）对 10 组输入输出<strong>完全一致</strong> ｜ <code>py_compile</code> 通过
+</div>
+
+<h3 id="review-26">3-9 字符串转换成十进制整数 <span class="tag">通过 15/15</span></h3>
+<p><strong>要求：</strong>输入一行以 <code>#</code> 结束的字符串。
+滤掉<strong>所有非十六进制字符</strong>（不分大小写），拼成一个新的十六进制数字串，
+转成十进制输出。<strong>如果第一个十六进制字符之前有 <code>-</code>，结果是负数。</strong><br>
+<strong>样例：</strong><code>+-P-xf4+-1!#</code> → <code>-3905</code>
+（筛出 <code>f41</code> = 3905，负号在第一个十六进制字符前面 → 负数）</p>
+<p><strong>我的代码（通过 15/15）</strong></p>
+<pre><code>m=input()                                                                                     读入整行（含 # 和混在里面的非十六进制字符）
+n=['0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f','A','B','C','D','E','F']   十六进制字符清单（0-9 + 大小写 a-f，用 in 判断）
+L=[]                                                                                          L：收集筛出来的十六进制字符（要拼成新串）
+K=[]                                                                                          K：同步收集它们的【原串下标】（判负号要用）
+a=m.find('-')                                                                                 先在整个串里找负号；find 找不到给 -1（后面必须单独排掉）
+yes=0                                                                                         yes：数筛到几个；兼作「有没有内容」的闸门
+if m[-1]!='#':                                                                                题目保证以 # 结尾（这层其实多余）
+    print()                                                                                   （多余分支：不以 # 结尾才走这里，题目不会发生）
+else:                                                                                         下面整块逻辑都在 else 里
+    for i,ch in enumerate(m):                                                                 逐字符看：i 是下标、ch 是那个字符
+        if ch in n:                                                                           这个字符属于十六进制字符清单
+            yes+=1                                                                            计数器加一
+            L.append(ch)                                                                      把字符收进 L（拼新串用）
+            K.append(i)                                                                       把下标收进 K（从左到右 append → 天然升序）
+    if yes==0:                                                                                【闸门一】不设这道闸，下面 int('',16) 会抛 ValueError
+        print(0)                                                                              题目口径：没有可转换的字符时输出 0
+    else:                                                                                     【闸门二】有内容才继续
+        x="".join(L)                                                                          接下来这一串都是「算」的步骤
+        X=int(x,16)                                                                           把筛出来的字符拼成新的十六进制字符串
+        if a<=int(min(K)) and a>=0:                                                           按要求转十进制；16 = 进制参数（2~36 都行）
+            print(f"{-X}")                                                                    负号要【存在】(a>=0) 且【在第一个十六进制字符之前】
+        else:                                                                                 负数：负号作用在【数值】上（不是拼字符串前面）→ 0 取负还是 0
+            print(f"{X}")                                                                     正数（或没有负号）：直接输出十进制值</code></pre>
+<p><strong>优化用法：</strong>① <code>n</code> 那个 22 个字符串的清单可以写成一个<strong>字符串</strong>
+<code>HEX = "0123456789abcdefABCDEF"</code>，<code>in</code> 判断一样好用，还省一层引号；
+② 也能只用 16 个：<code>HEX = "0123456789ABCDEF"</code> + <code>ch.upper()</code> ——
+<strong>大小写就不用写两套</strong>（这题输入不分大小写，转大写是最省事的口径统一）；
+③ <code>K</code> 其实不用收整串：判负号只关心<strong>第一个</strong>十六进制字符的下标，
+遇到第一个就记下来即可（<code>first = i</code>，配一个"记过没有"的判断）；
+④ <code>if yes == 0 / else</code> 这层可以并进前面的循环 ——
+<code>if not L: print(0)</code> 就够，<code>yes</code> 这个计数器是多余的（<code>L</code> 空不空本身就说明了问题，
+和 3-7 里 <code>yes</code> 那个多余的闸门是同一个毛病）；<br>
+⑤ <code>m[-1] != '#'</code> 那层判断可以删（题目保证以 <code>#</code> 结尾），删完还能少一级缩进；
+⑥ 想更短：<code>print(int(''.join(c for c in s if c in HEX) or '0', 16) * (-1 if ... else 1))</code>
+—— 但可读性会掉，这题的写法已经够清楚，<strong>不建议为了短而短</strong>。</p>
+
+<div class="box bad">
+<strong>这一题我踩的两个坑（都是自己改出来的）</strong><br>
+<strong>坑 1：<code>find</code> 找不到时返回 <code>-1</code>，而 <code>-1</code> 比任何下标都小。</strong><br>
+原来写 <code>if a &lt;= int(min(K)):</code> 判负数，结果 <code>'0#'</code> 输出 <code>-0</code>、<code>'0a#'</code> 输出 <code>-10</code> ——
+串里根本没有负号，但 <code>find('-')</code> 给的 <code>-1</code> 让条件<strong>永远成立</strong>。
+改成 <code>if a &lt;= min(K) and a &gt;= 0:</code> 才对：<strong>"有没有负号"和"负号在第几位"必须分开判</strong>。
+（<code>-1</code> 是合法整数、不是 <code>False</code> —— 笔记 ㉑ 那一节讲过这个陷阱。）<br><br>
+<strong>坑 2：<code>f"-{X}"</code> 会打出 <code>'-0'</code>。</strong><br>
+原来先算绝对值再往前面<strong>拼</strong>负号：<code>print(f"-{X}")</code>。输入 <code>'-0#'</code> 时
+<code>X = 0</code>，拼出来就是字面量 <code>'-0'</code>。<br>
+<strong>Python 的整数里没有"负零"</strong> —— 实测 <code>0 * -1</code> 得 <code>0</code>、<code>-int('0',16)</code> 得 <code>0</code>，
+唯独<code>f"-{0}"</code> 能造出 <code>'-0'</code>。改成把负号作用在<strong>数值</strong>上（<code>f"{-X}"</code>）就好了。<br>
+<strong>结论：符号要加在"值"这一层，不要加在"输出的字符串"这一层。</strong>
+</div>
+
+<div class="box warn">
+<strong>两条题目口径（都查证过）</strong><br>
+· <strong>一个十六进制字符都没有时，输出 <code>0</code></strong>（不是空行）。<code>'zzz#'</code>、<code>'-#'</code>、<code>'+#'</code> 都归这一档；
+· 判断负号的<strong>两个条件缺一不可</strong>：负号<strong>存在</strong>，且<strong>在第一个十六进制字符之前</strong>。
+<code>'ab-#'</code>（负号在数字后面）结果是 <code>171</code> 不是 <code>-171</code>；<code>'a-b#'</code> 同理
+（负号在中间也不算 —— 实测过 <code>int('ab',16)=171</code>、<code>int('-ab',16)=-171</code>）。
+</div>
+
+<div class="box ok">
+<strong>为什么 <code>min(K)</code> 就是"第一个"（我一开始也看反过）</strong><br>
+<code>K</code> 是在 <code>for</code> 循环里<strong>从左到右</strong> <code>append</code> 的，所以它<strong>天生升序</strong>：
+<code>'+P-xf4+-1!#'</code> → <code>K = [4, 5, 8]</code>，<code>min(K)=4</code>（字符 <code>f</code>）、<code>max(K)=8</code>（字符 <code>1</code>）。
+六组输入实测 <code>K == sorted(K)</code> 全为 <code>True</code>。<br>
+<strong>要"第一个"用 <code>min</code>，要"最后一个"用 <code>max</code> —— 别搞反。</strong>
+另外 <code>min([])</code> 会抛 <code>ValueError: min() arg is an empty sequence</code>，
+所以前面必须有"有没有内容"的闸门。
+</div>
+
+<div class="box ok">
+<strong>实测验收</strong>（18 组，每组都与<strong>独立实现</strong>逐行对照：一份用 <code>int(x,16)</code>、
+一份完全<strong>逐位手算</strong> <code>sum = sum*16 + 位值</code>，两边都对才算过）<br>
+· 样例 ✅ <code>+-P-xf4+-1!#</code> → <code>-3905</code> ｜ 无十六进制字符 <code>zzz#</code> → <code>0</code><br>
+· 空结果三连：<code>-#</code> → <code>0</code>、<code>+#</code> → <code>0</code>、<code>-0#</code> → <code>0</code>（<strong>不是 <code>-0</code></strong>）<br>
+· 负号位置：<code>-ab#</code> → <code>-171</code>、<code>ab-#</code> → <code>171</code>、<code>a-b#</code> → <code>171</code>、<code>--ab#</code> → <code>-171</code><br>
+· 大小写：<code>ABCDEF#</code> / <code>abcdef#</code> → <code>11259375</code>、<code>Ff#</code> → <code>255</code><br>
+· 前导 0：<code>0a#</code> → <code>10</code>（<strong>不丢前导 0，也不当成八进制</strong>）；单个 <code>0#</code> → <code>0</code><br>
+· <code>0x1a#</code> → <code>26</code>（<code>x</code> 不是十六进制字符，被滤掉，剩下 <code>01a</code>）<br>
+· 空格串 <code>' - a b #'</code> → <code>-171</code> ｜ 长串（题面上限附近）→ 与 <code>int</code> 结果逐位一致<br>
+· <code>py_compile</code> 通过 ｜ PTA 提交 <strong>通过 15/15</strong>
 </div>
 
 <h2 id="quick">七、速查总表</h2>
