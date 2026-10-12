@@ -104,7 +104,7 @@
 -->
 
 <h1>Python 自学笔记</h1>
-<p class="meta">hkh ｜ 更新 2026-10-11 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">16</span> 题（浙大版《Python 程序设计》题目集）</p>
+<p class="meta">hkh ｜ 更新 2026-10-11 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">17</span> 题（浙大版《Python 程序设计》题目集）</p>
 
 <nav id="toc">
   <div class="toc-head">目录　<span class="toc-hint">点标题展开 · 点条目直接跳</span></div>
@@ -189,7 +189,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>六、真题回顾 <span class="toc-n" id="cr">33</span></summary>
+    <summary>六、真题回顾 <span class="toc-n" id="cr">34</span></summary>
     <ol>
       <li><a onclick="return go('review-1')">1-1 从键盘输入两个数求和</a></li>
       <li><a onclick="return go('review-2')">1-2 按公式输出 b²−4ac</a></li>
@@ -224,6 +224,7 @@
       <li><a onclick="return go('review-31')">3-14 字符串字母大小写转换</a></li>
       <li><a onclick="return go('review-32')">3-15 统计一行文本的单词个数</a></li>
       <li><a onclick="return go('review-33')">3-16 删除重复字符</a></li>
+      <li><a onclick="return go('review-34')">3-17 删除字符（不分大小写）</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -3381,7 +3382,7 @@ if m!=v[17]:                      # ② 索引</code></pre>
 ② 两边同时改，很容易出现"本地一份、提交另一份"，而且极难发现
 </div>
 
-<h2 id="review">六、真题回顾（<span id="cr2">33</span> 题）</h2>
+<h2 id="review">六、真题回顾（<span id="cr2">34</span> 题）</h2>
 
 <div class="box warn">
 <strong>说明：</strong>下面的题目要求是<strong>我按自己的理解概括写的</strong>，不是 PTA 原文。<br>
@@ -4819,6 +4820,92 @@ while i &lt; len(cur):
 · <code>py_compile</code> 通过 ｜ PTA <strong>一次通过</strong>（进度 33/89）
 </div>
 
+<h3 id="review-34">3-17 删除字符（不分大小写） <span class="tag">通过</span></h3>
+<p><strong>要求：</strong>读两行 —— 第一行是字符串（要去掉<strong>两端空格</strong>），
+第二行是要删除的字符 c（<strong>非空格字符</strong>）。把第一行里出现的所有 c 删掉，
+<strong>大小写不分</strong>。输出格式带固定前缀：<code>result: </code>+ 结果。<br>
+<strong>样例：</strong><code>"   Bee"</code> / <code>"E"</code> → <code>result: B</code>；
+<code>"7!jdk*!ASyu"</code> / <code>"!"</code> → <code>result: 7jdk*ASyu</code></p>
+<p><strong>我的代码（通过）</strong></p>
+<pre><code>m=input().strip()                 读第一行，strip() 去掉两端空格（题目明确要求）
+n=input().strip()                 读第二行的待删字符（同样是输入行，顺带 strip）
+N=n.swapcase()                    拿到它的【另一种写法】：swapcase 把大小写翻过来（E→e、e→E）
+M=m.replace(n,'').replace(N,'')   链式 replace：先删原写法、再删另一种写法 —— 两次替换就做到「不分大小写地删」（见下面盒子）
+x="".join(M)                      （这行的 "".join 是多余的：replace 已经返回字符串，见优化①）
+print(f"result: {x}")             输出要带固定前缀 result:</code></pre>
+
+<div class="box ok">
+<strong>这题的核心手法：链式 replace（一个接一个点下去）</strong><br>
+<code>replace</code> 返回的是<strong>新字符串</strong>，所以可以直接在它后面<strong>再点一次</strong>
+<code>.replace(...)</code> —— 第一次的结果接着被第二次处理：
+<pre><code>"Bee".replace("E", "")                    # 'B'    只删大写
+"Bee".replace("e", "")                    # 'B'    只删小写
+"Bee".replace("e", "").replace("E", "")   # 'B'    ✅ 两次链起来 = 不分大小写地删
+
+# 换个方向也一样（顺序不影响结果）
+"bEE".replace("E", "").replace("e", "")   # 'b'</code></pre>
+<strong>为什么要两次</strong>：<code>replace</code> 是<strong>精确匹配</strong>、不认大小写 ——
+<code>'Bee'.replace('E','')</code> 一个字符都不会动（<code>Bee</code> 里没有大写 E 之外的东西，
+但它也匹配不到小写 e）。所以"两种写法"必须各删一次。<br>
+<strong>链式还能接别的</strong>（任何返回字符串的方法都能这么串，㉘）：
+<code>s.strip().lower().replace("-", "")</code> —— 从里到外、从左到右依次生效。
+</div>
+
+<div class="box bad">
+<strong>我踩的坑：<code>m.replace(n and N, '')</code>（两个错叠在一起）</strong><br>
+<strong>错 1：<code>and</code> 不是"两个都要"。</strong>
+它的规则是<strong>两边都真 → 返回右边</strong>；有假 → 返回第一个假值。实测：
+<table>
+<tr><th>写法</th><th>结果</th><th>说明</th></tr>
+<tr><td><code>'E' and 'e'</code></td><td><code>'e'</code></td><td>两边都真 → 给<strong>右边</strong>，<code>'E'</code> 被丢掉了</td></tr>
+<tr><td><code>'' and 'e'</code></td><td><code>''</code></td><td>有假 → 给<strong>第一个假值</strong></td></tr>
+<tr><td><code>'E' or 'e'</code></td><td><code>'E'</code></td><td><code>or</code>：有真 → 给<strong>第一个真值</strong></td></tr>
+</table>
+所以 <code>n and N</code> 在 n 非空时<strong>就等于 N</strong> —— 只剩一种大小写，
+<code>n</code> 根本没参与替换。<br>
+<strong>错 2：只删了一种写法。</strong>加上 <code>replace</code> 不认大小写，
+就出现"<strong>删 <code>e</code> 但串里是大写 <code>E</code> 就删不掉</strong>"的情况。
+实测对比（<code>'aAaAaA'</code> 删 <code>'a'</code>）：
+<code>replace(n and N, '')</code> 得 <code>'aaa'</code>（错），
+链式两次得 <code>''</code>（对）。<br>
+<strong>教训：<code>and</code> / <code>or</code> 是"取值"运算，不是"布尔判断"</strong> ——
+想同时用两个值，得分别用（这里就是链两次）。
+</div>
+
+<p><strong>优化用法：</strong>① <strong>第 5 行的 <code>"".join(M)</code> 是多余的</strong> ——
+<code>replace</code> <strong>本来就返回字符串</strong>，<code>join</code> 是给列表/元组准备的（㉒），
+这里套一层什么都不改；<br>
+② 还能换成<strong>逐个字符判</strong>这条路（不用 <code>swapcase</code>、不用链式）：
+<code>"".join(c for c in m if c.lower() != n.lower())</code> ——
+<strong>天然处理"大小写不分"，而且 r 和 R 这种"反写等于自己"的字符也不怕</strong>
+（<code>'!'.swapcase()</code> 还是 <code>'!'</code>，链式会白做一次替换，结果对但多跑一遍）；<br>
+③ <strong>第 2 行的 <code>.strip()</code> 其实有点险</strong>：题目说 c 是"非空格字符"所以没事，
+但如果 c 真是<strong>空格</strong>，<code>input().strip()</code> 会把它变成<strong>空串</strong>，
+<code>replace("", "")</code> 什么都不删 → 答案错。想稳就写 <code>input().rstrip("\n")</code>
+（第一行的 <code>.strip()</code> 要保留，那是题目要求的）。</p>
+
+<div class="box warn">
+<strong>这题有三个考点，都不在"删除"本身</strong><br>
+① <strong>链式 replace</strong>（上面那个盒子）—— 见 <strong>㉘</strong>；<br>
+② <strong>输出要带前缀 <code>result: </code></strong> —— 样例里写得很清楚，
+只输出处理后的串会<strong>全部测试点显示"格式错误"</strong>；<br>
+③ <strong>第一行要去掉两端空格</strong>（题目明确提示），所以 <code>input().strip()</code> 是必须的。
+</div>
+
+<div class="box ok">
+<strong>实测验收</strong>（10 组，与独立实现对照：那份用<strong>逐个字符判</strong>
+<code>c.lower() != n.lower()</code>，写法不同但结果必须一致）<br>
+· 样例1 ✅ <code>"   Bee"</code>/<code>"E"</code> → <code>result: B</code>
+｜ 样例2 ✅ <code>"7!jdk*!ASyu"</code>/<code>"!"</code> → <code>result: 7jdk*ASyu</code><br>
+· <strong>方向对调</strong>：<code>"Bee"</code> 删 <code>"e"</code> → <code>B</code>（第一次挂的就是这类）
+｜ <code>"bEE"</code> 删 <code>"e"</code> → <code>b</code><br>
+· <strong>大小写交替</strong> <code>"aAaAaA"</code> 删 <code>"a"</code> → 空
+｜ 串全是该类字符 <code>"aaa"</code> 删 <code>"A"</code> → 空<br>
+· 字符不在串里 <code>"hello"</code> 删 <code>"z"</code> → <code>hello</code>
+｜ 不误删别的 <code>"EeFf"</code> 删 <code>"Z"</code> → <code>EeFf</code><br>
+· <code>py_compile</code> 通过 ｜ PTA <strong>通过</strong>（进度 34/89）
+</div>
+
 <h2 id="quick">七、速查总表</h2>
 
 <p><strong>为什么单独开一章：</strong>前面是按「遇到的顺序」记的，翻起来像流水账。
@@ -4899,7 +4986,14 @@ while i &lt; len(cur):
 <td><code>list(zip([1,2], ["a","b"]))</code> <code>[(1, 'a'), (2, 'b')]</code>｜<code>list("ab")</code> <code>['a', 'b']</code></td>
 <td>⑮、⑰、⑳</td></tr>
 
-<tr><td><code>type()</code> / <code>repr()</code></td><td><strong>查真相</strong>：看到底是什么类型 / 带引号的样子</td>
+<tr><td><code>and</code> / <code>or</code></td>
+<td><strong>取值</strong>运算（不是返回 True/False）</td>
+<td><code>'E' and 'e'</code> <code>'e'</code>（都给右边）｜<code>'' and 'e'</code> <code>''</code>｜
+<code>'E' or 'e'</code> <code>'E'</code>（给第一个真值）</td>
+<td><code>and</code>：两边真→右，有假→第一个假；<code>or</code>：有真→第一个真；
+<strong>想同时用两个值要分开写</strong>（3-17 栽过）</td></tr>
+
+<tr><td><code>type()</code></td><td><strong>查真相</strong>：看到底是什么类型 / 带引号的样子</td>
 <td><code>type("45")</code> <code>&lt;class 'str'&gt;</code>｜<code>repr("45")</code> <code>'45'</code></td>
 <td>❌4、❌11；<code>print</code> 看不出字符串和数字的区别</td></tr>
 
@@ -5154,7 +5248,9 @@ hasattr("a", "strip")     # True</code></pre>
 <tr><td><code>.replace(旧, 新[, 次数])</code></td>
 <td><code>"a-b-c".replace("-","+",1)</code><code>'a+b-c'</code>｜
 <strong><code>"banana".replace("a","")</code><code>'bnn'</code></strong></td>
-<td><strong>换成 <code>""</code> = 删除</strong>；从左往右、不回头（㉘）</td></tr>
+<td><strong>换成 <code>""</code> = 删除</strong>；从左往右、不回头（㉘）；<br>
+<strong>返回新串，所以能「链式」接着点</strong>：
+<code>"Bee".replace("e","").replace("E","")</code> <code>'B'</code>（3-17）</td></tr>
 
 <tr><td rowspan="3"><strong>查找<br>（给位置 / 个数）</strong></td>
 <td><code>.find()</code> / <code>.rfind()</code></td>
