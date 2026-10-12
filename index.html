@@ -3045,6 +3045,74 @@ sorted(set("ad2f3adjfeainzzzv"), key=ord) # '23adefijnvz'   ← key=ord 是白�
 它只回答一个问题：<strong>这东西在不在里面</strong>。所以"记录见过什么"这类事，用它最合适
 （3-18 挑不重复字母、3-16 去重都靠它）。</p>
 
+
+<p><strong><code>set()</code> 是个<strong>函数</strong>：把"可迭代的东西"变成集合</strong>
+（和 <code>int()</code>、<code>list()</code> 是同一类用法 —— <strong>东西放在括号里</strong>，① 那张表讲过）。</p>
+<pre><code>set()                     # set()                     空集合
+set("hello")              # {'h','l','o','e'}         从字符串：每个字符当一个元素，自动去重
+set([1, 1, 2])            # {1, 2}                    从列表：去重
+set((1, 2, 2))            # {1, 2}                    从元组
+set({"a": 1, "b": 2})     # {'a', 'b'}                从字典：只取【键】（不是值）
+set(range(3))             # {0, 1, 2}                 从 range
+
+set("aab")                # {'a', 'b'}                ⚠️ 只剩一个 a（自动去重）</code></pre>
+<div class="box bad">
+<strong>不能这么用：单个数字变不成集合</strong>
+<pre><code>set(123)     # TypeError: 'int' object is not iterable
+set(1.5)     # TypeError: 'float' object is not iterable
+set(None)    # TypeError: 'NoneType' object is not iterable</code></pre>
+括号里必须是<strong>可迭代的</strong>（字符串 / 列表 / 元组 / 字典 / range…）。
+想放一个数进去，得先包一层：<code>set([123])</code> → <code>{123}</code>。
+</div>
+
+<div class="box warn">
+<strong>集合里怎么"取出东西"（和列表最大的不同）</strong><br>
+<strong>✅ 能做的</strong>：
+<table>
+<tr><th>写法</th><th>实测</th></tr>
+<tr><td><code>for c in s</code></td><td>遍历（顺序不保证）</td></tr>
+<tr><td><code>"a" in s</code></td><td><code>True</code> —— <strong>最常用，就靠它</strong></td></tr>
+<tr><td><code>len(s)</code></td><td>有几个</td></tr>
+<tr><td><code>sorted(s)</code></td><td><code>['a','b','c']</code> ← <strong>变成列表才有顺序</strong></td></tr>
+<tr><td><code>list(s)</code></td><td>转成列表（顺序仍不保证）</td></tr>
+<tr><td><code>"|".join(sorted(s))</code></td><td><code>'a|b|c'</code> ← 要输出成字符串时用</td></tr>
+</table>
+<strong>❌ 不能做的</strong>（都实测，报错信息也记下来）：
+<table>
+<tr><th>写法</th><th>报什么</th><th>为什么</th></tr>
+<tr><td><code>s[0]</code></td><td><code>TypeError: 'set' object is not subscriptable</code></td>
+<td rowspan="2"><strong>集合无序</strong>，没有"第几个"这回事</td></tr>
+<tr><td><code>s[0:2]</code></td><td>同上（切片也不行）</td></tr>
+<tr><td><code>s.index("a")</code></td><td><code>AttributeError: 'set' object has no attribute 'index'</code></td>
+<td>没有 <code>index</code> 方法（<code>find</code> 也没有）；<strong>它压根不关心位置</strong></td></tr>
+<tr><td><code>s + {"d"}</code></td><td><code>TypeError: unsupported operand type(s) for +</code></td>
+<td>集合没有 <code>+</code>；要合并用 <code>|</code> 或 <code>s.add</code></td></tr>
+</table>
+</div>
+
+<div class="box ok">
+<strong>一句话分工：集合问"在不在"，列表管"顺序和位置"</strong>
+<table>
+<tr><th>要干的事</th><th>用哪个</th></tr>
+<tr><td>记录"我见过哪些字母"（只问在不在）</td><td><strong>集合 set</strong></td></tr>
+<tr><td>保存按出现顺序的结果</td><td><strong>列表 list</strong></td></tr>
+<tr><td>去重后再排序输出</td><td><code>set</code> 去重 + <code>sorted</code> 排序 + <code>join</code> 拼回（3-16）</td></tr>
+<tr><td>按位置取第 3 个</td><td><strong>列表</strong>（集合取不了，会 <code>TypeError</code>）</td></tr>
+<tr><td>数某个东西出现几次</td><td><code>.count()</code> 或字典（㉕）</td></tr>
+</table>
+</div>
+
+<div class="box bad">
+<strong>集合存在的理由：查"在不在"快得离谱（实测）</strong><br>
+在 <strong>20 万个元素</strong>里查"最后一个在不在"，各跑 3000 次：
+<pre><code>列表 in : 3.3144 秒   ← 从头比到尾（最坏 20 万次比较）
+集合 in : 0.0002 秒   ← 算一次哈希直接命中
+快约 14000 倍</code></pre>
+<strong>原理</strong>：列表是"<strong>挨个比</strong>"（O(n)），集合是"<strong>算个哈希值直接找到位置</strong>"（O(1)）。<br>
+小数据看不出来差别（这题只有几十个字符），但<strong>数据一多就是几十上百倍的差距</strong> ——
+所以"记录见过什么"这件事，习惯性用集合而不是列表。
+</div>
+
 <div class="box warn">
 <strong>先记住三个"建法"上的坑（都实测）</strong>
 <pre><code>set()            # set()          ← 空集合【必须】这么写
