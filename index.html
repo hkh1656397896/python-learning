@@ -2309,6 +2309,42 @@ list(map(str.upper, L))        &lt;-&gt;   [x.upper() for x in L]</code></pre>
                             # 三个活儿：逐个过一遍 / 粘起来 / 变成整数 —— 互不替代</code></pre>
 </div>
 
+<div class="box bad">
+<strong>为什么「转成什么」这么要命：拿 <code>max()</code> 当试金石（全部实测，Python 3.9）</strong><br>
+<code>map</code> 只决定「元素变成什么」，而元素一旦是别的类型，<strong>别的函数会跟着一起变行为</strong>。
+<code>max()</code> 是最好的照妖镜 —— 它内部只是反复用 <code>&gt;</code> 比较：元素是 <code>str</code>
+就按<strong>字典序</strong>比，是 <code>int</code> 才按<strong>数值</strong>比。
+<table>
+<tr><th>写法</th><th>实测结果</th><th>说明</th></tr>
+<tr><td><code>max("hello")</code></td><td><code>'o'</code></td><td>传字符串 = 逐字符取最大字符（等价于 <code>max(list("hello"))</code>）</td></tr>
+<tr><td><code>max(["apple","fig","banana"])</code></td><td><code>'fig'</code></td><td>比的是<strong>首字符</strong>：<code>"b" &lt; "f"</code>，banana 第一轮就出局</td></tr>
+<tr><td><code>max(["apple","fig","banana"], key=len)</code></td><td><code>'banana'</code></td><td><strong>比长度必须显式写 <code>key=len</code></strong>，默认不比长度</td></tr>
+<tr><td><code>max("abc", "ABC")</code></td><td><code>'abc'</code></td><td>小写码点大（<code>'a'</code>=97 &gt; <code>'A'</code>=65）</td></tr>
+<tr><td><code>max("")</code></td><td><code>ValueError: max() arg is an empty sequence</code></td><td>空序列<strong>报错</strong>，不是返回 <code>None</code></td></tr>
+<tr><td><code>max([""])</code></td><td><code>''</code></td><td>但「列表里装一个空串」合法，返回空串</td></tr>
+</table>
+</div>
+
+<div class="box bad">
+<strong>⚠️ <code>split()</code> 给的是字符串，所以 <code>max()</code> 走的是字典序 —— 「本地过、提交挂」的经典静默错误</strong>
+<pre><code>max("2 8 5 1 9 9".split())        # '9'   ✅ 恰好对：全是单个字符时字典序 = 数值序
+max("3 10 9".split())             # '9'   ❌ 错！数字上 10 最大（'1'=49 &lt; '9'=57）
+max(map(int, "3 10 9".split()))   # 10    ✅ 转成 int 才是数值比较</code></pre>
+<code>"10" &gt; "9"</code> → <code>False</code>；<code>10 &gt; 9</code> → <code>True</code>。
+<strong>单字符时两种规则恰好重合，所以本地怎么试都对；一出现多位数就静默错。</strong>
+</div>
+
+<div class="box warn">
+<strong>三个结论</strong><br>
+① 凡是后面要用 <code>max</code> / <code>min</code> / <code>sort</code> / <code>&gt;</code> 比大小的输入，
+<code>map(int, ...)</code> 里那个 <code>int</code> <strong>不能省</strong>。<br>
+② 「求最大值及其下标」这类题还有个同源坑：<code>a.index(max(a))</code> 给的是<strong>第一个</strong>最大值；
+手写循环用 <code>&gt;</code> 也是第一个，改用 <code>&gt;=</code> 就变成<strong>最后一个</strong> ——
+两处写法不对齐，样例给的全是并列值时就挂。<br>
+③ 输出同理：<code>print</code> 出来的 <code>9</code> 是 <code>int</code> 还是 <code>str</code> 长得一样，
+但拿去做相等判断 / 排序就露馅（见 ❌10、❌11）。
+</div>
+
 <h3 id="s1-24">㉔ 字典 <code>dict</code>：用「键」查「值」（第3章-2 起就在用，这里补全）</h3>
 
 <div class="box ok">
