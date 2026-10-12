@@ -234,6 +234,7 @@
       <li><a onclick="return go('quick-3')">③ 格式化与输出参数</a></li>
       <li><a onclick="return go('quick-4')">④ 用途分类索引（把「二、常用代码」29 节按用途归位）</a></li>
       <li><a onclick="return go('quick-5')">⑤ 对象 × 操作 对照表（谁有哪个能力）</a></li>
+      <li><a onclick="return go('quick-6')">⑥ 字符串方法总表（按用途分类，全部实测）</a></li>
     </ol>
   </details>
 </nav>
@@ -2872,6 +2873,34 @@ re.sub(r"\d+", "X", "a1b22c333")      # 'aXbXcX'  连续数字当一个整体
 直接 <code>ValueError</code>（多了少了都不行）。
 </div>
 
+
+<div class="box ok">
+<strong>补一个常被忽略的用法：<code>replace(要删的, "")</code> 就是「删除」</strong><br>
+把匹配到的那一截<strong>替换成长度 0 的东西</strong>，就等于删掉它 ——
+<strong>没有"先删再合并"这两步</strong>，只是那一截变成空的，剩下的自然接上了：
+<pre><code>"banana".replace("a", "")   # 'bnn'
+# 逐位看：'b' + '' + 'n' + '' + 'n' + '' = 'bnn'
+
+长度规律（实测）：
+    换成 'X'  → 'bXnXnX'     长度 6  ← 不变（1 换 1）
+    换成 ''   → 'bnn'        长度 3  ← 变短 = 删除
+    换成 'ZZ' → 'bZZnZZnZZ'  长度 9  ← 变长</code></pre>
+<strong>想删不同的东西，按场景挑工具：</strong>
+<table>
+<tr><th>要删什么</th><th>用什么</th><th>实测</th></tr>
+<tr><td>某<strong>一种</strong>字符/子串</td><td><code>.replace(x, "")</code></td><td><code>"banana".replace("a","")</code> <code>'bnn'</code></td></tr>
+<tr><td>某<strong>一批</strong>指定的字符</td><td><code>.translate(str.maketrans("", "", 要删的))</code></td>
+<td><code>"a1b2".translate(str.maketrans("","","12"))</code> <code>'ab'</code></td></tr>
+<tr><td>某<strong>一类</strong>（如所有数字）</td><td>推导式 / <code>re.sub</code></td>
+<td><code>"".join(c for c in s if not c.isdigit())</code></td></tr>
+<tr><td>首尾<strong>空白</strong></td><td><code>.strip()</code></td><td><code>"  hi  ".strip()</code> <code>'hi'</code></td></tr>
+<tr><td>中间<strong>所有空格</strong></td><td><code>.replace(" ", "")</code> 或 <code>.split()</code>+<code>join</code></td>
+<td><code>"a b c".replace(" ","")</code> <code>'abc'</code>；<code>"".join("a b c".split())</code> <code>'abc'</code></td></tr>
+</table>
+<strong>注意 <code>strip()</code> 和 <code>replace(" ", "")</code> 是两回事</strong>：
+前者只去<strong>首尾</strong>（<code>"a b".strip()</code> 还是 <code>'a b'</code>），后者去掉<strong>所有</strong>空格。
+</div>
+
 <div class="box warn">
 <strong>和已有小节的边界（别混）</strong><br>
 · <strong>⑮ 怎么实现「对应关系」（查表）</strong> —— 讲的是"怎么把对应关系建起来"（字典 vs 列表 vs 算式），
@@ -4928,9 +4957,18 @@ while i &lt; len(cur):
 <td><code>"abc".upper()</code> <code>'ABC'</code>｜<code>"ABC".lower()</code> <code>'abc'</code></td>
 <td>⑮；字母不区分大小写时先统一</td></tr>
 
-<tr><td><code>.replace()</code> / <code>.translate()</code></td><td>替换：按<strong>子串</strong> / 按<strong>单字符一对一</strong></td>
-<td><code>"a-b-c".replace("-", "+")</code> <code>'a+b+c'</code>｜<code>.replace("-", "+", 1)</code> <code>'a+b-c'</code>｜<code>"aabbcc".translate(str.maketrans("abc","123"))</code> <code>'112233'</code></td>
-<td><strong>㉘</strong>；两者<strong>都返回新字符串，要接住</strong>；<code>translate</code> 表外字符原样保留</td></tr>
+<tr><td><code>.replace(旧, 新[, 次数])</code></td><td>按<strong>子串</strong>替换；
+<strong>新参数给 <code>""</code> 就等于「删除」</strong>（见 ⑥ 表和 ㉘）</td>
+<td><code>"a-b-c".replace("-", "+")</code> <code>'a+b+c'</code>｜
+<code>.replace("-", "+", 1)</code> <code>'a+b-c'</code>（只换前 1 个）｜
+<strong><code>"banana".replace("a", "")</code> <code>'bnn'</code></strong>（a 全删了）</td>
+<td><strong>㉘</strong>；<strong>返回新串要接住</strong>；<br>
+<strong>长度规律</strong>：换成长度相同的 → 不变；换成 <code>""</code> → 变短；换成更长的 → 变长</td></tr>
+
+<tr><td><code>.translate()</code></td><td>按<strong>单字符一对一</strong>映射／删除</td>
+<td><code>"aabbcc".translate(str.maketrans("abc","123"))</code> <code>'112233'</code>｜
+<code>"a1b2".translate(str.maketrans("","","12"))</code> <code>'ab'</code>（删掉 1 和 2）</td>
+<td><strong>㉘</strong>；表外字符<strong>原样保留</strong></td></tr>
 
 <tr><td><code>.zfill()</code></td><td>左边补 0 到指定位数</td>
 <td><code>"7".zfill(3)</code> <code>'007'</code></td>
@@ -5070,6 +5108,79 @@ hasattr("a", "strip")     # True</code></pre>
 → ③ 翻<strong>二、常用代码</strong>里对应的那一节（看完整例子）
 → ④ 还不行就看<strong>四、报错速查表</strong>（报错信息反查）。<br>
 <strong>要加新东西时：</strong>新函数/方法 → 加进本章的表；新套路 → 加进「二、常用代码」并在这里的索引里挂上。
+</div>
+
+<h3 id="quick-6">⑥ 字符串方法总表（按用途分类，全部实测）</h3>
+
+<p><strong>为什么单独开一张：</strong>字符串的方法最多、最容易混。
+这一张按<strong>「想干什么」</strong>分组 —— 想不起方法名时，先从用途那一列往回找。
+前面 ② 方法总表是<strong>字符串 / 列表 / 字典混着</strong>按出现顺序列的，这张只管字符串。</p>
+
+<table>
+<tr><th>用途</th><th>方法</th><th>实测</th><th>注意</th></tr>
+
+<tr><td rowspan="7"><strong>判断<br>（给 True / False）</strong></td>
+<td><code>.isdigit()</code></td>
+<td><code>"123"</code>→True｜<code>"12a"</code>→False｜<code>""</code>→False</td>
+<td>⚠️ <code>"²".isdigit()</code> 也是 True 但 <code>int()</code> 转不动（⑯）</td></tr>
+<tr><td><code>.isalpha()</code></td><td><code>"abc"</code>→True｜<code>"a1"</code>→False｜<code>"中"</code>→True</td>
+<td><strong>中文也算字母</strong></td></tr>
+<tr><td><code>.isalnum()</code></td><td><code>"a1"</code>→True｜<code>"a 1"</code>→False</td><td>字母或数字，空格不算</td></tr>
+<tr><td><code>.isupper()</code> / <code>.islower()</code></td>
+<td><code>"AB"</code>→True｜<code>"A1"</code>→True｜<code>"12"</code>→False</td>
+<td><strong>要求"至少有一个字母"，其余可以是数字</strong>（纯数字两个都给 False）</td></tr>
+<tr><td><code>.isspace()</code></td><td><code>" "</code>→True｜<code>"\t\n"</code>→True｜<code>" a"</code>→False</td><td>整串都是空白才 True</td></tr>
+<tr><td><code>.startswith(前缀)</code></td><td><code>"hello".startswith("he")</code>→True</td>
+<td>可加区间：<code>.startswith("he", 0, 3)</code></td></tr>
+<tr><td><code>.endswith(后缀)</code></td><td><code>"a.txt".endswith(".txt")</code>→True</td>
+<td>判断文件名、结尾最常用</td></tr>
+
+<tr><td rowspan="4"><strong>转换</strong></td>
+<td><code>.upper()</code> / <code>.lower()</code></td><td><code>"aB".upper()</code><code>'AB'</code>｜<code>.lower()</code><code>'ab'</code></td>
+<td>全部变大/小写（⑱）</td></tr>
+<tr><td><code>.swapcase()</code></td><td><code>"Hello".swapcase()</code><code>'hELLO'</code></td>
+<td><strong>大小写互换</strong>（3-14 就靠它）</td></tr>
+<tr><td><code>.strip()</code> / <code>.lstrip()</code> / <code>.rstrip()</code></td>
+<td><code>" 12 34 \t\n".strip()</code><code>'12 34'</code>｜<code>"xxabcxx".strip("x")</code><code>'abc'</code></td>
+<td>去<strong>首尾</strong>空白；<strong>中间的去不掉</strong>；可指定要去的字符集（⑱）</td></tr>
+<tr><td><code>.replace(旧, 新[, 次数])</code></td>
+<td><code>"a-b-c".replace("-","+",1)</code><code>'a+b-c'</code>｜
+<strong><code>"banana".replace("a","")</code><code>'bnn'</code></strong></td>
+<td><strong>换成 <code>""</code> = 删除</strong>；从左往右、不回头（㉘）</td></tr>
+
+<tr><td rowspan="3"><strong>查找<br>（给位置 / 个数）</strong></td>
+<td><code>.find()</code> / <code>.rfind()</code></td>
+<td><code>"programming".find("m")</code><code>6</code>｜<code>.rfind("m")</code><code>7</code>｜找不到 <code>-1</code></td>
+<td><strong>找不到给 <code>-1</code></strong> —— 必须单独判 <code>&gt;= 0</code>（3-9 栽过，㉑）</td></tr>
+<tr><td><code>.index()</code> / <code>.rindex()</code></td><td>同上，但<strong>找不到直接 ValueError</strong></td>
+<td>㉑；PTA 上优先用 <code>find</code></td></tr>
+<tr><td><code>.count(子串)</code></td><td><code>"banana".count("a")</code><code>3</code>｜<code>.count("an")</code><code>2</code></td>
+<td>数<strong>不重叠</strong>的出现次数；不是 <code>len</code>（㉕）</td></tr>
+
+<tr><td rowspan="4"><strong>拆分 / 拼接 / 对齐</strong></td>
+<td><code>.split()</code></td>
+<td><code>"a b  c".split()</code><code>['a','b','c']</code>｜<code>"a,b".split(",")</code><code>['a','b']</code>｜
+<code>"a b".split(" ")</code><code>['a','b']</code></td>
+<td><strong>不带参数：按任意空白切且丢空串</strong>；<strong>带了参数会保留空串</strong>（3-15 的坑）</td></tr>
+<tr><td><code>.join(可迭代)</code></td><td><code>"-".join(["a","b"])</code><code>'a-b'</code>｜<code>"".join(["a","b"])</code><code>'ab'</code></td>
+<td><strong>只吃字符串</strong>；数字要先 <code>map(str,…)</code>（㉒）</td></tr>
+<tr><td><code>.zfill(宽度)</code></td><td><code>"7".zfill(3)</code><code>'007'</code>｜<code>"-7".zfill(3)</code><code>'-07'</code></td>
+<td>左边补 0（负数把负号算一位）</td></tr>
+<tr><td><code>.center()</code> / <code>.ljust()</code> / <code>.rjust()</code></td>
+<td><code>"ab".center(6,".")</code><code>'..ab..'</code>｜<code>.ljust(4,".")</code><code>'ab..'</code></td>
+<td>对齐输出（③ 的亲戚）</td></tr>
+</table>
+
+<div class="box warn">
+<strong>三组最容易记混的</strong><br>
+① <strong>判断类的"空串陷阱"</strong>：<code>"".isdigit()</code>、<code>"".isalpha()</code>
+<strong>全是 False</strong>（因为"没有任何字符"谈不上"全是数字"）；
+所以读入后先判空，别直接 <code>int()</code>（3-9 空结果那个坑）。<br>
+② <strong><code>find</code> 给 <code>-1</code>、<code>index</code> 抛错</strong>：两者功能一样，
+但"找不到"的表现完全不同 —— <code>-1</code> 是<strong>合法整数</strong>，
+拿去比大小会静默出错（<code>-1 &lt;= 任何下标</code>，3-9 就栽在这）。<br>
+③ <strong><code>strip</code> / <code>replace</code> / <code>split</code> 都返回<strong>新串或新列表</strong></strong>，
+原对象一个字都不改 —— <strong>必须接住返回值</strong>（❌13、㉘ 的坑①）。
 </div>
 
 <footer>
