@@ -128,7 +128,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>二、常用代码与拓展 <span class="toc-n" id="cs">29</span></summary>
+    <summary>二、常用代码与拓展 <span class="toc-n" id="cs">30</span></summary>
     <ol>
       <li><a onclick="return go('s1-1')">① 读一行数字</a></li>
       <li><a onclick="return go('s1-2')">② range()：生成数字序列</a></li>
@@ -159,6 +159,7 @@
       <li><a onclick="return go('s1-27')">㉗ 竖向输出：每行一个（和「竖着读进来再拼回去」）</a></li>
       <li><a onclick="return go('s1-28')">㉘ 字符的对应与替换（五种工具怎么选）</a></li>
       <li><a onclick="return go('s1-29')">㉙ ord() / chr()：字符 ↔ 编号（字母往后数几个的写法）</a></li>
+      <li><a onclick="return go('s1-30')">㉚ 集合 set：只管「有没有」，与 .add()</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -233,7 +234,7 @@
       <li><a onclick="return go('quick-1')">① 内置函数总表</a></li>
       <li><a onclick="return go('quick-2')">② 方法总表（字符串 / 列表 / 字典）</a></li>
       <li><a onclick="return go('quick-3')">③ 格式化与输出参数</a></li>
-      <li><a onclick="return go('quick-4')">④ 用途分类索引（把「二、常用代码」29 节按用途归位）</a></li>
+      <li><a onclick="return go('quick-4')">④ 用途分类索引（把「二、常用代码」30 节按用途归位）</a></li>
       <li><a onclick="return go('quick-5')">⑤ 对象 × 操作 对照表（谁有哪个能力）</a></li>
       <li><a onclick="return go('quick-6')">⑥ 字符串方法总表（按用途分类，全部实测）</a></li>
     </ol>
@@ -3038,6 +3039,100 @@ sorted(set("ad2f3adjfeainzzzv"), key=ord) # '23adefijnvz'   ← key=ord 是白�
 · 本节只讲<strong>字符和编号怎么互转、怎么据此算</strong>。
 </div>
 
+<h3 id="s1-30">㉚ 集合 <code>set</code>：只管「有没有」，与 <code>.add()</code></h3>
+
+<p><strong>集合就是"一堆不重复的东西"，而且<strong>不排顺序</strong>。</strong>
+它只回答一个问题：<strong>这东西在不在里面</strong>。所以"记录见过什么"这类事，用它最合适
+（3-18 挑不重复字母、3-16 去重都靠它）。</p>
+
+<div class="box warn">
+<strong>先记住三个"建法"上的坑（都实测）</strong>
+<pre><code>set()            # set()          ← 空集合【必须】这么写
+{}               # 这是空【字典】，不是集合！type({}) 是 dict
+{1, 2, 3}        # {1, 2, 3}      ← 有元素时花括号才是集合
+set("hello")     # {'e', 'l', 'o', 'h'}   ← 从字符串建，自动去重
+set([1, 1, 2])   # {1, 2}         ← 从列表建，自动去重</code></pre>
+① <strong><code>{}</code> 是空字典</strong>（⑫ 的坑：字典推导式和集合推导式都用花括号）；<br>
+② <strong>集合不保证顺序</strong>：连开 8 个进程跑 <code>{'a','b','c','d','e'}</code>，
+8 次打印的排列可能全不同 —— <strong>要顺序就 <code>sorted()</code></strong>；<br>
+③ <strong>元素必须"可哈希"</strong>：列表 / 字典 / 集合<strong>不能</strong>放进去，
+<code>{[1,2]}</code> 直接 <code>TypeError: unhashable type: 'list'</code>。
+</div>
+
+<p><strong><code>.add()</code> 怎么用（这题就靠它）</strong></p>
+<pre><code>seen = set()          # 先建一个空集合
+seen.add("a")         # 加一个 —— 【返回值是 None】！它原地改，不用接
+# seen = {'a'}
+
+seen.add("b")
+seen.add("b")         # 加重复的：【不报错、也不变化】（集合本来就不重复）
+# seen = {'a', 'b'}
+
+# ❌ 千万别写 seen = seen.add("c") —— add 返回 None，
+#    这一句会把 seen 变成 None，后面 seen.add 就报 AttributeError</code></pre>
+<p><strong><code>add()</code> 和列表的 <code>append()</code> 是同一类</strong>（⑳）：
+<strong>原地改、返回 <code>None</code></strong>。
+判断"加进去没有"要看集合本身，不要看返回值。</p>
+
+<div class="box ok">
+<strong>集合的常用操作（全部实测）</strong>
+<table>
+<tr><th>操作</th><th>作用</th><th>实测</th></tr>
+<tr><td><code>s.add(x)</code></td><td>加一个（重复加没事）</td><td>返回 <code>None</code>；<code>set()</code> 加 "a" → <code>{'a'}</code></td></tr>
+<tr><td><code>x in s</code></td><td><strong>在不在</strong>（最常用）</td>
+<td><code>'a' in {'a','b'}</code> → <code>True</code>；不上心的 <code>'z'</code> → <code>False</code></td></tr>
+<tr><td><code>len(s)</code></td><td>有几个</td><td><code>len({'a','b'})</code> → <code>2</code></td></tr>
+<tr><td><code>s.remove(x)</code></td><td>删一个</td>
+<td>⚠️ <strong>x 不在会 <code>KeyError</code></strong>（实测 <code>remove('z')</code> 报错）</td></tr>
+<tr><td><code>s.discard(x)</code></td><td>删一个，<strong>不在也不报错</strong></td>
+<td>想"删了也不怕"就用它</td></tr>
+<tr><td><code>s.pop()</code></td><td>随机弹一个（<strong>不是最后一个</strong>）</td>
+<td>集合无序，别依赖弹哪个</td></tr>
+<tr><td><code>s.clear()</code></td><td>清空</td><td>—</td></tr>
+<tr><td><code>sorted(s)</code></td><td>转成<strong>有序列表</strong></td><td><code>sorted({'c','a','b'})</code> → <code>['a','b','c']</code></td></tr>
+</table>
+<strong>集合运算</strong>（数学里的交并差，符号很好记）：<code>A={1,2,3}</code>、<code>B={2,3,4}</code> 时 ——
+<code>A &amp; B</code> 交集 <code>{2,3}</code>｜<code>A | B</code> 并集 <code>{1,2,3,4}</code>｜
+<code>A - B</code> 差集 <code>{1}</code>｜<code>A ^ B</code> 对称差 <code>{1,4}</code>。
+</div>
+
+<div class="box bad">
+<strong>为什么这题用集合而不是列表（速度实测）</strong><br>
+"记录见过什么"最常用的两个写法：
+<pre><code># 列表：每次都要【从头比一遍】
+seen = []
+if c not in seen:
+    seen.append(c)
+
+# 集合：一次【哈希命中】
+seen = set()
+if c not in seen:
+    seen.add(c)</code></pre>
+300 字符 × 50 次实测：列表 <strong>0.0015 秒</strong> vs 集合 <strong>0.0002 秒</strong>，<strong>快 6.6 倍</strong>。<br>
+题面小的时候两种都能过，但<strong>集合的写法更短、意图更清楚</strong>（"我只要知道在不在"）。
+</div>
+
+<div class="box ok">
+<strong>3-18 那种"挑出不重复的字母"完整骨架（含 <code>add</code>）</strong>
+<pre><code>LET = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+seen, out = set(), []
+for c in m:
+    if c not in LET:
+        continue
+    k = c.lower()               # 归一化后的 key（大小写算同一个）
+    if k in seen:               # 见过 → 跳过（这句是关键）
+        continue
+    seen.add(k)                 # 没见过 → 记下这个 key
+    out.append(c)               # 收集【原字符】（输出要保留大小写）
+    if len(out) == 10:
+        break
+
+# 实测 "This 156is a test example" → 'Thisaexmpl' ✅ 与样例一致</code></pre>
+<strong>三个易错点</strong>：① <code>seen</code> 里存<strong>归一化后的 key</strong>（小写），
+<code>out</code> 里存<strong>原字符</strong>；② 收满就 <code>break</code>，否则会多输出；
+③ 集合无序，<strong>输出的顺序靠 <code>out</code> 列表保着</strong>，别指望集合。
+</div>
+
 <h2 id="star">三、符号速查：* 和 []</h2>
 
 <h3 id="star-1">——— 第一部分：星号 <code>*</code> ———</h3>
@@ -5113,7 +5208,7 @@ print(f"result: {x}")             输出要带固定前缀 result:</code></pre>
 <tr><td><code>print("\\n".join(L))</code></td><td>同上，但<strong>只吃字符串</strong>（数字要 <code>map(str, …)</code>）</td><td>㉗；想先拼成一个串再用</td></tr>
 </table>
 
-<h3 id="quick-4">④ 用途分类索引（把「二、常用代码」29 节按用途归位）</h3>
+<h3 id="quick-4">④ 用途分类索引（把「二、常用代码」30 节按用途归位）</h3>
 
 <table>
 <tr><th>想知道的事</th><th>看哪几节</th></tr>
@@ -5133,6 +5228,10 @@ print(f"result: {x}")             输出要带固定前缀 result:</code></pre>
 <tr><td><strong>怎么换字符、怎么建立对应</strong></td>
 <td><strong>㉘ 字符的对应与替换</strong>（replace / translate / 字典查表 / 按位置 / re.sub 怎么选）｜
 ⑮ 查表（怎么把对应关系建起来）｜㉒ join（把结果拼回去）</td></tr>
+
+<tr><td><strong>怎么"记录见过什么"（去重 / 查重）</strong></td>
+<td><strong>㉚ 集合 set 与 <code>.add()</code></strong>（只管有没有、不排顺序、<code>{}</code> 是字典不是集合）｜
+⑫ 集合推导式｜㉔ 字典的键也能去重｜㉕ 频次统计</td></tr>
 
 <tr><td><strong>怎么按字符的编号算</strong></td>
 <td><strong>㉙ <code>ord()</code> / <code>chr()</code></strong>（字符↔编号、「往后数几个字母」、
