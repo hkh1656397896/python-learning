@@ -94,12 +94,12 @@
 -->
 
 <h1>Python 自学笔记</h1>
-<p class="meta">hkh ｜ 更新 2026-10-11 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">6</span> 题（浙大版《Python 程序设计》题目集）</p>
+<p class="meta">hkh ｜ 更新 2026-10-11 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">7</span> 题（浙大版《Python 程序设计》题目集）</p>
 
 <nav id="toc">
   <div class="toc-head">目录　<span class="toc-hint">点标题展开 · 点条目直接跳</span></div>
   <details class="toc-g">
-    <summary>一、易错点 <span class="toc-n" id="ce">13</span></summary>
+    <summary>一、易错点 <span class="toc-n" id="ce">14</span></summary>
     <ol>
       <li><a onclick="return go('e1-1')">❌ 1. 输入分隔符猜错</a></li>
       <li><a onclick="return go('e1-2')">❌ 2. int 和 float 用错</a></li>
@@ -114,6 +114,7 @@
       <li><a onclick="return go('e1-12')">❌ 11. 整数 ≠ 字符串：类型不同，相等判断永远是 False</a></li>
       <li><a onclick="return go('e1-13')">❌ 12. 忘了 input 后面那对括号</a></li>
       <li><a onclick="return go('e1-14')">❌ 13. 把 print 塞进了 sorted() 里面</a></li>
+      <li><a onclick="return go('e1-15')">❌ 14. 删掉卫语句时忘了同步改缩进 —— print 还留在循环里</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -174,7 +175,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>六、真题回顾 <span class="toc-n" id="cr">23</span></summary>
+    <summary>六、真题回顾 <span class="toc-n" id="cr">24</span></summary>
     <ol>
       <li><a onclick="return go('review-1')">1-1 从键盘输入两个数求和</a></li>
       <li><a onclick="return go('review-2')">1-2 按公式输出 b²−4ac</a></li>
@@ -199,6 +200,7 @@
       <li><a onclick="return go('review-21')">3-4 查找指定字符</a></li>
       <li><a onclick="return go('review-22')">3-5 字符转换</a></li>
       <li><a onclick="return go('review-23')">3-6 求整数序列中出现次数最多的数</a></li>
+      <li><a onclick="return go('review-24')">3-7 求最大值及其下标</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -582,6 +584,60 @@ sorted(print("y"), reverse=True)  # TypeError: 'NoneType' object is not iterable
 <code>结果 = sorted(...)</code> ✅ ｜ <code>sorted(...)</code> 单独一行 ⚠️ 排了但立刻扔掉（不报错，白干）。<br>
 ② 就算把括号调对写成 <code>print(sorted(...))</code>，<strong>放在循环里面照样是错的</strong> ——
 每一轮列表里只有一个元素，没得比。详见 ⑳。
+</div>
+
+<h3 id="e1-15">❌ 14. 删掉卫语句时忘了同步改缩进 —— <code>print</code> 还留在循环里 <span class="tag">第3章-7</span></h3>
+
+<div class="box bad">
+<strong>症状：</strong>把「循环外的那道 <code>if</code> 闸门」删掉后，提交报 <strong>非零返回</strong>，
+或者变成<strong>答案错误</strong>。<br>
+<strong>当时的形状：</strong>原来写的是
+<code>for …</code> → 循环外 <code>if yes!=0:</code> → <code>print(r,min(L))</code>；
+后来把 <code>yes</code> 那一套删了，<strong>但 <code>print</code> 的缩进没跟着提出来</strong>，
+于是它变成了「每一轮都执行」。
+</div>
+
+<p><strong>根因：缩进决定「这句话属于谁」。</strong>同一行 <code>print</code>：</p>
+<table>
+<tr><th>缩进位置</th><th>属于</th><th>执行次数</th></tr>
+<tr><td>和 <code>for</code> 同列（顶格）</td><td>整个循环<strong>之后</strong></td><td><strong>1 次</strong> ✅</td></tr>
+<tr><td>缩进 4 空格</td><td><code>for</code> 体内</td><td><strong>n 次</strong>（每轮一次）❌</td></tr>
+<tr><td>缩进 8 空格</td><td><code>if</code> 体内</td><td>只在该条件成立时才打 ❌</td></tr>
+</table>
+
+<div class="box bad">
+<strong>实测：第3章-7 找出最大值及其下标，样例 <code>[2,8,10,1,9,10]</code>，循环里那句是 <code>print(r,min(L))</code></strong><br>
+逐轮模拟（<code>R='10'</code> 是最大值）：
+<table>
+<tr><th>轮次</th><th>i</th><th>ch</th><th>此刻的 L</th><th><code>min(L)</code> 的结果</th></tr>
+<tr><td>1</td><td>0</td><td><code>'2'</code></td><td><code>[]</code></td><td><strong><code>ValueError: min() arg is an empty sequence</code></strong> 💥</td></tr>
+<tr><td>2</td><td>1</td><td><code>'8'</code></td><td><code>[]</code></td><td>同上 💥</td></tr>
+<tr><td>3</td><td>2</td><td><code>'10'</code></td><td><code>[2]</code></td><td>打印 <code>10 2</code></td></tr>
+<tr><td>4</td><td>3</td><td><code>'1'</code></td><td><code>[2]</code></td><td>又打印 <code>10 2</code></td></tr>
+<tr><td>5</td><td>4</td><td><code>'9'</code></td><td><code>[2]</code></td><td>又打印 <code>10 2</code></td></tr>
+<tr><td>6</td><td>5</td><td><code>'10'</code></td><td><code>[2, 5]</code></td><td>又打印 <code>10 2</code></td></tr>
+</table>
+<strong>两个失败是同一件事的两面：</strong><br>
+① <strong>非零返回</strong> —— 最大值还没轮到，<code>L</code> 仍是空的，<code>min([])</code> 直接抛异常。<br>
+② <strong>答案错误</strong> —— 就算不抛（最大值恰好在第一个），它也会输出 <strong>n 行</strong>，
+而且每行那个下边是<strong>当前 <code>min(L)</code></strong>，不是题目要的<strong>最大值</strong>的下标。
+</div>
+
+<div class="box warn">
+<strong>那道卫语句到底在干什么：它是「别在还没找齐之前打印」的闸门。</strong><br>
+<code>if yes!=0:</code> 写在循环<strong>外面</strong>，所以只有 <code>for</code> 全跑完、确认 <code>L</code> 非空，
+才打印一次 —— 这就是它原来能过测试点的原因。卫语句和缩进是<strong>配套</strong>的：
+<strong>删掉闸门，就必须同时把 <code>print</code> 顶格；留着闸门，<code>print</code> 才可以待在循环里。</strong>
+</div>
+
+<div class="box bad">
+<strong>这类 bug 最阴的地方：它不一定报错。</strong>
+最大值<strong>恰好在第一个</strong>时（<code>3 / 9 1 2</code> → 第 1 轮 <code>L</code> 就有值），
+它连异常都不抛，只是<strong>把同一行答案多打几遍</strong> —— 本地怎么试都像对的。
+所以<strong>改完代码结构，通读一遍每行缩进</strong>，别只盯着自己改的那一行。
+<br><br>
+<strong>和 ❌6 的分工：</strong>❌6 讲「<code>print</code> 掉进循环 / 累加器被清零」这两种<strong>缩进翻车</strong>，
+本条讲<strong>更容易发生的一种</strong>：<strong>删代码时只删了变量，忘了它保护的缩进</strong>。
 </div>
 
 <h2 id="s1">二、常用代码与拓展（每条都带输出）</h2>
@@ -2858,7 +2914,7 @@ if m!=v[17]:                      # ② 索引</code></pre>
 ② 两边同时改，很容易出现"本地一份、提交另一份"，而且极难发现
 </div>
 
-<h2 id="review">六、真题回顾（<span id="cr2">23</span> 题）</h2>
+<h2 id="review">六、真题回顾（<span id="cr2">24</span> 题）</h2>
 
 <div class="box warn">
 <strong>说明：</strong>下面的题目要求是<strong>我按自己的理解概括写的</strong>，不是 PTA 原文。<br>
@@ -3616,6 +3672,70 @@ N 单独占一行时          整行只有一个 token → 输出 10 1          
 · 5 组全过：<strong>N 也被多数</strong>（<code>3 3 3 3 1 2</code> → <code>3 3</code>，就是修掉的那个坑）、
 单个数（<code>1 7</code> → <code>7 1</code>）、全相同（<code>4 5 5 5 5</code> → <code>5 4</code>）、
 负数最多（<code>6 -1 -1 -1 2 3 4</code> → <code>-1 3</code>）<br>
+· <code>py_compile</code> 通过
+</div>
+
+<h3 id="review-24">3-7 求最大值及其下标 <span class="tag">通过 20/20</span></h3>
+<p><strong>要求：</strong>第一行给整数 n（1&lt;n≤10），第二行给 n 个整数（空格分隔）。
+输出<strong>最大值</strong>和它对应的<strong>最小下标</strong>（下标<strong>从 0 开始</strong>），中间用空格分隔。<br>
+<strong>样例：</strong><code>6</code> / <code>2 8 10 1 9 10</code> → <code>10 2</code>
+（两个 10，取<strong>靠前</strong>那个的下标）</p>
+
+<p><strong>我的代码（通过 20/20）</strong></p>
+<pre><code>n=int(input())                                  # 读第一行（整数个数 n），转成整数
+N=input().split()                               # 读第二行，按空白切成一个个 token（注意：全是【字符串】）
+r=max(map(int,N))                               # 把每个 token 转成 int，取最大值（数值比较）
+R=str(r)                                        # 再把最大值转回字符串，好和 N 里的字符串比
+yes=0                                           # 计数器：找到了几个等于最大值的（兼作「闸门」）
+L=[]                                            # 收集「等于最大值的那些下标」
+for i,ch in enumerate(N):                       # 逐个看，i 是下标（从 0 开始），ch 是那个字符串
+    if R==ch:                                   # 串和串比：这个位置上的数就是最大值
+        yes+=1                                  # 找到一个，计数加一
+        L.append(i)                             # 记下它的下标
+if yes!=0:                                      # 【闸门】等循环跑完、确认 L 非空，才打印
+    print(r,min(L))                             # 输出「最大值 最小下标」，min 保证取靠前的那个</code></pre>
+
+<p><strong>优化用法：</strong>① <strong>为什么非要 <code>R=str(r)</code></strong>：<code>N</code> 里的元素是
+<code>input().split()</code> 出来的<strong>字符串</strong>，直接写 <code>if r==ch</code> 就是
+<code>int == str</code> → 永远 <code>False</code> → <code>L</code> 空 → <code>min([])</code> 崩（❌11）；
+② <strong><code>yes</code> 这个变量是多余的</strong>：<code>n ≥ 1</code> 保证最大值一定在数据里，
+<code>L</code> 不可能空，第 11 行的闸门可以直接去掉 —— <strong>但删掉它时必须把
+<code>print</code> 顶格</strong>，否则就是 ❌14；<br>
+③ <strong>n 白读了</strong>：第 1 行取到的 <code>n</code> 后面一次都没用，真正决定循环次数的是
+<code>len(N)</code>（和 3-6 的 <code>m</code> 形成对比：那个 <code>N</code> 是<strong>真用了</strong>的）；<br>
+④ <strong>更省的写法</strong>：题目要的两样东西（最大值 + 它的最小下标）一趟扫描就能拿到，
+不必「先求值 → 再转字符串 → 再扫一遍找位置」——
+<code>N.index(R)</code> 直接给<strong>第一个</strong>最大值的位置，两行就够；
+想练基本功就自己写循环，<strong>用 <code>&gt;</code> 取第一个，用 <code>&gt;=</code> 就变成最后一个</strong>；
+⑤ <strong>输入更稳的读法</strong>：<code>sys.stdin.read().split()</code> 把两行一起吃掉，
+第二行跨行也不会崩（本题 n≤10 一行放得下，但换个题就不一定）。</p>
+
+<div class="box warn">
+<strong>本题唯一的真坑：下标从 0 开始，并列时取<strong>最小</strong>下标。</strong><br>
+样例特意给了两个 <code>10</code>（下标 2 和 5），输出 <code>10 2</code> —— 就是在明示「取靠前的」。
+<code>min(L)</code> 天生满足这个要求；但如果改成「一遍扫描 + <code>&gt;=</code>」，
+就会变成取<strong>最后一个</strong>（输出 <code>10 5</code>），正好错在样例上。
+</div>
+
+<div class="box bad">
+<strong>这一题我踩的坑：删掉 <code>yes</code> 之后报「非零返回 / 答案错误」（详见 ❌14）。</strong><br>
+把 <code>yes</code> 那一套删了，但 <code>print</code> <strong>还缩进在 <code>for</code> 里面</strong> ——
+于是最大值还没轮到的那几轮，<code>L</code> 还是空的，<code>min([])</code> 直接抛
+<code>ValueError: min() arg is an empty sequence</code>。<br>
+<strong>卫语句和缩进是配套的：删闸门，就得同时把 <code>print</code> 提出循环。</strong>
+</div>
+
+<div class="box ok">
+<strong>实测验收</strong><br>
+· 样例 ✅ <code>1 / 6 / 2 8 10 1 9 10</code> → <code>10 2</code><br>
+· 11 组边界全过：<strong>n=1</strong>（<code>7</code> → <code>7 0</code>；<code>-7</code> → <code>-7 0</code>）、
+<strong>全相同</strong>（<code>3 3 3 3 3</code> → <code>3 0</code>）、
+最大值在<strong>开头</strong>（<code>9 1 2</code> → <code>9 0</code>）、
+在<strong>末尾</strong>（<code>1 2 9</code> → <code>9 2</code>）、
+<strong>全负数</strong>（<code>-5 -1 -9</code> → <code>-1 1</code>）、
+<strong>n=10 上限</strong>（<code>1…10</code> → <code>10 9</code>）、
+<strong>多位数并列</strong>（<code>100 99 100 5</code> → <code>100 0</code>）<br>
+· 期望值用<strong>独立算法</strong>算（一遍扫描、严格 <code>&gt;</code>），不复用 <code>max</code>/<code>index</code><br>
 · <code>py_compile</code> 通过
 </div>
 
