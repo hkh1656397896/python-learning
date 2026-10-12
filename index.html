@@ -128,7 +128,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>二、常用代码与拓展 <span class="toc-n" id="cs">25</span></summary>
+    <summary>二、常用代码与拓展 <span class="toc-n" id="cs">26</span></summary>
     <ol>
       <li><a onclick="return go('s1-1')">① 读一行数字</a></li>
       <li><a onclick="return go('s1-2')">② range()：生成数字序列</a></li>
@@ -155,6 +155,7 @@
       <li><a onclick="return go('s1-23')">㉓ map：对每个元素做同一件事（转成什么由传进去的函数决定）</a></li>
       <li><a onclick="return go('s1-24')">㉔ 字典 dict：用「键」查「值」（第3章-2 起就在用，这里补全）</a></li>
       <li><a onclick="return go('s1-25')">㉕ 频次统计：怎么数「谁出现得最多」</a></li>
+      <li><a onclick="return go('s1-26')">㉖ 字符串怎么比大小（和「按什么排序」）</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -222,7 +223,7 @@
       <li><a onclick="return go('quick-1')">① 内置函数总表</a></li>
       <li><a onclick="return go('quick-2')">② 方法总表（字符串 / 列表 / 字典）</a></li>
       <li><a onclick="return go('quick-3')">③ 格式化与输出参数</a></li>
-      <li><a onclick="return go('quick-4')">④ 用途分类索引（把「二、常用代码」25 节按用途归位）</a></li>
+      <li><a onclick="return go('quick-4')">④ 用途分类索引（把「二、常用代码」26 节按用途归位）</a></li>
       <li><a onclick="return go('quick-5')">⑤ 对象 × 操作 对照表（谁有哪个能力）</a></li>
     </ol>
   </details>
@@ -2583,6 +2584,99 @@ for k, v in cnt.items():      # 用 items() 同时拿键和值
 <code>Counter("banana")</code> → <code>Counter({'a': 3, 'n': 2, 'b': 1})</code>。
 </div>
 
+<h3 id="s1-26">㉖ 字符串怎么比大小（和「按什么排序」）</h3>
+
+<p><strong>一条规则：从左往右，一位一位比字符的编码，第一个不同的字符决定胜负。</strong>
+全都比完还没分出来（一个串是另一个的前缀），就<strong>短的更小</strong>。<br>
+<strong>字符串没有"数字含义"这回事</strong> —— 它不认识 9 比 1 大，也不看长度
+（"谁长谁大"是错的）。</p>
+
+<div class="box warn">
+<strong>字符的大小顺序从哪来：编码表（ASCII）</strong>
+<table>
+<tr><th>范围</th><th>字符</th><th>码点</th></tr>
+<tr><td>数字</td><td><code>0</code> ~ <code>9</code></td><td>48 ~ 57</td></tr>
+<tr><td>大写字母</td><td><code>A</code> ~ <code>Z</code></td><td>65 ~ 90</td></tr>
+<tr><td>小写字母</td><td><code>a</code> ~ <code>z</code></td><td>97 ~ 122</td></tr>
+</table>
+<strong>记一句就够：数字 &lt; 大写 &lt; 小写。</strong>（空格 32、<code>!</code> 33，
+比数字还小；所以空白和标点排在字母前面。）<br>
+比较用的是 <strong>码点</strong>（<code>ord()</code> 取到的那个数），英文和数字范围内就是 ASCII。
+</div>
+
+<p><strong>逐个看（实测）：</strong></p>
+<pre><code>ord('0')=48  ord('9')=57  ord('A')=65  ord('Z')=90  ord('a')=97  ord('z')=122
+
+'apple' &lt; 'banana'    # 第 1 位就分出来：a(97) &lt; b(98)
+'abc'   &lt; 'abd'       # 前两位一样，第 3 位：c(99) &lt; d(100)
+'abc'   &lt; 'abcd'      # 全都一样 —— 短的更小（前缀规则）
+'Z'     &lt; 'a'         # 90 &lt; 97
+'Apple' &lt; 'apple'     # 65 &lt; 97
+'9'     &gt; '123'       # 57 &gt; 49 —— 不按数值！
+'10'    &lt; '9'         # 同上
+''      &lt; 'a'         # 空串最小</code></pre>
+
+<div class="box bad">
+<strong>三个最容易错的点（都实测过）</strong><br>
+① <strong>数字串不是数字</strong>：<code>'9' &gt; '123'</code>、<code>'10' &lt; '9'</code> ——
+字符串比大小<strong>逐位看字符</strong>，不是先转成整数再比。
+（写数字比较必须先把两边都转成 <code>int</code>，见 ❌10、❌11。）<br>
+② <strong>大写比小写小</strong>：<code>'Z' &lt; 'a'</code>、<code>'Apple' &lt; 'apple'</code>。
+所以 <code>['Apple', 'apple', 'Banana', 'banana', 'Zoo']</code> 直接排 →
+<code>['Apple', 'Banana', 'Zoo', 'apple', 'banana']</code>，<strong>大写全跑到前面</strong>，
+不是想要的「按字母表」。<br>
+③ <strong>"谁长谁大"是错的</strong>：长度只在"前面全都相同"时才起作用，而且是<strong>短的更小</strong>
+（<code>'abc' &lt; 'abcd'</code>）。
+</div>
+
+<p><strong>拿第 3-11 题的样例走一遍（为什么是这个顺序）：</strong></p>
+<pre><code>输入: red yellow blue black white
+排序: black  blue  red  white  yellow
+
+black  头两位 ord = [98, 108]
+blue   头两位 ord = [98, 108]    # 前两位一样 —— 比第 3 位：a(97) &lt; u(117)
+red    头两位 ord = [114, 101]
+white  头两位 ord = [119, 104]
+yellow 头两位 ord = [121, 101]
+# b(98) &lt; r(114) &lt; w(119) &lt; y(121)</code></pre>
+
+<p><strong>排序的两个 API（区别在"原列表动不动"）：</strong></p>
+<pre><code>nums = ["pear", "Apple", "banana"]
+
+sorted(nums)         # ['Apple', 'banana', 'pear']  —— 返回【新】列表
+nums                  # ["pear", "Apple", "banana"]  —— 原列表没动
+
+nums.sort()          # 【原地】排，没有返回值（返回 None）
+nums                  # ['Apple', 'banana', 'pear']
+
+sorted(nums, reverse=True)   # 从大到小
+</code></pre>
+<div class="box warn">
+<strong>⚠️ <code>nums = nums.sort()</code> 会把列表变成 <code>None</code></strong> ——
+<code>sort()</code> 是原地操作、返回值是 <code>None</code>。
+要继续用结果就写 <code>sorted(nums)</code>，或者 <code>nums.sort()</code> 单独一行。
+</div>
+
+<div class="box ok">
+<strong><code>key=</code> 是"按什么排"，改错口径排序结果就全错</strong>
+<table>
+<tr><th>写法</th><th>结果（原串 <code>['Apple', 'apple', 'Banana', 'banana', 'Zoo']</code>）</th><th>按什么</th></tr>
+<tr><td><code>sorted(ws)</code></td><td><code>['Apple', 'Banana', 'Zoo', 'apple', 'banana']</code></td><td>码点（大写在前）</td></tr>
+<tr><td><code>sorted(ws, key=str.lower)</code></td><td><code>['Apple', 'apple', 'Banana', 'banana', 'Zoo']</code></td><td>忽略大小写</td></tr>
+<tr><td><code>sorted(ws, key=len)</code></td><td><code>['Zoo', 'Apple', 'apple', 'Banana', 'banana']</code></td><td>按长度（短在前）</td></tr>
+</table>
+<strong>题目说"由小到大"而没提长度、没提大小写时，就是最朴素的 <code>sorted()</code>（按码点）</strong> ——
+不要自作主张加 <code>key</code>。加了 <code>key=str.lower</code> 之后，
+<code>'Apple'</code> 和 <code>'apple'</code> 的键相同，靠<strong>稳定排序</strong>保持原顺序。
+</div>
+
+<p><strong>还有一个坑：输出不要直接 <code>print</code> 整个列表</strong></p>
+<pre><code>words = sorted("red yellow blue black white".split())
+
+print(words)     # ['black', 'blue', 'red', 'white', 'yellow']   ← 带引号和方括号，一行
+for w in words:  # 想要"每行一个"必须逐个打
+    print(w)     # black / blue / red / white / yellow</code></pre>
+
 <h2 id="star">三、符号速查：* 和 []</h2>
 
 <h3 id="star-1">——— 第一部分：星号 <code>*</code> ———</h3>
@@ -4081,7 +4175,7 @@ print(x)                      输出个数</code></pre>
 
 <tr><td><code>.sort()</code></td><td>原地排序（<strong>不返回新列表</strong>）</td>
 <td><code>M=[3,1,2]; M.sort(reverse=True)</code> → M 变 <code>[3, 2, 1]</code></td>
-<td>⑦；和 <code>sorted()</code> 的区别就是返回 <code>None</code></td></tr>
+<td>⑦、㉖；和 <code>sorted()</code> 的区别就是返回 <code>None</code></td></tr>
 
 <tr><td><code>.reverse()</code></td><td>原地倒顺序</td>
 <td><code>M.reverse()</code> → <code>[1, 2, 3]</code></td>
@@ -4114,7 +4208,7 @@ print(x)                      输出个数</code></pre>
 <tr><td><code>print(x, end="")</code></td><td>不换行，下次接着写</td><td>⑨；2-14、3-1 末尾那个空格</td></tr>
 </table>
 
-<h3 id="quick-4">④ 用途分类索引（把「二、常用代码」25 节按用途归位）</h3>
+<h3 id="quick-4">④ 用途分类索引（把「二、常用代码」26 节按用途归位）</h3>
 
 <table>
 <tr><th>想知道的事</th><th>看哪几节</th></tr>
@@ -4134,7 +4228,8 @@ print(x)                      输出个数</code></pre>
 <td>⑪ 遍历列表挑元素｜⑫ 列表推导式｜⑮ 查表（对应关系）｜⑳ append/元组/字典排序</td></tr>
 
 <tr><td><strong>怎么排序、怎么比大小</strong></td>
-<td>⑦ 排序（升级版在 ⑳：元组排序、平局规则）｜❌10 字符串比较 ≠ 数字比较</td></tr>
+<td>⑦ 排序（升级版在 ⑳：元组排序、平局规则）｜<strong>㉖ 字符串怎么比大小</strong>
+（逐位比码点、数字&lt;大写&lt;小写、前缀规则、<code>key=</code> 三种口径）｜❌10 字符串比较 ≠ 数字比较</td></tr>
 
 <tr><td><strong>怎么检验自己没写错</strong></td>
 <td>⑭ 检验对照表（防打错字）｜⑯ 检查「全是数字」｜五、三条铁律 第 2 条（本地跑四类数据）</td></tr>
