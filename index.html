@@ -5135,14 +5135,19 @@ hasattr("a", "strip")     # True</code></pre>
 <tr><td><code>.endswith(后缀)</code></td><td><code>"a.txt".endswith(".txt")</code>→True</td>
 <td>判断文件名、结尾最常用</td></tr>
 
-<tr><td rowspan="4"><strong>转换</strong></td>
-<td><code>.upper()</code><br><code>.lower()</code></td>
-<td><strong>小写 → 大写：</strong><code>"abc".upper()</code> <code>'ABC'</code><br>
-<strong>大写 → 小写：</strong><code>"ABC".lower()</code> <code>'abc'</code><br>
-混合的整串也一起转：<code>"aBc".upper()</code> <code>'ABC'</code>、<code>.lower()</code> <code>'abc'</code></td>
-<td>把整串<strong>统一成一种</strong>（⑱）；<br><strong>两个方向各管一边</strong>，要"互换"用下面的 <code>swapcase</code></td></tr>
-<tr><td><code>.swapcase()</code></td><td><code>"Hello".swapcase()</code><code>'hELLO'</code></td>
-<td><strong>大小写互换</strong>（3-14 就靠它）</td></tr>
+<tr><td rowspan="3"><strong>大小写<br>转换</strong></td>
+<td><code>.upper()</code><br><strong>小写 → 大写</strong></td>
+<td><code>"abc".upper()</code> <code>'ABC'</code><br>
+<code>"aBc".upper()</code> <code>'ABC'</code>（混合的整串也一起转）</td>
+<td>把整串<strong>统一成大写</strong>（⑱）</td></tr>
+<tr><td><code>.lower()</code><br><strong>大写 → 小写</strong></td>
+<td><code>"ABC".lower()</code> <code>'abc'</code><br>
+<code>"aBc".lower()</code> <code>'abc'</code></td>
+<td>把整串<strong>统一成小写</strong>（⑱）</td></tr>
+<tr><td><code>.swapcase()</code><br><strong>大小写互换</strong></td>
+<td><code>"Hello".swapcase()</code> <code>'hELLO'</code><br>
+<code>"aB".swapcase()</code> <code>'Ab'</code>（两个方向同时做）</td>
+<td><strong>大写变小写、小写变大写</strong> —— 3-14 就靠它</td></tr>
 <tr><td><code>.strip()</code> / <code>.lstrip()</code> / <code>.rstrip()</code></td>
 <td><code>" 12 34 \t\n".strip()</code><code>'12 34'</code>｜<code>"xxabcxx".strip("x")</code><code>'abc'</code></td>
 <td>去<strong>首尾</strong>空白；<strong>中间的去不掉</strong>；可指定要去的字符集（⑱）</td></tr>
@@ -5184,6 +5189,22 @@ hasattr("a", "strip")     # True</code></pre>
 拿去比大小会静默出错（<code>-1 &lt;= 任何下标</code>，3-9 就栽在这）。<br>
 ③ <strong><code>strip</code> / <code>replace</code> / <code>split</code> 都返回<strong>新串或新列表</strong></strong>，
 原对象一个字都不改 —— <strong>必须接住返回值</strong>（❌13、㉘ 的坑①）。
+</div>
+
+<div class="box ok">
+<strong>大小写转换三家怎么选（把题目口径看清楚再动手）</strong>
+<table>
+<tr><th>题目要什么</th><th>用哪个</th><th>实测</th></tr>
+<tr><td>全部变成大写</td><td><code>.upper()</code></td><td><code>"aBc"</code> → <code>'ABC'</code></td></tr>
+<tr><td>全部变成小写</td><td><code>.lower()</code></td><td><code>"aBc"</code> → <code>'abc'</code></td></tr>
+<tr><td><strong>大写变小写、小写变大写</strong>（互换）</td><td><code>.swapcase()</code></td><td><code>"aBc"</code> → <code>'AbC'</code></td></tr>
+</table>
+<strong>同一串 <code>"aBc"</code> 三种结果完全不同</strong>：
+<code>'ABC'</code> ／ <code>'abc'</code> ／ <code>'AbC'</code> ——
+所以这题（3-14 那种）<strong>用错方法会全错</strong>，但样例可能看不出来<br>
+（比如输入全是小写时，<code>upper</code> 和 <code>swapcase</code> 结果一样，只有混排才分岔）。<br>
+<strong>另有两个"问"的版本</strong>（不改内容、只回答 True/False，见上面判断组）：
+<code>.isupper()</code>、<code>.islower()</code>。
 </div>
 
 <footer>
