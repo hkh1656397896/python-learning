@@ -104,7 +104,7 @@
 -->
 
 <h1>Python 自学笔记</h1>
-<p class="meta">hkh ｜ 更新 2026-10-11 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">17</span> 题（浙大版《Python 程序设计》题目集）</p>
+<p class="meta">hkh ｜ 更新 2026-10-11 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">18</span> 题（浙大版《Python 程序设计》题目集）</p>
 
 <nav id="toc">
   <div class="toc-head">目录　<span class="toc-hint">点标题展开 · 点条目直接跳</span></div>
@@ -190,7 +190,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>六、真题回顾 <span class="toc-n" id="cr">34</span></summary>
+    <summary>六、真题回顾 <span class="toc-n" id="cr">35</span></summary>
     <ol>
       <li><a onclick="return go('review-1')">1-1 从键盘输入两个数求和</a></li>
       <li><a onclick="return go('review-2')">1-2 按公式输出 b²−4ac</a></li>
@@ -226,6 +226,7 @@
       <li><a onclick="return go('review-32')">3-15 统计一行文本的单词个数</a></li>
       <li><a onclick="return go('review-33')">3-16 删除重复字符</a></li>
       <li><a onclick="return go('review-34')">3-17 删除字符（不分大小写）</a></li>
+      <li><a onclick="return go('review-35')">3-18 输出10个不重复的英文字母</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -3587,7 +3588,7 @@ if m!=v[17]:                      # ② 索引</code></pre>
 ② 两边同时改，很容易出现"本地一份、提交另一份"，而且极难发现
 </div>
 
-<h2 id="review">六、真题回顾（<span id="cr2">34</span> 题）</h2>
+<h2 id="review">六、真题回顾（<span id="cr2">35</span> 题）</h2>
 
 <div class="box warn">
 <strong>说明：</strong>下面的题目要求是<strong>我按自己的理解概括写的</strong>，不是 PTA 原文。<br>
@@ -5109,6 +5110,103 @@ print(f"result: {x}")             输出要带固定前缀 result:</code></pre>
 · 字符不在串里 <code>"hello"</code> 删 <code>"z"</code> → <code>hello</code>
 ｜ 不误删别的 <code>"EeFf"</code> 删 <code>"Z"</code> → <code>EeFf</code><br>
 · <code>py_compile</code> 通过 ｜ PTA <strong>通过</strong>（进度 34/89）
+</div>
+
+<h3 id="review-35">3-18 输出10个不重复的英文字母 <span class="tag">通过</span></h3>
+<p><strong>要求：</strong>随机输入一个字符串，把<strong>最左边的 10 个不重复的英文字母</strong>
+（<strong>不区分大小写</strong>）挑选出来。<strong>不足 10 个</strong>就显示 <code>not found</code>。<br>
+<strong>样例1：</strong><code>poemp134567</code> → <code>not found</code>（只有 4 个不同字母）<br>
+<strong>样例2：</strong><code>This 156is a test example</code> → <code>Thisaexmpl</code></p>
+<p><strong>我的代码（通过）</strong></p>
+<pre><code>import string                 导入 string 模块，为的是用下面的 ascii_letters 常量（也可以手写那 52 个字母）
+m=input()                     读入一整行（不 strip：空格交给下面的「只收字母」过滤掉）
+c=string.ascii_letters        c：52 个英文字母的字符串，用来判断「这个字符是不是英文字母」
+L=[]                          L：按【出现顺序】收集结果（输出要有顺序，所以用列表）
+s=set()                       s：集合，只回答「这个字母见过没有」（存【小写】当钥匙）
+for i in m:                   逐字符遍历（变量名 i 不太准，它装的是【字符】不是下标）
+    if i in c:                只处理英文字母（数字、空格、标点、中文都跳过）
+        k=i.lower()           算出【归一化后的钥匙】：大写 A 和小写 a 都变成 'a'（不区分大小写的关键）
+        if k in s:            这个钥匙见过了 → 跳过
+            continue          continue：这一轮到此为止、不执行下面三行（⑲）
+        s.add(k)              没见过 → 记进集合（add 原地改、返回 None，不用接，㉚）
+        L.append(i)           把【原字符】收进结果 —— 是 i 不是 k：样例输出 Thisaexmpl 的 T 是大写，要保留原样
+        if len(s)==10:break   收满 10 个就停 —— ⚠️ 必须写 len(s)；原来写 s==10，集合和整数比较恒为 False，见下面盒子
+if len(s)<10:                 不足 10 个不同字母
+    print("not found")        输出 not found
+else:                         够了（10 个或更多）
+    print("".join(L))         拼成一个字符串输出</code></pre>
+
+<div class="box bad">
+<strong>我踩的坑：<code>if s==10: break</code>（集合不可能等于整数）</strong><br>
+<code>s</code> 是<strong>集合</strong>，拿它和整数 <code>10</code> 比较是
+<strong>永远 <code>False</code>、而且不报错</strong>（实测 <code>set() == 10</code> → <code>False</code>）。
+于是这个 <code>break</code> <strong>一次都没执行</strong>。<br>
+<strong>后果</strong>：只要不同字母<strong>超过 10 个</strong>，就会全部输出：
+<table>
+<tr><th>输入</th><th>应输出</th><th>当时的输出</th></tr>
+<tr><td><code>abcdefghijk</code>（11 个不同）</td><td><code>abcdefghij</code></td><td><code>abcdefghijk</code> ❌</td></tr>
+<tr><td><code>a…z</code>（26 个）</td><td><code>abcdefghij</code></td><td>全部 26 个 ❌</td></tr>
+<tr><td><code>ABCDEFGHIJKLM</code>（13 个）</td><td><code>ABCDEFGHIJ</code></td><td><code>ABCDEFGHIJKLM</code> ❌</td></tr>
+</table>
+<strong>改法</strong>：集合要知道"有几个"必须用 <code>len()</code> ——
+<code>if len(s)==10: break</code>（也可以数 <code>len(L)</code>，这题两者总是相等）。<br>
+<strong>为什么两个样例都过了</strong>：样例1 走 <code>not found</code> 那支、样例2 恰好只有 10 个 ——
+<strong>样例盖不住</strong>，只有"超过 10 个不同字母"的测试点才会挂。
+</div>
+
+<p><strong>优化用法：</strong>① <strong>第 7 行原来还写过 <code>and i not in L</code></strong>，
+那半边是多余的 —— 它按<strong>原字符</strong>比（<code>'a'</code> 和 <code>'A'</code> 算两个），
+而第 9 行的 <code>k in s</code> 已经做了<strong>不分大小写</strong>的判断；删掉更清楚，
+也不会让人误以为在按大小写去重；<br>
+② 变量名能更准：<code>c</code> → <code>LET</code>（字母表）、<code>i</code> → <code>ch</code>（字符不是下标）、
+<code>k</code> → <code>key</code>、<code>s</code> → <code>seen</code>（❌8 那类"名字和内容不符"）；<br>
+③ <code>else</code> 那支可以写成 <code>print("".join(L[:10]))</code> —— 加了保险，
+就算前面忘了 <code>break</code> 也只输出前 10 个；<br>
+④ 不用 <code>import string</code> 也行：手写 <code>LET = "abc…xyzABC…XYZ"</code> 完全等价（㉙）。</p>
+
+<div class="box ok">
+<strong>两个容器的分工（这题最值得记的一点）</strong><br>
+同一个循环里用了<strong>两种容器</strong>，各管一件事（㉚ 那张"六种东西 × 各种操作"表）：
+<table>
+<tr><th>容器</th><th>装什么</th><th>为什么用它</th></tr>
+<tr><td><code>s = set()</code></td><td>"见过的字母"（<strong>小写</strong>）</td>
+<td>只问"在不在" → 集合最快（O(1)）；<strong>天然不重复</strong></td></tr>
+<tr><td><code>L = []</code></td><td>结果（<strong>原字符</strong>）</td>
+<td>输出<strong>要有顺序</strong>、还要 <code>join</code> 拼字符串 → 集合做不到（不能下标、无序）</td></tr>
+</table>
+<strong>要点：判断用的"钥匙"和收集的"东西"不是一回事</strong> ——
+判断用 <code>k</code>（小写），输出用 <code>i</code>（原样）。
+如果把 <code>L.append(i)</code> 写成 <code>L.append(k)</code>，样例2 会变成
+<code>thisaexmpl</code>（少了大写 T）。
+</div>
+
+<div class="box warn">
+<strong>这题要先把四个口径定下来（题面没写全）</strong>
+<table>
+<tr><th>问题</th><th>本题答案</th><th>怎么确认的</th></tr>
+<tr><td>大小写算不算同一个字母</td><td><strong>算同一个</strong>（不区分大小写）</td>
+<td>题面明说；样例2 里两个 <code>t</code> 只算一次</td></tr>
+<tr><td>输出保留原样还是转小写</td><td><strong>保留原样</strong></td>
+<td>样例2 输出 <code>Thisaexmpl</code>，开头的 <code>T</code> 是大写</td></tr>
+<tr><td>不足 10 个怎么办</td><td>输出 <code>not found</code></td>
+<td>题面明说 + 样例1</td></tr>
+<tr><td>数字 / 标点 / 中文</td><td>跳过</td><td>题面说"英文字母"；<code>i in LET</code> 天然满足</td></tr>
+</table>
+</div>
+
+<div class="box ok">
+<strong>实测验收</strong>（15 组，与独立实现对照：那份同样用 <code>set</code>+<code>list</code> 但写法不同）<br>
+· 样例1 ✅ <code>poemp134567</code> → <code>not found</code>
+｜ 样例2 ✅ <code>This 156is a test example</code> → <code>Thisaexmpl</code><br>
+· <strong>不足</strong>：<code>abcdefghi</code>（9 个）→ <code>not found</code> ｜ 空行 → <code>not found</code>
+｜ 只有数字 → <code>not found</code><br>
+· <strong>恰好</strong>：<code>abcdefghij</code> → <code>abcdefghij</code><br>
+· <strong>超过</strong>（原来的错就在这儿）：<code>abcdefghijk</code>（11 个）→ <code>abcdefghij</code>；
+<code>a…z</code>（26 个）→ <code>abcdefghij</code>；<code>ABCDEFGHIJKLM</code> → <code>ABCDEFGHIJ</code><br>
+· <strong>大小写混排</strong>：<code>aAbBcCdDeE</code> 只有 <strong>5 个</strong>不同字母 → <code>not found</code>；
+<code>aAbBcCdDeEfFgGhHiIjJ</code>（20 个字符、只有 10 种）→ <code>abcdefghij</code><br>
+· 含数字标点中文 <code>ab1!cd中efghij</code> → <code>abcdefghij</code> ｜ 前 10 个小写 + 后面大写 → <code>abcdefghij</code><br>
+· <code>py_compile</code> 通过 ｜ PTA <strong>通过</strong>（进度 35/89）
 </div>
 
 <h2 id="quick">七、速查总表</h2>
