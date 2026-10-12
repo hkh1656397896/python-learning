@@ -117,7 +117,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>二、常用代码与拓展 <span class="toc-n" id="cs">23</span></summary>
+    <summary>二、常用代码与拓展 <span class="toc-n" id="cs">25</span></summary>
     <ol>
       <li><a onclick="return go('s1-1')">① 读一行数字</a></li>
       <li><a onclick="return go('s1-2')">② range()：生成数字序列</a></li>
@@ -142,6 +142,8 @@
       <li><a onclick="return go('s1-21')">㉑ 查找位置：in / find / rfind / index / rindex / count</a></li>
       <li><a onclick="return go('s1-22')">㉒ 字符串拼接与合并：join / + / extend / print(*, sep=)</a></li>
       <li><a onclick="return go('s1-23')">㉓ map：对每个元素做同一件事（转成什么由传进去的函数决定）</a></li>
+      <li><a onclick="return go('s1-24')">㉔ 字典 dict：用「键」查「值」（第3章-2 起就在用，这里补全）</a></li>
+      <li><a onclick="return go('s1-25')">㉕ 频次统计：怎么数「谁出现得最多」</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -2274,6 +2276,117 @@ list(map(str.upper, L))        &lt;-&gt;   [x.upper() for x in L]</code></pre>
                             # 三个活儿：逐个过一遍 / 粘起来 / 变成整数 —— 互不替代</code></pre>
 </div>
 
+<h3 id="s1-24">㉔ 字典 <code>dict</code>：用「键」查「值」（第3章-2 起就在用，这里补全）</h3>
+
+<div class="box ok">
+<strong>一句话：字典是「一堆 键:值 的配对」，用键就能直接换到值。</strong>
+列表靠<strong>位置</strong>取东西（<code>nums[0]</code>），字典靠<strong>键</strong>取东西（<code>d["a"]</code>）。
+</div>
+
+<pre><code>d = {"a": 1, "b": 2}     # 花括号 + 键:值，逗号分隔
+type(d)                  # &lt;class 'dict'&gt;
+{}                       # 空字典（注意：{} 是【字典】，不是列表；空列表是 []）
+len(d)                   # 2     有几对</code></pre>
+
+<div class="box warn">
+<strong>读 / 写 / 新增 / 覆盖 —— 都用中括号（这点和列表一样）：</strong>
+<pre><code>d = {"a": 1}
+d["a"]          # 1        读：键存在就给值
+d["b"] = 2      # 新增：键不存在时，中括号赋值 = 加一对
+d["a"] = 99     # 覆盖：键已存在时，中括号赋值 = 改掉旧值
+d["z"]          # ❌ KeyError: 'z'      键不存在时【直接崩】</code></pre>
+<strong>列表越界报 <code>IndexError</code>，字典找不到键报 <code>KeyError</code> —— 都是"中括号取不到东西"。</strong>
+</div>
+
+<div class="box ok">
+<strong><code>.get(键, 默认值)</code>：取不到就给默认值，<strong>不崩</strong>（最常用的一个方法）</strong>
+<pre><code>d = {"a": 1}
+d.get("a")        # 1      有就给真值
+d.get("z")        # None   没有也不报错，给 None
+d.get("z", 0)     # 0      没有就给指定的默认值</code></pre>
+<strong>什么时候用它：</strong>「不确定这个名字在不在字典里」时一律用 <code>.get()</code>，
+比先写 <code>if 键 in 字典:</code> 再取更短。
+</div>
+
+<pre><code># 判断键在不在（不用取值时用这个）
+"a" in d          # True
+"z" in d          # False
+
+# 遍历：直接 for 拿到的是【键】，不是值！
+for k in d:                 # 键
+for k in d.keys():          # 键（写出来，强调）
+for v in d.values():        # 值
+for k, v in d.items():      # 键和值都要 —— 每轮拆出一对
+
+d.items()         # [('a', 1), ('b', 2)] 这种「对的列表」</code></pre>
+
+<div class="box bad">
+<strong>⚠️ 字典的坑（前面几节也踩过同一个）：</strong><br>
+① <strong><code>for x in d</code> 拿到的是键</strong>，不是值（⑳ 里的 <code>sorted(字典)</code> 排的也是键）；<br>
+② <code>enumerate(字典)</code> 给的是「序号 + 键」（⑳）；<br>
+③ <code>max(字典)</code> 比的是<strong>键</strong>自己的大小，不是值的（实测 <code>max({"a":1,"b":2})</code> → <code>'b'</code>）。
+</div>
+
+<h3 id="s1-25">㉕ 频次统计：怎么数「谁出现得最多」</h3>
+
+<div class="box ok">
+<strong>核心一行（记住它，第3章-6 就靠这句）：</strong>
+<pre><code>cnt[x] = cnt.get(x, 0) + 1</code></pre>
+<strong>读法：</strong>「把 <code>x</code> 现在的次数取出来（<strong>没见过就当 0</strong>），加 1，再存回去」。<br>
+实测 <code>"banana"</code> 逐个字符过一遍：
+<pre><code>cnt = {}
+for c in "banana":
+    cnt[c] = cnt.get(c, 0) + 1
+# cnt = {'b': 1, 'a': 3, 'n': 2}</code></pre>
+</div>
+
+<div class="box bad">
+<strong>⚠️ <code>cnt = {}</code> 必须写在循环<strong>外面</strong></strong> ——
+写在里面每轮都被清空，最后只剩最后一轮的结果（实测只剩 <code>{5: 1}</code>）。
+这是「累加器写进循环」（❌6）的第三个症状。
+</div>
+
+<p><strong>找出出现最多的数（实测，数据 <code>[3, 5, 2, 3, 5, 3, 7, 5]</code>）：</strong></p>
+<pre><code>nums = [3, 5, 2, 3, 5, 3, 7, 5]
+
+cnt = {}
+for x in nums:
+    cnt[x] = cnt.get(x, 0) + 1
+# cnt = {3: 3, 5: 3, 2: 1, 7: 1}
+
+best = max(cnt.values())      # 3     最多的【次数】
+for k, v in cnt.items():      # 用 items() 同时拿键和值
+    if v == best:
+        print(k, end=" ")     # 3 5   （平局时两个都输出）</code></pre>
+
+<div class="box bad">
+<strong>⚠️ 两个最容易搞混的点：</strong><br>
+① <strong><code>max(nums)</code> 是"最大的数"，<code>max(cnt.values())</code> 才是"最多的次数"</strong>：
+实测同一组数据，前者给 <code>7</code>、后者给 <code>3</code>。题目问的是<strong>次数</strong>。<br>
+② <strong>平局要一并输出</strong>：<code>[4, 4, 9, 9, 1]</code> 的频次是 <code>{4: 2, 9: 2, 1: 1}</code>，
+出现最多的有 <strong>两个</strong>（<code>4</code> 和 <code>9</code>）——
+所以要用 <code>if v == best</code> 把达到的都挑出来，不能只取一个。<br>
+（如果题目保证「最多的数字唯一」，那直接取那一个就行 —— 但<strong>写法上仍然建议用相等判断</strong>，
+换个不保证的题也不用重写。）
+</div>
+
+<div class="box ok">
+<strong>另外两条路（同一题可以三选一，结果一样）</strong>
+<table>
+<tr><th>路线</th><th>怎么写</th><th>特点</th></tr>
+<tr><td>① <code>count()</code></td><td>先给列表<strong>去重</strong>，再对每个不同的数 <code>nums.count(x)</code></td>
+<td>最直白；但每个数都要重扫一遍列表，数据大就慢（⑩）</td></tr>
+<tr><td>② 字典（推荐）</td><td><code>cnt[x] = cnt.get(x, 0) + 1</code></td>
+<td><strong>一趟扫完</strong>；还能顺手拿到"每个数出现几次"</td></tr>
+<tr><td>③ 排序数连续段</td><td><code>sorted(nums)</code> 后顺序扫，相邻相同就累加</td>
+<td>不用字典；但"最后一段"容易漏结算（⑦）</td></tr>
+</table>
+<strong>标准库里还有现成的：</strong><code>from collections import Counter</code> 之后
+<code>Counter("banana")</code> 一行给频次表，<code>.most_common(1)</code> 直接给最多的那个
+（实测 → <code>Counter({'a': 3, 'n': 2, 'b': 1})</code>、<code>[('a', 3)]</code>）。
+<strong>PTA 上要 <code>import</code> 也完全没问题</strong>，但先把字典那套手写熟 —— 那是能迁移的。
+</div>
+
 <h2 id="star">三、符号速查：* 和 []</h2>
 
 <h3 id="star-1">——— 第一部分：星号 <code>*</code> ———</h3>
@@ -3463,9 +3576,13 @@ if yes==0:                                      # 一个数字都没有
 <td>⑮ 查表的另一种写法</td></tr>
 
 <tr><td><code>d.get()</code> <code>d.items()</code> <code>d.keys()</code> <code>d.update()</code> <code>d.setdefault()</code></td>
-<td>字典取值（找不到给默认值）/ 取键值对 / 取键 / 合并 / 有则取无则设</td>
-<td><code>{"a":1}.get("b")</code> <code>None</code>｜<code>.get("b", 0)</code> <code>0</code>｜<code>{}</code> 上 <code>.setdefault("c", 9)</code> 后变 <code>{'c': 9}</code></td>
-<td>⑮ 查表；<code>.get()</code> 能防 <code>KeyError</code></td></tr>
+<td>取值（找不到给默认值）/ 取「键值对」/ 取键 / 合并 / 有则取无则设</td>
+<td><code>{"a":1}.get("b", 0)</code> <code>0</code>｜<code>d["b"]=2</code> 新增、<code>d["a"]=9</code> 覆盖｜<code>for k,v in d.items()</code></td>
+<td>⑮、㉔；<strong><code>for x in d</code> 拿到的是键，不是值</strong></td></tr>
+<tr><td><strong>计数套路</strong> <code>cnt[x] = cnt.get(x, 0) + 1</code></td>
+<td>数「每个东西出现几次」——一趟扫完</td>
+<td><code>for c in "banana": cnt[c] = cnt.get(c, 0) + 1</code> → <code>{'b': 1, 'a': 3, 'n': 2}</code></td>
+<td>㉕、第3章-6；<code>cnt = {}</code> <strong>必须在循环外</strong></td></tr>
 </table>
 
 <h3 id="quick-3">③ 格式化与输出参数</h3>
