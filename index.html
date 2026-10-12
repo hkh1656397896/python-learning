@@ -104,7 +104,7 @@
 -->
 
 <h1>Python 自学笔记</h1>
-<p class="meta">hkh ｜ 更新 2026-10-11 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">20</span> 题（浙大版《Python 程序设计》题目集）</p>
+<p class="meta">hkh ｜ 更新 2026-10-11 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">21</span> 题（浙大版《Python 程序设计》题目集）</p>
 
 <nav id="toc">
   <div class="toc-head">目录　<span class="toc-hint">点标题展开 · 点条目直接跳</span></div>
@@ -190,7 +190,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>六、真题回顾 <span class="toc-n" id="cr">37</span></summary>
+    <summary>六、真题回顾 <span class="toc-n" id="cr">38</span></summary>
     <ol>
       <li><a onclick="return go('review-1')">1-1 从键盘输入两个数求和</a></li>
       <li><a onclick="return go('review-2')">1-2 按公式输出 b²−4ac</a></li>
@@ -229,6 +229,7 @@
       <li><a onclick="return go('review-35')">3-18 输出10个不重复的英文字母</a></li>
       <li><a onclick="return go('review-36')">3-19 找最长的字符串</a></li>
       <li><a onclick="return go('review-37')">3-20 逆序的三位数</a></li>
+      <li><a onclick="return go('review-38')">3-21 判断回文字符串</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -3590,7 +3591,7 @@ if m!=v[17]:                      # ② 索引</code></pre>
 ② 两边同时改，很容易出现"本地一份、提交另一份"，而且极难发现
 </div>
 
-<h2 id="review">六、真题回顾（<span id="cr2">37</span> 题）</h2>
+<h2 id="review">六、真题回顾（<span id="cr2">38</span> 题）</h2>
 
 <div class="box warn">
 <strong>说明：</strong>下面的题目要求是<strong>我按自己的理解概括写的</strong>，不是 PTA 原文。<br>
@@ -5378,6 +5379,88 @@ print(b)         输出这个整数</code></pre>
 · <code>py_compile</code> 通过 ｜ PTA <strong>通过</strong>（进度 37/89）<br>
 · 源文件是 <strong>CRLF、末尾没有换行</strong>（35 B = 34 + 1 个 <code></code>）；
 仓库里 <code>.gitattributes</code> 转 LF，所以<strong>本地字节数 ≠ 远端字节数</strong>是正常的。
+</div>
+
+<h3 id="review-38">3-21 判断回文字符串 <span class="tag">通过</span></h3>
+<p><strong>要求：</strong>读入一行<strong>不超过 80 个字符</strong>的<strong>非空</strong>字符串
+（回文 = 正着读和倒着读一样）。输出<strong>两行</strong>：第 1 行原样输出这个字符串，
+第 2 行是回文就打 <code>Yes</code>，否则打 <code>No</code>。<br>
+<strong>样例1：</strong><code>level</code> → 第 1 行 <code>level</code>、第 2 行 <code>Yes</code><br>
+<strong>样例2：</strong><code>1 + 2 = 2 + 1 =</code> → <code>No</code> ——
+注意这一条：<strong>空格算内容</strong>，整串倒过来是 <code>= 1 + 2 = 2 + 1</code>，并不相等。
+所以<strong>不能先 <code>strip()</code> 或 <code>split()</code></strong>。</p>
+
+<p><strong>我的代码（通过）</strong></p>
+<pre><code>m=input()          读入整行 —— input() 只去掉行尾那个换行，串里的空格、制表符都原样留着（这题空格算内容）
+n=m[::-1]          切片 [::-1] 得到倒着写的【副本】（3-8 用过），原串 m 不变
+if m==n:           逐字符比较：相等就是回文
+    print(m)       是回文 → 先打原串（第 1 行）
+    print('Yes')   再打 Yes（第 2 行）
+else:              不是回文
+    print(m)       同样先打原串
+    print('No')    再打 No</code></pre>
+
+<p><strong>优化用法：</strong>① <code>print(m)</code> 在 if / else 里各写了一遍 ——
+两个分支都要打它，可以<strong>提到 if 外面</strong>只写一次；<br>
+② 判断结果直接用<strong>三目运算</strong>写进 <code>print</code>，连 <code>n</code> 都不用：
+<code>print("Yes" if m == m[::-1] else "No")</code>（见下面单独的一节）；<br>
+③ <strong>一行 <code>print</code> 输出两行</strong>有四种写法（实测 raw 输出完全相同）：
+<code>print(m, "Yes", sep="\n")</code>、<code>print(m + "\n" + "Yes")</code>、
+<code>print("\n".join([m, "Yes"]))</code>、或者老老实实两次 <code>print()</code>
+（原始输出见下面表格）；<br>
+④ <code>n</code> 这个变量可以不要（直接写 <code>if m == m[::-1]</code>），少一个名字 ——
+但留着 <code>n</code> 更易读，两种都不算错；<br>
+⑤ 数据量大时（这题最多 80 字符，用不上）：双指针从头尾往中间夹，
+只比到中间、<strong>空间 O(1)</strong>；<code>m[::-1]</code> 会复制一整份，是 O(n) 空间。</p>
+
+<div class="box ok">
+<strong>三目运算（条件表达式）：<code>值1 if 条件 else 值2</code></strong>
+<table>
+<tr><th>写法</th><th>实测结果</th></tr>
+<tr><td><code>print("Yes" if "level" == "level" else "No")</code></td><td><code>Yes</code></td></tr>
+<tr><td><code>x = 1 if 2 &gt; 1 else 3</code></td><td><code>x</code> 是 <code>1</code></td></tr>
+<tr><td><code>["奇" if n%2 else "偶" for n in [1,2,3]]</code></td><td><code>['奇', '偶', '奇']</code></td></tr>
+<tr><td><code>"A" if 1 &gt; 2 else ("B" if 2 &gt; 1 else "C")</code></td>
+<td><code>'B'</code>（嵌套能跑，但可读性差）</td></tr>
+<tr><td><code>"Yes" if True</code>（漏了 else）</td>
+<td><code>SyntaxError: invalid syntax</code></td></tr>
+</table>
+<strong>它和 <code>if</code> 语句的区别</strong>：三目是<strong>表达式</strong>（本身就是一个值），
+所以能直接塞进 <code>print(...)</code>、赋值、列表里；<code>if/else</code> 是<strong>语句</strong>，不能当值用。<br>
+<strong>两个坑</strong>：① <strong><code>else</code> 不能省</strong>（漏了直接 SyntaxError，实测）；
+② 嵌套超过一层就该换回 <code>if/else</code>，别硬写。<br>
+<strong>容易混的一处</strong>：列表推导里最后那个 <code>if</code> 是<strong>筛选</strong>、不是三目 ——
+<code>[n for n in [1,2,3] if n%2]</code> → <code>[1, 3]</code>（挑出奇数，元素个数会变）；
+写成 <code>["奇" if n%2 else "偶" for n in [1,2,3]]</code> 才是三目（每个元素都要给一个值）。
+</div>
+
+<div class="box ok">
+<strong>一行 <code>print</code> 输出两行（原始输出，含换行）</strong>
+<table>
+<tr><th>写法</th><th>实测输出（repr）</th></tr>
+<tr><td>两次 <code>print()</code>（本题写法）</td><td><code>'level\nYes\n'</code></td></tr>
+<tr><td><code>print(m + "\n" + "Yes")</code></td><td><code>'level\nYes\n'</code></td></tr>
+<tr><td><code>print(m, "Yes", sep="\n")</code></td><td><code>'level\nYes\n'</code></td></tr>
+<tr><td><code>print("\n".join([m, "Yes"]))</code></td><td><code>'level\nYes\n'</code></td></tr>
+<tr><td>对比：<code>print(m, "Yes")</code></td>
+<td><code>'level Yes\n'</code>（<strong>只有一行</strong>，<code>sep</code> 默认是一个空格）</td></tr>
+</table>
+<code>\n</code> 是字符串里的<strong>换行符</strong>，不是"打印换行"的指令；
+<code>print</code> 每次调用<strong>结尾还会自己补一个换行</strong>，
+所以串里加 <code>\n</code> 出来正好两行、<strong>不会多出空行</strong>。<br>
+<code>sep</code> 是"多个参数<strong>之间</strong>"的分隔符 —— 只给 1 个参数时它<strong>完全用不上</strong>
+（① 表和 2-14 都栽过这个）；竖着输出的另外几招见 ㉗。
+</div>
+
+<div class="box ok">
+<strong>实测验收</strong>（11 组，期望值由独立实现算出：双指针从头尾往中间夹，不用切片）<br>
+· 样例1 <code>level</code> → <code>Yes</code> ✅ ｜ 样例2 <code>1 + 2 = 2 + 1 =</code> → <code>No</code> ✅<br>
+· 单字符 <code>a</code> → <code>Yes</code> ｜ 3 个空格 → <code>Yes</code> ｜
+<code>abccba</code> → <code>Yes</code> ｜ <code>ab</code> → <code>No</code><br>
+· <strong>长度上限</strong>：80 个 <code>a</code> → <code>Yes</code>；79 个 <code>a</code> + 1 个 <code>b</code> → <code>No</code><br>
+· 中文 <code>上海自来水来自海上</code> → <code>Yes</code> ｜ 含制表符 <code>a</code>Tab<code>b</code>Tab<code>a</code> → <code>Yes</code><br>
+· <strong>大小写敏感</strong>：<code>Level</code> → <code>No</code>（题面没说忽略大小写，按字面比）<br>
+· <code>py_compile</code> 通过 ｜ PTA <strong>通过</strong>（进度 38/89）
 </div>
 
 <h2 id="quick">七、速查总表</h2>
