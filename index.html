@@ -104,7 +104,7 @@
 -->
 
 <h1>Python 自学笔记</h1>
-<p class="meta">hkh ｜ 更新 2026-10-11 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">13</span> 题（浙大版《Python 程序设计》题目集）</p>
+<p class="meta">hkh ｜ 更新 2026-10-11 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">14</span> 题（浙大版《Python 程序设计》题目集）</p>
 
 <nav id="toc">
   <div class="toc-head">目录　<span class="toc-hint">点标题展开 · 点条目直接跳</span></div>
@@ -189,7 +189,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>六、真题回顾 <span class="toc-n" id="cr">30</span></summary>
+    <summary>六、真题回顾 <span class="toc-n" id="cr">31</span></summary>
     <ol>
       <li><a onclick="return go('review-1')">1-1 从键盘输入两个数求和</a></li>
       <li><a onclick="return go('review-2')">1-2 按公式输出 b²−4ac</a></li>
@@ -221,6 +221,7 @@
       <li><a onclick="return go('review-28')">3-11 字符串排序</a></li>
       <li><a onclick="return go('review-29')">3-12 求整数的位数及各位数字之和</a></li>
       <li><a onclick="return go('review-30')">3-13 字符串替换（字母表倒过来）</a></li>
+      <li><a onclick="return go('review-31')">3-14 字符串字母大小写转换</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -3293,7 +3294,7 @@ if m!=v[17]:                      # ② 索引</code></pre>
 ② 两边同时改，很容易出现"本地一份、提交另一份"，而且极难发现
 </div>
 
-<h2 id="review">六、真题回顾（<span id="cr2">30</span> 题）</h2>
+<h2 id="review">六、真题回顾（<span id="cr2">31</span> 题）</h2>
 
 <div class="box warn">
 <strong>说明：</strong>下面的题目要求是<strong>我按自己的理解概括写的</strong>，不是 PTA 原文。<br>
@@ -4456,6 +4457,70 @@ for i in range(26):
 ⑳ <code>zip</code> 配成对 → ㉔ 字典建表 → ㉙ 切片 <code>[::-1]</code> + <code>ord/chr</code> →
 ㉘ 替换选型（字典 get / translate）→ ㉒ <code>join</code> 拼回去 → ⑫ 字典推导式（另一种建表写法）。
 <strong>一道题把 6 节连起来了</strong>，这是第 3 章最值得回看的一题。
+</div>
+
+<h3 id="review-31">3-14 字符串字母大小写转换 <span class="tag">通过</span></h3>
+<p><strong>要求：</strong>输入一个以 <code>#</code> 结束的字符串（≤30 字符），
+把<strong>小写字母全转成大写、大写字母全转成小写</strong>，其他字符不变，
+<code>#</code> 不算在内。<br>
+<strong>样例：</strong><code>Hello World! 123#</code> → <code>hELLO wORLD! 123</code></p>
+<p><strong>我的代码</strong></p>
+<pre><code>m=list(input())                                                                                                              读入一整行，转成列表（题目末尾有个 # 要丢掉，转列表是为了能按下标删）
+del m[-1]                                                                                                                    删掉最后一个元素（就是那个 #）—— 也可以用切片 s[:-1]，不用转列表
+d=dict(zip('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ','ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'))   建对照表：小写表拼大写表 → 大写表拼小写表（52 个字符一一对上，㉙ 的切片/㉘ 的建表）
+x="".join(d.get(c,c) for c in m)                                                                                             逐字符查表换成另一个大小写；表里没有的（数字/标点/空格）拿回它自己（㉔ get）
+print(x)                                                                                                                     接成一个新串输出</code></pre>
+
+<div class="box bad">
+<strong>这题有个一步到位的内置方法：<code>str.swapcase()</code></strong><br>
+上面那张 52 个字符的表<strong>可以整段删掉</strong>。实测对比（同一串
+<code>"Hello World! 123"</code>）：
+<table>
+<tr><th>方法</th><th>结果</th><th>做什么</th></tr>
+<tr><td><code>s.upper()</code></td><td><code>'HELLO WORLD! 123'</code></td><td><strong>全部</strong>变大写</td></tr>
+<tr><td><code>s.lower()</code></td><td><code>'hello world! 123'</code></td><td><strong>全部</strong>变小写</td></tr>
+<tr><td><code>s.swapcase()</code></td><td><code>'hELLO wORLD! 123'</code></td><td><strong>大小写互换</strong>（两个方向都做）</td></tr>
+</table>
+<strong>非字母字符原样不动</strong>（实测 <code>"123 !@# 中文".swapcase()</code> 不变）；
+<code>'ABC'</code> → <code>'abc'</code>、<code>'abc'</code> → <code>'ABC'</code>、空串 → 空串。
+</div>
+
+<p><strong>优化用法：</strong>① <strong><code>.swapcase()</code> 一个方法顶掉整张表</strong>（见上面）；
+② <strong><code>list(input())</code> + <code>del m[-1]</code> 可以合并成切片</strong>：
+<code>s[:-1]</code> 直接取到"去掉最后一个字符"的前缀（⑰ 切片），字符串本来就能遍历，
+<code>list()</code> 是多余的；<br>
+③ 合起来最短的写法（<strong>实测与原写法逐字节一致</strong>）：
+<pre><code>s = input()
+print(s[:-1].swapcase())</code></pre>
+两种写法在 10 组输入上输出<strong>完全相同</strong>；有效行数 5 → 2、字符数 246 → 97；<br>
+④ 想练 <code>ord/chr</code> 的话还有第三条路（㉙）：小写减 32 → 大写、大写加 32 → 小写
+（实测同样一致，但要写 10 行，不划算）。</p>
+
+<div class="box warn">
+<strong>这题的关键是分清"哪一类换哪一种"</strong>
+<table>
+<tr><th>题目的口径</th><th>该用</th><th>例子</th></tr>
+<tr><td>只挑出某一类（其余不动）</td><td>区间判断 + 计数</td>
+<td>3-10 只数大写辅音：<code>"A" &lt;= c &lt;= "Z"</code>（㉙）</td></tr>
+<tr><td><strong>两类互相换</strong></td><td><code>.swapcase()</code></td>
+<td><strong>本题</strong>：小写↔大写都做</td></tr>
+<tr><td>全部统一成一种</td><td><code>.upper()</code> / <code>.lower()</code></td>
+<td>不分大小写地比较前先统一（⑱）</td></tr>
+</table>
+<strong>看错口径的例子</strong>：本题要用 <code>.upper()</code> 就错了（原本大写的会保持大写、
+小写的也变大写，不是"互换"）；3-10 要用 <code>.swapcase()</code> 也错了（它不计数）。
+</div>
+
+<div class="box ok">
+<strong>实测验收</strong>（10 组；字典版 / <code>swapcase</code> 版 / <code>ord-chr</code> 版
+<strong>三种写法逐字节对照</strong>，结果完全一致）<br>
+· 样例 ✅ <code>Hello World! 123#</code> → <code>hELLO wORLD! 123</code><br>
+· 全大写 <code>ABC#</code> → <code>abc</code> ｜ 全小写 <code>abc#</code> → <code>ABC</code>
+｜ 混合 <code>aBcDeF#</code> → <code>AbCdEf</code><br>
+· 无字母 <code>123 !@#</code> → <code>123 !@</code>（<code>#</code> 被去掉、其余不动）<br>
+· 单个字符 <code>a#</code> → <code>A</code> ｜ 多空格 <code>a  B   c#</code> → <code>A  b   C</code><br>
+· <strong>29 字符上限</strong> <code>"a"×29 + "#"</code> → <code>"A"×29</code> ｜ 中文混排 <code>Hello 世界#</code> → <code>hELLO 世界</code><br>
+· <code>py_compile</code> 通过 ｜ PTA <strong>通过</strong>（进度 31/89）
 </div>
 
 <h2 id="quick">七、速查总表</h2>
