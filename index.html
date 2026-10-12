@@ -94,7 +94,7 @@
 -->
 
 <h1>Python 自学笔记</h1>
-<p class="meta">hkh ｜ 更新 2026-10-11 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">7</span> 题（浙大版《Python 程序设计》题目集）</p>
+<p class="meta">hkh ｜ 更新 2026-10-11 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">8</span> 题（浙大版《Python 程序设计》题目集）</p>
 
 <nav id="toc">
   <div class="toc-head">目录　<span class="toc-hint">点标题展开 · 点条目直接跳</span></div>
@@ -175,7 +175,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>六、真题回顾 <span class="toc-n" id="cr">24</span></summary>
+    <summary>六、真题回顾 <span class="toc-n" id="cr">25</span></summary>
     <ol>
       <li><a onclick="return go('review-1')">1-1 从键盘输入两个数求和</a></li>
       <li><a onclick="return go('review-2')">1-2 按公式输出 b²−4ac</a></li>
@@ -201,6 +201,7 @@
       <li><a onclick="return go('review-22')">3-5 字符转换</a></li>
       <li><a onclick="return go('review-23')">3-6 求整数序列中出现次数最多的数</a></li>
       <li><a onclick="return go('review-24')">3-7 求最大值及其下标</a></li>
+      <li><a onclick="return go('review-25')">3-8 字符串逆序</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -2914,7 +2915,7 @@ if m!=v[17]:                      # ② 索引</code></pre>
 ② 两边同时改，很容易出现"本地一份、提交另一份"，而且极难发现
 </div>
 
-<h2 id="review">六、真题回顾（<span id="cr2">24</span> 题）</h2>
+<h2 id="review">六、真题回顾（<span id="cr2">25</span> 题）</h2>
 
 <div class="box warn">
 <strong>说明：</strong>下面的题目要求是<strong>我按自己的理解概括写的</strong>，不是 PTA 原文。<br>
@@ -3737,6 +3738,46 @@ if yes!=0:                                      # 【闸门】等循环跑完、
 <strong>多位数并列</strong>（<code>100 99 100 5</code> → <code>100 0</code>）<br>
 · 期望值用<strong>独立算法</strong>算（一遍扫描、严格 <code>&gt;</code>），不复用 <code>max</code>/<code>index</code><br>
 · <code>py_compile</code> 通过
+</div>
+
+<h3 id="review-25">3-8 字符串逆序 <span class="tag">通过 15/15</span></h3>
+<p><strong>要求：</strong>读一行字符串（长度不超过 80，以回车结束，<strong>非空</strong>），
+把它<strong>逆序</strong>后输出。<br>
+<strong>样例：</strong><code>Hello World!</code> → <code>!dlroW olleH</code></p>
+<p><strong>我的代码</strong></p>
+<pre><code>a=input()                                       # 读一整行，连中间的空格、行尾的空格一起拿到手
+print(a[::-1])                                  # 步长 -1 = 从右往左取，得到逆序的新串再输出</code></pre>
+<p><strong>优化用法：</strong>① 这题<strong>保持原样就是最优解</strong>，一个字都不用改 —— 见下面
+「本题唯一的分歧点」；② 不习惯 <code>[::-1]</code> 可以写显式的 <code>a[-1::-1]</code>
+（从最后一个字符起步、往左走），结果完全一样；③ 想换个写法练手：<code>print("".join(reversed(a)))</code>
+或 <code>print("".join(a[i] for i in range(len(a)-1, -1, -1)))</code> ——
+实测这<strong>四种</strong>写法对 10 组输入（含空串）的输出<strong>逐字节相同</strong>。</p>
+
+<div class="box warn">
+<strong>本题唯一的分歧点：该不该动用户的空格。</strong><br>
+这题只给了<strong>一行</strong>字符串，要求的是「把一整行倒过来」——包括<strong>空格的位置</strong>。
+所以正确做法是<strong>直接对整行切片</strong>，<code>split()</code> 在这题是有害的：
+<ul>
+<li><code>split()</code> 会把<strong>连续空格压成一个</strong>、并且<strong>丢掉行首行尾的空格</strong>，
+再拼回来就少了字符（实测：<code>'  ab'</code> 少了 2 个、<code>'ab  '</code> 少 2 个、<code>'Hello World!'</code> 少 1 个，
+<code>'   '</code> 三个空格全没了、直接变成空串）；</li>
+<li>2-9 那题用 <code>split()</code> 是为了<strong>先把数一个个分开</strong>再比较大小，两题要的东西正好相反 ——
+<strong>先看题目要「行」还是要「词」</strong>；</li>
+<li>只有输入<strong>恰好是空行</strong>时（题面保证不会），<code>a[::-1]</code> 会输出一个空行、程序不崩。</li>
+</ul>
+</div>
+
+<div class="box ok">
+<strong>实测验收</strong>（10 组，每组都与<strong>独立对照实现</strong>
+<code>s = sys.stdin.readline().rstrip('\n'); print(s[::-1])</code> 的输出<strong>逐字节比对</strong>）<br>
+· 样例 ✅ <code>Hello World!</code> → <code>!dlroW olleH</code> ｜ 单字符 <code>A</code> → <code>A</code><br>
+· <strong>80 字符上限</strong>（题面最大值）✅ ｜ 中文 <code>字符串逆序</code> → <code>序逆串符字</code> ✅<br>
+· <strong>空格三连</strong>（这题的真考点）：
+<code>'  ab'</code> → <code>'ba  '</code>、<code>'ab  '</code> → <code>'  ba'</code>、
+<code>'a b'</code> → <code>'b a'</code>、<code>'   '</code> → <code>'   '</code> —— 空格一个不多一个不少 ✅<br>
+· 数字串 <code>1234567890</code> → <code>0987654321</code>（<strong>不丢前导 0</strong>）✅<br>
+· 空行探底：不崩，输出一个空行 ✅<br>
+· 三种写法（切片 / <code>reversed</code> / 逆序索引）对 10 组输入输出<strong>完全一致</strong> ｜ <code>py_compile</code> 通过
 </div>
 
 <h2 id="quick">七、速查总表</h2>
