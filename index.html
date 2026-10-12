@@ -94,7 +94,7 @@
 -->
 
 <h1>Python 自学笔记</h1>
-<p class="meta">hkh ｜ 更新 2026-10-11 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">5</span> 题（浙大版《Python 程序设计》题目集）</p>
+<p class="meta">hkh ｜ 更新 2026-10-11 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">6</span> 题（浙大版《Python 程序设计》题目集）</p>
 
 <nav id="toc">
   <div class="toc-head">目录　<span class="toc-hint">点标题展开 · 点条目直接跳</span></div>
@@ -174,7 +174,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>六、真题回顾 <span class="toc-n" id="cr">22</span></summary>
+    <summary>六、真题回顾 <span class="toc-n" id="cr">23</span></summary>
     <ol>
       <li><a onclick="return go('review-1')">1-1 从键盘输入两个数求和</a></li>
       <li><a onclick="return go('review-2')">1-2 按公式输出 b²−4ac</a></li>
@@ -198,6 +198,7 @@
       <li><a onclick="return go('review-20')">3-3 输出字母在字符串中位置索引</a></li>
       <li><a onclick="return go('review-21')">3-4 查找指定字符</a></li>
       <li><a onclick="return go('review-22')">3-5 字符转换</a></li>
+      <li><a onclick="return go('review-23')">3-6 求整数序列中出现次数最多的数</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -2372,6 +2373,35 @@ for c in "banana":
 # cnt = {'b': 1, 'a': 3, 'n': 2}</code></pre>
 </div>
 
+<div class="box ok">
+<strong>补充：怎么从频次表里「取次数最多的那个键」——四条路（都是实测）</strong>
+<pre><code>cnt = {}
+for x in nums:
+    cnt[x] = cnt.get(x, 0) + 1        # 先有一张频次表
+
+# ① 最短：max 配 key —— 比较时把每个键换算成次数，返回的仍是键
+best = max(cnt, key=cnt.get)          # 3
+print(best, cnt[best])                # 3 4
+
+# ② 边统计边记（只扫一遍，最快）
+best_num = best_cnt = 0
+for x in nums:
+    cnt[x] = cnt.get(x, 0) + 1
+    if cnt[x] &gt; best_cnt:
+        best_cnt, best_num = cnt[x], x
+
+# ③ 排序后取第一个（好想，但只取第一却排了全部）
+top = sorted(cnt.items(), key=lambda kv: kv[1], reverse=True)[0]   # ('3', 4)
+
+# ④ 列表推导式：唯一能一次拿到【所有并列】的写法
+r = max(cnt.values())
+l = [k for k, v in cnt.items() if v == r]     # ['3']（平局时会是多个）</code></pre>
+<strong>怎么选：</strong>题目保证最多者唯一 → ① 最短、② 最快；
+<strong>只有需要「并列全输出」时才用 ④</strong> —— 这就是它存在的理由，不是唯一解。<br>
+注意 ① 和列表推导式的关系：<code>max(cnt, key=cnt.get)</code> 相当于「④ 的结果只取第一个」，
+但<strong>不用先算出 r 再重扫一遍</strong>。
+</div>
+
 <div class="box bad">
 <strong>⚠️ <code>cnt = {}</code> 必须写在循环<strong>外面</strong></strong> ——
 写在里面每轮都被清空，最后只剩最后一轮的结果（实测只剩 <code>{5: 1}</code>）。
@@ -2792,7 +2822,7 @@ if m!=v[17]:                      # ② 索引</code></pre>
 ② 两边同时改，很容易出现"本地一份、提交另一份"，而且极难发现
 </div>
 
-<h2 id="review">六、真题回顾（<span id="cr2">22</span> 题）</h2>
+<h2 id="review">六、真题回顾（<span id="cr2">23</span> 题）</h2>
 
 <div class="box warn">
 <strong>说明：</strong>下面的题目要求是<strong>我按自己的理解概括写的</strong>，不是 PTA 原文。<br>
@@ -3493,6 +3523,63 @@ if yes==0:                                      # 一个数字都没有
 没有数字（→<code>0</code>）、前导 0（<code>a007b</code>→<code>7</code>、<code>0012</code>→<code>12</code>、<code>000</code>→<code>0</code>）、
 数字在头/尾、80 字符上限<br>
 · <strong>随机 3000 组对拍 0 失败</strong>（期望值用「数字字符数学累加」独立算，不复用 join/map/int 那套）<br>
+· <code>py_compile</code> 通过
+</div>
+
+<h3 id="review-23">3-6 求整数序列中出现次数最多的数 <span class="tag">通过 15/15</span></h3>
+<p><strong>要求：</strong>一行给出整数个数 N（0&lt;N≤1000）以及 N 个整数，数字间空格分隔。
+输出<strong>出现次数最多的那个整数</strong>及其<strong>出现次数</strong>，两者用空格分隔。题目保证这样的数唯一。<br>
+<strong>样例：</strong><code>10 3 2 -1 5 3 4 3 0 3 2</code> → <code>3 4</code></p>
+
+<p><strong>我的代码（通过 15/15）</strong></p>
+<pre><code>n=input().split()                                   # 读入整行，按空白切成一个个 token（都是字符串）
+m=int(n[0])                                         # 第一个 token 是 N（整数个数），转成整数
+N=n[1:m+1]                                          # 【切片】取第 1 到第 m 个 —— 后面 N 个才是数据
+store=[]                                            # 用来去重：每个不同的数只留一份
+for x in N:                                         # 逐个看数据里的每个数
+    if x not in store:                              # 没见过这个数
+        store.append(x)                             # 才放进 store（见过就不放，达到去重）
+r=max(N.count(x) for x in store)                    # 对每个不同的数数一遍，取【最多的次数】
+l=[x for x in store if N.count(x)==r]               # 把次数等于 r 的都挑出来（列表推导式）
+L=int(l[0])                                         # 题目保证唯一，所以取第一个；转成整数输出
+print(L,r)                                          # 输出「最多的数 次数」，空格分隔</code></pre>
+
+<p><strong>优化用法：</strong>① <strong>N 取了就要用</strong> —— 第 2 行取出的 <code>m</code> 只用在第 3 行的切片里，
+这正是「题目给的 N 不是摆设」；② <code>N=n[1:m+1]</code> 里的<strong>冒号</strong>是切片，
+写成逗号 <code>n[1,m+1]</code> 会被当成<strong>元组下标</strong> →
+<code>TypeError: list indices must be integers or slices, not tuple</code>（自己撞过一次）；
+③ 数据其实<strong>不用转成 int</strong>：都是整数写法，字符串的 <code>count</code> 照样对，
+输出时转一下就行；想更规矩可以 <code>nums = list(map(int, n[1:m+1]))</code>；
+④ <strong>每个数被 <code>count</code> 数了两遍</strong>（第 8 行一遍、第 10 行又一遍）——
+用<strong>频次字典</strong>可以一趟统计完，再取次数最多的键（见 ㉕ 的四条路）；
+⑤ <code>l</code> 只用来取一个元素，可以省掉：直接用 ㉕ 的 <code>max(cnt, key=cnt.get)</code>。</p>
+
+<div class="box bad">
+<strong>我先后撞的三个错（都是这一题里的）：</strong><br>
+① <code>int(map(str, l))</code> → <code>TypeError: int() argument must be ... not 'map'</code>
+—— <code>int()</code> 不认"一串东西"（㉒）；<br>
+② <code>N=n[1,m+1]</code> → <code>TypeError: list indices must be integers or slices, not tuple</code>
+—— <strong>方括号里出现逗号 ≠ 两个下标</strong>，切片必须用冒号；<br>
+③ PTA 报「<strong>非零返回</strong>」= 程序<strong>运行时崩了</strong>（rc=1、一行都没输出），
+和「答案错误」（跑完但结果不对）是两回事 —— 看到这个提示先找异常，不要怀疑算法。
+</div>
+
+<div class="box warn">
+<strong>另一个坑：一开始没把 N 和数据分开，导致「部分错误」。</strong><br>
+最初写成 <code>N=list(input().split())</code> —— 名字叫 N，其实拿到了<strong>整行所有 token</strong>，
+N 的值被丢掉，于是 N 自己也被当成一个数据在统计。实测两种必错的情况：
+<pre><code>输入 3 3 3 3 1 2      正确是 3 3，但 N（那个 3）也被数了 → 输出 3 4     ❌
+N 单独占一行时          整行只有一个 token → 输出 10 1                       ❌</code></pre>
+<strong>教训：题目给的 N 必须真正用在「切出 N 个数据」上</strong>，
+否则它就变成数据里的一个杂物。
+</div>
+
+<div class="box ok">
+<strong>实测验收</strong><br>
+· 样例 ✅ <code>10 3 2 -1 5 3 4 3 0 3 2</code> → <code>3 4</code><br>
+· 5 组全过：<strong>N 也被多数</strong>（<code>3 3 3 3 1 2</code> → <code>3 3</code>，就是修掉的那个坑）、
+单个数（<code>1 7</code> → <code>7 1</code>）、全相同（<code>4 5 5 5 5</code> → <code>5 4</code>）、
+负数最多（<code>6 -1 -1 -1 2 3 4</code> → <code>-1 3</code>）<br>
 · <code>py_compile</code> 通过
 </div>
 
