@@ -128,7 +128,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>二、常用代码与拓展 <span class="toc-n" id="cs">28</span></summary>
+    <summary>二、常用代码与拓展 <span class="toc-n" id="cs">29</span></summary>
     <ol>
       <li><a onclick="return go('s1-1')">① 读一行数字</a></li>
       <li><a onclick="return go('s1-2')">② range()：生成数字序列</a></li>
@@ -158,6 +158,7 @@
       <li><a onclick="return go('s1-26')">㉖ 字符串怎么比大小（和「按什么排序」）</a></li>
       <li><a onclick="return go('s1-27')">㉗ 竖向输出：每行一个（和「竖着读进来再拼回去」）</a></li>
       <li><a onclick="return go('s1-28')">㉘ 字符的对应与替换（五种工具怎么选）</a></li>
+      <li><a onclick="return go('s1-29')">㉙ ord() / chr()：字符 ↔ 编号（字母往后数几个的写法）</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -227,7 +228,7 @@
       <li><a onclick="return go('quick-1')">① 内置函数总表</a></li>
       <li><a onclick="return go('quick-2')">② 方法总表（字符串 / 列表 / 字典）</a></li>
       <li><a onclick="return go('quick-3')">③ 格式化与输出参数</a></li>
-      <li><a onclick="return go('quick-4')">④ 用途分类索引（把「二、常用代码」28 节按用途归位）</a></li>
+      <li><a onclick="return go('quick-4')">④ 用途分类索引（把「二、常用代码」29 节按用途归位）</a></li>
       <li><a onclick="return go('quick-5')">⑤ 对象 × 操作 对照表（谁有哪个能力）</a></li>
     </ol>
   </details>
@@ -1300,6 +1301,47 @@ print(list(g))          # []                        ★ 生成器是一次性的
 {x: x * x for x in nums}    # {1: 1, 2: 4, 3: 9, 4: 16}   字典推导式
 {x * x for x in nums}       # {16, 1, 4, 9}               集合推导式（自动去重）</code></pre>
 <p><strong>注意：圆括号那对是生成器，不是「元组推导式」—— 元组没有推导式。</strong></p>
+
+<p><strong>字典推导式：{键: 值 for x in 可迭代对象}</strong>（上面只列了结果，这里说清怎么用）</p>
+<p>形状和列表推导式<strong>一模一样</strong>，只有两处不同：外面用<strong>花括号</strong>、
+里面写「<strong>键 : 值</strong>」（中间是冒号）。</p>
+<pre><code>nums = [1, 2, 3, 4]
+
+[x * x for x in nums]        # [1, 4, 9, 16]              列表推导式：外面方括号
+{x: x * x for x in nums}     # {1: 1, 2: 4, 3: 9, 4: 16}  字典推导式：外面花括号 + 冒号</code></pre>
+<p><strong>等价的手写版（对照着看就懂了）：</strong></p>
+<pre><code>sq = {}                      # 先建空字典
+for x in nums:               # 逐个来
+    sq[x] = x * x            # 字典是 sq[键] = 值 这样写的
+# sq = {1: 1, 2: 4, 3: 9, 4: 16}   和上面推导式结果完全相同</code></pre>
+
+<div class="box ok">
+<strong>最常用的三种形态（都实测过）</strong><br>
+① <strong>由两个列表配成字典</strong>（配 ⑳ 的 <code>zip</code>，或 ㉔ 的字典）：
+<pre><code>keys   = ["语文", "数学"]
+values = [90, 85]
+{ k: v for k, v in zip(keys, values) }   # {'语文': 90, '数学': 85}
+dict(zip(keys, values))                  # 同样结果，更短</code></pre>
+② <strong>改造已有字典</strong>：必须用 <code>.items()</code> 同时拿键和值（㉔）
+<pre><code>menu = {"A": 12, "B": 15, "C": 20}
+{ k: v + 1 for k, v in menu.items() }              # 全部涨 1 元：{'A': 13, 'B': 16, 'C': 21}
+{ k: v for k, v in menu.items() if v &gt;= 15 }       # 只挑贵的：{'B': 15, 'C': 20}
+{ v: k for k, v in menu.items() }                  # 键值反转：{12: 'A', 15: 'B', 20: 'C'}</code></pre>
+③ <strong>顺手数个数</strong>（㉕ 频次统计的简写）：
+<pre><code>src = "hello"
+{ c: src.count(c) for c in set(src) }   # {'h': 1, 'e': 1, 'l': 2, 'o': 1}
+# set(src) 是为了去重（⑪），不然每个字符都要数一遍</code></pre>
+<strong>筛选条件和列表推导式一样</strong>：<code>if</code> 写在<strong>最后面</strong>才是筛选。
+</div>
+
+<div class="box bad">
+<strong>字典推导式的两个坑</strong><br>
+① <strong>冒号不能丢</strong>：<code>{x * x for x in nums}</code> 是<strong>集合</strong>（自动去重、没有键值），
+不是字典 —— 少了冒号就换了一种东西，而且<strong>不报错</strong>。<br>
+② <strong>键必须唯一</strong>：后面出现的同名键会<strong>覆盖</strong>前面的，实测
+<code>{"a": 1, "a": 2}</code> 只剩 <code>{"a": 2}</code>；
+推导式里如果生成的键有重复，最终只会留下最后一个。
+</div>
 
 <div class="box bad">
 <strong>三个容易踩的点（都实测过）：</strong><br>
@@ -2836,6 +2878,76 @@ re.sub(r"\d+", "X", "a1b22c333")      # 'aXbXcX'  连续数字当一个整体
 <code>"".join(...)</code> 上面出现好几次，就是它。
 </div>
 
+<h3 id="s1-29">㉙ <code>ord()</code> / <code>chr()</code>：字符 ↔ 编号（字母往后数几个的写法）</h3>
+
+<p><strong>每个字符在计算机里都对应一个编号。</strong>
+<code>ord()</code> 把<strong>字符 → 编号</strong>，<code>chr()</code> 把<strong>编号 → 字符</strong>，
+两者是<strong>互逆</strong>的（㉖ 里比大小用的"码点"就是这个编号）。</p>
+
+<pre><code>ord("A")     # 65        chr(65)     # 'A'      ← 互为反操作
+ord("a")     # 97        chr(97)     # 'a'
+ord("0")     # 48        chr(48)     # '0'
+ord(" ")     # 32        chr(32)     # ' '</code></pre>
+
+<div class="box warn">
+<strong>要记住的三段区间（实测）</strong>
+<table>
+<tr><th>字符</th><th>编号范围</th></tr>
+<tr><td><code>0</code> ~ <code>9</code></td><td>48 ~ 57</td></tr>
+<tr><td><code>A</code> ~ <code>Z</code></td><td>65 ~ 90</td></tr>
+<tr><td><code>a</code> ~ <code>z</code></td><td>97 ~ 122</td></tr>
+</table>
+大写和小写<strong>差了 32</strong>（<code>97 - 65 = 32</code>），所以
+<code>chr(ord("A") + 32)</code> 得到 <code>'a'</code>。<br>
+<strong>但真要转大小写，直接用 <code>.upper()</code> / <code>.lower()</code>（⑱）更省事</strong> ——
+<code>ord</code>/<code>chr</code> 是用来做<strong>"往后数几个字母"这类计算</strong>的。
+</div>
+
+<p><strong>三种典型用处（都实测过）：</strong></p>
+<pre><code># ① 判断"是不是大写字母"（不用记 65/90，直接拿字符比大小就行）
+c = "G"
+"A" &lt;= c &lt;= "Z"          # True    ← 字符串比较（㉖）在这儿最好用
+"a" &lt;= c &lt;= "z"          # False
+
+# ② 往后数几个字母（凯撒密码：每个字母往后移 3 位）
+for c in "ABZ":
+    print(chr((ord(c) - 65 + 3) % 26 + 65), end=" ")
+# D E C     ← 注意 Z 往后 3 个绕回了 C，靠的就是 % 26
+
+# ③ 字母表倒过来（A↔Z、B↔Y，Atbash）
+UP  = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+REV = UP[::-1]                       # 'ZYXWVUTSRQPONMLKJIHGFEDCBA'（⑰ 切片）
+dict(zip(UP, REV))["A"]              # 'Z'      （zip ⑳ / 字典 ㉔）
+chr(155 - ord("A"))                  # 'Z'      ← 65 + 90 = 155，首尾码点和是定值</code></pre>
+
+<div class="box ok">
+<strong>为什么会冒出 <code>155</code> 这个数（实测推导）</strong><br>
+<code>A</code> 是 65、<code>Z</code> 是 90，<strong>一对一反过来时两者的编号和是定值</strong>：
+<code>65 + 90 = 155</code>。<br>
+所以 <code>chr(155 - ord(c))</code>：<code>'A'</code>(65) → 155-65 = 90 → <code>'Z'</code>；
+<code>'Z'</code>(90) → 65 → <code>'A'</code>；<code>'B'</code>(66) → 89 → <code>'Y'</code>。
+<strong>不用背这个数</strong> —— 记住"首尾相加是定值"就够了，或者直接用 <code>UP[::-1]</code> 建表更直观。
+</div>
+
+<div class="box bad">
+<strong>三个坑</strong><br>
+① <strong><code>ord()</code> 只吃"一个字符"</strong>：<code>ord("AB")</code> 会
+<code>TypeError: ord() expected a character, but string of length 2 found</code>。
+要处理整串必须先 <code>for c in s</code> 拆开。<br>
+② <strong>别用编号去判断大小写</strong>：<code>65 &lt;= ord(c) &lt;= 90</code> 能跑，但
+<code>"A" &lt;= c &lt;= "Z"</code> 更好读，而且 ㉖ 讲的字符串比较天生就干这个。<br>
+③ <strong>中文、符号也有编号</strong>：<code>ord("中")</code> = 20013，
+所以"<code>A &lt;= c &lt;= "Z"</code>"这种区间判断<strong>天然把中文排除在外</strong>，
+不用额外写"不是中文"的条件。
+</div>
+
+<div class="box warn">
+<strong>和已有小节的边界</strong><br>
+· <strong>㉖ 字符串怎么比大小</strong> —— 讲比较规则（用的是这里的编号）；
+· <strong>㉘ 字符的对应与替换</strong> —— 讲"换"的工具选型（本题建表就用它的字典/translate）；
+· 本节只讲<strong>字符和编号怎么互转、怎么据此算</strong>。
+</div>
+
 <h2 id="star">三、符号速查：* 和 []</h2>
 
 <h3 id="star-1">——— 第一部分：星号 <code>*</code> ———</h3>
@@ -4347,6 +4459,10 @@ Python 的 <code>int</code> 没有溢出问题，<strong>真正要小心的是"�
 <td><code>for i, ch in enumerate(s):</code>｜<code>enumerate(s, 1)</code> 从 1 编号</td>
 <td>⑳；第3章-3。它是<strong>懒</strong>的，只能消费一次</td></tr>
 
+<tr><td><code>ord()</code> / <code>chr()</code></td><td>字符 ↔ 编号（互逆）</td>
+<td><code>ord("A")</code> <code>65</code>｜<code>chr(65)</code> <code>'A'</code>｜<code>chr(ord("A")+2)</code> <code>'C'</code></td>
+<td><strong>㉙</strong>；大写 65~90、小写 97~122、数字 48~57；<code>ord</code> 只吃一个字符</td></tr>
+
 <tr><td><code>zip()</code> / <code>list()</code></td><td>多个序列并排走 / 转成列表</td>
 <td><code>list(zip([1,2], ["a","b"]))</code> <code>[(1, 'a'), (2, 'b')]</code>｜<code>list("ab")</code> <code>['a', 'b']</code></td>
 <td>⑮、⑰、⑳</td></tr>
@@ -4462,7 +4578,7 @@ Python 的 <code>int</code> 没有溢出问题，<strong>真正要小心的是"�
 <tr><td><code>print("\\n".join(L))</code></td><td>同上，但<strong>只吃字符串</strong>（数字要 <code>map(str, …)</code>）</td><td>㉗；想先拼成一个串再用</td></tr>
 </table>
 
-<h3 id="quick-4">④ 用途分类索引（把「二、常用代码」28 节按用途归位）</h3>
+<h3 id="quick-4">④ 用途分类索引（把「二、常用代码」29 节按用途归位）</h3>
 
 <table>
 <tr><th>想知道的事</th><th>看哪几节</th></tr>
@@ -4482,6 +4598,10 @@ Python 的 <code>int</code> 没有溢出问题，<strong>真正要小心的是"�
 <tr><td><strong>怎么换字符、怎么建立对应</strong></td>
 <td><strong>㉘ 字符的对应与替换</strong>（replace / translate / 字典查表 / 按位置 / re.sub 怎么选）｜
 ⑮ 查表（怎么把对应关系建起来）｜㉒ join（把结果拼回去）</td></tr>
+
+<tr><td><strong>怎么按字符的编号算</strong></td>
+<td><strong>㉙ <code>ord()</code> / <code>chr()</code></strong>（字符↔编号、「往后数几个字母」、
+判断大小写、Atbash 那种字母表倒过来）｜⑫ 字典推导式（建表）｜㉖ 比大小（用的就是这个编号）</td></tr>
 
 <tr><td><strong>怎么存和查数据</strong></td>
 <td>⑪ 遍历列表挑元素｜⑫ 列表推导式｜⑮ 查表（对应关系）｜⑳ append/元组/字典排序</td></tr>
