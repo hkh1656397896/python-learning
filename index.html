@@ -104,7 +104,7 @@
 -->
 
 <h1>Python 自学笔记</h1>
-<p class="meta">hkh ｜ 更新 2026-10-11 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">10</span> 题（浙大版《Python 程序设计》题目集）</p>
+<p class="meta">hkh ｜ 更新 2026-10-11 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">11</span> 题（浙大版《Python 程序设计》题目集）</p>
 
 <nav id="toc">
   <div class="toc-head">目录　<span class="toc-hint">点标题展开 · 点条目直接跳</span></div>
@@ -187,7 +187,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>六、真题回顾 <span class="toc-n" id="cr">27</span></summary>
+    <summary>六、真题回顾 <span class="toc-n" id="cr">28</span></summary>
     <ol>
       <li><a onclick="return go('review-1')">1-1 从键盘输入两个数求和</a></li>
       <li><a onclick="return go('review-2')">1-2 按公式输出 b²−4ac</a></li>
@@ -216,6 +216,7 @@
       <li><a onclick="return go('review-25')">3-8 字符串逆序</a></li>
       <li><a onclick="return go('review-26')">3-9 字符串转换成十进制整数</a></li>
       <li><a onclick="return go('review-27')">3-10 统计大写辅音字母</a></li>
+      <li><a onclick="return go('review-28')">3-11 字符串排序</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -3092,7 +3093,7 @@ if m!=v[17]:                      # ② 索引</code></pre>
 ② 两边同时改，很容易出现"本地一份、提交另一份"，而且极难发现
 </div>
 
-<h2 id="review">六、真题回顾（<span id="cr2">27</span> 题）</h2>
+<h2 id="review">六、真题回顾（<span id="cr2">28</span> 题）</h2>
 
 <div class="box warn">
 <strong>说明：</strong>下面的题目要求是<strong>我按自己的理解概括写的</strong>，不是 PTA 原文。<br>
@@ -4092,6 +4093,54 @@ print(x)                      输出个数</code></pre>
 · <strong>80 字符上限</strong>：<code>"B"×80</code> → <code>80</code>；<code>"A"×80</code> → <code>0</code>（唯一边界题面明确给了）<br>
 · 纯数字符号 <code>0123456789!@#$%^&amp;*()</code> → <code>0</code> ｜ 中英混 <code>HELLO 世界 World</code> → <code>4</code><br>
 · 空行探底：不崩，输出 <code>0</code> ｜ <code>py_compile</code> 通过 ｜ PTA <strong>一次通过</strong>
+</div>
+
+<h3 id="review-28">3-11 字符串排序 <span class="tag">一次通过</span></h3>
+<p><strong>要求：</strong>读入 <strong>5 个</strong>字符串（空格分隔，每个不含空白字符），
+按<strong>由小到大</strong>排序后输出。输出格式是固定的两段：
+第一行 <code>After sorted:</code>，之后<strong>每行一个</strong>字符串。<br>
+<strong>样例：</strong><code>red yellow blue black white</code> →
+<code>After sorted:</code> / <code>black</code> / <code>blue</code> / <code>red</code> /
+<code>white</code> / <code>yellow</code></p>
+<p><strong>我的代码（一次通过）</strong></p>
+<pre><code>m=map(str,input().split())   读一行 → 按空格切开；map(str, …) 是【多余的】，切出来本来就是字符串（见优化用法①）
+x=sorted(m)                  按字典序排（码点逐位比，见 ㉖）；sorted 返回【新】列表，原来的 map 对象不动
+print("After sorted:")       先打固定的表头 —— 题目要求输出两行以上，第一行就是这句（冒号别漏）
+for i in x:                  逐个打，每个一行（print 自带换行，见 ㉗；变量名 i 装的是字符串，叫 w 更准）
+    print(i)                 打出一行词；循环走完就是 5 行，加上表头共 6 行</code></pre>
+<p><strong>优化用法：</strong>① <strong><code>map(str, …)</code> 是白转的</strong> ——
+<code>input().split()</code> 返回的<strong>本来就是字符串列表</strong>，再套一层 <code>str</code> 什么都不改
+（和 3-10 里 <code>map(int, L)</code> 那个多余转层是同一类毛病）；直接
+<code>words = sorted(input().split())</code> 一步到位；<br>
+② 循环变量 <code>i</code> 装的是<strong>字符串</strong>不是下标，叫 <code>w</code> / <code>word</code>
+更不容易看混（❌8 那类"名字和内容不符"）；<br>
+③ 表头那句<strong>别用 <code>print("After sorted:", ...)</code> 挤在一起</strong> ——
+题目要求它单独一行；<br>
+④ 想更短也可以 <code>print("After sorted:", *sorted(words), sep="\n")</code>，
+但那样<strong>可读性下降</strong>，这题分步写更清楚（㉗ 第三种写法就是它）。</p>
+
+<div class="box warn">
+<strong>这题的两个考点，都不在"排序"本身</strong><br>
+① <strong>排序口径</strong>：题目说"由小到大"而没提长度、没提大小写 → 就是最朴素的
+<code>sorted()</code>（按<strong>码点</strong>逐位比，见 <strong>㉖</strong>）。
+<strong>不要自作主张加 <code>key=</code></strong>（加了 <code>key=len</code> 就变成按长度排，全错）。<br>
+② <strong>输出格式</strong>：第一行是固定表头，之后<strong>每行一个</strong>。
+<code>print(sorted(words))</code> 会打出 <code>['black', 'blue', …]</code>
+（带引号方括号的一整行）—— <strong>这就是丢分点</strong>，必须逐个 <code>print</code>（㉗）。
+</div>
+
+<div class="box ok">
+<strong>实测验收</strong>（12 组，与独立实现逐组比对：那份用<strong>原地 <code>sort()</code></strong> +
+<code>"\n".join()</code> 输出，写法不同但结果必须一致）<br>
+· 样例 ✅ → <code>After sorted:</code> + 5 行，与样例<strong>逐行一致</strong><br>
+· <strong>前两位相同</strong>：<code>blue black …</code> → 排在 <code>black</code> 后面
+（比第 3 位 <code>a</code>(97) &lt; <code>u</code>(117)）<br>
+· <strong>前缀关系</strong>：<code>ab abc a abcd b</code> → <code>a ab abc abcd b</code>
+（短的前缀更小）<br>
+· <strong>大小写混排</strong>：<code>Apple …</code> 全排在小写前面（65 &lt; 97，❌10 那个根）<br>
+· <strong>数字串不按数值</strong>：<code>9 10 123 2 100</code> → <code>10 100 123 2 9</code><br>
+· 另外过了：多空格分隔、含标点 <code>c++ java python</code>、长度不一、单个词<br>
+· <code>py_compile</code> 通过 ｜ PTA <strong>一次通过</strong>
 </div>
 
 <h2 id="quick">七、速查总表</h2>
