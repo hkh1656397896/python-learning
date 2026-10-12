@@ -4696,6 +4696,76 @@ sorted(set(s), key=ord)   # '23adefijnvz'   ← 结果一样，key=ord 是白写
 ⑤ 这题的"去重"要的是<strong>内容去重</strong>，不是"删掉紧挨着的重复" ——
 <code>ad2f3ad…</code> 里两个 <code>a</code> 隔得很远，照样只留一个。</p>
 
+<div class="box ok">
+<strong>五种写法对照（都实测，结果完全相同）</strong>
+<table>
+<tr><th>写法</th><th>代码</th><th>特点</th></tr>
+<tr><td>① <code>set</code>（最短）</td><td><code>"".join(sorted(set(s)))</code></td>
+<td>一行；<strong>set 无序</strong>，所以必须配 <code>sorted</code></td></tr>
+<tr><td>② <code>dict.fromkeys</code></td><td><code>"".join(sorted(dict.fromkeys(s)))</code></td>
+<td>去重<strong>且保持原顺序</strong>（字典的键不重复、且记住插入顺序）</td></tr>
+<tr><td>③ 循环 + <code>not in L</code></td><td>（本题的写法）</td>
+<td>最直观；但要每次扫一遍 <code>L</code>，最慢</td></tr>
+<tr><td>④ 建空串 + <code>in</code> 判断</td><td><code>r = ""; for c in s: if c not in r: r += c</code></td>
+<td>和 ③ 同理；<code>+=</code> 反复建新串（㉒ 提过）</td></tr>
+<tr><td>⑤ <strong>先排序，再去掉相邻重复</strong></td><td>见下面</td>
+<td><strong>顺序天然就对</strong>；思路能迁移到别的题</td></tr>
+</table>
+<strong>速度实测</strong>（260 字符 × 500 次；题面只有 &lt;80 字符，看趋势）：
+<table>
+<tr><th>写法</th><th>耗时</th><th>相对最快</th></tr>
+<tr><td>① <code>set()</code> + <code>sorted</code></td><td>0.0016 秒</td><td><strong>1.0×</strong></td></tr>
+<tr><td>② <code>dict.fromkeys</code></td><td>0.0024 秒</td><td>1.5×</td></tr>
+<tr><td>④ 建空串 + <code>in</code></td><td>0.0033 秒</td><td>2.1×</td></tr>
+<tr><td>⑤ 排序后比相邻</td><td>0.0125 秒</td><td>7.9×</td></tr>
+<tr><td>③ 循环 + <code>not in</code> 列表（本题）</td><td>0.0241 秒</td><td><strong>15.1×</strong></td></tr>
+</table>
+<strong>③ 慢的原因</strong>：每遇到一个字符都要把 <code>L</code> <strong>从头比一遍</strong>（O(n²)）；
+<code>set</code> 是哈希查找（O(n)）。<strong>题面小，五种都能过</strong> —— 但知道差在哪有价值。
+</div>
+
+<div class="box ok">
+<strong>⑤ 那个套路值得单独记：先排序，重复的必然挨在一起</strong>
+<pre><code>s = "ad2f3adjfeainzzzv"
+srt = sorted(s)      # '23aaaddeffijnvzzz'   ← 重复的字符全挨着了
+                     # ⚠️ 要【存进变量】；别在循环里反复 sorted(s) —— 实测慢 160 倍
+
+out = []
+for i, c in enumerate(srt):
+    if i == 0 or c != srt[i - 1]:    # 和【上一个】不一样才留下
+        out.append(c)
+"".join(out)         # '23adefijnvz'   ← 顺序天然是对的，不用再排</code></pre>
+<strong>为什么好用</strong>：判断"是不是重复"从"要记住见过哪些字符"，变成
+<strong>只看相邻的两个</strong> —— 不用额外容器记状态。<br>
+<strong>也能用 <code>zip</code> 写短一点</strong>（⑳ 把相邻两个配成对，实测结果相同）：
+<pre><code>srt = sorted(s)
+"".join([srt[0]] + [b for a, b in zip(srt, srt[1:]) if a != b])   # '23adefijnvz'</code></pre>
+<strong>能迁移到哪</strong>：统计/压缩<strong>连续相同</strong>的段（第2章 3-6 那类题）、
+找出只出现一次的元素、去重同时保序……都是这个思路的变体。
+</div>
+
+<div class="box bad">
+<strong>如果非要用「删除」的思路（<code>replace(字符, "")</code>）</strong><br>
+把字符替换成<strong>空串</strong>就等于删掉它：
+<pre><code>"banana".replace("a", "")    # 'bnn'    a 全删了
+"banana".replace("na", "")   # 'ba'     ⚠️ 删的是【子串】，结果差很多（㉘）</code></pre>
+去重可以这样做 —— <strong>保留一个新字符，就把它后面同样的全删掉</strong>：
+<pre><code>cur, i = s, 0
+while i &lt; len(cur):
+    ch = cur[i]
+    if ch not in cur[:i]:                       # 这个字符前面没出现过 → 保留它
+        cur = cur[:i + 1] + cur[i + 1:].replace(ch, "")   # 后面的同类全删
+    i += 1
+# 实测过程：'ad2f3adjfeainzzzv' → … → 'ad2f3jeinzv' → 排序得 '23adefijnvz' ✅</code></pre>
+<strong>能做，但有两个代价</strong>：<br>
+① <strong>要"边删边调下标"</strong>：删掉字符后长度变了，<code>i</code> 的处理很容易写错
+（上面这段我就写错过一次）；<br>
+② 读代码的人不容易一眼看出"这是在去重"。<br>
+<strong>结论：能用，但这类题更推荐 ①（<code>set</code>）或 ⑤（先排序）。</strong>
+「删除」更适合的场景是"<strong>把某类字符全部去掉</strong>"（比如 3-9 滤掉非十六进制字符，
+那里 <code>replace</code> 就很自然）。
+</div>
+
 <div class="box warn">
 <strong>两个容易看错的地方</strong><br>
 ① <strong>去重 ≠ 删掉所有重复字符</strong>：是<strong>每种不同的字符留一个</strong>。
