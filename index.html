@@ -3090,6 +3090,48 @@ set(None)    # TypeError: 'NoneType' object is not iterable</code></pre>
 </table>
 </div>
 
+
+<div class="box ok">
+<strong>六种"东西" × 各种操作：谁行谁不行（全部实测，<strong>集合这一列是补的</strong>）</strong>
+<table>
+<tr><th>操作</th><th>字符串<br><code>str</code></th><th>列表<br><code>list</code></th><th>元组<br><code>tuple</code></th>
+<th>字典<br><code>dict</code></th><th><strong>集合<br><code>set</code></strong></th><th>数字<br><code>int</code></th></tr>
+<tr><td><code>len(x)</code></td><td>✅ 字符数</td><td>✅ 元素数</td><td>✅ 元素数</td><td>✅ 键的个数</td>
+<td><strong>✅ 元素个数</strong></td><td>❌ <code>TypeError</code></td></tr>
+<tr><td><code>x[0]</code> 下标</td><td>✅ 取字符</td><td>✅ 取元素</td><td>✅ 取元素</td><td>⚠️ 键不存在报 <code>KeyError</code></td>
+<td><strong>❌ <code>not subscriptable</code></strong></td><td>❌</td></tr>
+<tr><td><code>x[0:1]</code> 切片</td><td>✅</td><td>✅</td><td>✅</td><td>❌</td>
+<td><strong>❌ 同上</strong></td><td>❌</td></tr>
+<tr><td><code>for c in x</code></td><td>✅ 给字符</td><td>✅ 给元素</td><td>✅ 给元素</td><td>✅ 给<strong>键</strong></td>
+<td><strong>✅ 给元素（顺序不保证）</strong></td><td>❌</td></tr>
+<tr><td><code>sorted(x)</code></td><td>✅</td><td>✅ 新列表</td><td>✅ 新列表</td><td>⚠️ 排<strong>键</strong></td>
+<td><strong>✅ 新列表（有序）</strong></td><td>❌</td></tr>
+<tr><td><code>东西 in x</code></td><td>⚠️ <strong>左操作数必须也是字符串</strong></td><td>✅</td><td>✅</td>
+<td>✅ 查<strong>键</strong></td><td><strong>✅ 查元素</strong></td><td>❌</td></tr>
+<tr><td><code>x.count(东西)</code></td><td>✅ 子串次数</td><td>✅</td><td>✅</td><td>❌ 没有</td>
+<td><strong>❌ 没有</strong></td><td>❌</td></tr>
+<tr><td><code>x.add(东西)</code></td><td>❌</td><td>❌</td><td>❌</td><td>❌</td>
+<td><strong>✅ 加一个（返回 None）</strong></td><td>❌</td></tr>
+<tr><td><code>x.append(东西)</code></td><td>❌</td><td>✅ 末尾加</td><td>❌</td><td>❌</td>
+<td><strong>❌ 用 add</strong></td><td>❌</td></tr>
+<tr><td><code>x.sort()</code></td><td>❌</td><td>✅ 原地排</td><td>❌</td><td>❌</td>
+<td><strong>❌ 用 sorted()</strong></td><td>❌</td></tr>
+<tr><td><code>x | 别的</code></td><td>❌</td><td>❌</td><td>❌</td><td>❌</td>
+<td><strong>✅ 并集</strong>（还有 <code>&amp;</code> <code>-</code> <code>^</code>）</td><td>❌</td></tr>
+<tr><td>能原地改吗</td><td>❌ 不可变</td><td>✅ <code>append</code>/<code>sort</code> 原地改</td><td>❌ 不可变</td>
+<td>✅ 能</td><td><strong>✅ 能（<code>add</code>/<code>remove</code>）</strong></td><td>❌</td></tr>
+</table>
+<strong>三条最常用的记法</strong>：<br>
+① <strong><code>len()</code> 对字符串 / 列表 / 元组 / 字典 / 集合都能用</strong>，只有<strong>单个数字不行</strong>
+（<code>len(5)</code> → <code>TypeError: object of type 'int' has no len()</code>）；
+<code>len(set())</code> = <code>0</code> —— 判"不足 10 个"就靠它。<br>
+② <strong><code>in</code> 五种容器都能用，但"查什么"不一样</strong>：字典查<strong>键</strong>、
+集合查<strong>元素</strong>、字符串查<strong>子串</strong>（而且左边也必须是字符串，
+<code>1 in "ab"</code> → <code>TypeError: 'in &lt;string&gt;' requires string as left operand</code>）；<br>
+③ <strong>集合和下标的组合一定失败</strong>：<code>x[0]</code>、<code>x[0:1]</code> 都是
+<code>TypeError: 'set' object is not subscriptable</code> —— 想按下标取，先 <code>sorted</code> 或 <code>list</code> 转一下。
+</div>
+
 <div class="box ok">
 <strong>一句话分工：集合问"在不在"，列表管"顺序和位置"</strong>
 <table>
