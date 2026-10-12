@@ -94,7 +94,7 @@
 -->
 
 <h1>Python 自学笔记</h1>
-<p class="meta">hkh ｜ 更新 2026-10-11 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">4</span> 题（浙大版《Python 程序设计》题目集）</p>
+<p class="meta">hkh ｜ 更新 2026-10-11 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">5</span> 题（浙大版《Python 程序设计》题目集）</p>
 
 <nav id="toc">
   <div class="toc-head">目录　<span class="toc-hint">点标题展开 · 点条目直接跳</span></div>
@@ -117,7 +117,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>二、常用代码与拓展 <span class="toc-n" id="cs">21</span></summary>
+    <summary>二、常用代码与拓展 <span class="toc-n" id="cs">23</span></summary>
     <ol>
       <li><a onclick="return go('s1-1')">① 读一行数字</a></li>
       <li><a onclick="return go('s1-2')">② range()：生成数字序列</a></li>
@@ -140,6 +140,8 @@
       <li><a onclick="return go('s1-19')">⑲ continue：这一轮到此为止（含卫语句写法）</a></li>
       <li><a onclick="return go('s1-20')">⑳ 列表追加：append / 元组 / enumerate（第3章-3 用）</a></li>
       <li><a onclick="return go('s1-21')">㉑ 查找位置：in / find / rfind / index / rindex / count</a></li>
+      <li><a onclick="return go('s1-22')">㉒ 字符串拼接与合并：join / + / extend / print(*, sep=)</a></li>
+      <li><a onclick="return go('s1-23')">㉓ map：对每个元素做同一件事（转成什么由传进去的函数决定）</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -170,7 +172,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>六、真题回顾 <span class="toc-n" id="cr">21</span></summary>
+    <summary>六、真题回顾 <span class="toc-n" id="cr">22</span></summary>
     <ol>
       <li><a onclick="return go('review-1')">1-1 从键盘输入两个数求和</a></li>
       <li><a onclick="return go('review-2')">1-2 按公式输出 b²−4ac</a></li>
@@ -193,6 +195,7 @@
       <li><a onclick="return go('review-19')">3-2 查验身份证</a></li>
       <li><a onclick="return go('review-20')">3-3 输出字母在字符串中位置索引</a></li>
       <li><a onclick="return go('review-21')">3-4 查找指定字符</a></li>
+      <li><a onclick="return go('review-22')">3-5 字符转换</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -2087,6 +2090,21 @@ s.count("m")        # 2        出现几次
 s.find("ing")       # 8        找子串也行（不是只能找单个字符）
 s.rfind("mm")       # 6        "programming" 的 6、7 位正好是 m m</code></pre>
 
+<div class="box ok">
+<strong>补充：判断「整串是不是数字」有两条路，结果基本一样，但有一个例外</strong>
+<pre><code>s.isdigit()                      # 整串直接判断（推荐）
+all(c.isdigit() for c in s)      # 逐字符判断（要挑出"第几位不是数字"时才用它）</code></pre>
+实测 <code>'123'</code>、<code>'12a'</code>、<code>'1²'</code>、<code>'３４'</code> 四种输入，两者结论一致；<strong>只有空串不一样</strong>：
+<pre><code>''.isdigit()                     # False   空串不是数字
+all(c.isdigit() for c in '')     # True    ← 空串居然"全是数字"！</code></pre>
+<strong>为什么：</strong><code>all()</code> 的规则是「<strong>找不到反例就算真</strong>」，空序列连反例都没有。<br>
+<strong>所以判断整串一律用 <code>s.isdigit()</code></strong>，别用 <code>all()</code>。<br>
+<strong>性能也差很多</strong>（10000 字符 × 2000 次）：<code>s.isdigit()</code> <strong>0.0289 秒</strong> vs
+<code>all(...)</code> <strong>0.6708 秒</strong>，快 <strong>23 倍</strong>。<br>
+需要「只有 ASCII 的 0-9」时加一个条件：<code>s.isdigit() and s.isascii()</code>
+（<code>'３４'</code>、<code>'1²'</code> 会被排除掉）。
+</div>
+
 <div class="box bad">
 <strong>⚠️ <code>find</code> / <code>rfind</code> 找不到给 <code>-1</code>；<code>index</code> / <code>rindex</code> 找不到<strong>直接崩</strong>：</strong>
 <pre><code>s.find("z")      # -1                             可以拿 -1 判断
@@ -2133,6 +2151,127 @@ print(max(L))             # ✅ 循环外：这时 L 才是全部位置
 写在循环外只输出 <code>7</code>。<br>
 <strong>这跟「排序写在循环里 = 白排」（⑳）是同一个坑的第二个症状</strong>：
 <strong>收集归循环，计算/判断归循环外。</strong>
+</div>
+
+<h3 id="s1-22">㉒ 字符串拼接与合并：<code>join</code> / <code>+</code> / <code>extend</code> / <code>print(*, sep=)</code></h3>
+
+<div class="box ok">
+<strong>先说最容易记反的一点：<code>join</code> 是 <code>str</code> 的方法，<strong>不是列表的方法</strong>。</strong><br>
+所以写法永远是 <code>"分隔符".join(列表)</code> —— 分隔符在前面。
+实测 <code>hasattr([], "join")</code> 是 <code>False</code>，列表根本没有 <code>join</code>。
+</div>
+
+<pre><code>L = ["1", "2", "3"]
+"-".join(L)     # '1-2-3'
+"".join(L)      # '123'          分隔符写空串 = 直接粘起来
+" ".join(L)     # '1 2 3'
+"\n".join(L)    # 换行连接（输出成多行）
+"".join([])     # ''             空列表给空串，不报错</code></pre>
+
+<div class="box bad">
+<strong>⚠️ 元素必须是字符串，否则 <code>TypeError</code>：</strong>
+<pre><code>"-".join([1, 2, 3])
+# TypeError: sequence item 0: expected str instance, int found</code></pre>
+<strong>为什么不能自动转：</strong>一个数字有整数和字符串两种<strong>写法</strong>（<code>3</code> ↔ <code>'3'</code>），
+Python 不替人猜要显示成哪种格式。<br>
+<strong>三种修法（实测结果一样）：</strong>
+<pre><code>"-".join(map(str, [1, 2, 3]))             # 最省
+"-".join(str(x) for x in [1, 2, 3])       # 生成器
+"-".join([str(x) for x in [1, 2, 3]])     # 列表推导</code></pre>
+</div>
+
+<div class="box warn">
+<strong><code>join</code> 收「任何可迭代」，但结果可能不是想要的（实测）：</strong>
+<pre><code>"-".join("abc")                    # 'a-b-c'   字符串按字符拆
+"-".join(("a", "b"))               # 'a-b'     元组也行
+"-".join(str(i) for i in range(5)) # '0-1-2-3-4'  生成器也行
+"-".join({"a", "b", "c"})          # 'c-b-a'   集合【顺序不保证】
+"-".join({"k1": 1, "k2": 2})       # 'k1-k2'   字典给的是【键】
+"-".join(range(3))                 # TypeError 元素是 int，见上面的坑</code></pre>
+</div>
+
+<div class="box ok">
+<strong>分工表：这三个活儿互不替代</strong>
+<table>
+<tr><th>想干的事</th><th>用什么</th><th>实测</th></tr>
+<tr><td>字符串列表 → <strong>一个字符串</strong></td><td><code>"分隔符".join(列表)</code></td><td><code>"-".join(["1","2"])</code> → <code>'1-2'</code></td></tr>
+<tr><td>两个<strong>列表</strong> → 一个列表</td><td><code>a + b</code> 或 <code>a.extend(b)</code></td><td><code>[1,2] + [3,4]</code> → <code>[1, 2, 3, 4]</code></td></tr>
+<tr><td>数字列表 → <strong>输出成一行</strong></td><td><code>print(*nums, sep="->")</code> 或 <code>"->".join(map(str, nums))</code></td><td>两种都输出 <code>2-&gt;4-&gt;8</code></td></tr>
+</table>
+<code>+</code> 返回<strong>新列表</strong>（原列表不变）；<code>extend</code> <strong>原地改</strong>（返回 <code>None</code>）——
+和 <code>append</code> 是同一族（见 ⑳）。
+</div>
+
+<div class="box bad">
+<strong>为什么别在循环里用 <code>+=</code> 拼字符串（实测：5000 段 × 300 次）</strong>
+<pre><code>"".join(parts)              0.0041 秒
+for p in parts: s += p      0.1803 秒     ← 慢 44 倍</code></pre>
+<strong>原因：字符串不可变</strong>，每次 <code>s += p</code> 都是「造一个新字符串、把旧的抄过去」，
+越拼越长、越抄越贵（<strong>平方级</strong>）。<code>join</code> 先算总长度、一次性分配，所以是线性。<br>
+<strong>规则：要拼很多段，就全塞进列表，最后 join 一次。</strong>
+</div>
+
+<h3 id="s1-23">㉓ <code>map</code>：对每个元素做同一件事（转成什么由传进去的函数决定）</h3>
+
+<div class="box ok">
+<strong>一句话：<code>map(要做的操作, 一串数据)</code> —— 把那个操作套在<strong>每一个</strong>元素上。</strong><br>
+它<strong>不负责「变成什么类型」</strong>，类型是<strong>传进去的那个函数</strong>决定的。
+</div>
+
+<pre><code>list(map(int,   ["1", "2"]))     # [1, 2]          转整数
+list(map(str,   [1, 2]))         # ['1', '2']      转字符串
+list(map(float, ["1", "2"]))     # [1.0, 2.0]      转小数
+list(map(abs,   [-1, 2, -3]))    # [1, 2, 3]       取绝对值
+list(map(len,   ["ab", "c"]))    # [2, 1]          求长度
+list(map(str.upper, ["ab"]))     # ['AB']          方法也能当函数传
+list(map(lambda x: x*x, [1, 2, 3]))   # [1, 4, 9]  自定义规则</code></pre>
+
+<div class="box bad">
+<strong>⚠️ 它「不挑食」，会把每一个都转掉 —— 这就是 ❌5 的来历。</strong><br>
+第2章-8 想只转第二个数，写了 <code>map(int, ...)</code>，结果 <code>a</code> 也变成了整数，
+<code>int(字符串, 进制)</code> 要求第一个参数是字符串 → <code>TypeError</code>。<br>
+<strong><code>map</code> 没有「只转某一个」的选项。</strong>
+</div>
+
+<div class="box warn">
+<strong>三个必须知道的特性</strong><br>
+① <strong>返回的不是列表</strong>，是懒对象：<code>print(map(int, ["1"]))</code> → <code>&lt;map object at 0x...&gt;</code>；
+<code>list()</code> 一次之后就空了（和 <code>enumerate</code>、生成器同一族，见 ⑫、⑳）。<br>
+② <strong>能喂多个序列</strong>，这时函数要有几个参数，按<strong>最短的</strong>截断：
+<pre><code>list(map(lambda a, b: a+b, [1,2,3], [10,20]))   # [11, 22]
+list(zip([1,2,3], [10,20]))                     # [(1,10), (2,20)]</code></pre>
+③ <strong>不改原数据</strong>，它产出新东西。
+</div>
+
+<div class="box ok">
+<strong>和列表推导式是同一件事的两种写法（实测结果一致）</strong>
+<pre><code>list(map(int, s.split()))      &lt;-&gt;   [int(x) for x in s.split()]
+list(map(str.upper, L))        &lt;-&gt;   [x.upper() for x in L]</code></pre>
+<table>
+<tr><th>场景</th><th>推荐</th></tr>
+<tr><td>「每个都套同一个现成函数」</td><td><code>map</code> 更短：<code>map(int, ...)</code></td></tr>
+<tr><td>要<strong>条件筛选</strong></td><td>推导式（<code>map</code> 做不到，得配 <code>filter</code>）</td></tr>
+<tr><td>规则复杂 / 要好读</td><td>推导式</td></tr>
+</table>
+<strong>带筛选的对比：</strong>
+<pre><code>list(map(int, filter(str.isdigit, ["1", "a", "2"])))   # [1, 2]  两个函数套娃
+[int(c) for c in ["1", "a", "2"] if c.isdigit()]       # [1, 2]  一眼看懂</code></pre>
+</div>
+
+<div class="box bad">
+<strong>四种常见误读</strong>
+<table>
+<tr><th>误读</th><th>实际</th></tr>
+<tr><td>「map 是转字符串的」</td><td>转成什么由<strong>传进去的函数</strong>决定，<code>map(int, ...)</code> 是转整数</td></tr>
+<tr><td>「map 会改原数据」</td><td><strong>不改</strong>，产出新东西</td></tr>
+<tr><td>「结果能连用两次」</td><td>一次性，第二次是空的</td></tr>
+<tr><td>「能只转其中几个」</td><td>不挑食，<strong>每一个</strong>都转（❌5）</td></tr>
+</table>
+<strong>一个记住定位的例子（真题 3-5）：</strong>
+<pre><code>x = "".join(map(str, L))    # map：把 L 里每个 int 都过一遍 str()
+                            # join：把得到的字符串粘起来
+                            # 最后还要 int(x) 才是题目要的【整数】
+                            # 三个活儿：逐个过一遍 / 粘起来 / 变成整数 —— 互不替代</code></pre>
 </div>
 
 <h2 id="star">三、符号速查：* 和 []</h2>
@@ -2479,7 +2618,7 @@ if m!=v[17]:                      # ② 索引</code></pre>
 ② 两边同时改，很容易出现"本地一份、提交另一份"，而且极难发现
 </div>
 
-<h2 id="review">六、真题回顾（<span id="cr2">21</span> 题）</h2>
+<h2 id="review">六、真题回顾（<span id="cr2">22</span> 题）</h2>
 
 <div class="box warn">
 <strong>说明：</strong>下面的题目要求是<strong>我按自己的理解概括写的</strong>，不是 PTA 原文。<br>
@@ -3117,6 +3256,72 @@ index = 7      ← 跑到第 7 位时 L = [6, 7]，这才对</code></pre>
 · <code>py_compile</code> 通过
 </div>
 
+<h3 id="review-22">3-5 字符转换 <span class="tag">通过 15/15</span></h3>
+<p><strong>要求：</strong>一行给一个字符串（不超过 80 个字符）。
+把它里面<strong>所有的数字字符</strong>按原顺序提取出来，<strong>转换成一个整数</strong>输出。<br>
+<strong>样例：</strong><code>free82jeep5</code> → <code>825</code></p>
+
+<p><strong>我的代码（通过 15/15）</strong></p>
+<pre><code>m=list(input())                                 # 先把字符串转成列表（其实可以直接遍历字符串，见优化）
+L=[]                                            # 收集数字字符（转成 int 后存这里），必须在循环外
+yes=0                                           # 统计找到几个数字，也当"有没有找到"的开关
+for i in m:                                     # 逐个字符过一遍
+    if i.isdigit():                             # 这个字符是不是数字（单字符也能用 isdigit）
+        I=int(i)                                # 把字符 '8' 转成整数 8
+        yes+=1                                  # 计数 +1
+        L.append(I)                             # 存进列表
+if yes!=0:                                      # 找到过至少一个数字
+    x="".join(map(str,L))                       # ① map 把每个 int 过一遍 str() ② join 把它们粘成一个字符串
+    print(int(x))                               # ③ 再转成整数输出 —— 这一步原来漏了，就是它挂了一个测试点
+if yes==0:                                      # 一个数字都没有
+    print(0)                                    # 输出 0</code></pre>
+
+<p><strong>优化用法：</strong>① <code>m=list(input())</code> 里的 <code>list()</code> 是多余的 ——
+字符串本身就能遍历（<code>for i in input():</code>）；② <code>yes</code> 这个计数器同样多余，
+<code>if L:</code> 就等价于"找到过"（⑯、㉑）；③ 两个 <code>if</code> 改成 <code>if / else</code>；
+④ <code>join(map(str, L))</code> 再 <code>int()</code> 是「int → str → 又 int」来回跑，
+可以直接用生成器喂给 <code>join</code>：<code>int("".join(c for c in m if c.isdigit()))</code>；
+⑤ 最省的一条路是<strong>数学法</strong>（和第2章-4 的第二种写法同一个手法），根本不碰字符串：
+<code>x = x*10 + int(c)</code>。</p>
+
+<div class="box bad">
+<strong>我挂的那个测试点：拼出来的是【字符串】，不是整数</strong><br>
+原来第 10 行只写了 <code>x = "".join(map(str, L))</code>，然后 <code>print(x)</code>。<br>
+样例 <code>free82jeep5</code> 抓出 8、2、5，拼成 <code>'825'</code> ——
+<strong>打印出来和整数 825 长得一模一样</strong>，所以大部分测试点都过。<br>
+<strong>只有"拼出来的字符串和它的整数值长得不一样"的输入才暴露这个 bug，那就是前导 0：</strong>
+<pre><code>输入 a007b   我的输出 '007'   题目要 7
+输入 0012    我的输出 '0012'  题目要 12</code></pre>
+<strong>教训：题目里「转换成整数」这几个字是有约束力的。</strong>字符串 <code>'007'</code> 和整数 <code>7</code>
+在屏幕上长得不一样，而样例恰好没有前导 0，所以样例永远是"过"的。<br>
+<strong>这也解释了为什么单看样例检查不出问题 —— 边界（前导 0、空结果）才是测试点的藏身处。</strong>
+</div>
+
+<div class="box warn">
+<strong>我一开始的猜测是错的：以为是"只有一个数字用不了 map"。</strong><br>
+实测排除：<code>"".join(map(str, [5]))</code> → <code>'5'</code>，<code>free5jeep</code> → <code>5</code>、
+输入就是 <code>7</code> → <code>7</code>，<strong>单数字的三种情形全对</strong>。<br>
+<strong>排查顺序应该是：先跑边界，再怀疑语法。</strong>「map 对单个元素会不会失效」这种猜测，
+用一行 <code>print</code> 就能证伪，不该靠猜。
+</div>
+
+<div class="box ok">
+<strong>这题把三件事串起来了（见 ㉒、㉓）</strong><br>
+<code>map(str, L)</code> 负责「每个都过一遍 <code>str()</code>」→ <code>join</code> 负责「粘成一个字符串」
+→ <code>int()</code> 负责「变成整数」。<strong>三个活儿互不替代，缺一个都不行</strong> ——
+我漏的正是最后一个。
+</div>
+
+<div class="box ok">
+<strong>实测验收</strong><br>
+· 样例 ✅ <code>free82jeep5</code> → <code>825</code><br>
+· 13 组固定用例全过：单数字（<code>free5jeep</code>→<code>5</code>、<code>7</code>→<code>7</code>）、
+没有数字（→<code>0</code>）、前导 0（<code>a007b</code>→<code>7</code>、<code>0012</code>→<code>12</code>、<code>000</code>→<code>0</code>）、
+数字在头/尾、80 字符上限<br>
+· <strong>随机 3000 组对拍 0 失败</strong>（期望值用「数字字符数学累加」独立算，不复用 join/map/int 那套）<br>
+· <code>py_compile</code> 通过
+</div>
+
 <h2 id="quick">七、速查总表</h2>
 
 <p><strong>为什么单独开一章：</strong>前面是按「遇到的顺序」记的，翻起来像流水账。
@@ -3168,9 +3373,9 @@ index = 7      ← 跑到第 7 位时 L = [6, 7]，这才对</code></pre>
 <td><code>list(range(3))</code> <code>[0, 1, 2]</code>｜<code>list(range(1, 6, 2))</code> <code>[1, 3, 5]</code></td>
 <td>②；⑨、⑰</td></tr>
 
-<tr><td><code>map()</code></td><td>对<strong>每一个</strong>元素做同一件事</td>
-<td><code>a, b = map(int, input().split())</code>｜<code>list(map(float, line.split()))</code></td>
-<td>①；❌5（会把每一个都转）、❌10</td></tr>
+<tr><td><code>map()</code></td><td>把<strong>同一个操作</strong>套在每个元素上（<strong>转成什么由传进去的函数决定</strong>）</td>
+<td><code>map(int, ["1","2"])</code> <code>[1, 2]</code>｜<code>map(str, [1,2])</code> <code>['1','2']</code>｜<code>map(str.upper, L)</code>｜<code>map(lambda x: x*x, L)</code></td>
+<td>①、㉓；❌5（不挑食，每一个都转）；返回<strong>懒对象</strong>，要列表得 <code>list()</code></td></tr>
 
 <tr><td><code>enumerate()</code></td><td>位置号 + 元素，<strong>配成一对</strong></td>
 <td><code>for i, ch in enumerate(s):</code>｜<code>enumerate(s, 1)</code> 从 1 编号</td>
@@ -3206,9 +3411,9 @@ index = 7      ← 跑到第 7 位时 L = [6, 7]，这才对</code></pre>
 <td><code>"ab\ncd".splitlines()</code> <code>['ab', 'cd']</code></td>
 <td>⑬；<strong>要一行一行就用它，别用 split</strong></td></tr>
 
-<tr><td><code>.join()</code></td><td>把列表拼成一个字符串</td>
-<td><code>"-".join(["1","2","3"])</code> <code>'1-2-3'</code>｜<code>"".join(["a","b"])</code> <code>'ab'</code></td>
-<td>⑮、⑰；拆是 split，拼是 join</td></tr>
+<tr><td><code>.join()</code></td><td>把<strong>字符串</strong>列表拼成一个字符串（分隔符在前）</td>
+<td><code>"-".join(["1","2","3"])</code> <code>'1-2-3'</code>｜<code>"".join([...])</code> 直接粘</td>
+<td>⑮、⑰、㉒；<strong>元素不是字符串要 <code>map(str, ...)</code></strong>；合并两个列表用 <code>+</code></td></tr>
 
 <tr><td><code>.find()</code> / <code>.rfind()</code></td><td>找<strong>第一个</strong>位置（左）/ <strong>最后一个</strong>位置（右），找不到都给 <code>-1</code></td>
 <td><code>"programming".find("m")</code> <code>6</code>；<code>.rfind("m")</code> <code>7</code>；找不到 <code>-1</code></td>
@@ -3221,9 +3426,9 @@ index = 7      ← 跑到第 7 位时 L = [6, 7]，这才对</code></pre>
 <td><code>"banana".count("a")</code> <code>3</code>｜<code>"banana".count("an")</code> <code>2</code></td>
 <td>⑩；<code>len("banana")</code> 是 6</td></tr>
 
-<tr><td><code>.isdigit()</code></td><td>问「是不是全是数字」</td>
-<td><code>"12".isdigit()</code> <code>True</code>｜<code>"12a".isdigit()</code> <code>False</code></td>
-<td>⑯；⚠️ <code>'²'.isdigit()</code> 也是 True，但 <code>int()</code> 转不动</td></tr>
+<tr><td><code>.isdigit()</code></td><td>问「是不是全是数字」（整串和单个字符都能用）</td>
+<td><code>"12".isdigit()</code> <code>True</code>｜<code>"12a".isdigit()</code> <code>False</code>｜<code>"7".isdigit()</code> <code>True</code>（单个字符）</td>
+<td>⑯、㉑；⚠️ <code>'²'.isdigit()</code> 也是 True 但 <code>int()</code> 转不动；<strong>空串给 False</strong></td></tr>
 
 <tr><td><code>.upper()</code> / <code>.lower()</code></td><td>转大写 / 小写</td>
 <td><code>"abc".upper()</code> <code>'ABC'</code>｜<code>"ABC".lower()</code> <code>'abc'</code></td>
