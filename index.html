@@ -104,7 +104,7 @@
 -->
 
 <h1>Python 自学笔记</h1>
-<p class="meta">hkh ｜ 更新 2026-10-11 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">19</span> 题（浙大版《Python 程序设计》题目集）</p>
+<p class="meta">hkh ｜ 更新 2026-10-11 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">20</span> 题（浙大版《Python 程序设计》题目集）</p>
 
 <nav id="toc">
   <div class="toc-head">目录　<span class="toc-hint">点标题展开 · 点条目直接跳</span></div>
@@ -190,7 +190,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>六、真题回顾 <span class="toc-n" id="cr">36</span></summary>
+    <summary>六、真题回顾 <span class="toc-n" id="cr">37</span></summary>
     <ol>
       <li><a onclick="return go('review-1')">1-1 从键盘输入两个数求和</a></li>
       <li><a onclick="return go('review-2')">1-2 按公式输出 b²−4ac</a></li>
@@ -228,6 +228,7 @@
       <li><a onclick="return go('review-34')">3-17 删除字符（不分大小写）</a></li>
       <li><a onclick="return go('review-35')">3-18 输出10个不重复的英文字母</a></li>
       <li><a onclick="return go('review-36')">3-19 找最长的字符串</a></li>
+      <li><a onclick="return go('review-37')">3-20 逆序的三位数</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -3589,7 +3590,7 @@ if m!=v[17]:                      # ② 索引</code></pre>
 ② 两边同时改，很容易出现"本地一份、提交另一份"，而且极难发现
 </div>
 
-<h2 id="review">六、真题回顾（<span id="cr2">36</span> 题）</h2>
+<h2 id="review">六、真题回顾（<span id="cr2">37</span> 题）</h2>
 
 <div class="box warn">
 <strong>说明：</strong>下面的题目要求是<strong>我按自己的理解概括写的</strong>，不是 PTA 原文。<br>
@@ -5320,6 +5321,63 @@ print(f"The longest is: {s[a]}")        # ❌ 坑5：a 没赋值 → NameError�
 · <strong>两端</strong>：N=1 → <code>x</code>；长度上限 <strong>79 个字符</strong>且并列 →
 取先输入的那条 79 个 <code>a</code><br>
 · <code>py_compile</code> 通过 ｜ PTA <strong>通过</strong>（进度 36/89）
+</div>
+
+<h3 id="review-37">3-20 逆序的三位数 <span class="tag">通过</span></h3>
+<p><strong>要求：</strong>读入一个<strong>3 位正整数</strong>，输出它「按位逆序」后的数。
+<strong>输入末尾有 0 时，输出不带前导 0</strong> —— 例如 <code>700</code> 要输出 <code>7</code>，
+不是 <code>007</code>。<br>
+<strong>样例：</strong><code>123</code> → <code>321</code></p>
+
+<p><strong>我的代码（通过）</strong></p>
+<pre><code>a=input()        读入这一行 —— input() 拿到的是【字符串】，不是数字（这题能偷懒的关键）
+b=int(a[::-1])   a[::-1] 把字符串倒过来（3-8 用过那种切片）；int() 再转回整数 → '007' 变成 7，前导 0 就没了
+print(b)         输出这个整数</code></pre>
+
+<p><strong>优化用法：</strong>① 两步可以并成一行：<code>print(int(input()[::-1]))</code>
+（<code>input()</code> 的结果直接切片，不用先存进变量）；<br>
+② 不靠切片步长的显式版本：<code>int(a[2]+a[1]+a[0])</code>
+（实测 <code>"123"</code> 得 <code>'321'</code>，<code>int()</code> 后是 <code>321</code>）——
+三位数专用，位数一多就不合适；<br>
+③ 纯算术路线（完全不碰字符串）：
+<code>n%10*100 + n//10%10*10 + n//100</code>
+（实测 <code>123→321</code>、<code>700→7</code>、<code>900→9</code>、<code>101→101</code>）——
+「前导 0」在算术里根本不存在，所以天然满足；<br>
+④ <code>''.join(reversed(a))</code> 与 <code>a[::-1]</code> 等价（实测都得 <code>'007'</code>），
+但 <code>reversed()</code> 给的是<strong>迭代器</strong>（实测打印是
+<code>&lt;reversed object …&gt;</code>），不 <code>join</code>、不 <code>list()</code> 就看不出内容；<br>
+⑤ <strong>字符串没有 <code>reverse()</code></strong>（实测 <code>'700'.reverse()</code> →
+<code>AttributeError: 'str' object has no attribute 'reverse'</code>）——
+<code>reverse()</code> 是<strong>列表</strong>的方法，而且<strong>原地改</strong>，别搞混。</p>
+
+<div class="box ok">
+<strong>这题的开关：<code>int()</code></strong>
+<table>
+<tr><th>写法</th><th><code>700</code> 的输出</th><th>说明</th></tr>
+<tr><td><code>print(a[::-1])</code></td><td><code>007</code> ❌</td>
+<td>切片给的是<strong>文本</strong>，前导 0 原样留着</td></tr>
+<tr><td><code>print(int(a[::-1]))</code></td><td><code>7</code> ✅</td>
+<td><code>int()</code> 把文本变成<strong>整数</strong>，前导 0 自动消失</td></tr>
+</table>
+实测：<code>'700'[::-1]</code> → <code>'007'</code>；<code>int('007')</code> → <code>7</code>。<br>
+<strong>反过来要「保留」前导 0</strong>（这题不要求，别的题会要求）就得留在字符串世界里：
+<code>'7'.zfill(3)</code> → <code>'007'</code>（实测）。<br>
+所以「逆序 + 去前导 0」正好等于「数字反转」<strong>只在"文本转整数"这一步成立</strong>；
+位数不固定、或者要求保留前导 0 的题，就得用 <code>zfill()</code> 或者算术路线。
+</div>
+
+<div class="box ok">
+<strong>实测验收</strong><br>
+· 样例 <code>123</code> → <code>321</code> ✅
+｜ 题面点名的 <code>700</code> → <strong><code>7</code></strong> ✅<br>
+· <strong>穷举 <code>100</code>~<code>999</code> 共 900 组</strong>：与<strong>独立实现</strong>
+（纯位运算 <code>r = r*10 + n%10</code>，完全不碰字符串）<strong>逐组一致 ✅</strong>；
+输出带前导 0 的：<strong>0 组</strong><br>
+· 边界：<code>100→1</code>｜<code>110→11</code>｜<code>101→101</code>｜<code>900→9</code>｜
+<code>990→99</code>｜<code>999→999</code>｜前后带空格的 <code>' 123 '</code> → <code>321</code><br>
+· <code>py_compile</code> 通过 ｜ PTA <strong>通过</strong>（进度 37/89）<br>
+· 源文件是 <strong>CRLF、末尾没有换行</strong>（35 B = 34 + 1 个 <code></code>）；
+仓库里 <code>.gitattributes</code> 转 LF，所以<strong>本地字节数 ≠ 远端字节数</strong>是正常的。
 </div>
 
 <h2 id="quick">七、速查总表</h2>
