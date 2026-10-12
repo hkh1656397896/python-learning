@@ -2171,6 +2171,37 @@ print(max(L))             # ✅ 循环外：这时 L 才是全部位置
 "\n".join(L)    # 换行连接（输出成多行）
 "".join([])     # ''             空列表给空串，不报错</code></pre>
 
+<div class="box warn">
+<strong><code>int()</code> 吃什么、不吃什么（这个报错 3-6 撞过一次）：</strong>
+<pre><code>int("12")     # 12          ✅ 字符串
+int(12)       # 12          ✅ 数字
+int(3.9)      # 3           ✅ 小数（直接截掉小数部分，不四舍五入）
+int("1010", 2) # 10         ✅ 第二个参数是进制（第2章-8）
+int(b"12")    # 12          ✅ 字节串（很少用）
+
+int([8, 2, 5])     # ❌ TypeError: int() argument must be a string,
+                   #    a bytes-like object or a number, not 'list'
+int((1, 2))        # ❌ not 'tuple'
+int({"a": 1})      # ❌ not 'dict'
+int(map(str, L))   # ❌ not 'map'      ← 3-6 撞的就是这个
+int(['3'])         # ❌ not 'list'</code></pre>
+<strong>一句话：<code>int()</code> 只认「<strong>已经是一个</strong>字符串 / 数字」，不认「一串东西」。</strong>
+列表、元组、字典、<code>map</code> 对象都是"一串"，所以全被拒绝 —— 哪怕里面只有一个元素。<br>
+<strong>「列表 → 数字」要按需求选路（都是实测）：</strong>
+<table>
+<tr><th>想要什么</th><th>怎么写</th></tr>
+<tr><td>把数字列表拼成一个整数（<code>[8,2,5]</code> → <code>825</code>）</td>
+<td><code>int("".join(map(str, L)))</code>　或数学法 <code>x = x*10 + d</code></td></tr>
+<tr><td>取出「只有一个元素的列表」里那个数（<code>['3']</code> → <code>3</code>）</td>
+<td><code>int(L[0])</code>　或拆包 <code>a, = L</code>（逗号不能少）</td></tr>
+<tr><td>把字符串列表变成数字列表（<code>['1','2']</code> → <code>[1,2]</code>）</td>
+<td><code>list(map(int, L))</code> —— 注意结果还是<strong>列表</strong></td></tr>
+<tr><td>求和 / 平均</td><td><code>sum(L)</code>、<code>sum(L)/len(L)</code> —— 列表本身不用变</td></tr>
+</table>
+<strong>⚠️ 还有一个连带的错要一起记：<code>map(str, L)</code> 在 <code>L</code> 本来就是字符串列表时是白转。</strong>
+3-6 那行 <code>int(map(str, l))</code> 一次犯了两个错：<strong>多做了一次没用的转换 + 把一串东西交给了只收单个值的函数</strong>。
+</div>
+
 <div class="box bad">
 <strong>⚠️ 元素必须是字符串，否则 <code>TypeError</code>：</strong>
 <pre><code>"-".join([1, 2, 3])
@@ -3689,6 +3720,7 @@ if yes==0:                                      # 一个数字都没有
 <table>
 <tr><th>操作</th><th>字符串 <code>str</code></th><th>列表 <code>list</code></th><th>元组 <code>tuple</code></th><th>字典 <code>dict</code></th><th>数字 <code>int/float</code></th></tr>
 <tr><td><code>len(x)</code></td><td>✅ 字符数</td><td>✅ 元素数</td><td>✅ 元素数</td><td>✅ 键的个数</td><td>❌ <code>TypeError</code></td></tr>
+<tr><td><code>int(x)</code></td><td>✅ <code>int("12")</code> <code>12</code></td><td>❌ 报 <code>TypeError</code></td><td>❌ 报 <code>TypeError</code></td><td>❌ 报 <code>TypeError</code></td><td>✅ <code>int(3.9)</code> <code>3</code></td></tr>
 <tr><td><code>x[i]</code> 按下标</td><td>✅ 取一个字符</td><td>✅ 取一个元素</td><td>✅ 取一个元素</td><td>❌ 报 <code>KeyError</code></td><td>❌</td></tr>
 <tr><td><code>x[a:b]</code> 切片</td><td>✅</td><td>✅</td><td>✅</td><td>❌</td><td>❌</td></tr>
 <tr><td><code>for ... in x</code></td><td>✅ 给字符</td><td>✅ 给元素</td><td>✅ 给元素</td><td>⚠️ 给<strong>键</strong></td><td>❌</td></tr>
