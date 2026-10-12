@@ -104,7 +104,7 @@
 -->
 
 <h1>Python 自学笔记</h1>
-<p class="meta">hkh ｜ 更新 2026-10-11 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">14</span> 题（浙大版《Python 程序设计》题目集）</p>
+<p class="meta">hkh ｜ 更新 2026-10-11 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">15</span> 题（浙大版《Python 程序设计》题目集）</p>
 
 <nav id="toc">
   <div class="toc-head">目录　<span class="toc-hint">点标题展开 · 点条目直接跳</span></div>
@@ -189,7 +189,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>六、真题回顾 <span class="toc-n" id="cr">31</span></summary>
+    <summary>六、真题回顾 <span class="toc-n" id="cr">32</span></summary>
     <ol>
       <li><a onclick="return go('review-1')">1-1 从键盘输入两个数求和</a></li>
       <li><a onclick="return go('review-2')">1-2 按公式输出 b²−4ac</a></li>
@@ -222,6 +222,7 @@
       <li><a onclick="return go('review-29')">3-12 求整数的位数及各位数字之和</a></li>
       <li><a onclick="return go('review-30')">3-13 字符串替换（字母表倒过来）</a></li>
       <li><a onclick="return go('review-31')">3-14 字符串字母大小写转换</a></li>
+      <li><a onclick="return go('review-32')">3-15 统计一行文本的单词个数</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -3294,7 +3295,7 @@ if m!=v[17]:                      # ② 索引</code></pre>
 ② 两边同时改，很容易出现"本地一份、提交另一份"，而且极难发现
 </div>
 
-<h2 id="review">六、真题回顾（<span id="cr2">31</span> 题）</h2>
+<h2 id="review">六、真题回顾（<span id="cr2">32</span> 题）</h2>
 
 <div class="box warn">
 <strong>说明：</strong>下面的题目要求是<strong>我按自己的理解概括写的</strong>，不是 PTA 原文。<br>
@@ -4521,6 +4522,83 @@ print(s[:-1].swapcase())</code></pre>
 · 单个字符 <code>a#</code> → <code>A</code> ｜ 多空格 <code>a  B   c#</code> → <code>A  b   C</code><br>
 · <strong>29 字符上限</strong> <code>"a"×29 + "#"</code> → <code>"A"×29</code> ｜ 中文混排 <code>Hello 世界#</code> → <code>hELLO 世界</code><br>
 · <code>py_compile</code> 通过 ｜ PTA <strong>通过</strong>（进度 31/89）
+</div>
+
+<h3 id="review-32">3-15 统计一行文本的单词个数 <span class="tag">一次通过</span></h3>
+<p><strong>要求：</strong>读一行字符，数出其中<strong>单词的个数</strong>。
+"单词"指<strong>连续不含空格的字符串</strong>，各单词之间用空格分隔，<strong>空格可以是多个</strong>。<br>
+<strong>样例：</strong><code>Let's go to room 209.</code> → <code>5</code></p>
+<p><strong>我的代码（一次通过）</strong></p>
+<pre><code>m=list(input().split())   读一行 → split() 按【任意空白】切开；外面的 list() 是多余的（它本来就返回列表，见优化①）
+x=len(m)                  个数 = 列表长度（len 数【有几个元素】，⑩）
+print(x)                  输出个数</code></pre>
+
+<div class="box ok">
+<strong>这题全靠 <code>split()</code> 的一个默认行为：不带参数时，按「任意空白」切，并丢掉所有空串</strong>
+<table>
+<tr><th>输入</th><th><code>split()</code> 的结果</th><th>个数</th></tr>
+<tr><td><code>"a   b    c"</code></td><td><code>['a', 'b', 'c']</code></td><td><strong>3</strong>（多个空格不产生空词）</td></tr>
+<tr><td><code>"   abc def   "</code></td><td><code>['abc', 'def']</code></td><td><strong>2</strong>（首尾空格自动丢掉）</td></tr>
+<tr><td><code>" \t\n"</code></td><td><code>[]</code></td><td><strong>0</strong>（全是空白 → 空列表）</td></tr>
+<tr><td><code>"abc"</code></td><td><code>['abc']</code></td><td><strong>1</strong></td></tr>
+</table>
+所以题目说的"<strong>空格可以是多个</strong>"<strong>不用额外处理</strong>，<code>split()</code> 天生就满足；
+"首尾也有空格"（样例第二行是空行、词与词之间有连续空格）同样自动正确。
+</div>
+
+<div class="box bad">
+<strong>⚠️ 最容易踩的坑：<code>split(" ")</code> 会保留空串</strong>
+<pre><code>"a  b".split()      # ['a', 'b']        个数 2  ✅ 不带参数
+"a  b".split(" ")   # ['a', '', 'b']    个数 3  ❌ 带参数就保留了空的那一格</code></pre>
+同样是两个词、中间两个空格：
+<strong>不带参数 = 2 个</strong>，<strong>带参数 = 3 个</strong>。
+一个字符的差别，答案就错了 —— 而且<strong>样例里只有一个空格的词</strong>时两种写法结果一样，
+所以<strong>样例能过、测试点挂掉</strong>（这种"静默错误"最难查）。
+</div>
+
+<p><strong>优化用法：</strong>① <strong><code>list(input().split())</code> 里的 <code>list()</code> 是多余的</strong> ——
+<code>split()</code> <strong>本来就返回列表</strong>，再套 <code>list()</code> 什么都不改
+（这是第 4 次出现"多余转层"了：3-10 <code>map(int, L)</code>、3-11 <code>map(str, …)</code>、
+3-12 <code>list(input())</code>、本题 <code>list(...split())</code>，见下面「一串同类毛病」）；<br>
+② 直接一行：
+<pre><code>print(len(input().split()))</code></pre>
+③ 变量名 <code>m</code>（列表）、<code>x</code>（个数）看不出是什么，叫 <code>words</code> / <code>n</code> 更好（❌8）。</p>
+
+<div class="box warn">
+<strong>一串同类毛病：<code>list()</code> / <code>map()</code> 白套一层</strong><br>
+这几题里反复出现"能跑但白做一层"的写法，根源都是<strong>没意识到前一步的返回值已经是想要的东西</strong>：
+<table>
+<tr><th>题</th><th>多写的那一层</th><th>为什么多余</th></tr>
+<tr><td>3-10</td><td><code>map(int, L)</code></td><td><code>L</code> 里装的本来就是整数 1</td></tr>
+<tr><td>3-11</td><td><code>map(str, input().split())</code></td><td><code>split()</code> 出来本来就是字符串</td></tr>
+<tr><td>3-12</td><td><code>list(input())</code></td><td>字符串本来就能被遍历 / 能被 <code>map</code> 吃（㉓）</td></tr>
+<tr><td><strong>本题</strong></td><td><code>list(input().split())</code></td><td><code>split()</code> <strong>本来就返回列表</strong>（①）</td></tr>
+</table>
+<strong>检查办法：写完之后问一句"这个函数返回的到底是什么类型"</strong> ——
+<code>type(前一步的结果)</code> 实测一下，就不用猜。
+</div>
+
+<div class="box bad">
+<strong>关于"哪些字符算单词"（本题口径）</strong><br>
+题目只说"连续不含空格的字符串"，所以<strong>标点、数字都算单词的一部分</strong>：
+实测 <code>"Let's go to room 209."</code> → <code>["Let's", 'go', 'to', 'room', '209.']</code>
+（<code>209.</code> 连点一起算一个词，<code>Let's</code> 也是），共 5 个。<br>
+<code>"!!! ???"</code> → 2 个词（纯标点也各算一个）；<code>"a\tb\tc"</code> → 3 个
+（<strong>制表符也是空白</strong>，照样切）。
+<strong>别自作主张"去掉标点再数"</strong> —— 那是另一道题的口径。
+</div>
+
+<div class="box ok">
+<strong>实测验收</strong>（13 组，与独立实现对照：那份用 <code>for</code> 循环计数、
+不靠 <code>len(list)</code>）<br>
+· 样例 ✅ <code>Let's go to room 209.</code> → <code>5</code> ｜ 单个词 <code>abc</code> → <code>1</code><br>
+· <strong>多个空格</strong> <code>a   b    c</code> → <code>3</code>；
+<strong>首尾空格</strong> <code>   abc def   </code> → <code>2</code><br>
+· <strong>空行 / 全是空格 / 只有一个空格</strong> → <code>0</code>（不是报错）<br>
+· 标点连词 <code>hello, world!</code> → <code>2</code> ｜ 纯标点 <code>!!! ???</code> → <code>2</code><br>
+· <strong>制表符分隔</strong> <code>a\tb\tc</code> → <code>3</code> ｜ 数字 <code>123 456</code> → <code>2</code>
+｜ 中英混排 <code>hello 世界 ok</code> → <code>3</code><br>
+· <code>py_compile</code> 通过 ｜ PTA <strong>一次通过</strong>（进度 32/89）
 </div>
 
 <h2 id="quick">七、速查总表</h2>
