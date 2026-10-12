@@ -104,7 +104,7 @@
 -->
 
 <h1>Python 自学笔记</h1>
-<p class="meta">hkh ｜ 更新 2026-10-11 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">9</span> 题（浙大版《Python 程序设计》题目集）</p>
+<p class="meta">hkh ｜ 更新 2026-10-11 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">10</span> 题（浙大版《Python 程序设计》题目集）</p>
 
 <nav id="toc">
   <div class="toc-head">目录　<span class="toc-hint">点标题展开 · 点条目直接跳</span></div>
@@ -185,7 +185,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>六、真题回顾 <span class="toc-n" id="cr">26</span></summary>
+    <summary>六、真题回顾 <span class="toc-n" id="cr">27</span></summary>
     <ol>
       <li><a onclick="return go('review-1')">1-1 从键盘输入两个数求和</a></li>
       <li><a onclick="return go('review-2')">1-2 按公式输出 b²−4ac</a></li>
@@ -213,6 +213,7 @@
       <li><a onclick="return go('review-24')">3-7 求最大值及其下标</a></li>
       <li><a onclick="return go('review-25')">3-8 字符串逆序</a></li>
       <li><a onclick="return go('review-26')">3-9 字符串转换成十进制整数</a></li>
+      <li><a onclick="return go('review-27')">3-10 统计大写辅音字母</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -2926,7 +2927,7 @@ if m!=v[17]:                      # ② 索引</code></pre>
 ② 两边同时改，很容易出现"本地一份、提交另一份"，而且极难发现
 </div>
 
-<h2 id="review">六、真题回顾（<span id="cr2">26</span> 题）</h2>
+<h2 id="review">六、真题回顾（<span id="cr2">27</span> 题）</h2>
 
 <div class="box warn">
 <strong>说明：</strong>下面的题目要求是<strong>我按自己的理解概括写的</strong>，不是 PTA 原文。<br>
@@ -3878,6 +3879,54 @@ else:                                                                           
 · <code>0x1a#</code> → <code>26</code>（<code>x</code> 不是十六进制字符，被滤掉，剩下 <code>01a</code>）<br>
 · 空格串 <code>' - a b #'</code> → <code>-171</code> ｜ 长串（题面上限附近）→ 与 <code>int</code> 结果逐位一致<br>
 · <code>py_compile</code> 通过 ｜ PTA 提交 <strong>通过 15/15</strong>
+</div>
+
+<h3 id="review-27">3-10 统计大写辅音字母 <span class="tag">一次通过</span></h3>
+<p><strong>要求：</strong>英文辅音字母是<strong>除 A、E、I、O、U 以外</strong>的字母。
+输入一行以回车结束的字符串，输出其中<strong>大写</strong>辅音字母的个数。<br>
+<strong>样例：</strong><code>HELLO World!</code> → <code>4</code>
+（命中 <code>H</code>、<code>L</code>、<code>L</code>、<code>W</code>；后面小写的 <code>orld</code> 一个都不算）</p>
+<p><strong>我的代码（一次通过）</strong></p>
+<pre><code>M=input()                     读入整行（题目给的是以回车结束的字符串）
+HEX="BCDFGHJKLMNPQRSTVWXYZ"   大写辅音清单：26 个大写字母去掉 AEIOU，正好 21 个（顺序不讲究，看着排的）
+L=[]                          L：准备收集命中的标记（每个命中放一个 1）
+for i,ch in enumerate(M):     逐字符扫：i 是下标、ch 是那个字符（这题用不到 i，直接 for ch in M 也行）
+    if ch in HEX:             这个字符是大写辅音
+        L.append(1)           命中就放一个 1 进 L（其实放什么非零数都一样，反正是为了数个数）
+y=map(int,L)                  把 L 里每个元素都转成 int（这一步是多余的，见「优化用法」①）
+x=sum(y)                      求和 = 个数；True/False 相加也成立，所以这步本来能省掉整条链
+print(x)                      输出个数</code></pre>
+<p><strong>优化用法：</strong>① <strong>那两行 <code>map(int, L)</code> + <code>sum(y)</code> 是白转的</strong> ——
+<code>L</code> 里装的<strong>本来就是整数 1</strong>，<code>sum(L)</code> 直接就能求和，
+所以 <code>y=map(int,L)</code> 整行可以删；<br>
+② 更省的是<strong>连 <code>L</code> 都不用</strong>：<code>print(sum(1 for ch in M if ch in HEX))</code>；
+再短一点 —— <code>print(sum(ch in HEX for ch in M))</code>：<code>True</code>/<code>False</code>
+相加就是 <code>1</code>/<code>0</code>，这题正好吃这个特性（见 ⑯）；<br>
+③ <code>for i,ch in enumerate(M)</code> 里的 <code>i</code> <strong>一次都没用到</strong>，
+直接 <code>for ch in M</code> 更省（<code>enumerate</code> 是给"要下标"的场合用的，这里不需要）；<br>
+④ 变量名 <code>M</code>、<code>L</code> 都是一个字母，这题其实就两个概念（字符串、计数），
+叫 <code>s</code> / <code>cnt</code> 更清楚；<code>HEX</code> 这名字在 3-9 指的是"十六进制"，
+这里指"辅音"，<strong>换个名（<code>CONS</code>）不容易串味</strong>；<br>
+⑤ 清单也可以写成 <code>set</code>，判断更快，但这题长度 ≤80，肉眼没差别。</p>
+
+<div class="box warn">
+<strong>这题最容易错的地方：口径是「大写 + 辅音」，两个条件同时满足。</strong><br>
+· 小写的 <code>b c d f…</code> <strong>不算</strong>（样例里 <code>World</code> 的小写 <code>rld</code> 就不计）；<br>
+· <code>A E I O U</code> 五个元音<strong>不算</strong>（大写也不算）；<br>
+· 数字、空格、标点、中文都<strong>不算</strong>；<br>
+· 计数从 <strong>0</strong> 起步，一个都没命中时要输出 <code>0</code>（不是空行）。
+</div>
+
+<div class="box ok">
+<strong>实测验收</strong>（14 组，期望值用 <code>set(string.ascii_uppercase) - set("AEIOU")</code>
+<strong>独立算</strong>出来，不复用代码里那份清单）<br>
+· 样例 ✅ <code>HELLO World!</code> → <code>4</code> ｜ 单个辅音 <code>B</code> → <code>1</code>、单个元音 <code>A</code> → <code>0</code><br>
+· <strong>清单本身核对</strong>：独立算出的 21 个 = <code>BCDFGHJKLMNPQRSTVWXYZ</code>，
+和代码里写的一模一样（少一个字母或漏掉 U 就会错，所以值得单独核）<br>
+· <strong>全辅音</strong>（21 个字母排一遍）→ <code>21</code> ｜ 小写全辅音 <code>bcdfg…</code> → <code>0</code><br>
+· <strong>80 字符上限</strong>：<code>"B"×80</code> → <code>80</code>；<code>"A"×80</code> → <code>0</code>（唯一边界题面明确给了）<br>
+· 纯数字符号 <code>0123456789!@#$%^&amp;*()</code> → <code>0</code> ｜ 中英混 <code>HELLO 世界 World</code> → <code>4</code><br>
+· 空行探底：不崩，输出 <code>0</code> ｜ <code>py_compile</code> 通过 ｜ PTA <strong>一次通过</strong>
 </div>
 
 <h2 id="quick">七、速查总表</h2>
