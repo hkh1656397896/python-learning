@@ -104,7 +104,7 @@
 -->
 
 <h1>Python 自学笔记</h1>
-<p class="meta">hkh ｜ 更新 2026-10-11 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">11</span> 题（浙大版《Python 程序设计》题目集）</p>
+<p class="meta">hkh ｜ 更新 2026-10-11 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">12</span> 题（浙大版《Python 程序设计》题目集）</p>
 
 <nav id="toc">
   <div class="toc-head">目录　<span class="toc-hint">点标题展开 · 点条目直接跳</span></div>
@@ -187,7 +187,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>六、真题回顾 <span class="toc-n" id="cr">28</span></summary>
+    <summary>六、真题回顾 <span class="toc-n" id="cr">29</span></summary>
     <ol>
       <li><a onclick="return go('review-1')">1-1 从键盘输入两个数求和</a></li>
       <li><a onclick="return go('review-2')">1-2 按公式输出 b²−4ac</a></li>
@@ -217,6 +217,7 @@
       <li><a onclick="return go('review-26')">3-9 字符串转换成十进制整数</a></li>
       <li><a onclick="return go('review-27')">3-10 统计大写辅音字母</a></li>
       <li><a onclick="return go('review-28')">3-11 字符串排序</a></li>
+      <li><a onclick="return go('review-29')">3-12 求整数的位数及各位数字之和</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -3093,7 +3094,7 @@ if m!=v[17]:                      # ② 索引</code></pre>
 ② 两边同时改，很容易出现"本地一份、提交另一份"，而且极难发现
 </div>
 
-<h2 id="review">六、真题回顾（<span id="cr2">28</span> 题）</h2>
+<h2 id="review">六、真题回顾（<span id="cr2">29</span> 题）</h2>
 
 <div class="box warn">
 <strong>说明：</strong>下面的题目要求是<strong>我按自己的理解概括写的</strong>，不是 PTA 原文。<br>
@@ -4141,6 +4142,51 @@ for i in x:                  逐个打，每个一行（print 自带换行，见
 · <strong>数字串不按数值</strong>：<code>9 10 123 2 100</code> → <code>10 100 123 2 9</code><br>
 · 另外过了：多空格分隔、含标点 <code>c++ java python</code>、长度不一、单个词<br>
 · <code>py_compile</code> 通过 ｜ PTA <strong>一次通过</strong>
+</div>
+
+<h3 id="review-29">3-12 求整数的位数及各位数字之和 <span class="tag">一次通过</span></h3>
+<p><strong>要求：</strong>输入一个正整数 N（题面写"不超过 10<sup>10</sup>"），
+输出它的<strong>位数</strong>和<strong>各位数字之和</strong>，中间用一个空格隔开。<br>
+<strong>样例：</strong><code>321</code> → <code>3 6</code>（3 位；3+2+1=6）</p>
+<p><strong>我的代码（一次通过）</strong></p>
+<pre><code>m=list(input())     读入一整行（当【字符串】用，不转 int）；list() 是多余的，字符串本来就能遍历
+n=sum(map(int,m))   把每一位都转成整数再求和 —— map(int, …) 对每个字符做同一件事
+l=len(m)            位数 = 串的长度（len 数「有几个字符」，不是「数值多大」）
+print(l,n)          一行输出两样：位数在前、各位数字之和在后（print 默认用空格隔开）</code></pre>
+<p><strong>优化用法：</strong>① <strong><code>list(input())</code> 里的 <code>list()</code> 是多余的</strong> ——
+字符串本来就能被 <code>map</code> 遍历（㉓：<code>map</code> 不挑对象，什么可迭代都吃），
+<code>m = input()</code> 直接就能用；<br>
+② 再省一步可以连 <code>m</code> 都不要：<code>s = input()</code> 然后
+<code>print(len(s), sum(int(c) for c in s))</code>（生成器表达式，见 ⑫）；<br>
+③ 变量名 <code>m</code> 装的是字符串、<code>n</code> 装的是数字和 ——
+叫 <code>s</code> / <code>total</code> 更不容易看混（❌8 那类）；<br>
+④ <strong>位数也可以用 <code>len(str(int(s)))</code></strong>，但这题读进来<strong>本来就是字符串</strong>，
+再转 <code>int</code> 是绕远路；<br>
+⑤ 想练基本功也可以用<strong>数值法</strong>：<code>n //= 10</code> 一路除下去数几次
+（下面「独立算法」就是它）。这题两种路都行，<strong>字符串法更短</strong>。</p>
+
+<div class="box warn">
+<strong>这题的两个坑：边界值 <code>0</code> 和"10 位数字"</strong><br>
+① <strong>输入是 0 时，位数是 1、各位和是 0</strong>（实测输出 <code>1 0</code>）——
+字符串法天然正确（<code>len("0")</code> = 1、和 = 0）；
+但如果用数值法写 <code>while n &gt; 0</code>，<strong>循环一次都不进</strong>，
+位数会错成 0，得单独给 <code>0</code> 开一个分支。<br>
+② <strong>10 位数不要用"数字位数"的思路去限制</strong>：题面写 10<sup>10</sup>，
+<code>10000000000</code> 是 <strong>11 位</strong>（1 后面 10 个 0），实测输出 <code>11 1</code>。
+Python 的 <code>int</code> 没有溢出问题，<strong>真正要小心的是"按位数写死"</strong> —— 用字符串读就完全不用管。
+</div>
+
+<div class="box ok">
+<strong>实测验收</strong>（12 组，与<strong>独立实现</strong>逐组比对：
+那份走纯数值路线 —— <code>total += n % 10; n //= 10</code>，<strong>完全不碰字符串</strong>）<br>
+· 样例 ✅ <code>321</code> → <code>3 6</code> ｜ 单个数字 <code>1</code> → <code>1 1</code>、<code>9</code> → <code>1 9</code><br>
+· <strong><code>0</code></strong> → <code>1 0</code>（数值法要单独分支才对，字符串法天然对）<br>
+· <strong>上限</strong>：<code>10000000000</code> → <code>11 1</code>；
+<code>9999999999</code>（最大 10 位）→ <code>10 90</code>；
+<code>1000000000</code>（题面写的 10<sup>9</sup>）→ <code>10 1</code><br>
+· <strong>含 0</strong>：<code>1050</code> → <code>4 6</code>（中间的 0 算位数、不加和）；
+<code>900000</code> → <code>6 9</code>（末尾的 0 同样算位数）<br>
+· <code>py_compile</code> 通过 ｜ PTA <strong>一次通过</strong>（进度 29/89）
 </div>
 
 <h2 id="quick">七、速查总表</h2>
