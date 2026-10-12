@@ -104,7 +104,7 @@
 -->
 
 <h1>Python 自学笔记</h1>
-<p class="meta">hkh ｜ 更新 2026-10-11 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">18</span> 题（浙大版《Python 程序设计》题目集）</p>
+<p class="meta">hkh ｜ 更新 2026-10-11 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">19</span> 题（浙大版《Python 程序设计》题目集）</p>
 
 <nav id="toc">
   <div class="toc-head">目录　<span class="toc-hint">点标题展开 · 点条目直接跳</span></div>
@@ -190,7 +190,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>六、真题回顾 <span class="toc-n" id="cr">35</span></summary>
+    <summary>六、真题回顾 <span class="toc-n" id="cr">36</span></summary>
     <ol>
       <li><a onclick="return go('review-1')">1-1 从键盘输入两个数求和</a></li>
       <li><a onclick="return go('review-2')">1-2 按公式输出 b²−4ac</a></li>
@@ -227,6 +227,7 @@
       <li><a onclick="return go('review-33')">3-16 删除重复字符</a></li>
       <li><a onclick="return go('review-34')">3-17 删除字符（不分大小写）</a></li>
       <li><a onclick="return go('review-35')">3-18 输出10个不重复的英文字母</a></li>
+      <li><a onclick="return go('review-36')">3-19 找最长的字符串</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -3588,7 +3589,7 @@ if m!=v[17]:                      # ② 索引</code></pre>
 ② 两边同时改，很容易出现"本地一份、提交另一份"，而且极难发现
 </div>
 
-<h2 id="review">六、真题回顾（<span id="cr2">35</span> 题）</h2>
+<h2 id="review">六、真题回顾（<span id="cr2">36</span> 题）</h2>
 
 <div class="box warn">
 <strong>说明：</strong>下面的题目要求是<strong>我按自己的理解概括写的</strong>，不是 PTA 原文。<br>
@@ -5207,6 +5208,118 @@ else:                         够了（10 个或更多）
 <code>aAbBcCdDeEfFgGhHiIjJ</code>（20 个字符、只有 10 种）→ <code>abcdefghij</code><br>
 · 含数字标点中文 <code>ab1!cd中efghij</code> → <code>abcdefghij</code> ｜ 前 10 个小写 + 后面大写 → <code>abcdefghij</code><br>
 · <code>py_compile</code> 通过 ｜ PTA <strong>通过</strong>（进度 35/89）
+</div>
+
+<h3 id="review-36">3-19 找最长的字符串 <span class="tag">通过</span></h3>
+<p><strong>要求：</strong>先输入正整数 N，随后 N 行每行一条<strong>非空</strong>字符串
+（<strong>长度小于 80</strong>，题面保证串里<strong>不含空格、制表符</strong>）。
+在一行里输出 <code>The longest is: 最长的字符串</code>。<br>
+<strong>关键口径：长度相同 → 输出「先输入」的那一条。</strong><br>
+<strong>样例：</strong><code>5 / li / wang / zhang / jin / xiang</code> →
+<code>The longest is: zhang</code>
+（<code>zhang</code> 和 <code>xiang</code> 都是 5 个字符，取先输入的 <code>zhang</code>）</p>
+
+<p><strong>我的代码（通过）</strong></p>
+<pre><code>m=int(input())                     第一行读入 N：input() 拿到的是字符串，int() 转成整数
+s=[input() for _ in range(m)]      竖着读 m 行：列表推导式每一轮读一条（`_` = 不关心的循环变量）
+r=max(map(len,s))                  先把「最长到底多长」定下来：map(len, s) 是全部长度，max 取最大（㉓）
+L=[]                               准备收集「最长的那些串」的下标（答案可能要取第一个）
+for i,ch in enumerate(s):          逐条过：i 是下标、ch 是那一条字符串（enumerate 同时给下标和值）
+    if len(ch)==r:                 长度等于最长的那条才算候选
+        L.append(i)                记下它的下标（append 原地追加、返回 None，不用接住）
+a=min(L)                           并列时取最小的下标 = 先输入的那一条（题面最后一句就是这个口径）
+print(f"The longest is: {s[a]}")   按题面格式输出：f-string 把 s[a] 填进去，冒号后有一个空格</code></pre>
+
+<p><strong>优化用法：</strong>① <strong>一行就够</strong>：
+<code>print(f"The longest is: {max(s, key=len)}")</code> ——
+<code>max</code> <strong>并列时给最先遇到的那个</strong>（实测
+<code>max(['aaa','bb','ccc'], key=len)</code> → <code>'aaa'</code>、
+<code>max(['ab','cd','ef'], key=len)</code> → <code>'ab'</code>），
+题面的「相同取先输入的」天然满足 —— 就是 3-7 记的那句
+「<code>max</code> 给第一个、<code>&gt;=</code> 给最后一个」；<br>
+② <code>L</code> 也可以不要：<code>L</code> 是从左往右收的，
+所以 <code>min(L)</code> 和 <code>L[0]</code> 总是同一个
+（实测三组：<code>L=[0,2]</code>、<code>[0,1,2]</code>、<code>[2,4]</code>，两种取法结果相同）；<br>
+③ <code>max(map(len, s))</code> 与 <code>max(len(x) for x in s)</code>
+<strong>完全等价</strong>（实测 <code>True</code>）——
+<code>map</code> 只负责「逐个过一遍」，转成什么由传进去的函数决定（㉓）；<br>
+④ 也可以用 3-7 那套<strong>一次遍历</strong>：只留一个「当前最优」，
+遇到<strong>严格更长</strong>才替换（不用先求长度、也不用建列表）；<br>
+⑤ 读入用 <code>input()</code>，不用 <code>sys.stdin.read().split()</code>：
+题面保证串里没有空格，两者都能过，但<strong>串里一旦带空格，
+<code>split()</code> 会把一条串拆成两条、空行直接消失</strong>
+（实测：<code>3 / 'li hua' / (空行) / zhang</code> →
+<code>split()</code> 得 <code>['3','li','hua','zhang']</code>，
+<code>splitlines()</code> 得 <code>['3','li hua','','zhang']</code>）。<br>
+⑥ 交上去的那份第 10 行是 4 个空格（等于空行），笔记里按 9 行记，仓库那份没动它。</p>
+
+<div class="box bad">
+<strong>第一版错在哪（原样留着，不美化）</strong>
+<pre><code>m=int(input())                          # 读入 N
+s=[input() for _ in range(m)]           # 读入 N 行
+L=[]                                    # ❌ 坑1：L 记的是「出现过的长度」，只为算 max 用
+K=[]                                    # 收集「并列最长的下标」
+for i,ch in enumerate(s):               # 逐条过
+    k=len(ch)                           # 这一条的长度
+    if k in L:continue                  # 去重：已在 L 里就跳过（唯一作用是别重复追加）
+    L.append(k)                         # 把长度记进 L
+if len(ch)==max(L):                     # ❌ 坑2：这一行缩进在 for【外面】→ 只在循环结束后跑一次，
+                                        #    用的 ch / i 是【最后一条】的残留值
+    K.append(i)                         # ❌ 坑3：max(L) 是「到目前为止」的最大值，会把历史最大值也收进来
+    a=min(K)                            # ❌ 坑4：K 为空时这一行根本不执行 → a 从未被赋值
+print(f"The longest is: {s[a]}")        # ❌ 坑5：a 没赋值 → NameError（PTA 上是运行错误 0 分）</code></pre>
+<strong>实测后果</strong>（6 组，期望值由独立实现算出）：
+<table>
+<tr><th>输入</th><th>应输出</th><th>第一版实测</th></tr>
+<tr><td>题面样例（5 条）</td><td><code>zhang</code></td><td><code>xiang</code> ❌</td></tr>
+<tr><td><code>aaa / bb / ccc</code>（并列）</td><td><code>aaa</code></td><td><code>ccc</code> ❌</td></tr>
+<tr><td><code>ab / cd / ef</code>（全长相同）</td><td><code>ab</code></td><td><code>ef</code> ❌</td></tr>
+<tr><td><code>aaaa / b / c</code>（最后一条不是最长）</td><td><code>aaaa</code></td>
+<td><code>NameError: name 'a' is not defined</code> ❌</td></tr>
+<tr><td><code>a / bbbb / c / d</code>（最长在中间）</td><td><code>bbbb</code></td>
+<td><code>NameError</code> ❌</td></tr>
+<tr><td><code>1 / x</code></td><td><code>x</code></td>
+<td><code>x</code> ✅（侥幸：只有一条，它既是最后一条也是最长的）</td></tr>
+</table>
+<strong>只把缩进改回循环里</strong>（其余一字不改，另跑一遍）：
+<table>
+<tr><th>输入</th><th>应输出</th><th>只修缩进后</th></tr>
+<tr><td>题面样例</td><td><code>zhang</code></td><td><code>li</code> ❌</td></tr>
+<tr><td><code>aaa / bb / ccc</code></td><td><code>aaa</code></td><td><code>aaa</code> ✅</td></tr>
+<tr><td><code>aaaa / b / c</code></td><td><code>aaaa</code></td><td><code>aaaa</code> ✅</td></tr>
+<tr><td><code>a / bbbb / c / d</code></td><td><code>bbbb</code></td><td><code>a</code> ❌</td></tr>
+</table>
+<strong>结论：不是「缩进一改就好」。</strong>
+<code>max(L)</code> 的<strong>时机</strong>才是根子 ——
+<code>L</code> 装的是「到目前为止见过的所有长度」，
+<code>max(L)</code> 在循环里<strong>一路变大</strong>，
+于是每个「当时的最大值」都被收进了 <code>K</code>：
+样例里 <code>K</code> 会变成 <code>[0,1,2,…]</code>（<code>li</code>、<code>wang</code>、<code>zhang</code>
+都曾当过最大值），<code>min(K)</code> 取回最早的 <code>0</code> → 打印 <code>li</code>。<br>
+<strong>「先收并列者再取最小下标」本身没错，错在收的时候还不知道真正的最长长度。</strong>
+</div>
+
+<div class="box warn">
+<strong>这次的坑是 ❌14 的镜像</strong><br>
+❌14 是「该出循环的 <code>print</code> 留在了循环里」，
+这次是「该在循环里的判断<strong>跑到了循环外</strong>」。共同点是
+<strong>Python 没有块作用域</strong>：<code>for</code> 的变量（<code>i</code>、<code>ch</code>）
+出了循环还活着，所以缩进错了<strong>不会报「名字不存在」，而是安静地用最后一条数据算错</strong>。<br>
+<strong>自检信号</strong>：答案只由「最后一条」决定 ——
+样例恰好错、或者只有 N=1 能过，就是这个毛病。
+</div>
+
+<div class="box ok">
+<strong>实测验收</strong>（8 组，期望值由独立实现算出：先求最长长度，再取第一个达到它的下标）<br>
+· 题面样例 ✅ → <code>The longest is: zhang</code><br>
+· <strong>并列在前</strong> <code>aaa/bb/ccc</code> → <code>aaa</code>
+｜ <strong>全长相同</strong> <code>ab/cd/ef</code> → <code>ab</code><br>
+· <strong>最后一条不是最长</strong> <code>aaaa/b/c</code> → <code>aaaa</code>（第一版在这里崩）
+｜ <strong>最长在中间</strong> <code>a/bbbb/c/d</code> → <code>bbbb</code>
+｜ <strong>最长在最后</strong> <code>a/b/cccc</code> → <code>cccc</code><br>
+· <strong>两端</strong>：N=1 → <code>x</code>；长度上限 <strong>79 个字符</strong>且并列 →
+取先输入的那条 79 个 <code>a</code><br>
+· <code>py_compile</code> 通过 ｜ PTA <strong>通过</strong>（进度 36/89）
 </div>
 
 <h2 id="quick">七、速查总表</h2>
