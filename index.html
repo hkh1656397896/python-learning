@@ -104,7 +104,7 @@
 -->
 
 <h1>Python 自学笔记</h1>
-<p class="meta">hkh ｜ 更新 2026-10-11 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">15</span> 题（浙大版《Python 程序设计》题目集）</p>
+<p class="meta">hkh ｜ 更新 2026-10-11 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">16</span> 题（浙大版《Python 程序设计》题目集）</p>
 
 <nav id="toc">
   <div class="toc-head">目录　<span class="toc-hint">点标题展开 · 点条目直接跳</span></div>
@@ -189,7 +189,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>六、真题回顾 <span class="toc-n" id="cr">32</span></summary>
+    <summary>六、真题回顾 <span class="toc-n" id="cr">33</span></summary>
     <ol>
       <li><a onclick="return go('review-1')">1-1 从键盘输入两个数求和</a></li>
       <li><a onclick="return go('review-2')">1-2 按公式输出 b²−4ac</a></li>
@@ -223,6 +223,7 @@
       <li><a onclick="return go('review-30')">3-13 字符串替换（字母表倒过来）</a></li>
       <li><a onclick="return go('review-31')">3-14 字符串字母大小写转换</a></li>
       <li><a onclick="return go('review-32')">3-15 统计一行文本的单词个数</a></li>
+      <li><a onclick="return go('review-33')">3-16 删除重复字符</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -2944,6 +2945,62 @@ chr(155 - ord("A"))                  # 'Z'      ← 65 + 90 = 155，首尾码点
 不用额外写"不是中文"的条件。
 </div>
 
+
+<p><strong>ASCII 表长什么样（128 个格子，0 ~ 127）</strong></p>
+<p>ASCII 是"<strong>字符 ↔ 编号</strong>"的对照表。用<strong>7 个二进制位</strong>表示，
+所以正好 <code>2^7 = 128</code> 个（现代一个字节是 8 位，最高位空着，所以 0~127 之外不属于 ASCII）。</p>
+<pre><code>0   ~ 31   ：控制字符（不可打印）—— 换行、制表符在这一段
+32  ~ 47   ：空格 + 一批标点
+48  ~ 64   ：数字 + 又一批标点
+65  ~ 127  ：大写字母、标点、小写字母
+
+实测（控制字符打印出来看不见，所以用 repr 看）：
+    ord 9  = 制表符 TAB   repr='\t'
+    ord 10 = 换行 LF      repr='\n'
+    ord 13 = 回车 CR      repr='\r'
+    ord 32 = 空格         repr=' '</code></pre>
+<div class="box warn">
+<strong>标点不是连续一块 —— 这是最容易记错的地方</strong>
+<table>
+<tr><th>区间</th><th>是什么</th><th>实测</th></tr>
+<tr><td>32 ~ 47</td><td>空格和前半批标点</td><td><code>' '</code>=32 <code>'!'</code>=33 <code>'#'</code>=35 <code>'.'</code>=46 <code>'/'</code>=47</td></tr>
+<tr><td>58 ~ 64</td><td><strong>夹在大写字母中间</strong>的一批标点</td><td><code>':'</code>=58 <code>'@'</code>=64</td></tr>
+<tr><td>91 ~ 96</td><td><strong>夹在小写字母中间</strong>的一批标点</td><td><code>'['</code>=91 <code>'\\'</code>=92 <code>']'</code>=93 <code>'_'</code>=95 <code>'`'</code>=96</td></tr>
+<tr><td>123 ~ 126</td><td>小写字母之后</td><td><code>'{'</code>=123 <code>'~'</code>=126</td></tr>
+</table>
+所以顺序是：<code>空格(32) &lt; 数字(48~57) &lt; 大写(65~90) &lt; 小写(97~122)</code>，
+<strong>标点散在中间</strong>。做题时遇到"含标点"的字符串，标点的位置就按这些编号定。
+</div>
+
+<div class="box bad">
+<strong>⚠️ Python 3 用的不是 ASCII，是 Unicode 码点（超集）</strong><br>
+ASCII 只管 0~127。中文、emoji 这些在 ASCII 里<strong>根本没有编号</strong>，它们只有 Unicode 码点：
+<table>
+<tr><th>字符</th><th><code>ord()</code></th><th>属于</th></tr>
+<tr><td><code>'A'</code></td><td>65</td><td>ASCII 范围</td></tr>
+<tr><td><code>'中'</code></td><td>20013</td><td>Unicode（超出 ASCII）</td></tr>
+<tr><td><code>'，'</code></td><td>65292</td><td>Unicode（超出 ASCII）</td></tr>
+<tr><td><code>'😀'</code></td><td>128512</td><td>Unicode（超出 ASCII）</td></tr>
+</table>
+<strong>所以前面说的"比较用的是码点"更准确</strong>：英文和数字范围内，
+<strong>码点 == ASCII 值</strong>（两者完全一致）；中文等字符只有码点，没有 ASCII 值。<br>
+这带来一个实际好处：<code>"A" &lt;= c &lt;= "Z"</code> 这类区间判断<strong>天然把中文排除在外</strong>。
+</div>
+
+<div class="box ok">
+<strong>题目说"按 ASCII 码顺序"时，直接写 <code>sorted()</code> 就行（实测）</strong><br>
+第 3-16 题要求"去重后按 ASCII 码顺序从小到大输出"。这句话是在<strong>说明排序口径</strong>，
+不是让去查表 —— 因为 Python 比字符<strong>本来</strong>就是按编号比的：
+<pre><code>'2' &lt; '3'      # True    ord 50 &lt; 51
+'3' &lt; 'a'      # True    ord 51 &lt; 97   数字排在字母前
+'a' &lt; 'b'      # True    ord 97 &lt; 98
+
+sorted(set("ad2f3adjfeainzzzv"))          # '23adefijnvz'   ← 默认就是 ASCII 顺序
+sorted(set("ad2f3adjfeainzzzv"), key=ord) # '23adefijnvz'   ← key=ord 是白写的，结果一样</code></pre>
+<strong>反过来，什么情况才需要手动管顺序</strong>：题目说"按出现次数排"、"按长度排"、
+"保持原顺序"时，那才要写 <code>key=</code> 或换数据结构（⑦、⑫）。
+</div>
+
 <div class="box warn">
 <strong>和已有小节的边界</strong><br>
 · <strong>㉖ 字符串怎么比大小</strong> —— 讲比较规则（用的是这里的编号）；
@@ -3295,7 +3352,7 @@ if m!=v[17]:                      # ② 索引</code></pre>
 ② 两边同时改，很容易出现"本地一份、提交另一份"，而且极难发现
 </div>
 
-<h2 id="review">六、真题回顾（<span id="cr2">32</span> 题）</h2>
+<h2 id="review">六、真题回顾（<span id="cr2">33</span> 题）</h2>
 
 <div class="box warn">
 <strong>说明：</strong>下面的题目要求是<strong>我按自己的理解概括写的</strong>，不是 PTA 原文。<br>
@@ -4599,6 +4656,68 @@ print(x)                  输出个数</code></pre>
 · <strong>制表符分隔</strong> <code>a\tb\tc</code> → <code>3</code> ｜ 数字 <code>123 456</code> → <code>2</code>
 ｜ 中英混排 <code>hello 世界 ok</code> → <code>3</code><br>
 · <code>py_compile</code> 通过 ｜ PTA <strong>一次通过</strong>（进度 32/89）
+</div>
+
+<h3 id="review-33">3-16 删除重复字符 <span class="tag">一次通过</span></h3>
+<p><strong>要求：</strong>输入一个非空字符串（&lt;80 字符，以回车结束），
+<strong>去掉重复的字符</strong>后，按 <strong>ASCII 码顺序从小到大</strong>排序输出。<br>
+<strong>样例：</strong><code>ad2f3adjfeainzzzv</code> → <code>23adefijnvz</code>
+（19 个字符 → 10 种不同的字符）</p>
+<p><strong>我的代码（一次通过）</strong></p>
+<pre><code>m=input()             读入一整行（题目说非空、少于 80 字符）
+L=[]                  L：准备装【每种不同的字符各一个】（去重后的结果）
+for i in m:           逐字符看
+    if i not in L:    这个字符还没进过 L —— "不在里面"就说明是【第一次遇到】（㉑ 的 in）
+        L.append(i)   第一次遇到才收进去（已经有的就跳过，等于去重）
+y=sorted(L)           按字符【编号】排序 —— 题目说的「ASCII 码顺序」就是这个（㉙）
+x="".join(y)          把列表拼回一个字符串（㉒ join）
+print(x)              输出</code></pre>
+
+<div class="box ok">
+<strong>"按 ASCII 码顺序"不用查表 —— <code>sorted()</code> 默认就是这个口径</strong><br>
+题目这句话是在<strong>说明排序规则</strong>，不是让去翻 128 个格子。实测：
+<pre><code>'2' &lt; '3'      # True    ord 50 &lt; 51
+'3' &lt; 'a'      # True    ord 51 &lt; 97   数字排在字母前
+sorted(set(s))            # '23adefijnvz'
+sorted(set(s), key=ord)   # '23adefijnvz'   ← 结果一样，key=ord 是白写的</code></pre>
+（ASCII 表的全貌、四段划分、标点为什么夹在字母中间，见 <strong>㉙</strong>。）
+</div>
+
+<p><strong>优化用法：</strong>① <strong>去重最省事的是 <code>set()</code></strong>：
+<code>"".join(sorted(set(m)))</code> 两行就够，不用自己写循环 + <code>not in</code>；<br>
+② <strong><code>if i not in L</code> 是 O(n²)</strong>：每遇到一个字符都要把 <code>L</code> 从头扫一遍，
+而 <code>set</code> 是哈希查找 O(1)。实测（260 字符、200 次）：
+手工 <code>in</code> 判断 <strong>0.0027 秒</strong> vs <code>set()</code> <strong>0.0004 秒</strong>，<strong>快 7 倍</strong>
+（题面只有 &lt;80 字符，两种都够用 —— 但知道差别在哪有价值）；<br>
+③ 循环里 <code>L.append(i)</code> 和 <code>if i not in L</code> 是配套的，
+如果只是想"每个字符留一个"，<code>set</code> 更直接；<br>
+④ 变量名 <code>L</code> / <code>y</code> / <code>x</code> 看不出是什么，叫
+<code>uniq</code> / <code>ordered</code> / <code>result</code> 更清楚（❌8）；<br>
+⑤ 这题的"去重"要的是<strong>内容去重</strong>，不是"删掉紧挨着的重复" ——
+<code>ad2f3ad…</code> 里两个 <code>a</code> 隔得很远，照样只留一个。</p>
+
+<div class="box warn">
+<strong>两个容易看错的地方</strong><br>
+① <strong>去重 ≠ 删掉所有重复字符</strong>：是<strong>每种不同的字符留一个</strong>。
+实测 19 个字符 → <code>set</code> 后只剩 <strong>10 种</strong>；<br>
+② <strong>排序看字符编号，不看出现次数</strong>：样例里 <code>z</code> 出现 3 次却排最后
+（ord 122 最大），<code>2</code> 只出现 1 次却排最前（ord 50 最小）。<br>
+<strong>顺带一个"标点/空格"的位置</strong>（㉙）：空格 ord=32 <strong>比数字还小</strong>，
+所以含空格的输入会把空格排在最前面（实测 <code>"a b c!"</code> → <code>" !abc"</code>）。
+</div>
+
+<div class="box ok">
+<strong>实测验收</strong>（14 组，与独立实现对照：那份用 <code>dict</code> 去重 +
+<code>sort(key=ord)</code> 显式声明口径）<br>
+· 样例 ✅ → <code>23adefijnvz</code> ｜ 全是同一字符 <code>aaaa</code> → <code>a</code><br>
+· 已有序 <code>abc</code> → <code>abc</code> ｜ 逆序 <code>zyx</code> → <code>xyz</code><br>
+· <strong>大小写混</strong> <code>aAbB</code> → <code>ABab</code>（大写 ord 65/66 在前）
+｜ <strong>大小写同字母</strong> <code>aAaAaA</code> → <code>Aa</code><br>
+· <strong>数字字母混</strong> <code>9a1Z</code> → <code>19Za</code> ｜ 数字倒序 <code>9876543210</code> → <code>0123456789</code><br>
+· <strong>含空格和标点</strong> <code>a a!</code> → <code>" !a"</code>（<strong>空格排最前</strong>）；
+<code>a b c!</code> → <code>" !abc"</code><br>
+· 纯标点 <code>!@#$%^&amp;*()</code> → <code>!#$%&amp;()*@^</code> ｜ 79 字符上限 → 正确去重<br>
+· <code>py_compile</code> 通过 ｜ PTA <strong>一次通过</strong>（进度 33/89）
 </div>
 
 <h2 id="quick">七、速查总表</h2>
