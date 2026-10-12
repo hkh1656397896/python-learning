@@ -206,7 +206,8 @@
       <li><a onclick="return go('quick-1')">① 内置函数总表</a></li>
       <li><a onclick="return go('quick-2')">② 方法总表（字符串 / 列表 / 字典）</a></li>
       <li><a onclick="return go('quick-3')">③ 格式化与输出参数</a></li>
-      <li><a onclick="return go('quick-4')">④ 用途分类索引（把「二、常用代码」20 节按用途归位）</a></li>
+      <li><a onclick="return go('quick-4')">④ 用途分类索引（把「二、常用代码」25 节按用途归位）</a></li>
+      <li><a onclick="return go('quick-5')">⑤ 对象 × 操作 对照表（谁有哪个能力）</a></li>
     </ol>
   </details>
 </nav>
@@ -2387,6 +2388,35 @@ for k, v in cnt.items():      # 用 items() 同时拿键和值
 <strong>PTA 上要 <code>import</code> 也完全没问题</strong>，但先把字典那套手写熟 —— 那是能迁移的。
 </div>
 
+<div class="box warn">
+<strong>补充：<code>count()</code> 的作用对象 —— 字符串 / 列表 / 元组有，<strong>字典没有</strong></strong>
+<pre><code>"banana".count("a")     # 3     数【子串】出现几次
+[1, 2, 2, 3].count(2)  # 2     数【元素】出现几次
+(1, 2, 2).count(2)     # 2     元组也有
+{}.count               # ❌ 字典没有 count 方法</code></pre>
+<strong>格式永远是 <code>谁.count(要找的东西)</code></strong> —— 点号前是"从哪儿数"，括号里是"数什么"。<br>
+<strong>两个细节：</strong><br>
+① <strong>字符串数的是子串，而且不管重叠</strong>：<code>"aaaa".count("aa")</code> → <code>2</code>
+（4 个 a，但只有 2 个不重叠的 aa）；找不到给 <code>0</code>，不报错。<br>
+② <strong>列表要求类型也一致</strong>：<code>[1, 2, "2"].count(2)</code> → <code>1</code>
+（字符串 <code>'2'</code> 不算）—— 和 ❌11「整数 ≠ 字符串」同一个根。<br>
+<strong>性能：它每次调用都把整个列表重扫一遍。</strong>统计 10000 个数各自的次数，
+<code>count</code> 路线 <strong>0.0590 秒</strong> vs 字典路线 <strong>0.0008 秒</strong>，<strong>慢 72 倍</strong>
+（N 个不同的数就要扫 N 遍 = N² 级；字典是一趟扫完 = N 级）。
+</div>
+
+<div class="box ok">
+<strong>三个容易混的工具，分工看这张表</strong>
+<table>
+<tr><th>工具</th><th>回答什么问题</th><th>能不能用（作用对象）</th></tr>
+<tr><td><code>len(x)</code></td><td>一共几个</td><td>字符串 / 列表 / 元组 / 字典 / range…（<strong>单个数字不行</strong>，见 ⑩）</td></tr>
+<tr><td><code>x.count(东西)</code></td><td>某个东西出现几次</td><td>字符串 / 列表 / 元组（<strong>字典没有</strong>）</td></tr>
+<tr><td><code>Counter(x)</code></td><td>所有东西各几次（一次算完）</td><td>任何可迭代，要 <code>import</code></td></tr>
+</table>
+实测：<code>len("banana")</code> → <code>6</code>；<code>"banana".count("a")</code> → <code>3</code>；
+<code>Counter("banana")</code> → <code>Counter({'a': 3, 'n': 2, 'b': 1})</code>。
+</div>
+
 <h2 id="star">三、符号速查：* 和 []</h2>
 
 <h3 id="star-1">——— 第一部分：星号 <code>*</code> ———</h3>
@@ -3441,6 +3471,19 @@ if yes==0:                                      # 一个数字都没有
 这一章是三张<strong>按用途分类</strong>的总表 —— 想不起某个功能叫什么、该用哪个，从这儿往回找。
 <strong>表里的输出全部实测过（Python 3.9.0）。</strong></p>
 
+<div class="box warn">
+<strong>读表规则（先说清，免得用错）：</strong><br>
+· 这一章里凡是<strong>没有点号</strong>的（<code>len</code>、<code>int</code>、<code>max</code>、<code>sorted</code>、
+<code>map</code>…）都是<strong>内置函数</strong>：写成 <code>函数名(要处理的东西)</code> ——
+<strong>东西放在括号里</strong>，所以它们<strong>不挑对象</strong>，能吃就吃
+（<code>len</code> 能吃列表和字符串，<code>int</code> 只吃字符串和数字）。<br>
+· 凡是<strong>有点号</strong>的（<code>.strip()</code>、<code>.append()</code>、<code>.get()</code>…）都是<strong>方法</strong>：
+写成 <code>谁.方法()</code> —— <strong>谁放在点号前面</strong>，所以它<strong>挑对象</strong>：
+<code>"a".strip()</code> 行，<code>[1].strip()</code> 报
+<code>AttributeError: 'list' object has no attribute 'strip'</code>。<br>
+· <strong>一句话：函数是「把东西交进去」，方法是「对点号前面那个东西动手」。</strong>
+</div>
+
 <h3 id="quick-1">① 内置函数总表</h3>
 
 <table>
@@ -3506,6 +3549,15 @@ if yes==0:                                      # 一个数字都没有
 <td><code>all([True, True])</code> <code>True</code>｜<code>any([False, True])</code> <code>True</code>｜<code>any([])</code> <code>False</code></td>
 <td>⑯；<code>all(c.isdigit() for c in s[:17])</code></td></tr>
 </table>
+
+<div class="box warn">
+<strong>这一张表全是方法，所以看第四列「用在哪」时，重点是<strong>谁来调它</strong>：</strong><br>
+<code>.strip()</code> <code>.isdigit()</code> <code>.upper()</code> → <strong>只能字符串调</strong>；
+<code>.append()</code> <code>.extend()</code> <code>.sort()</code> → <strong>只能列表调</strong>
+（字符串没有 append！）；
+<code>.get()</code> <code>.items()</code> → <strong>只能字典调</strong>。<br>
+<strong>最保险的记法：点号前面的东西就是它的作用对象。</strong>
+</div>
 
 <h3 id="quick-2">② 方法总表（字符串 / 列表 / 字典）</h3>
 
@@ -3598,7 +3650,7 @@ if yes==0:                                      # 一个数字都没有
 <tr><td><code>print(x, end="")</code></td><td>不换行，下次接着写</td><td>⑨；2-14、3-1 末尾那个空格</td></tr>
 </table>
 
-<h3 id="quick-4">④ 用途分类索引（把「二、常用代码」20 节按用途归位）</h3>
+<h3 id="quick-4">④ 用途分类索引（把「二、常用代码」25 节按用途归位）</h3>
 
 <table>
 <tr><th>想知道的事</th><th>看哪几节</th></tr>
@@ -3626,6 +3678,48 @@ if yes==0:                                      # 一个数字都没有
 <tr><td><strong>怎么控制流程走法</strong></td>
 <td>⑤ 条件判断与分段｜⑯ 循环外判断「全部合格」｜⑲ continue 与卫语句</td></tr>
 </table>
+
+<h3 id="quick-5">⑤ 对象 × 操作 对照表（谁有哪个能力）</h3>
+
+<div class="box ok">
+<strong>为什么单列一张：<code>len</code> 能用、<code>.count</code> 不能用、<code>append</code> 更是没有 ——
+记「谁有什么」比记「这些名字」更容易用对。</strong>
+</div>
+
+<table>
+<tr><th>操作</th><th>字符串 <code>str</code></th><th>列表 <code>list</code></th><th>元组 <code>tuple</code></th><th>字典 <code>dict</code></th><th>数字 <code>int/float</code></th></tr>
+<tr><td><code>len(x)</code></td><td>✅ 字符数</td><td>✅ 元素数</td><td>✅ 元素数</td><td>✅ 键的个数</td><td>❌ <code>TypeError</code></td></tr>
+<tr><td><code>x[i]</code> 按下标</td><td>✅ 取一个字符</td><td>✅ 取一个元素</td><td>✅ 取一个元素</td><td>❌ 报 <code>KeyError</code></td><td>❌</td></tr>
+<tr><td><code>x[a:b]</code> 切片</td><td>✅</td><td>✅</td><td>✅</td><td>❌</td><td>❌</td></tr>
+<tr><td><code>for ... in x</code></td><td>✅ 给字符</td><td>✅ 给元素</td><td>✅ 给元素</td><td>⚠️ 给<strong>键</strong></td><td>❌</td></tr>
+<tr><td><code>x.count(东西)</code></td><td>✅ 子串次数</td><td>✅ 元素次数</td><td>✅ 元素次数</td><td>❌ 没有</td><td>❌</td></tr>
+<tr><td><code>东西 in x</code></td><td>✅ 子串在不在</td><td>✅ 元素在不在</td><td>✅</td><td>✅ <strong>键</strong>在不在</td><td>❌</td></tr>
+<tr><td><code>sorted(x)</code></td><td>✅ 返回字符列表</td><td>✅ 新列表</td><td>✅ 新列表</td><td>⚠️ 排<strong>键</strong></td><td>❌ 单个数字不行</td></tr>
+<tr><td><code>x.append(东西)</code></td><td>❌ 没有</td><td>✅ 末尾加一个</td><td>❌ 没有</td><td>❌ 没有</td><td>❌</td></tr>
+<tr><td><code>x.sort()</code></td><td>❌ 没有</td><td>✅ 原地排</td><td>❌ 没有</td><td>❌ 没有</td><td>❌</td></tr>
+<tr><td><code>x.strip()</code></td><td>✅ 去首尾空白</td><td>❌ 没有</td><td>❌ 没有</td><td>❌ 没有</td><td>❌</td></tr>
+<tr><td><code>x.get(键)</code></td><td>❌ 没有</td><td>❌ 没有</td><td>❌ 没有</td><td>✅ 取不到给默认值</td><td>❌</td></tr>
+<tr><td><strong>能改吗</strong></td><td>❌ <strong>不可变</strong>（方法都返回新串）</td><td>✅ 可改（<code>append</code>/<code>sort</code> 原地改）</td>
+<td>❌ <strong>不可变</strong></td><td>✅ 可增删键</td><td>❌ 不可变</td></tr>
+</table>
+
+<div class="box bad">
+<strong>⚠️ 三条从这张表直接读出来的结论（都踩过）：</strong><br>
+① <strong>字典按下标会报错</strong>：<code>{"a":1}[0]</code> → <code>KeyError</code> ——
+字典用<strong>键</strong>取东西，不能用序号（㉔）；<br>
+② <strong>字符串不可变，所以没有 <code>append</code> 也没有 <code>sort</code></strong> ——
+要"改"字符串只能<strong>重新拼一个</strong>（<code>"".join(...)</code>，㉒）；<br>
+③ <strong><code>for x in 字典</code> 给的是键</strong>，要键值对得用 <code>.items()</code>（㉔）。
+</div>
+
+<div class="box warn">
+<strong>怎么快速查「这个对象有没有这个方法」：</strong>用 <code>dir(东西)</code>
+<pre><code>dir("a")      # 一长串字符串的方法（含 'count', 'strip', 'isdigit' …）
+dir([1])      # 列表的方法（含 'append', 'sort' …）
+hasattr([1], "strip")     # False   <- 直接问"有没有"
+hasattr("a", "strip")     # True</code></pre>
+<strong>拿不准时先 <code>hasattr</code> 问一句，比报错再回头翻快得多。</strong>
+</div>
 
 <div class="box ok">
 <strong>找不到东西时的顺序：</strong>
