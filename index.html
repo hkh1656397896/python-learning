@@ -128,7 +128,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>二、常用代码与拓展 <span class="toc-n" id="cs">27</span></summary>
+    <summary>二、常用代码与拓展 <span class="toc-n" id="cs">28</span></summary>
     <ol>
       <li><a onclick="return go('s1-1')">① 读一行数字</a></li>
       <li><a onclick="return go('s1-2')">② range()：生成数字序列</a></li>
@@ -157,6 +157,7 @@
       <li><a onclick="return go('s1-25')">㉕ 频次统计：怎么数「谁出现得最多」</a></li>
       <li><a onclick="return go('s1-26')">㉖ 字符串怎么比大小（和「按什么排序」）</a></li>
       <li><a onclick="return go('s1-27')">㉗ 竖向输出：每行一个（和「竖着读进来再拼回去」）</a></li>
+      <li><a onclick="return go('s1-28')">㉘ 字符的对应与替换（五种工具怎么选）</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -226,7 +227,7 @@
       <li><a onclick="return go('quick-1')">① 内置函数总表</a></li>
       <li><a onclick="return go('quick-2')">② 方法总表（字符串 / 列表 / 字典）</a></li>
       <li><a onclick="return go('quick-3')">③ 格式化与输出参数</a></li>
-      <li><a onclick="return go('quick-4')">④ 用途分类索引（把「二、常用代码」27 节按用途归位）</a></li>
+      <li><a onclick="return go('quick-4')">④ 用途分类索引（把「二、常用代码」28 节按用途归位）</a></li>
       <li><a onclick="return go('quick-5')">⑤ 对象 × 操作 对照表（谁有哪个能力）</a></li>
     </ol>
   </details>
@@ -2750,6 +2751,91 @@ print(sum(map(int, L)))      # 当数字用时先转 int（❌11：'1' 不等于
 （和「三、符号速查」里 <code>*</code> 的"摊开 / 收拢"是同一个思路。）
 </div>
 
+<h3 id="s1-28">㉘ 字符的对应与替换（五种工具怎么选）</h3>
+
+<p><strong>「对应」= 拿一个东西去查出另一个东西；「替换」= 把串里的某些字符换成别的。</strong>
+两件事各有一组工具，选错的后果是<strong>"能跑但换错对象"</strong>（比如把子串替换当成了逐字符映射）。</p>
+
+<div class="box ok">
+<strong>一句话选型表</strong>
+<table>
+<tr><th>要干的事</th><th>用哪个</th><th>关键点</th></tr>
+<tr><td>把<strong>一模一样的子串</strong>换掉</td><td><code>str.replace(旧, 新[, 次数])</code></td>
+<td>按<strong>子串</strong>匹配，区分大小写；<strong>从前往后一次换完，不回头</strong></td></tr>
+<tr><td>按<strong>单个字符</strong>一对一换很多个</td><td><code>str.translate(表)</code> + <code>str.maketrans</code></td>
+<td>表里<strong>没有的字符原样保留</strong>；值是 <code>None</code> 表示<strong>删掉</strong></td></tr>
+<tr><td><strong>字符 → 任意值</strong>（数字、单词…）</td><td>字典查表 + <code>.get(键, 默认值)</code></td>
+<td>用 <code>[键]</code> 查不存在的键会 <code>KeyError</code>；<code>get</code> 能给默认值</td></tr>
+<tr><td>按<strong>位置</strong>对应（权重、校验码）</td><td>列表下标 / <code>zip</code> 配对</td>
+<td>下标从 <strong>0</strong> 开始；两串一起走用 <code>zip</code>（⑳）</td></tr>
+<tr><td>按<strong>模式</strong>换（一组字符、有规则）</td><td><code>re.sub</code>，或生成器表达式自己拼</td>
+<td>简单情况<strong>不用 <code>import re</code></strong> 也能做（⑫）</td></tr>
+</table>
+</div>
+
+<p><strong>实测（Python 3.9）：</strong></p>
+<pre><code># ---- ① replace：按子串 ----
+"a-b-c".replace("-", "+")        # 'a+b+c'
+"a-b-c".replace("-", "+", 1)     # 'a+b-c'     第 3 个参数 = 最多换几次
+"aaa".replace("aa", "X")         # 'Xa'        一次换掉，不回头
+"abc".replace("z", "Y")          # 'abc'       找不到就不动
+"AbC".replace("a", "X")          # 'AbC'       ⚠️ 区分大小写
+
+# ---- ② translate：按单字符一对一 ----
+tbl = str.maketrans("abc", "123")    # 两个串必须【等长】：a→1, b→2, c→3
+"aabbcc".translate(tbl)          # '112233'
+"axb".translate(tbl)             # '1x2'       ⚠️ 表外的 x 原样保留
+
+d = {ord("a"): "1", ord("b"): None}  # 键是 ord()；值 None = 删掉
+"aabbcc".translate(d)            # '11cc'      b 被删了
+
+"a1b2c3".translate(str.maketrans("", "", "123"))   # 'abc'  第三个参数＝要删除的字符集
+
+# ---- ③ 字典查表 ----
+M = {"A": "10", "B": "11", "C": "12"}
+M["A"]                           # '10'
+M.get("Z")                       # None        ⚠️ 用 M["Z"] 会 KeyError
+M.get("Z", "?")                  # '?'
+"".join(M.get(c, c) for c in "ABZ")   # '1011Z'  表外的原样保留
+"".join(M[c] for c in "ABZ" if c in M) # '1011'   表外的丢掉
+
+# ---- ④ 按位置对应 ----
+weight = [7, 9, 10, 5, 8, 4, 2, 1, 6, 3, 7, 9, 10, 5, 8, 4, 2]
+weight[0]                        # 7          下标从 0 开始
+for a, b in zip("12", "AB"):     # 1↔A、2↔B   两个串一起走
+    print(a, b)
+
+# ---- ⑤ 按模式 ----
+import re
+re.sub(r"\d", "", "a1b22c333")        # 'abc'     删掉所有数字
+re.sub(r"\d+", "X", "a1b22c333")      # 'aXbXcX'  连续数字当一个整体
+"".join(c for c in "a1b22c333" if not c.isdigit())   # 'abc'  不用 re 的等价写法</code></pre>
+
+<div class="box bad">
+<strong>四个坑</strong><br>
+① <strong>返回值必须接住</strong>：<code>s.replace(...)</code> / <code>.translate(...)</code> /
+<code>re.sub(...)</code> <strong>都返回新串，原串一个字都不变</strong>。
+写 <code>s.replace("a", "b")</code> 单独一行 = 白换（❌13 的同类：忘了接返回值）。<br>
+② <strong>字典用 <code>[键]</code> 查之前先想清楚"键一定在吗"</strong>：
+不在会 <code>KeyError</code> 直接崩；<strong>不确定就用 <code>.get(键, 默认值)</code></strong>。
+（和 3-9 里 <code>find</code> 给 <code>-1</code> 是同一类问题：工具自己的"找不到"信号必须处理。）<br>
+③ <strong><code>replace</code> 是子串、<code>translate</code> 才是逐字符</strong>：
+<code>"ab".replace("ab", "X")</code> 换掉整个 <code>ab</code>；
+<code>"ab".translate(str.maketrans("ab", "XY"))</code> 是 a→X、b→Y <strong>各换各的</strong>。<br>
+④ <strong><code>maketrans</code> 两个串必须等长</strong>：<code>str.maketrans("ab", "1")</code>
+直接 <code>ValueError</code>（多了少了都不行）。
+</div>
+
+<div class="box warn">
+<strong>和已有小节的边界（别混）</strong><br>
+· <strong>⑮ 怎么实现「对应关系」（查表）</strong> —— 讲的是"怎么把对应关系建起来"（字典 vs 列表 vs 算式），
+本节讲的是"<strong>选哪个工具去换/去查</strong>"；<br>
+· <strong>㉑ 查找位置</strong>（<code>find</code>/<code>index</code>/<code>count</code>）——
+那是<strong>找在哪</strong>，不是替换；<br>
+· <strong>㉒ <code>join</code></strong> —— 负责把结果<strong>拼回去</strong>：
+<code>"".join(...)</code> 上面出现好几次，就是它。
+</div>
+
 <h2 id="star">三、符号速查：* 和 []</h2>
 
 <h3 id="star-1">——— 第一部分：星号 <code>*</code> ———</h3>
@@ -4323,9 +4409,9 @@ Python 的 <code>int</code> 没有溢出问题，<strong>真正要小心的是"�
 <td><code>"abc".upper()</code> <code>'ABC'</code>｜<code>"ABC".lower()</code> <code>'abc'</code></td>
 <td>⑮；字母不区分大小写时先统一</td></tr>
 
-<tr><td><code>.replace()</code></td><td>替换（第 3 个参数限次数）</td>
-<td><code>"a-b-c".replace("-", "+")</code> <code>'a+b+c'</code>｜<code>.replace("-", "+", 1)</code> <code>'a+b-c'</code></td>
-<td>⑮ 的亲戚；<strong>返回新字符串，要接住</strong></td></tr>
+<tr><td><code>.replace()</code> / <code>.translate()</code></td><td>替换：按<strong>子串</strong> / 按<strong>单字符一对一</strong></td>
+<td><code>"a-b-c".replace("-", "+")</code> <code>'a+b+c'</code>｜<code>.replace("-", "+", 1)</code> <code>'a+b-c'</code>｜<code>"aabbcc".translate(str.maketrans("abc","123"))</code> <code>'112233'</code></td>
+<td><strong>㉘</strong>；两者<strong>都返回新字符串，要接住</strong>；<code>translate</code> 表外字符原样保留</td></tr>
 
 <tr><td><code>.zfill()</code></td><td>左边补 0 到指定位数</td>
 <td><code>"7".zfill(3)</code> <code>'007'</code></td>
@@ -4376,7 +4462,7 @@ Python 的 <code>int</code> 没有溢出问题，<strong>真正要小心的是"�
 <tr><td><code>print("\\n".join(L))</code></td><td>同上，但<strong>只吃字符串</strong>（数字要 <code>map(str, …)</code>）</td><td>㉗；想先拼成一个串再用</td></tr>
 </table>
 
-<h3 id="quick-4">④ 用途分类索引（把「二、常用代码」27 节按用途归位）</h3>
+<h3 id="quick-4">④ 用途分类索引（把「二、常用代码」28 节按用途归位）</h3>
 
 <table>
 <tr><th>想知道的事</th><th>看哪几节</th></tr>
@@ -4392,6 +4478,10 @@ Python 的 <code>int</code> 没有溢出问题，<strong>真正要小心的是"�
 
 <tr><td><strong>怎么处理字符串</strong></td>
 <td>④ 字符串↔数字↔进制｜⑰ 切片 vs range｜⑱ strip 清理｜⑳ enumerate 找位置｜<strong>本表 ② 字符串方法</strong></td></tr>
+
+<tr><td><strong>怎么换字符、怎么建立对应</strong></td>
+<td><strong>㉘ 字符的对应与替换</strong>（replace / translate / 字典查表 / 按位置 / re.sub 怎么选）｜
+⑮ 查表（怎么把对应关系建起来）｜㉒ join（把结果拼回去）</td></tr>
 
 <tr><td><strong>怎么存和查数据</strong></td>
 <td>⑪ 遍历列表挑元素｜⑫ 列表推导式｜⑮ 查表（对应关系）｜⑳ append/元组/字典排序</td></tr>
