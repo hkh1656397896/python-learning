@@ -5136,8 +5136,11 @@ hasattr("a", "strip")     # True</code></pre>
 <td>判断文件名、结尾最常用</td></tr>
 
 <tr><td rowspan="4"><strong>转换</strong></td>
-<td><code>.upper()</code> / <code>.lower()</code></td><td><code>"aB".upper()</code><code>'AB'</code>｜<code>.lower()</code><code>'ab'</code></td>
-<td>全部变大/小写（⑱）</td></tr>
+<td><code>.upper()</code><br><code>.lower()</code></td>
+<td><strong>小写 → 大写：</strong><code>"abc".upper()</code> <code>'ABC'</code><br>
+<strong>大写 → 小写：</strong><code>"ABC".lower()</code> <code>'abc'</code><br>
+混合的整串也一起转：<code>"aBc".upper()</code> <code>'ABC'</code>、<code>.lower()</code> <code>'abc'</code></td>
+<td>把整串<strong>统一成一种</strong>（⑱）；<br><strong>两个方向各管一边</strong>，要"互换"用下面的 <code>swapcase</code></td></tr>
 <tr><td><code>.swapcase()</code></td><td><code>"Hello".swapcase()</code><code>'hELLO'</code></td>
 <td><strong>大小写互换</strong>（3-14 就靠它）</td></tr>
 <tr><td><code>.strip()</code> / <code>.lstrip()</code> / <code>.rstrip()</code></td>
