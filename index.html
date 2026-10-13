@@ -104,7 +104,7 @@
 -->
 
 <h1>Python 自学笔记</h1>
-<p class="meta">hkh ｜ 更新 2026-10-13 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">22</span> 题 + 第4章 <span id="c4">2</span> 题（浙大版《Python 程序设计》题目集）</p>
+<p class="meta">hkh ｜ 更新 2026-10-13 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">22</span> 题 + 第4章 <span id="c4">3</span> 题（浙大版《Python 程序设计》题目集）</p>
 
 <nav id="toc">
   <div class="toc-head">目录　<span class="toc-hint">点标题展开 · 点条目直接跳</span></div>
@@ -190,7 +190,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>六、真题回顾 <span class="toc-n" id="cr">41</span></summary>
+    <summary>六、真题回顾 <span class="toc-n" id="cr">42</span></summary>
     <ol>
       <li><a onclick="return go('review-1')">1-1 从键盘输入两个数求和</a></li>
       <li><a onclick="return go('review-2')">1-2 按公式输出 b²−4ac</a></li>
@@ -233,6 +233,7 @@
       <li><a onclick="return go('review-39')">3-22 输出大写英文字母</a></li>
       <li><a onclick="return go('review-40')">4-1 生成3的乘方表</a></li>
       <li><a onclick="return go('review-41')">4-2 统计素数并求和</a></li>
+      <li><a onclick="return go('review-42')">4-3 猴子吃桃问题</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -3594,7 +3595,7 @@ if m!=v[17]:                      # ② 索引</code></pre>
 ② 两边同时改，很容易出现"本地一份、提交另一份"，而且极难发现
 </div>
 
-<h2 id="review">六、真题回顾（<span id="cr2">41</span> 题）</h2>
+<h2 id="review">六、真题回顾（<span id="cr2">42</span> 题）</h2>
 
 <div class="box warn">
 <strong>说明：</strong>下面的题目要求是<strong>我按自己的理解概括写的</strong>，不是 PTA 原文。<br>
@@ -5694,6 +5695,77 @@ print(f"{yes} {sum(L)}")       一行输出「个数 和」，空格分隔（个
 · <strong>1500 组</strong>（1000 组随机 + 全部 500 个 <code>M=N</code>）：<strong>0 组不一致 ✅</strong><br>
 · <strong>最坏用时</strong> <code>1 500</code>：平均 <strong>0.0008 s</strong>（限制 400 ms）<br>
 · <code>py_compile</code> 通过 ｜ PTA <strong>通过</strong>（进度 41/89）
+</div>
+
+<h3 id="review-42">4-3 猴子吃桃问题 <span class="tag">通过</span></h3>
+<p><strong>要求：</strong>猴子第一天摘下若干桃子，当即吃了一半、又多吃一个；
+以后<strong>每天早上都吃掉前一天剩下的一半零一个</strong>。
+到<strong>第 N 天早上</strong>想再吃时，<strong>只剩下一个</strong>桃子 —— 问第一天共摘了多少个。
+输入 <code>1 &lt; N ≤ 10</code>；输出第一天摘的桃子数。<br>
+<strong>样例：</strong><code>N = 3</code> → <code>10</code>
+（第 3 天剩 1 个 → 第 2 天有 4 个 → 第 1 天有 10 个）</p>
+
+<p><strong>我的代码（通过）</strong></p>
+<pre><code>m=int(input())         读入 N（第 N 天早上发现只剩 1 个的那个 N）
+x=1                    起点：最后一天剩 1 个 —— 从【终点】开始，往回推
+for i in range(1,m):   往回推 m-1 次（从第 N 天推到第 1 天）
+    x=x+3*2**(i-1)     等价于「前一天 = 2 ×（后一天 + 1）」的闭式累加（两种写法实测等价，见优化用法）
+print(x)               输出第一天一共摘了多少个</code></pre>
+
+<p><strong>优化用法：</strong>① <strong>直译题意的写法是「倒推」</strong>：
+<code>前一天 = 2 ×（后一天 + 1）</code>，也就是 <code>x = 2 * (x + 1)</code> ——
+因为「吃掉一半又多吃一个」就是 <code>x/2 - 1 = 后一天</code>，反解即得。
+好处是<strong>改规则只改这一行</strong>（比如「多吃两个」就改成 <code>x = 2*(x+2)</code>）；<br>
+② 还能压成一行闭式：<code>print(3*2**(m-1)-2)</code> —— 与循环版<strong>实测等价</strong>，
+但它把 <code>3</code> 和 <code>2</code> <strong>写死了</strong>，题目规则一变就废，
+所以只当「看懂了」的验证，不建议真交；<br>
+③ <strong>三种解法逐项对照（n = 2~10，实测完全相同）</strong>：
+<table>
+<tr><th>n</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th><th>10</th></tr>
+<tr><td>本题累加式</td><td>4</td><td><strong>10</strong></td><td>22</td><td>46</td><td>94</td>
+<td>190</td><td>382</td><td>766</td><td><strong>1534</strong></td></tr>
+<tr><td>倒推 <code>2*(x+1)</code></td><td>4</td><td>10</td><td>22</td><td>46</td><td>94</td>
+<td>190</td><td>382</td><td>766</td><td>1534</td></tr>
+<tr><td>闭式 <code>3·2^(n-1)-2</code></td><td>4</td><td>10</td><td>22</td><td>46</td><td>94</td>
+<td>190</td><td>382</td><td>766</td><td>1534</td></tr>
+</table>
+④ 命名上 <code>m</code>/<code>x</code> 可以更准：<code>n</code>（天数）、<code>peaches</code>（桃子数）；<br>
+⑤ 第 5 章学了 <code>def</code> 之后，这题就是一个<strong>递归</strong>：
+<code>f(1) = 1</code>、<code>f(n) = 2*(f(n-1)+1)</code> —— 到时可以回头重看这道题。</p>
+
+<div class="box ok">
+<strong>倒推法：什么时候用</strong><br>
+这题的特点是「<strong>过程规则清楚、终点明确、起点未知</strong>」——
+顺着算（从第一天往后推）需要先知道起点，但起点正是要求的；<br>
+逆着算（从第 N 天的 1 个往回推）每一步都能直接反解：<code>x/2 - 1 = 后一天</code> →
+<code>x = 2*(后一天 + 1)</code>。<br>
+<strong>判断依据</strong>：凡是「每天按同一规则变化，已知最后剩下多少、问一开始有多少」
+（猴子吃桃、存钱取钱、细菌繁殖倒推）都先想倒推。<br>
+<strong>实测的另一条规律</strong>：答案 4、10、22、46… 相邻两项的差是
+<code>6、12、24、48、96、192、384、768</code> —— 一路翻倍，这正是 <code>×2+2</code> 倒推的指纹。
+</div>
+
+<div class="box warn">
+<strong>⚠️ <code>**</code> 的优先级：括号不能省</strong>
+<table>
+<tr><th>写法</th><th>实测值（i=3）</th><th>实际算的是</th></tr>
+<tr><td><code>3*2**(i-1)</code>（本题，有括号）</td><td><code>12</code></td>
+<td><code>3 × 2²</code> ✅</td></tr>
+<tr><td><code>3*2**i-1</code>（漏括号）</td><td><strong><code>23</code></strong></td>
+<td><code>(3 × 2³) − 1</code> ❌</td></tr>
+</table>
+<code>**</code> 比 <code>*</code> 和 <code>-</code> / <code>+</code> <strong>都先算</strong>。
+这和 ④「双星」那张表里的 <code>-1**2</code>（被当成 <code>-(1**2)</code>）是同一个坑的另一面。
+</div>
+
+<div class="box ok">
+<strong>实测验收</strong>（本题输入域只有 n = 2~10，直接<strong>全部穷举</strong>）<br>
+· 三种独立口径：<strong>本题累加式</strong> / <strong>倒推</strong> / <strong>正着暴力模拟</strong>
+（从 1 往上试，找第一个「第 n 天正好剩 1 个」的 X）—— 三种<strong>逐项完全一致 ✅</strong><br>
+· 样例 <code>n=3</code> → <code>10</code> ✅ ｜ 两端 <code>n=2</code> → <code>4</code>、
+<code>n=10</code> → <code>1534</code> ✅<br>
+· <strong>n = 2~10 共 9 组（= 整个输入域）全部通过 ✅</strong><br>
+· <code>py_compile</code> 通过 ｜ PTA <strong>通过</strong>（进度 42/89）
 </div>
 
 <h2 id="quick">七、速查总表</h2>
