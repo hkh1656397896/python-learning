@@ -104,7 +104,7 @@
 -->
 
 <h1>Python 自学笔记</h1>
-<p class="meta">hkh ｜ 更新 2026-10-11 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">21</span> 题（浙大版《Python 程序设计》题目集）</p>
+<p class="meta">hkh ｜ 更新 2026-10-11 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">22</span> 题（浙大版《Python 程序设计》题目集）</p>
 
 <nav id="toc">
   <div class="toc-head">目录　<span class="toc-hint">点标题展开 · 点条目直接跳</span></div>
@@ -190,7 +190,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>六、真题回顾 <span class="toc-n" id="cr">38</span></summary>
+    <summary>六、真题回顾 <span class="toc-n" id="cr">39</span></summary>
     <ol>
       <li><a onclick="return go('review-1')">1-1 从键盘输入两个数求和</a></li>
       <li><a onclick="return go('review-2')">1-2 按公式输出 b²−4ac</a></li>
@@ -230,6 +230,7 @@
       <li><a onclick="return go('review-36')">3-19 找最长的字符串</a></li>
       <li><a onclick="return go('review-37')">3-20 逆序的三位数</a></li>
       <li><a onclick="return go('review-38')">3-21 判断回文字符串</a></li>
+      <li><a onclick="return go('review-39')">3-22 输出大写英文字母</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -3591,7 +3592,7 @@ if m!=v[17]:                      # ② 索引</code></pre>
 ② 两边同时改，很容易出现"本地一份、提交另一份"，而且极难发现
 </div>
 
-<h2 id="review">六、真题回顾（<span id="cr2">38</span> 题）</h2>
+<h2 id="review">六、真题回顾（<span id="cr2">39</span> 题）</h2>
 
 <div class="box warn">
 <strong>说明：</strong>下面的题目要求是<strong>我按自己的理解概括写的</strong>，不是 PTA 原文。<br>
@@ -5461,6 +5462,92 @@ else:              不是回文
 · 中文 <code>上海自来水来自海上</code> → <code>Yes</code> ｜ 含制表符 <code>a</code>Tab<code>b</code>Tab<code>a</code> → <code>Yes</code><br>
 · <strong>大小写敏感</strong>：<code>Level</code> → <code>No</code>（题面没说忽略大小写，按字面比）<br>
 · <code>py_compile</code> 通过 ｜ PTA <strong>通过</strong>（进度 38/89）
+</div>
+
+<h3 id="review-39">3-22 输出大写英文字母 <span class="tag">通过</span></h3>
+<p><strong>要求：</strong>读入一行<strong>少于 80 个字符</strong>的字符串，
+<strong>按输入顺序</strong>输出其中出现过的<strong>大写英文字母</strong>，每个字母<strong>只输出一遍</strong>
+（一行连成串）；<strong>一个大写英文字母都没有</strong>就输出 <code>Not Found</code>。<br>
+<strong>样例1：</strong><code>FONTNAME and FILENAME</code> → <code>FONTAMEIL</code>
+（<code>FONTNAME</code> 给出 <code>FONTAME</code>，到 <code>FILENAME</code> 只剩 <code>I</code>、<code>L</code> 是新的）<br>
+<strong>样例2：</strong><code>fontname and filrname</code> → <code>Not Found</code>（全是小写）</p>
+
+<p><strong>我的代码（通过）</strong></p>
+<pre><code>import string                导入 string 模块 —— 只为了下一行那个现成的常量
+c=string.ascii_uppercase     c = 26 个大写英文字母 'ABC…XYZ'，当「是不是大写英文字母」的判据
+m=input()                    读入整行（只去掉行尾换行，串里的空格、大小写照原样）
+L=[]                         结果列表：按【首次出现的顺序】收集，天然保序
+yes=0                        计数器：记「一共出现过几个大写字母」，只用来回答「有没有」
+for i in m:                  逐字符过一遍（i 装的是字符，不是下标）
+    if i in c:               只处理大写英文字母（小写、数字、标点、中文都跳过）
+        yes+=1               是大写就 +1
+        if i in L:continue   这个字母已经收过 → continue 跳到下一轮（列表 in 是 O(n) 线性查找）
+        L.append(i)          没见过 → 追加进结果；append 原地改、返回 None，不用接
+if yes==0:                   一个大写都没有（这里其实可以直接看 L 空不空，见优化用法）
+    print("Not Found")       注意：首字母【大写】—— 3-18 那题是 'not found' 全小写，别记混
+else:                        有
+    x="".join(L)             把字符列表拼成一个字符串（join 只吃字符串，正好都是字符）
+    print(x)                 一行输出（不是分行、也不是空格分隔）</code></pre>
+
+<p><strong>优化用法：</strong>① <code>yes</code> 这个计数器<strong>是多余的</strong> ——
+「有没有」看 <code>L</code> 空不空就行：<code>if not L: print("Not Found")</code>。
+<strong>能「查有没有」就别「数个数」</strong>（3-18 的 <code>len(s)</code> 那次就是数错了）；<br>
+② <code>x = "".join(L)</code> 可以直接写进 <code>print</code>：<code>print("".join(L))</code>，少一个变量；<br>
+③ <strong>一句就能收工</strong>：<code>print("".join(L) or "Not Found")</code> ——
+空串是 <strong>falsy</strong>（实测 <code>bool("")</code> → <code>False</code>、<code>bool("A")</code> → <code>True</code>），
+所以 <code>or</code> 会给右边（<code>and</code>/<code>or</code> 是<strong>取值</strong>运算，见 ① 表）；
+实测 <code>"".join([]) or "Not Found"</code> → <code>'Not Found'</code>、
+<code>"".join(["F","O"]) or "Not Found"</code> → <code>'FO'</code>；<br>
+④ 还能更短：<code>print("".join(dict.fromkeys(ch for ch in m if ch in c)) or "Not Found")</code>
+—— <code>dict.fromkeys(可迭代对象)</code> 建字典时<strong>键按首次出现顺序</strong>，天然「去重 + 保序」
+（实测 <code>"".join(dict.fromkeys("ABAB"))</code> → <code>'AB'</code>，
+<code>"".join(dict.fromkeys(ch for ch in "FONTNAME and FILENAME" if ch in c))</code> → <code>'FONTAMEIL'</code>）；
+<strong>别用 <code>set</code> 去重</strong>：实测 <code>"".join(set("FONTNAME"))</code> → <code>'ANOMETF'</code>，
+顺序直接丢了（㉚ 那张容器表）；<br>
+⑤ <code>import string</code> 可以省：<code>c = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"</code> 完全等价；
+或者干脆写 <code>'A' &lt;= ch &lt;= 'Z'</code>（㉙ 字符编号那条）；<br>
+⑥ 去重的判据 <code>i in L</code> 是<strong>列表线性查找</strong>（O(n)）；
+要更快就 <code>set</code> 记「见过的」、列表只管顺序 —— <strong>两个容器分工</strong>，见 ㉚ 和 3-18。
+这题最多 79 个字符，两种都对。</p>
+
+<div class="box bad">
+<strong>⚠️ 这题最大的坑不在代码里，在两个长得极像的字符串</strong>
+<table>
+<tr><th>题目</th><th>要输出的字样</th><th>首字母</th></tr>
+<tr><td><strong>3-22</strong> 输出大写英文字母</td><td><code>Not Found</code></td>
+<td><strong>大写 <code>N</code>、大写 <code>F</code></strong></td></tr>
+<tr><td>3-18 输出10个不重复的英文字母</td><td><code>not found</code></td><td><strong>全小写</strong></td></tr>
+</table>
+两题隔了三道题、说法几乎一模一样，只有大小写不同 —— <strong>照抄题面</strong>，别凭记忆写。
+输出形状也钉死：<strong>一行连成串</strong>（<code>FONTAMEIL</code>），不是分行、也不是空格分隔。
+</div>
+
+<div class="box ok">
+<strong>「大写英文字母」三种判据（实测）</strong>
+<table>
+<tr><th>字符</th><th><code>in string.ascii_uppercase</code></th>
+<th><code>'A' &lt;= ch &lt;= 'Z'</code></th><th><code>ch.isupper()</code></th></tr>
+<tr><td><code>A</code> / <code>Z</code></td><td>True</td><td>True</td><td>True</td></tr>
+<tr><td><code>a</code> / <code>1</code> / <code>中</code> / <code>１</code>（全角数字）</td>
+<td>False</td><td>False</td><td>False</td></tr>
+<tr><td><code>Ä</code>（德文）</td><td>False</td><td>False</td><td><strong>True</strong> ⚠️</td></tr>
+<tr><td><code>Α</code>（希腊 Alpha）</td><td>False</td><td>False</td><td><strong>True</strong> ⚠️</td></tr>
+</table>
+<code>isupper()</code> 认的是 <strong>Unicode 大写</strong>，不是「英文字母」——
+测试数据里一旦出现非 ASCII 的大写字母，用它就会<strong>多收字符</strong>。
+要「大写<strong>英文</strong>字母」就用前两种（本题用的是第一种）。
+</div>
+
+<div class="box ok">
+<strong>实测验收</strong>（12 组单点 + <strong>2000 组随机对拍</strong>；独立实现用 <code>set</code> 记见过 + 列表保顺序）<br>
+· 样例1 <code>FONTNAME and FILENAME</code> → <code>FONTAMEIL</code> ✅
+｜ 样例2 全小写 → <code>Not Found</code> ✅<br>
+· 空串、只有空格 → <code>Not Found</code> ✅<br>
+· 全 26 个字母（正序 / 倒序）→ 原样输出 ✅ ｜ <code>AAAAABBBBB</code> → <code>AB</code> ✅<br>
+· 数字标点混 <code>1!2@A#3$B%</code> → <code>AB</code> ｜ 中文夹大写 <code>中文A中B</code> → <code>AB</code> ✅<br>
+· <strong>长度上限</strong>：79 个 <code>A</code> → <code>A</code>；78 个 <code>a</code> + <code>B</code> → <code>B</code> ✅<br>
+· 随机 2000 组（大写 / 小写 / 数字 / 空格 / 标点 / 中文 / Tab，长度 0~79）：<strong>0 组不一致 ✅</strong><br>
+· <code>py_compile</code> 通过 ｜ PTA <strong>通过</strong>（进度 39/89）
 </div>
 
 <h2 id="quick">七、速查总表</h2>
