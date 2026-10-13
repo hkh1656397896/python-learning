@@ -104,7 +104,7 @@
 -->
 
 <h1>Python 自学笔记</h1>
-<p class="meta">hkh ｜ 更新 2026-10-13 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">22</span> 题 + 第4章 <span id="c4">8</span> 题（浙大版《Python 程序设计》题目集）</p>
+<p class="meta">hkh ｜ 更新 2026-10-13 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">22</span> 题 + 第4章 <span id="c4">9</span> 题（浙大版《Python 程序设计》题目集）</p>
 
 <nav id="toc">
   <div class="toc-head">目录　<span class="toc-hint">点标题展开 · 点条目直接跳</span></div>
@@ -192,7 +192,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>六、真题回顾 <span class="toc-n" id="cr">47</span></summary>
+    <summary>六、真题回顾 <span class="toc-n" id="cr">48</span></summary>
     <ol>
       <li><a onclick="return go('review-1')">1-1 从键盘输入两个数求和</a></li>
       <li><a onclick="return go('review-2')">1-2 按公式输出 b²−4ac</a></li>
@@ -241,6 +241,7 @@
       <li><a onclick="return go('review-45')">4-6 输出前n个Fibonacci数</a></li>
       <li><a onclick="return go('review-46')">4-7 统计学生平均成绩与及格人数</a></li>
       <li><a onclick="return go('review-47')">4-8 求分数序列前N项和</a></li>
+      <li><a onclick="return go('review-48')">4-9 查询水果价格</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -3803,7 +3804,7 @@ if m!=v[17]:                      # ② 索引</code></pre>
 ② 两边同时改，很容易出现"本地一份、提交另一份"，而且极难发现
 </div>
 
-<h2 id="review">六、真题回顾（<span id="cr2">47</span> 题）</h2>
+<h2 id="review">六、真题回顾（<span id="cr2">48</span> 题）</h2>
 
 <div class="box warn">
 <strong>说明：</strong>下面的题目要求是<strong>我按自己的理解概括写的</strong>，不是 PTA 原文。<br>
@@ -6317,6 +6318,70 @@ print(f"{total:.2f}")   输出保留小数点后两位</code></pre>
 · <code>N=10000</code> → <code>16180.64</code>，用时 0.0081 s<br>
 · <code>N=0</code>（越界输入）→ <code>0.00</code>，不崩<br>
 · <code>py_compile</code> 通过 ｜ PTA <strong>通过</strong>（进度 47/89）
+</div>
+
+<h3 id="review-48">4-9 查询水果价格 <span class="tag">通过</span></h3>
+<p><strong>要求：</strong>四种水果单价 —— apple <code>3.00</code>、pear <code>2.50</code>、
+orange <code>4.10</code>、grape <code>10.20</code>（元/公斤）。<strong>先在屏幕上显示菜单</strong>
+（<code>[1] apple</code> … <code>[0] exit</code>），然后对用户的每个输入按
+<code>price = 价格</code> 输出（<strong>保留两位小数</strong>）。规则三条：
+<strong>① 连续查询次数超过 5 次 → 自动退出；② 不到 5 次而输入 0 → 退出；③ 输入其他编号 → 显示价格为 0</strong>。<br>
+<strong>样例1：</strong><code>3 -1 0 2</code> → <code>4.10</code>、<code>0.00</code>（<code>-1</code> 是"其他编号"）、
+到 <code>0</code> 就结束（后面的 <code>2</code> 不再查）<br>
+<strong>样例2：</strong>查到第 5 个就自动退出</p>
+
+<p><strong>我的代码（通过）</strong></p>
+<pre><code>print("[1] apple","[2] pear","[3] orange","[4] grape","[0] exit",sep='\n')   先打菜单：5 个字符串用 sep='\n' 竖着打（㉗ 竖向输出）
+x=list(map(int,input().split()))                                             把一行里的所有编号读成整数列表
+L=[1,2,3,4]                                                                  允许的编号（这个列表建了却没用到，见优化用法）
+K=[]                                                                         K：收集「要查询的编号」—— 注意 0 不会进来
+for i in x:                                                                  逐个数看
+    if i==0:break                                                            ★ 遇到 0 立刻 break —— 0 是【退出信号】，不是「查 0 号水果」
+    else:                                                                    不是 0 的才收
+        K.append(i)                                                          收进待查列表
+        if len(K)>=5:break                                                   已经收满 5 个 → 自动退出（题面：连续查询超过 5 次就结束）
+for m in K:                                                                  第二个循环：把收集到的编号逐个打印
+    if m==1:print("price = 3.00")                                            1 号 → apple
+    elif m==2:print("price = 2.50")                                          2 号 → pear
+    elif m==3:print("price = 4.10")                                          3 号 → orange
+    elif m==4:print("price = 10.20")                                         4 号 → grape
+    else:print("price = 0.00")                                               其他编号（-1、5、6…）→ 0.00（题面要求打 0，不是跳过）</code></pre>
+
+<p><strong>优化用法：</strong>① <code>L=[1,2,3,4]</code> <strong>建了却没用</strong>（判断用的是
+<code>m==1/2/3/4</code>）—— 属于"声明了不用的变量"，删掉更干净（也和 ❌8 那类"名字/内容不符"是一家的）；<br>
+② 两个循环其实可以合成一个（<strong>边判边打</strong>）：<code>for x in nums:</code> 里先 <code>if x==0: break</code>、
+再 <code>if cnt==5: break</code>、然后直接打印；本版分两步也对，<strong>因为 <code>0</code> 在收集阶段就 break 了</strong>
+（关键不在于几个循环，而在于"0 有没有被收进去"）；<br>
+③ 价格表用<strong>字典</strong>更短（㉔）：<code>P = {1: "3.00", 2: "2.50", 3: "4.10", 4: "10.20"}</code>
+→ 打印 <code>print(f"price = {P.get(m, '0.00')}")</code>，一行顶五条 <code>elif</code>；<br>
+④ 菜单也可以写成 <code>for s in [...]: print(s)</code> 或 <code>print(*菜单, sep="\n")</code>（㉗）；<br>
+⑤ 注意 <strong>"其他编号"也算一次查询</strong>（本版把它收进 <code>K</code>，与题面"连续查询次数"一致）；<br>
+⑥ 边界：第二行<strong>完全不存在</strong>时 <code>input()</code> 会 <code>EOFError</code>
+（PTA 一定会给一行，哪怕是空行 —— 实测空行没问题）。</p>
+
+<div class="box ok">
+<strong>这题的全部规则就是三张"开关"（实测边界全过）</strong>
+<table>
+<tr><th>输入</th><th>该做什么</th><th>实测</th></tr>
+<tr><td><code>0</code></td><td><strong>立刻退出，且不打印任何 price</strong></td>
+<td>输入 <code>0</code> → 只有菜单 ✅；<code>1 0 2</code> → 只打 1 条 ✅</td></tr>
+<tr><td><code>1~4</code></td><td>打印对应价格</td><td>四个编号各自正确 ✅</td></tr>
+<tr><td>其他（<code>-1、5、6…</code>）</td><td>打印 <code>price = 0.00</code>，<strong>不是跳过</strong></td>
+<td><code>5 6 7 8</code> → 四条 <code>0.00</code> ✅；<code>-1 -2</code> → 两条 <code>0.00</code> ✅</td></tr>
+<tr><td>已查满 5 次</td><td>后面的输入一律不再查</td><td><code>1 2 3 4 4 4 4</code> → 只出前 5 条 ✅</td></tr>
+</table>
+<strong>最容易写错的正是第一行</strong>：把 <code>0</code> 当成"查 0 号水果"（会打出一行
+<code>price = 0.00</code> 再继续读后面的输入）—— 那样样例1 会多出一行、还多查一个 <code>2</code>。
+</div>
+
+<div class="box ok">
+<strong>实测验收</strong>（独立口径：先打菜单，再按上面的三张"开关"逐 token 处理）<br>
+· 样例1 <code>3 -1 0 2</code> → 菜单 + <code>price = 4.10</code> + <code>price = 0.00</code>
+<strong>逐行一致</strong> ✅<br>
+· 样例2 <code>1 2 3 3 4 5 6 7 8</code> → 菜单 + <code>3.00 / 2.50 / 4.10 / 4.10 / 10.20</code>
+（5 条后自动退出）<strong>逐行一致</strong> ✅<br>
+· 边界 8 组（<code>0</code> 立刻退出、<code>0</code> 在中间、全部非法、超过 5 次、负数编号、空行）全过 ✅<br>
+· <code>py_compile</code> 通过 ｜ PTA <strong>通过</strong>（进度 48/89）
 </div>
 
 <h2 id="quick">七、速查总表</h2>
