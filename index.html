@@ -104,7 +104,7 @@
 -->
 
 <h1>Python 自学笔记</h1>
-<p class="meta">hkh ｜ 更新 2026-10-13 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">22</span> 题 + 第4章 <span id="c4">7</span> 题（浙大版《Python 程序设计》题目集）</p>
+<p class="meta">hkh ｜ 更新 2026-10-13 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">22</span> 题 + 第4章 <span id="c4">8</span> 题（浙大版《Python 程序设计》题目集）</p>
 
 <nav id="toc">
   <div class="toc-head">目录　<span class="toc-hint">点标题展开 · 点条目直接跳</span></div>
@@ -192,7 +192,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>六、真题回顾 <span class="toc-n" id="cr">46</span></summary>
+    <summary>六、真题回顾 <span class="toc-n" id="cr">47</span></summary>
     <ol>
       <li><a onclick="return go('review-1')">1-1 从键盘输入两个数求和</a></li>
       <li><a onclick="return go('review-2')">1-2 按公式输出 b²−4ac</a></li>
@@ -240,6 +240,7 @@
       <li><a onclick="return go('review-44')">4-5 求e的近似值</a></li>
       <li><a onclick="return go('review-45')">4-6 输出前n个Fibonacci数</a></li>
       <li><a onclick="return go('review-46')">4-7 统计学生平均成绩与及格人数</a></li>
+      <li><a onclick="return go('review-47')">4-8 求分数序列前N项和</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -3802,7 +3803,7 @@ if m!=v[17]:                      # ② 索引</code></pre>
 ② 两边同时改，很容易出现"本地一份、提交另一份"，而且极难发现
 </div>
 
-<h2 id="review">六、真题回顾（<span id="cr2">46</span> 题）</h2>
+<h2 id="review">六、真题回顾（<span id="cr2">47</span> 题）</h2>
 
 <div class="box warn">
 <strong>说明：</strong>下面的题目要求是<strong>我按自己的理解概括写的</strong>，不是 PTA 原文。<br>
@@ -6258,6 +6259,64 @@ print(f"count = {count}")              输出及格人数</code></pre>
 · <strong>N=0（两种形态）</strong>：输出正确，但随后 <code>NameError</code>（见上面盒子）<br>
 · <strong>200 组随机</strong>（N 1~2000，成绩 0~100）：0 组不一致 ✅<br>
 · <code>py_compile</code> 通过 ｜ PTA <strong>通过</strong>（进度 46/89）
+</div>
+
+<h3 id="review-47">4-8 求分数序列前N项和 <span class="tag">通过</span></h3>
+<p><strong>要求：</strong>计算序列 <code>2/1 + 3/2 + 5/3 + 8/5 + …</code> 的<strong>前 N 项之和</strong>。
+规则：<strong>从第 2 项起，每一项的分子 = 前一项的分子与分母之和，分母 = 前一项的分子</strong>。
+输出一行，<strong>精确到小数点后两位</strong>（题目保证结果不超过双精度范围）。<br>
+<strong>样例：</strong><code>20</code> → <code>32.66</code></p>
+
+<p><strong>我的代码（通过）</strong></p>
+<pre><code>N=int(input())          读入 N（题面是正整数）
+a,b=1,2                 分母 a = 1、分子 b = 2 —— 【分母在前、分子在后】，这样第一项就是 b/a = 2/1
+total=0.00              累加器（写 0.00 或 0.0 都是同一个浮点 0.0，Python 没有「定点数」）
+for _ in range(N):      一共加 N 项
+    total+=b/a          加上当前项 b/a（必须用 /，用 // 会全变 0 —— ㉛）
+    a,b=b,a+b           ★ 递推下一项：新的分母 = 旧分子 b，新的分子 = 旧分子 + 旧分母（⑧ 的元组同时赋值）
+print(f"{total:.2f}")   输出保留小数点后两位</code></pre>
+
+<p><strong>优化用法：</strong>① <strong>递推为什么恰好是 <code>a, b = b, a + b</code></strong>：
+把 <code>a</code> 当分母、<code>b</code> 当分子，题面那句"分子 = 前一项分子与分母之和、分母 = 前一项的分子"
+就正好是<strong>新的 a 取旧的 b、新的 b 取旧的 a + 旧的 b</strong> —— 和 ⑧ 里"前两项之和 = 第三项"
+是同一行（斐波那契式递推）；用元组同时赋值，<strong>拆成两句就会算错</strong>（⑧ 有实测对照）；<br>
+② 变量名可以更明确：<code>a, b</code> 谁是分子谁是分母容易记混，写成 <code>den, num</code>
+（分母 / 分子）会更防错；<br>
+③ <code>total = 0.00</code> 与 <code>0.0</code>、<code>0</code> 在 Python 里<strong>没有区别</strong>
+（都是浮点 0.0，Python 没有定点小数类型）——小数点后写几个 0 只是好看；<br>
+④ <strong>精度够用</strong>：实测 N = 1~1000 逐个与 <code>math.fsum</code>（正确舍入）、
+以及 1~60 的<strong>精确分数</strong>（<code>fractions.Fraction</code>）比对，<strong>结果全部一致</strong>
+—— 顺序累加在这题不会出问题；<br>
+⑤ 一个漂亮的性质：<strong>和 ≈ 1.618 × N</strong>（因为每一项都收敛到黄金比 φ），
+实测 N=10000 → <code>16180.64</code>；<br>
+⑥ 大 N 会变慢：<code>a</code>、<code>b</code> 是<strong>精确整数</strong>、位数随 N 线性增长
+（N=10000 用时 0.0081 s），题目保证双精度范围，所以不用担心。</p>
+
+<div class="box ok">
+<strong>这题一根线串起三节旧内容</strong>
+<table>
+<tr><th>用到</th><th>在哪</th></tr>
+<tr><td><code>a, b = b, a + b</code> —— 递推 + 元组同时赋值</td><td><strong>⑧ 累加与递推</strong></td></tr>
+<tr><td><code>total += b / a</code>（<code>+=</code>）、<code>/</code> 与 <code>//</code> 的区别</td>
+<td><strong>㉛ 复合赋值 / 阶乘与级数</strong></td></tr>
+<tr><td><code>f"{total:.2f}"</code> 保留两位小数</td><td>① 格式化输出 / 速查总表 ③</td></tr>
+</table>
+<strong>凡是"序列每一项由前一项推出来"的题</strong>（3-20 逆序、4-2 素数、4-3 猴子吃桃、4-5 求 e、
+4-6 斐波那契、4-8 这道）都先问一句：<strong>这一项能不能由上一项一步算出来？</strong>
+能，就写成递推，别每项从头重算。
+</div>
+
+<div class="box ok">
+<strong>实测验收</strong>（独立口径①顺序浮点累加 ②<code>math.fsum</code> 正确舍入 ③精确分数 <code>Fraction</code>）<br>
+· 样例 <code>N=20</code> → <code>32.66</code> ✅<br>
+· 边界：<code>N=1</code> → <code>2.00</code>｜<code>N=2</code> → <code>3.50</code>｜
+<code>N=3</code> → <code>5.17</code> ✅<br>
+· <strong>N = 1~1000 全扫</strong>：与口径①<strong>0 组不一致</strong>、与口径②<strong>0 组不一致</strong> ✅<br>
+· <strong>N = 1~60 与精确分数口径</strong>：0 组不一致 ✅（说明浮点累加在这题足够稳）<br>
+· 两个参考口径彼此也<strong>没有分歧</strong>（没有踩到"四舍五入边界"的用例）<br>
+· <code>N=10000</code> → <code>16180.64</code>，用时 0.0081 s<br>
+· <code>N=0</code>（越界输入）→ <code>0.00</code>，不崩<br>
+· <code>py_compile</code> 通过 ｜ PTA <strong>通过</strong>（进度 47/89）
 </div>
 
 <h2 id="quick">七、速查总表</h2>
