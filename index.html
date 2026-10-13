@@ -104,7 +104,7 @@
 -->
 
 <h1>Python 自学笔记</h1>
-<p class="meta">hkh ｜ 更新 2026-10-13 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">22</span> 题 + 第4章 <span id="c4">3</span> 题（浙大版《Python 程序设计》题目集）</p>
+<p class="meta">hkh ｜ 更新 2026-10-13 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">22</span> 题 + 第4章 <span id="c4">4</span> 题（浙大版《Python 程序设计》题目集）</p>
 
 <nav id="toc">
   <div class="toc-head">目录　<span class="toc-hint">点标题展开 · 点条目直接跳</span></div>
@@ -190,7 +190,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>六、真题回顾 <span class="toc-n" id="cr">42</span></summary>
+    <summary>六、真题回顾 <span class="toc-n" id="cr">43</span></summary>
     <ol>
       <li><a onclick="return go('review-1')">1-1 从键盘输入两个数求和</a></li>
       <li><a onclick="return go('review-2')">1-2 按公式输出 b²−4ac</a></li>
@@ -234,6 +234,7 @@
       <li><a onclick="return go('review-40')">4-1 生成3的乘方表</a></li>
       <li><a onclick="return go('review-41')">4-2 统计素数并求和</a></li>
       <li><a onclick="return go('review-42')">4-3 猴子吃桃问题</a></li>
+      <li><a onclick="return go('review-43')">4-4 验证“哥德巴赫猜想”</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -3595,7 +3596,7 @@ if m!=v[17]:                      # ② 索引</code></pre>
 ② 两边同时改，很容易出现"本地一份、提交另一份"，而且极难发现
 </div>
 
-<h2 id="review">六、真题回顾（<span id="cr2">42</span> 题）</h2>
+<h2 id="review">六、真题回顾（<span id="cr2">43</span> 题）</h2>
 
 <div class="box warn">
 <strong>说明：</strong>下面的题目要求是<strong>我按自己的理解概括写的</strong>，不是 PTA 原文。<br>
@@ -5766,6 +5767,95 @@ print(x)               输出第一天一共摘了多少个</code></pre>
 <code>n=10</code> → <code>1534</code> ✅<br>
 · <strong>n = 2~10 共 9 组（= 整个输入域）全部通过 ✅</strong><br>
 · <code>py_compile</code> 通过 ｜ PTA <strong>通过</strong>（进度 42/89）
+</div>
+
+<h3 id="review-43">4-4 验证“哥德巴赫猜想” <span class="tag">通过</span></h3>
+<p><strong>要求：</strong>输入一个偶数 <code>N</code>（<code>2 &lt; N ≤ 2 000 000 000</code>），
+在一行输出 <code>N = p + q</code>，其中 <code>p ≤ q</code> 且<strong>都是素数</strong>。
+这样的分解<strong>不唯一</strong>（24 还能写成 7+17、11+13），<strong>必须输出 p 最小的那个解</strong>。<br>
+<strong>样例：</strong><code>24</code> → <code>24 = 5 + 19</code></p>
+
+<p><strong>我的代码（通过）</strong></p>
+<pre><code>N=int(input())                             读入那个偶数 N
+for p in range(2,N//2+1):                  p 从 2 试起，上界是 N//2 —— 题面要求 p ≤ q，超过 N/2 的解在更小的 p 上早就试过
+    for i in range(2,int(p**0.5)+1):       第一层：判 p 是不是素数（试到 √p 就够，4-2 的结论）
+        if p%i==0:break                    除得尽 → break → 下面那个 else 不执行（判为合数）
+    else:                                  ⚠️ 这个 else 和【for i】对齐（不是 for p）：没被打断 = p 是素数
+        q=N-p                              p 是素数，算出另一个加数
+        for j in range(2,int(q**0.5)+1):   第二层：判 q 是不是素数（换个变量名 j，别和 i 混）
+            if q%j==0:break                q 有因子 → break → 第二层的 else 不执行
+        else:                              这个 else 属于【for j】：没被打断 = q 也是素数
+            print(f"{N} = {p} + {q}")      两个都是素数 → 按题面格式输出
+            break                          跳出【外层 for p】：从 2 往上第一个命中就是 p 最小的解，命中即停</code></pre>
+
+<p><strong>优化用法：</strong>① 判素数只试到 <strong>√x</strong>（<code>int(x**0.5)+1</code>）：
+判一个 20 亿附近的素数，试到 √x 是 <strong>44721 圈</strong>，试到 x-1 是 <strong>19.9 亿圈</strong>
+（实测 <code>0.0028 s</code> vs 约 <code>62 s</code>）；<br>
+② 还能更快：先<strong>筛出 √N 以内的小素数</strong>（<code>√(2e9)=44722</code> → 只有 <strong>4648 个</strong>），
+用它们试除 → 每次最多 4648 圈（实测 <code>0.0002 s</code>，比 ① 再快 14 倍）。本题 0.0027 s 已经够，
+这招属于"知道了可以不写"；<br>
+③ <code>p</code> 只到 <code>N//2</code>：题面要求 <code>p ≤ q</code>，若 <code>p &gt; N/2</code>，
+则 <code>q = N - p &lt; N/2 &lt; p</code>，那个解在更小的 p 上早就试过了；<br>
+④ <code>p = 2</code> 之后可以只走奇数（<code>p += 2</code>）：除 2 外偶数都不是素数，候选减半
+（实测最小解 p 很小 —— N ≤ 2e5 里最难的一个只要 <code>p=383</code>，N=2e9 时 <code>p=73</code>）；<br>
+⑤ 不想依赖 <code>else</code> 的缩进，可以改成 <code>flag</code> 写法（<code>ok = True</code> →
+找到因子时 <code>ok = False; break</code> → 之后 <code>if ok:</code>），
+或等第 5 章学了 <code>def</code> 包成 <code>is_prime(x)</code>（能重复调用、缩进更浅）；<br>
+⑥ <strong>不能</strong>"先把 N 以内的素数全收进列表"：π(2e9) ≈ <strong>9822 万</strong>个，
+光指针数组 0.73 GB、加上 int 对象共 <strong>3.66 GB</strong>，而且 <code>q in L</code> 还得线性查找。</p>
+
+<div class="box warn">
+<strong>这题连踩三个坑（全都实测过）</strong>
+<table>
+<tr><th>坑</th><th>现象 / 代价</th></tr>
+<tr><td><strong>把 √ 塞进取模右边</strong>：<code>n % (i**(1/2))</code></td>
+<td><code>i**(1/2)</code> 是 <strong>√i</strong>（循环变量的平方根），不是 √n；
+取模右边必须是<strong>整数因子</strong>，√i 一般是无理数、浮点取模几乎不可能为 0。
+结果素数表混进 <code>4、9、25、49</code>，4~400 的偶数里 <strong>28 个输出错</strong>
+（<code>6 = 2 + 4</code>、<code>12 = 3 + 9</code>…）</td></tr>
+<tr><td><strong>优化改错了地方</strong>（只改判断条件，没动循环圈数）</td>
+<td>两个 <code>range</code> 一圈没少，反而因为 <code>i**(1/2)</code> 是浮点幂而
+<strong>慢 4.7 倍</strong>（N=4000：<code>0.1077 s</code> vs <code>0.0227 s</code>）。
+<strong>性能问题要改的是圈数，不是条件。</strong></td></tr>
+<tr><td><strong><code>else</code> 缩进对错了 <code>for</code></strong></td>
+<td><code>else</code> 和外层 <code>for p</code> 对齐 → 外层"没被 break"必然成立 →
+外层必须跑满 <strong>10 亿圈</strong>（外推 ≈ <strong>51 小时</strong>）；而且它执行时 <code>p</code>
+已经是 <code>N//2</code>：<code>N=24</code> <strong>什么都输出不了</strong>、
+<code>N=10</code> 输出 <code>5 + 5</code>（p 最小应是 3）</td></tr>
+</table>
+</div>
+
+<div class="box ok">
+<strong>判素数：三件套</strong>
+<table>
+<tr><th>要点</th><th>怎么记</th></tr>
+<tr><td><strong>上界是 √x</strong></td>
+<td><strong>因子成对出现</strong>：36 的因子对是 (2,18)(3,12)(4,9)(6,6)(9,4)… ——
+每对里小的那个最大也只到 <strong>6 = √36</strong>。所以写 <code>range(2, int(x**0.5)+1)</code>；
+也可以 <code>while i*i &lt;= x</code>（<strong>用乘法比较，别写 <code>x**0.5</code> 参与运算</strong>，浮点会差一）</td></tr>
+<tr><td><strong>1 不是素数</strong></td>
+<td>用 for...else 判 1~20，输出里会出现 <code>1</code> —— 因为 <code>range(2, 2)</code> 是<strong>空循环</strong>、
+没 break，<code>else</code> 照样执行（4-2 的同款坑）。要判素数就先挡 <code>if x &lt; 2</code></td></tr>
+<tr><td><strong><code>else</code> 属于哪个 <code>for</code></strong></td>
+<td><strong>看缩进对齐</strong>：和哪个 <code>for</code> 同列就属于它；语义是"循环没被 <code>break</code> 打断就执行"。
+<code>break</code> 只跳出<strong>当前这一层</strong>；但内层 for 的 <code>else</code> 块本身写在
+<strong>外层循环体里</strong>，所以在那里写 <code>break</code> 跳的是<strong>外层</strong></td></tr>
+</table>
+<strong>400 ms 的预算（本机实测）</strong>：空转 10⁷ 次 0.372 s；带 <code>%</code> 的 10⁷ 次 0.318 s →
+<strong>400 ms 只够约 1.3×10⁷ 圈</strong>。拿到题先口算"外层圈数 × 内层圈数"，
+超了就换算法（这题第一版是 10¹¹ 量级，差 4 个数量级）。
+</div>
+
+<div class="box ok">
+<strong>实测验收</strong>（独立口径：先筛 √(2e9)=44722 得 4648 个素数，再从 p=2 往上找首对）<br>
+· 样例 <code>24</code> → <code>24 = 5 + 19</code> ✅<br>
+· 小 N：<code>4→2+2</code>｜<code>6→3+3</code>｜<code>8→3+5</code>｜<code>10→3+7</code>｜
+<code>12→5+7</code>｜<code>100→3+97</code>｜<code>1000→3+997</code> ✅<br>
+· <strong>全部偶数 4~10000（4999 组）与独立口径对拍：0 组不一致 ✅</strong>（合计 0.05 s）<br>
+· <strong>200 组随机大 N（10⁶~2×10⁹）：0 组不一致 ✅</strong><br>
+· 大 N：<code>1999999998 = 71 + 1999999927</code>｜<code>2000000000 = 73 + 1999999927</code> ✅<br>
+· <strong>最坏 N = 2×10⁹ 用时 0.0027 s</strong>（限制 400 ms，余量 148 倍）<br>
+· <code>py_compile</code> 通过 ｜ PTA <strong>通过</strong>（进度 43/89）
 </div>
 
 <h2 id="quick">七、速查总表</h2>
