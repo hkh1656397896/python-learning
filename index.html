@@ -104,7 +104,7 @@
 -->
 
 <h1>Python 自学笔记</h1>
-<p class="meta">hkh ｜ 更新 2026-10-13 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">22</span> 题 + 第4章 <span id="c4">5</span> 题（浙大版《Python 程序设计》题目集）</p>
+<p class="meta">hkh ｜ 更新 2026-10-13 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">22</span> 题 + 第4章 <span id="c4">6</span> 题（浙大版《Python 程序设计》题目集）</p>
 
 <nav id="toc">
   <div class="toc-head">目录　<span class="toc-hint">点标题展开 · 点条目直接跳</span></div>
@@ -191,7 +191,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>六、真题回顾 <span class="toc-n" id="cr">44</span></summary>
+    <summary>六、真题回顾 <span class="toc-n" id="cr">45</span></summary>
     <ol>
       <li><a onclick="return go('review-1')">1-1 从键盘输入两个数求和</a></li>
       <li><a onclick="return go('review-2')">1-2 按公式输出 b²−4ac</a></li>
@@ -237,6 +237,7 @@
       <li><a onclick="return go('review-42')">4-3 猴子吃桃问题</a></li>
       <li><a onclick="return go('review-43')">4-4 验证“哥德巴赫猜想”</a></li>
       <li><a onclick="return go('review-44')">4-5 求e的近似值</a></li>
+      <li><a onclick="return go('review-45')">4-6 输出前n个Fibonacci数</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -3769,7 +3770,7 @@ if m!=v[17]:                      # ② 索引</code></pre>
 ② 两边同时改，很容易出现"本地一份、提交另一份"，而且极难发现
 </div>
 
-<h2 id="review">六、真题回顾（<span id="cr2">44</span> 题）</h2>
+<h2 id="review">六、真题回顾（<span id="cr2">45</span> 题）</h2>
 
 <div class="box warn">
 <strong>说明：</strong>下面的题目要求是<strong>我按自己的理解概括写的</strong>，不是 PTA 原文。<br>
@@ -6079,6 +6080,76 @@ print(f"{e:.8f}")       输出保留小数点后八位（.8f 是格式符，不�
 · <strong>输出格式</strong>：1001 组全部「小数点后正好 8 位、总长 10」✅<br>
 · 最坏 <code>n=1000</code> 用时 0.00017 s（限制 400 ms）<br>
 · <code>py_compile</code> 通过 ｜ PTA <strong>通过</strong>（进度 44/89）
+</div>
+
+<h3 id="review-45">4-6 输出前n个Fibonacci数 <span class="tag">通过</span></h3>
+<p><strong>要求：</strong>输出斐波那契数列的<strong>前 N 项</strong>（<code>1, 1, 2, 3, 5, 8, 13, …</code>，
+最开始两项均为 1），<strong>每个数占 11 位，每行输出 5 个</strong>；
+<strong>最后一行不足 5 个也要换行</strong>；若 <code>N &lt; 1</code> 则输出 <code>Invalid.</code>。
+输入 <code>1 ≤ N ≤ 46</code>。<br>
+<strong>样例：</strong><code>N=7</code> → 第一行 5 个数（<code>1 1 2 3 5</code>）、第二行 2 个数（<code>8 13</code>）</p>
+
+<p><strong>我的代码（通过）</strong></p>
+<pre><code>N=int(input())                    读入 N（题面 1 ≤ N ≤ 46）
+cnt=0                             已输出个数的计数器 —— 用来决定什么时候换行
+a,b=1,1                           斐波那契的前两项都是 1
+if N<1:                           题面：N 小于 1 时输出 Invalid.
+    print("Invalid.")             注意结尾那个【句点】—— 题面写的是 Invalid.，不是 Invalid
+else:                             N ≥ 1 的正常情况
+    for _ in range(N):            一共输出 N 个（_ 是「不关心的循环变量」，因为下面自己用 cnt 数）
+        cnt+=1                    先记一笔：已经打了几个
+        print(f"{a:11}",end="")   每个数占 11 位宽（数字默认右对齐）、打完不换行（end=""）
+        a,b=b,a+b                 ★ 下一项 = 前两项之和：元组同时赋值（⑧，拆成两句会变成翻倍）
+        if cnt%5==0:              满 5 个
+            print()               换行：print() 空参 = 只输出一个换行（⑨）</code></pre>
+
+<p><strong>优化用法：</strong>① <code>cnt</code> 可以不要 —— 用 <code>for</code> 的序号直接判：
+<code>for i in range(1, N+1): … if i % 5 == 0: print()</code>（少一个变量和一次 <code>+=</code>）；
+② <strong>末行换行</strong>：题面字面要求「最后一行不足 5 个也要换行」，这一版<strong>只在满 5 个时换行</strong>，
+所以 N 不是 5 的倍数时末尾少一个换行（见下面的盒子）；补法就是 ⑨ 的 ④ 步：
+<code>if cnt % 5 != 0: print()</code>，或者用总数判 <code>if N % 5: print()</code>；<br>
+③ <code>f"{a:11}"</code> 里的 <code>11</code> 是<strong>位宽</strong>，数字默认<strong>右对齐</strong>（要左对齐写 <code>&lt;11</code>）；
+这一题每个数最多 10 位（第 46 项 <code>1836311903</code>），11 位刚好留一个空格；<br>
+④ <strong>为什么 N ≤ 46</strong>：第 46 项 <code>1836311903</code> 还在 32 位 long 内
+（<code>2³¹−1 = 2147483647</code>），<strong>第 47 项 <code>2971215073</code> 就超了</strong> ——
+题面的上限就是这么来的；<br>
+⑤ 也可以先把数列存进列表再输出（本题不需要，直接边生成边打更省）。</p>
+
+<div class="box warn">
+<strong>⚠️ 「末行也要换行」这一条：本版没做，PTA 却判过了（实测）</strong>
+<table>
+<tr><th>N</th><th>本版输出</th><th>题面字面要求</th></tr>
+<tr><td>5、10、15 … 45（<strong>5 的倍数</strong>，共 9 组）</td>
+<td>末尾有换行 ✅</td><td>末尾有换行 ✅</td></tr>
+<tr><td><strong>其余 37 组</strong>（N 不是 5 的倍数）</td>
+<td><strong>末尾少一个换行</strong></td><td>末尾要有换行</td></tr>
+</table>
+整个输入域 N=1..46 共 46 组，<strong>与「忽略行尾换行」的口径 46 组全一致</strong>，
+<strong>与「题面字面」的口径有 37 组少一个换行</strong>。<br>
+<strong>为什么还能过</strong>：PTA 判题会<strong>忽略行尾空白</strong>，所以两种都算对。<br>
+<strong>但这是 2-14 的同一个坑</strong>（那次报「格式错误」13/15）：凡是题面写了「不足 N 个也要换行」，
+就老老实实补一句 —— <strong>不要靠判题宽松</strong>。
+</div>
+
+<div class="box ok">
+<strong>实测验收</strong>（独立口径：先按「前两项都是 1」生成数列，再按 11 位 / 每行 5 个拼字符串）<br>
+· <strong>整个输入域 N = 1..46（46 组）</strong>：与「忽略行尾换行」的口径<strong>全部一致 ✅</strong>；
+与「题面字面（末行也换行）」差 <strong>37 组</strong>（见上）<br>
+· <code>N &lt; 1</code>：<code>0</code>、<code>-3</code> → <code>Invalid.</code> ✅（句点也在）<br>
+· 边界 <code>N=1</code> / <code>N=5</code> / <code>N=6</code> / <code>N=46</code> 全部符合位宽与分行 ✅<br>
+· 第 46 项 <code>1836311903</code>（&lt; 2³¹−1）｜第 47 项 <code>2971215073</code>（超，故题面卡 46）<br>
+· 46 组合计用时 0.001 s ｜ <code>py_compile</code> 通过 ｜ PTA <strong>通过</strong>（进度 45/89）
+</div>
+
+<div class="box ok">
+<strong>这题串起了三节旧内容</strong>
+<table>
+<tr><th>用到的</th><th>在哪</th></tr>
+<tr><td><code>a, b = b, a + b</code>（元组同时赋值，前两项之和）</td><td><strong>⑧ 累加与递推</strong></td></tr>
+<tr><td><code>cnt % 5 == 0</code> 换行、<code>print()</code> 空参换行、末行补换行</td>
+<td><strong>⑨ 一行固定输出几个</strong>（2-14 踩过）</td></tr>
+<tr><td><code>f"{a:11}"</code> 位宽右对齐</td><td>① 格式化输出 / 速查总表 ③</td></tr>
+</table>
 </div>
 
 <h2 id="quick">七、速查总表</h2>
