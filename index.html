@@ -104,12 +104,12 @@
 -->
 
 <h1>Python 自学笔记</h1>
-<p class="meta">hkh ｜ 更新 2026-10-13 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">22</span> 题 + 第4章 <span id="c4">6</span> 题（浙大版《Python 程序设计》题目集）</p>
+<p class="meta">hkh ｜ 更新 2026-10-13 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">22</span> 题 + 第4章 <span id="c4">7</span> 题（浙大版《Python 程序设计》题目集）</p>
 
 <nav id="toc">
   <div class="toc-head">目录　<span class="toc-hint">点标题展开 · 点条目直接跳</span></div>
   <details class="toc-g">
-    <summary>一、易错点 <span class="toc-n" id="ce">14</span></summary>
+    <summary>一、易错点 <span class="toc-n" id="ce">15</span></summary>
     <ol>
       <li><a onclick="return go('e1-1')">❌ 1. 输入分隔符猜错</a></li>
       <li><a onclick="return go('e1-2')">❌ 2. int 和 float 用错</a></li>
@@ -125,6 +125,7 @@
       <li><a onclick="return go('e1-13')">❌ 12. 忘了 input 后面那对括号</a></li>
       <li><a onclick="return go('e1-14')">❌ 13. 把 print 塞进了 sorted() 里面</a></li>
       <li><a onclick="return go('e1-15')">❌ 14. 删掉卫语句时忘了同步改缩进 —— print 还留在循环里</a></li>
+      <li><a onclick="return go('e1-16')">❌ 15. 缩进 = 从属关系（同一个病，三次翻车）</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -191,7 +192,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>六、真题回顾 <span class="toc-n" id="cr">45</span></summary>
+    <summary>六、真题回顾 <span class="toc-n" id="cr">46</span></summary>
     <ol>
       <li><a onclick="return go('review-1')">1-1 从键盘输入两个数求和</a></li>
       <li><a onclick="return go('review-2')">1-2 按公式输出 b²−4ac</a></li>
@@ -238,6 +239,7 @@
       <li><a onclick="return go('review-43')">4-4 验证“哥德巴赫猜想”</a></li>
       <li><a onclick="return go('review-44')">4-5 求e的近似值</a></li>
       <li><a onclick="return go('review-45')">4-6 输出前n个Fibonacci数</a></li>
+      <li><a onclick="return go('review-46')">4-7 统计学生平均成绩与及格人数</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -677,6 +679,36 @@ sorted(print("y"), reverse=True)  # TypeError: 'NoneType' object is not iterable
 <strong>和 ❌6 的分工：</strong>❌6 讲「<code>print</code> 掉进循环 / 累加器被清零」这两种<strong>缩进翻车</strong>，
 本条讲<strong>更容易发生的一种</strong>：<strong>删代码时只删了变量，忘了它保护的缩进</strong>。
 </div>
+
+<h3 id="e1-16">❌ 15. 缩进 = 从属关系（同一个病，三次翻车）<span class="tag">第3章-19、第4章-4、第4章-7</span></h3>
+<p>这三题挂掉的原因<strong>完全一样</strong>：一行代码<strong>该属于谁</strong>没对上（缩进对齐错了）。
+Python 没有花括号，<strong>缩进就是语法</strong> —— 谁包含谁，全看列位。</p>
+<table>
+<tr><th>题</th><th>本该属于</th><th>实际跑到</th><th>实测后果</th></tr>
+<tr><td><strong>3-19</strong> 找最长的字符串</td><td>判断该在 <code>for</code> <strong>里面</strong></td>
+<td>跑到了 <code>for</code> 外面</td>
+<td>结果只由<strong>最后一条</strong>数据决定：样例打 <code>xiang</code>（应为 <code>zhang</code>），
+最后一条不是最长时直接 <code>NameError</code></td></tr>
+<tr><td><strong>4-4</strong> 验证哥德巴赫猜想</td><td><code>else</code> 该属于<strong>内层</strong> <code>for i</code></td>
+<td>对齐到了<strong>外层</strong> <code>for p</code></td>
+<td>外层跑满 10 亿圈（外推 ≈ <strong>51 小时</strong>）；
+<code>N=24</code> 什么都输出不了、<code>N=10</code> 输出 <code>5 + 5</code>（p 最小应是 3）</td></tr>
+<tr><td><strong>4-7</strong> 统计学生成绩</td><td>计数与打印该在 <code>else</code> <strong>里面</strong></td>
+<td>跑到了 <code>else</code> 外面</td>
+<td><code>N=0</code> 时先打对两行、紧接着
+<code>NameError: name 'average' is not defined</code></td></tr>
+</table>
+<div class="box warn">
+<strong>为什么编译器和眼睛都抓不到</strong><br>
+<code>py_compile</code> <strong>三次全部通过</strong> —— 缩进错了不是语法错误，是<strong>语义归属</strong>错误。<br>
+而且 <strong>常规用例全都正常</strong>（N&gt;0、样例、随机数据都过），<strong>只有边界那条路才暴露</strong> ——
+这就是它最难发现的根本原因（4-7 的 <code>N=0</code>、3-19 的"最后一条不是最长"、4-4 的"外层没有 break"）。
+</div>
+<p><strong>自检口诀：写完 <code>if/else/for</code> 后，指着每一行问一句「这件事是只有这一支才做的吗？」</strong>
+是 → 必须缩进在里面。三种问法：<br>
+① 这件事<strong>每轮都要做</strong>吗？（→ 在循环里）<br>
+② 这个 <code>else</code> <strong>属于哪个</strong> <code>for</code>？（→ 看它和谁<strong>同列</strong>）<br>
+③ 这一步<strong>只有正常情况才做</strong>吗？（→ 在 <code>else</code> 里）</p>
 
 <h2 id="s1">二、常用代码与拓展（每条都带输出）</h2>
 
@@ -3770,7 +3802,7 @@ if m!=v[17]:                      # ② 索引</code></pre>
 ② 两边同时改，很容易出现"本地一份、提交另一份"，而且极难发现
 </div>
 
-<h2 id="review">六、真题回顾（<span id="cr2">45</span> 题）</h2>
+<h2 id="review">六、真题回顾（<span id="cr2">46</span> 题）</h2>
 
 <div class="box warn">
 <strong>说明：</strong>下面的题目要求是<strong>我按自己的理解概括写的</strong>，不是 PTA 原文。<br>
@@ -6150,6 +6182,82 @@ else:                             N ≥ 1 的正常情况
 <td><strong>⑨ 一行固定输出几个</strong>（2-14 踩过）</td></tr>
 <tr><td><code>f"{a:11}"</code> 位宽右对齐</td><td>① 格式化输出 / 速查总表 ③</td></tr>
 </table>
+</div>
+
+<h3 id="review-46">4-7 统计学生平均成绩与及格人数 <span class="tag">通过</span></h3>
+<p><strong>要求：</strong>第一行给出<strong>非负整数 N</strong>（学生人数），第二行给出 N 个非负整数成绩（空格分隔）；
+统计<strong>平均成绩</strong>（精确到小数点后一位）与<strong>及格人数</strong>（成绩 ≥ 60）。输出两行：
+<code>average = 成绩均值</code> / <code>count = 及格人数</code>。<br>
+<strong>样例：</strong><code>5</code> / <code>77 54 92 73 60</code> →
+<code>average = 71.2</code> / <code>count = 4</code></p>
+
+<p><strong>我的代码（通过）</strong></p>
+<pre><code>N=int(input())                         读入 N（题面写的是【非负】整数 —— 也就是可以是 0）
+if N==0:                               N = 0 走单独一条路（0 不能当分母）
+    print("average = 0.0")             没有学生 → 均值取 0.0
+    print("count = 0")                 人数也是 0
+else:                                  N > 0 的正常情况
+    m=list(map(int,input().split()))   第二行读 N 个成绩：split() 按空白切开，再逐个转成整数
+    average=sum(m)/len(m)              平均值 = 总和 ÷ 个数（N=0 已被上面挡掉，这里不会除零）
+    count=0                            及格人数计数器 —— 必须在循环【外面】清零
+    for i in m:                        逐个看成绩
+        if i>=60:                      及格线：60 分【含】60（> =60 而不是 >60）
+            count+=1                   及格就 +1
+print(f"average = {average:.1f}")      输出均值，保留小数点后一位（⚠️ 这一句还在 else 外面，见下面盒子）
+print(f"count = {count}")              输出及格人数</code></pre>
+
+<p><strong>优化用法：</strong>① <strong><code>N</code> 要转成整数、并且真的用起来</strong> ——
+第一版写的是 <code>N=input()</code>（字符串），而且从头到尾没用到，于是"没有学生"这条路从来没被想到（见下）；<br>
+② <strong><code>N = 0</code> 必须单独处理</strong>：题面说"非负"就是允许 0，这时没有成绩、也没有均值可算
+（<code>0/0</code> 会 <code>ZeroDivisionError</code>），约定输出 <code>average = 0.0</code> / <code>count = 0</code>；<br>
+③ 更稳的读法：一次把剩下的 token 全读进来，<code>N=0</code> 且<strong>第二行根本不存在</strong>时也不会 <code>EOFError</code>：
+<code>data = sys.stdin.read().split()</code> → <code>N = int(data[0])</code> → <code>m = list(map(int, data[1:1+N]))</code>；<br>
+④ 及格判定是 <code>i &gt;= 60</code>（<strong>60 分算及格</strong>）；<br>
+⑤ <code>f"{average:.1f}"</code> 保留一位小数；<code>sum(m)/len(m)</code> 与 <code>sum(m)/N</code> 都可以
+（后者更贴题面，但要用 <code>N</code>）；<br>
+⑥ 计数也可以一行：<code>count = sum(1 for i in m if i &gt;= 60)</code>。</p>
+
+<div class="box bad">
+<strong>这题连挂两次，都在 <code>N=0</code> 和缩进上（实测）</strong>
+<table>
+<tr><th>版本</th><th>写法</th><th><code>N=0</code> 时的实测结果</th></tr>
+<tr><td>第一版</td><td>完全没有 <code>N=0</code> 分支，
+<code>average=sum(m)/len(m)</code></td>
+<td>第二行是空行 → <code>ZeroDivisionError: division by zero</code>；
+<strong>第二行不存在</strong> → <code>EOFError: EOF when reading a line</code></td></tr>
+<tr><td>第二版</td><td>加了 <code>if N==0</code> 打印两行，
+但<strong>计数和打印全都跑到 <code>else</code> 外面</strong></td>
+<td>先打对两行，然后 <code>for i in m:</code> → <code>NameError: name 'm' is not defined</code></td></tr>
+<tr><td><strong>最终版</strong></td><td>计数循环挪进了 <code>else</code>，
+但<strong>最后两句 <code>print</code> 还在 <code>else</code> 外面</strong></td>
+<td>先打对两行，然后 <code>print(f"average = {average:.1f}")</code> →
+<code>NameError: name 'average' is not defined</code></td></tr>
+</table>
+<strong>三次的根因是同一个</strong>：缩进决定了"这行属于谁"。详见 <strong>❌ 15</strong>。
+</div>
+
+<div class="box warn">
+<strong>⚠️ 这一版在 <code>N=0</code> 时仍会崩，但 PTA 判过了</strong><br>
+用户确认 PTA 通过（46/89）。本机实测的完整现象是：
+<code>N=0</code> 时会<strong>先输出正确的两行</strong>（<code>average = 0.0</code> / <code>count = 0</code>），
+<strong>紧接着</strong>执行 <code>else</code> 外面的那句 <code>print</code>，触发
+<code>NameError: name 'average' is not defined</code>（<code>N&gt;0</code> 的全部用例正常）。<br>
+<strong>结论</strong>：这道题的判题<strong>要么没有 <code>N=0</code> 测试点、要么只看输出内容不看退出码</strong>，
+所以"先打对、再崩"被算成了通过 —— <strong>典型的「判题宽松掩盖的真 bug」</strong>（4-6 的末行换行是同一类，
+那次只是格式差异，这次是会崩）。<br>
+<strong>正确写法</strong>：把那两句 <code>print</code> 也缩进进 <code>else</code>
+（<code>N=0</code> 走 <code>if</code> 的两行、<code>N&gt;0</code> 走 <code>else</code> 的两行，
+两条路各打各的，谁也不会碰到对方没定义的变量）。
+</div>
+
+<div class="box ok">
+<strong>实测验收</strong>（独立口径：N=0 输出 0.0/0；否则 <code>sum/n</code> 与 <code>&gt;=60</code> 计数）<br>
+· 样例 <code>5 / 77 54 92 73 60</code> → <code>average = 71.2</code> / <code>count = 4</code> ✅<br>
+· 边界：<code>N=1</code> 满分 / 不及格、<code>N=3</code> 的 60 线（<code>60 59 61</code> → count 2）、
+全 0、平均值正好 <code>.x5</code>（<code>70 71 72 73</code> → <code>71.5</code>）、上界 100 混 0 ✅<br>
+· <strong>N=0（两种形态）</strong>：输出正确，但随后 <code>NameError</code>（见上面盒子）<br>
+· <strong>200 组随机</strong>（N 1~2000，成绩 0~100）：0 组不一致 ✅<br>
+· <code>py_compile</code> 通过 ｜ PTA <strong>通过</strong>（进度 46/89）
 </div>
 
 <h2 id="quick">七、速查总表</h2>
