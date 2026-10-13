@@ -104,7 +104,7 @@
 -->
 
 <h1>Python 自学笔记</h1>
-<p class="meta">hkh ｜ 更新 2026-10-13 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">22</span> 题 + 第4章 <span id="c4">4</span> 题（浙大版《Python 程序设计》题目集）</p>
+<p class="meta">hkh ｜ 更新 2026-10-13 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">22</span> 题 + 第4章 <span id="c4">5</span> 题（浙大版《Python 程序设计》题目集）</p>
 
 <nav id="toc">
   <div class="toc-head">目录　<span class="toc-hint">点标题展开 · 点条目直接跳</span></div>
@@ -191,7 +191,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>六、真题回顾 <span class="toc-n" id="cr">43</span></summary>
+    <summary>六、真题回顾 <span class="toc-n" id="cr">44</span></summary>
     <ol>
       <li><a onclick="return go('review-1')">1-1 从键盘输入两个数求和</a></li>
       <li><a onclick="return go('review-2')">1-2 按公式输出 b²−4ac</a></li>
@@ -236,6 +236,7 @@
       <li><a onclick="return go('review-41')">4-2 统计素数并求和</a></li>
       <li><a onclick="return go('review-42')">4-3 猴子吃桃问题</a></li>
       <li><a onclick="return go('review-43')">4-4 验证“哥德巴赫猜想”</a></li>
+      <li><a onclick="return go('review-44')">4-5 求e的近似值</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -3723,7 +3724,7 @@ if m!=v[17]:                      # ② 索引</code></pre>
 ② 两边同时改，很容易出现"本地一份、提交另一份"，而且极难发现
 </div>
 
-<h2 id="review">六、真题回顾（<span id="cr2">43</span> 题）</h2>
+<h2 id="review">六、真题回顾（<span id="cr2">44</span> 题）</h2>
 
 <div class="box warn">
 <strong>说明：</strong>下面的题目要求是<strong>我按自己的理解概括写的</strong>，不是 PTA 原文。<br>
@@ -5983,6 +5984,56 @@ for p in range(2,N//2+1):                  p 从 2 试起，上界是 N//2 —�
 · 大 N：<code>1999999998 = 71 + 1999999927</code>｜<code>2000000000 = 73 + 1999999927</code> ✅<br>
 · <strong>最坏 N = 2×10⁹ 用时 0.0027 s</strong>（限制 400 ms，余量 148 倍）<br>
 · <code>py_compile</code> 通过 ｜ PTA <strong>通过</strong>（进度 43/89）
+</div>
+
+<h3 id="review-44">4-5 求e的近似值 <span class="tag">通过</span></h3>
+<p><strong>要求：</strong>用级数 <code>1 + 1/1! + 1/2! + … + 1/n! + …</code> 近似计算自然常数 e；
+给定<strong>非负整数 n（n ≤ 1000）</strong>，求该级数的<strong>前 n+1 项和</strong>
+（也就是 <code>1/0! + 1/1! + … + 1/n!</code>）。输出一行，<strong>保留小数点后八位</strong>。<br>
+<strong>样例：</strong><code>10</code> → <code>2.71828180</code></p>
+
+<p><strong>我的代码（通过）</strong></p>
+<pre><code>m=int(input())          读入非负整数 n（题面最大的 n 是 1000）
+term=1.0                第 0 项 = 1/0! = 1（0! 规定为 1）；用【递推】准备下一项，不重算阶乘
+e=0.0                   累加器（就是要求的那个和）
+i=0                     分母计数器：从 0 起，进循环先 +1 再除
+for _ in range(m+1):    取前 n+1 项（第 0 项到第 n 项），所以循环跑 m+1 次
+    e+=term             把当前项加进和：e += term 就是 e = e + term（㉛ 复合赋值）
+    i+=1                分母变成 1、2、3…（i += 1）
+    term/=i             递推下一项：1/i! = 1/(i-1)! ÷ i（比每项重算阶乘快 123~886 倍，见 ㉛）
+print(f"{e:.8f}")       输出保留小数点后八位（.8f 是格式符，不足补 0）</code></pre>
+
+<p><strong>优化用法：</strong>① 分母不用自己数 —— 直接用 <code>for</code> 的 <code>i</code>：
+<code>for i in range(m+1): e += term; term /= (i+1)</code>，
+省掉一个变量和一次 <code>i += 1</code>（原来的 <code>for _ in …</code> 里 <code>_</code> 不带值，才需要手工计数器）；<br>
+② 变量名 <code>m</code> → <code>n</code> 更贴题面（<code>e</code> 和 <code>math.e</code> 不冲突，可以留）；<br>
+③ <code>f"{e:.8f}"</code> 就是「保留小数点后八位」：<code>.8f</code> 是格式符，<strong>不足会补 0</strong>
+（实测 <code>n=0</code> → <code>'1.00000000'</code>）；题面要求几位就改那个数字；<br>
+④ <strong>n 再大结果也不会变</strong>：<code>1/171!</code> 已经<strong>下溢成 <code>0.0</code></strong>，
+后面每轮加的都是 0 —— 实测 <code>n=20</code> 和 <code>n=1000</code> 的八位输出<strong>完全相同</strong>
+（都是 <code>2.71828183</code>，也就是 <code>math.e</code> 的八位）；<br>
+⑤ 也能写成 <code>sum(1/math.factorial(i) for i in range(n+1))</code>，结果一样但更慢
+（每项重算阶乘，见 ㉛ 那张 123 / 886 倍的表）。</p>
+
+<div class="box ok">
+<strong>这题就是 ㉛ 的实战：用「递推」而不是「重算阶乘」</strong><br>
+<code>term /= i</code> 让每一项由前一项<strong>除一次</strong>得到（<code>1/i! = 1/(i-1)! ÷ i</code>），
+复杂度从 O(n²) 降到 O(n) —— 所以 n=1000 也是瞬间出结果（实测 <strong>0.00017 s</strong>）。<br>
+八位输出实测：<code>n=2</code> → <code>2.50000000</code>｜<code>n=5</code> → <code>2.71666667</code>｜
+<code>n=10</code> → <code>2.71828180</code>（样例）｜<code>n=20</code> → <code>2.71828183</code>｜
+<code>n=1000</code> → <code>2.71828183</code>。
+</div>
+
+<div class="box ok">
+<strong>实测验收</strong>（独立口径：口径A 逐项 <code>1/math.factorial(i)</code>；口径B <code>math.fsum</code>）<br>
+· 样例 <code>n=10</code> → <code>2.71828180</code> ✅（逐字符一致）<br>
+· 两端：<code>n=0</code> → <code>1.00000000</code>｜<code>n=1</code> → <code>2.00000000</code>｜
+<code>n=2</code> → <code>2.50000000</code> ✅<br>
+· <strong>整个输入域 n = 0~1000（1001 组）</strong>：与口径A <strong>0 组不一致</strong>、
+与口径B <strong>0 组不一致</strong> ✅<br>
+· <strong>输出格式</strong>：1001 组全部「小数点后正好 8 位、总长 10」✅<br>
+· 最坏 <code>n=1000</code> 用时 0.00017 s（限制 400 ms）<br>
+· <code>py_compile</code> 通过 ｜ PTA <strong>通过</strong>（进度 44/89）
 </div>
 
 <h2 id="quick">七、速查总表</h2>
