@@ -1024,6 +1024,51 @@ for i in range(1, n+1):
 int(str(3) * 5)         # 33333
 int(str(9) * 10)        # 9999999999</code></pre>
 
+<p><strong>前两项之和 = 第三项（斐波那契式递推）</strong>：用<strong>元组同时赋值</strong>一行搞定</p>
+<pre><code>a, b = 1, 1                  # 前两项（题面从 0,1 开始就写 0, 1）
+for _ in range(n):
+    print(a, end=" ")        # 收下当前项
+    a, b = b, a + b          # ★ 同时赋值：先算完右边，再一起赋给左边
+# 前 10 项：1 1 2 3 5 8 13 21 34 55
+
+# 要留着每一项（后面还得按项号取）：用列表
+L = [1, 1]
+for i in range(2, n):
+    L.append(L[i-1] + L[i-2])
+
+# 只要第 n 项（不用存全部）
+a, b = 1, 1
+for _ in range(n - 1):
+    a, b = b, a + b
+print(a)                     # 第 1、2 项都是 1；第 10 项 55；第 30 项 832040</code></pre>
+
+<div class="box bad">
+<strong>⚠️ 拆成两句写就全错（这一行的「同时」是关键）</strong>
+<table>
+<tr><th>写法</th><th>前 10 项（实测）</th></tr>
+<tr><td><code>a, b = b, a + b</code>（同时赋值）</td><td><code>1 1 2 3 5 8 13 21 34 55</code> ✅</td></tr>
+<tr><td><code>a = b</code>，然后 <code>b = a + b</code></td>
+<td><code>1 1 2 4 8 16 32 64 128 256</code> ❌（一倍一倍地涨）</td></tr>
+</table>
+原因：<strong><code>a, b = b, a + b</code> 会把右边<strong>全部算完</strong>，再一起赋给左边</strong>，
+所以第二项里的 <code>a</code> 还是老值；拆成两句时，第二句的 <code>a</code> 已经被第一句改掉了。<br>
+这是 Python 的「元组解包」写法；其他语言得借临时变量：<code>t = a; a = b; b = t + a</code> 这种顺序。
+</div>
+
+<div class="box ok">
+<strong>项数一大，两个细节（实测）</strong><br>
+① <strong>Python 整数没有上限</strong>：第 100 项 <code>354224848179261915075</code>；
+第 1000 项有 209 位数字（<code>0.0000 s</code>）；第 10000 项 2090 位（<code>0.0011 s</code>）；
+<strong>第 100000 项 20899 位（<code>0.0664 s</code>）</strong> —— 递推是 O(n) 次大整数加法。<br>
+② <strong>通项公式（Binet）用浮点算，大 n 会失真</strong>：第 70 项公式还对
+（<code>190392490709135</code>），<strong>第 80 项就错了</strong> ——
+公式给 <code>23416728348467744</code>，递推给 <code>23416728348467685</code>。要精确值就老实递推。
+</div>
+
+<p><strong>写之前先定三个口径</strong>（题面看不全就从样例反推）：前两项是 <code>1, 1</code> 还是 <code>0, 1</code>
+（有的题从 <code>F(0) = 0</code> 数起）；输出<strong>前 n 项</strong>还是<strong>只要第 n 项</strong>；
+一行怎么排（每行一个 / 一行空格隔开 / 每 5 个换行 —— 后者见 ⑨）。</p>
+
 <hr>
 
 <h3 id="s1-9">⑨ 一行固定输出几个（第2章-14 用）</h3>
