@@ -128,7 +128,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>二、常用代码与拓展 <span class="toc-n" id="cs">30</span></summary>
+    <summary>二、常用代码与拓展 <span class="toc-n" id="cs">31</span></summary>
     <ol>
       <li><a onclick="return go('s1-1')">① 读一行数字</a></li>
       <li><a onclick="return go('s1-2')">② range()：生成数字序列</a></li>
@@ -160,6 +160,7 @@
       <li><a onclick="return go('s1-28')">㉘ 字符的对应与替换（五种工具怎么选）</a></li>
       <li><a onclick="return go('s1-29')">㉙ ord() / chr()：字符 ↔ 编号（字母往后数几个的写法）</a></li>
       <li><a onclick="return go('s1-30')">㉚ 集合 set：只管「有没有」，与 .add()</a></li>
+      <li><a onclick="return go('s1-31')">㉛ 阶乘 n! / 级数求和 / 复合赋值（/=、+=…）</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -3250,6 +3251,132 @@ for c in m:
 <strong>三个易错点</strong>：① <code>seen</code> 里存<strong>归一化后的 key</strong>（小写），
 <code>out</code> 里存<strong>原字符</strong>；② 收满就 <code>break</code>，否则会多输出；
 ③ 集合无序，<strong>输出的顺序靠 <code>out</code> 列表保着</strong>，别指望集合。
+</div>
+
+<h3 id="s1-31">㉛ 阶乘 <code>n!</code> / 级数求和 / 复合赋值（<code>/=</code>、<code>+=</code>…）</h3>
+
+<p><strong>阶乘是什么：</strong><code>n! = 1 × 2 × 3 × … × n</code>，并且规定 <strong><code>0! = 1</code></strong>。
+它有三种写法，<strong>用途不同</strong>：</p>
+<table>
+<tr><th>写法</th><th>代码</th><th>实测</th></tr>
+<tr><td>① <strong>循环累乘</strong>（最通用）</td>
+<td><code>f = 1</code><br><code>for i in range(2, n+1): f *= i</code></td><td><code>5!</code> → <code>120</code></td></tr>
+<tr><td>② <strong>标准库</strong>（一行）</td>
+<td><code>import math</code> → <code>math.factorial(n)</code></td>
+<td><code>math.factorial(5)</code> → <code>120</code>；<code>math.factorial(0)</code> → <code>1</code>；
+<code>math.factorial(100)</code> 有 <strong>158 位</strong></td></tr>
+<tr><td>③ <strong>递推</strong>（级数里用这个）</td>
+<td><code>term /= i</code>（因为 <code>1/i! = 1/(i-1)! ÷ i</code>）</td>
+<td><code>1/5!</code> → <code>0.008333333333333333</code>（与 <code>1/math.factorial(5)</code> 相同）</td></tr>
+</table>
+
+<p><strong><code>math</code> 里常用的一小撮</strong>（<code>import math</code> 写在程序最上面，
+之后用 <code>math.xxx</code> 调用）：</p>
+<table>
+<tr><th>写法</th><th>实测</th></tr>
+<tr><td><code>math.factorial(20)</code></td><td><code>2432902008176640000</code></td></tr>
+<tr><td><code>math.pi</code> / <code>math.e</code></td><td><code>3.141592653589793</code> / <code>2.718281828459045</code></td></tr>
+<tr><td><code>math.sqrt(2)</code></td><td><code>1.4142135623730951</code>（等价于 <code>2**0.5</code>）</td></tr>
+<tr><td><code>math.gcd(12, 18)</code></td><td><code>6</code>（最大公约数）</td></tr>
+</table>
+
+<div class="box ok">
+<strong>为什么级数求和里必须用「递推」，不能每项重算阶乘</strong>
+<table>
+<tr><th>写法（算 e 的前 1001 项）</th><th>用时（实测）</th><th>相对</th></tr>
+<tr><td><strong>递推 <code>term /= i</code></strong></td><td><strong>0.0001 s</strong></td><td>1×</td></tr>
+<tr><td>每项 <code>1 / math.factorial(i)</code></td><td>0.0088 s</td><td><strong>慢 123 倍</strong></td></tr>
+<tr><td>每项手写循环重算阶乘</td><td>0.0631 s</td><td><strong>慢 886 倍</strong></td></tr>
+</table>
+重算是 <strong>O(n²)</strong>、递推是 <strong>O(n)</strong>；而 <code>1000!</code> 有 <strong>2568 位</strong>数字，
+每项重算就是反复造大整数。
+</div>
+
+<p><strong>e 的级数骨架</strong>（<code>e = 1/0! + 1/1! + 1/2! + …</code>，两种题面口径都列在这）</p>
+<pre><code># 口径A：累加到「这一项小于阈值」（阈值看题面）
+term = 1.0          # 第 0 项 = 1/0! = 1（0! = 1，别漏）
+e = 0.0
+i = 0
+while term &gt;= 1e-6: # ① 小到可忽略就停
+    e += term       # ② 先加当前项
+    i += 1          # ③ 分母 +1
+    term /= i       # ④ 递推下一项：1/i! = 1/(i-1)! ÷ i
+
+# 口径B：给定 n，求前 n+1 项和
+term, e = 1.0, 0.0
+for i in range(n + 1):
+    e += term
+    term /= (i + 1)</code></pre>
+
+<p><strong>实测精度（拿题面口径去对）</strong></p>
+<table>
+<tr><th>口径</th><th>结果</th><th>误差</th></tr>
+<tr><td>加到 term &lt; <code>1e-3</code></td><td>7 项 → <code>2.718055555555555</code></td><td>2.26e-04</td></tr>
+<tr><td>加到 term &lt; <code>1e-6</code></td><td><strong>10 项</strong> → <code>2.718281525573192</code></td><td>3.03e-07</td></tr>
+<tr><td>加到 term &lt; <code>1e-8</code></td><td>12 项 → <code>2.718281826198493</code></td><td>2.26e-09</td></tr>
+<tr><td>加到 term &lt; <code>1e-15</code></td><td>18 项 → <code>2.718281828459046</code></td><td>4.44e-16</td></tr>
+<tr><td>前 n+1 项：n=2</td><td><code>2.5</code></td><td>—</td></tr>
+<tr><td>前 n+1 项：n=5</td><td><code>2.716666666666666</code></td><td>1.62e-03</td></tr>
+<tr><td>前 n+1 项：n=10</td><td><code>2.718281801146385</code></td><td>2.73e-08</td></tr>
+<tr><td>前 n+1 项：n=20</td><td><code>2.718281828459046</code>（<code>math.e</code> 是 <code>…045</code>）</td><td>4.44e-16</td></tr>
+</table>
+
+<div class="box ok">
+<strong>复合赋值运算符：<code>x /= i</code> 就是 <code>x = x / i</code> 的简写</strong>
+<table>
+<tr><th>写法</th><th>等价于</th><th>实测（初始值）</th></tr>
+<tr><td><code>x += 3</code></td><td><code>x = x + 3</code></td><td>7 → <code>10</code></td></tr>
+<tr><td><code>x -= 2</code></td><td><code>x = x - 2</code></td><td>10 → <code>8</code></td></tr>
+<tr><td><code>x *= 5</code></td><td><code>x = x * 5</code></td><td>8 → <code>40</code></td></tr>
+<tr><td><code>x //= 7</code></td><td><code>x = x // 7</code></td><td>40 → <code>5</code>（仍是 <code>int</code>）</td></tr>
+<tr><td><code>x **= 3</code></td><td><code>x = x ** 3</code></td><td>5 → <code>125</code></td></tr>
+<tr><td><code>x %= 100</code></td><td><code>x = x % 100</code></td><td>125 → <code>25</code></td></tr>
+<tr><td><strong><code>x /= 2</code></strong></td><td><strong><code>x = x / 2</code></strong></td>
+<td>7 → <strong><code>3.5</code>（结果一定是 <code>float</code>）</strong></td></tr>
+<tr><td><code>w *= 3</code></td><td>字符串也可以</td><td><code>'ab'</code> → <code>'ababab'</code></td></tr>
+</table>
+<strong>三个要点</strong>：<br>
+① <code>/=</code> 的结果<strong>一定是 float</strong>（<code>7 /= 2</code> → <code>3.5</code>）；要保留整数得用 <code>//=</code>；<br>
+② <strong>左边必须是变量</strong> —— <code>1 += 1</code> 是<strong>语法错误</strong>
+（<code>SyntaxError: 'literal' is an illegal expression for augmented assignment</code>），连跑都跑不起来；<br>
+③ <code>//=</code> 对<strong>负数向下取整</strong>：<code>-7 //= 2</code> → <code>-4</code>（不是 −3）。
+</div>
+
+<div class="box warn">
+<strong>列表上 <code>+=</code> 和 <code>+</code> 不一样（别名陷阱）</strong>
+<pre><code>A = [1, 2]; B = A; A += [3]      # 原地改 → B 也跟着变
+C = [1, 2]; D = C; C = C + [3]   # 造新列表 → D 不变</code></pre>
+实测：<code>A += [3]</code> 后 <code>A = [1, 2, 3]</code>、<code>B = [1, 2, 3]</code>、
+<code>A is B</code> → <code>True</code>；<br>
+<code>C = C + [3]</code> 后 <code>C = [1, 2, 3]</code>、<code>D = [1, 2]</code>、
+<code>C is D</code> → <code>False</code>。<br>
+<strong><code>+=</code> 是「就地修改」，<code>+</code> 是「造一个新的」</strong>（这就是 ㉒ 里
+<code>+=</code> 拼字符串慢的另一面）。
+</div>
+
+<div class="box bad">
+<strong>这一族最容易算错的四处（全实测）</strong>
+<table>
+<tr><th>错误</th><th>后果</th></tr>
+<tr><td>该用 <code>/</code> 却写了 <code>//</code></td>
+<td><code>1 // 2 = 0</code>、<code>1 // 6 = 0</code> → 级数的 e 直接变成 <code>1.0</code>，整题全错</td></tr>
+<tr><td>漏了第 0 项</td><td><code>1/0! = 1</code>（<strong><code>0! = 1</code></strong>）—— 漏了 e 就少 1</td></tr>
+<tr><td>每项重新算阶乘</td><td>慢 123 ~ 886 倍（见上面的表），n 一大就超时</td></tr>
+<tr><td>对下标变量用 <code>/=</code></td>
+<td><code>i = 4; i /= 2</code> → <code>i = 2.0</code>（float）→ 再用 <code>lst[i]</code> 取元素会
+<code>TypeError: list indices must be integers or slices, not float</code></td></tr>
+</table>
+<strong>另外两个容易混的</strong>：<code>*=</code> 用在列表上是<strong>重复</strong>（<code>[1] * 3</code> → <code>[1, 1, 1]</code>）、
+<code>**=</code> 是<strong>幂</strong>（和 ④「双星」那张表连着看）；
+<code>:=</code>（海象运算符，Python 3.8+）<strong>长得像但不是一回事</strong>，它是「边赋值边用」。
+</div>
+
+<div class="box ok">
+<strong>最常用的其实不是阶乘，是计数</strong><br>
+<code>cnt += 1</code>（计数器）、<code>d[k] += 1</code>（字典计数，㉕）——
+它们和 <code>term /= i</code> 是同一家族：<strong>先算右边，再存回左边的变量</strong>。<br>
+实测 <code>d = {}</code>，遍历 <code>'aba'</code> 做 <code>d[ch] = d.get(ch, 0) + 1</code> →
+<code>{'a': 2, 'b': 1}</code>。
 </div>
 
 <h2 id="star">三、符号速查：* 和 []</h2>
