@@ -104,7 +104,7 @@
 -->
 
 <h1>Python 自学笔记</h1>
-<p class="meta">hkh ｜ 更新 2026-10-11 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">22</span> 题（浙大版《Python 程序设计》题目集）</p>
+<p class="meta">hkh ｜ 更新 2026-10-13 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">22</span> 题 + 第4章 <span id="c4">1</span> 题（浙大版《Python 程序设计》题目集）</p>
 
 <nav id="toc">
   <div class="toc-head">目录　<span class="toc-hint">点标题展开 · 点条目直接跳</span></div>
@@ -190,7 +190,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>六、真题回顾 <span class="toc-n" id="cr">39</span></summary>
+    <summary>六、真题回顾 <span class="toc-n" id="cr">40</span></summary>
     <ol>
       <li><a onclick="return go('review-1')">1-1 从键盘输入两个数求和</a></li>
       <li><a onclick="return go('review-2')">1-2 按公式输出 b²−4ac</a></li>
@@ -231,6 +231,7 @@
       <li><a onclick="return go('review-37')">3-20 逆序的三位数</a></li>
       <li><a onclick="return go('review-38')">3-21 判断回文字符串</a></li>
       <li><a onclick="return go('review-39')">3-22 输出大写英文字母</a></li>
+      <li><a onclick="return go('review-40')">4-1 生成3的乘方表</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -3592,7 +3593,7 @@ if m!=v[17]:                      # ② 索引</code></pre>
 ② 两边同时改，很容易出现"本地一份、提交另一份"，而且极难发现
 </div>
 
-<h2 id="review">六、真题回顾（<span id="cr2">39</span> 题）</h2>
+<h2 id="review">六、真题回顾（<span id="cr2">40</span> 题）</h2>
 
 <div class="box warn">
 <strong>说明：</strong>下面的题目要求是<strong>我按自己的理解概括写的</strong>，不是 PTA 原文。<br>
@@ -5550,6 +5551,75 @@ else:                        有
 · <code>py_compile</code> 通过 ｜ PTA <strong>通过</strong>（进度 39/89）
 </div>
 
+<h3 id="review-40">4-1 生成3的乘方表 <span class="tag">通过</span></h3>
+<p><strong>要求：</strong>输入一个<strong>非负整数 n</strong>，按幂的<strong>递增顺序</strong>输出
+<strong>n + 1 行</strong>，每行格式是 <code>pow(3,i) = 3的i次幂的值</code>
+（<code>i</code> 从 0 到 n）。题面明说「可调用<strong>幂函数</strong>计算 3 的乘方」，并保证结果不超过长整型。<br>
+<strong>样例：</strong><code>n = 3</code> → <code>pow(3,0) = 1</code> /
+<code>pow(3,1) = 3</code> / <code>pow(3,2) = 9</code> / <code>pow(3,3) = 27</code></p>
+
+<p><strong>我的代码（通过）</strong></p>
+<pre><code>n=int(input())                   读入 n（非负整数）：input() 拿到字符串，int() 转成整数
+m=range(n+1)                     m = 0,1,2,…,n 这个范围 —— range 是【左闭右开】，写 n+1 才取得到 n
+for i in m:                      按幂的递增顺序过一遍（i 就是指数）
+    x=3**i                       x = 3 的 i 次幂；** 是幂运算符（④「双星」那张表）
+    print(f"pow(3,{i}) = {x}")   按题面格式打一行：pow(3,0) 里【逗号后没有空格】、等号两边各有一个空格</code></pre>
+
+<p><strong>优化用法：</strong>① <code>m = range(n+1)</code> 这个中间变量是多余的 ——
+<code>range</code> 对象本来就能直接迭代：<code>for i in range(n+1):</code>（3-19 那题也是这么写的）；<br>
+② <code>x = 3**i</code> 可以内联进 f-string：<code>print(f"pow(3,{i}) = {3**i}")</code>，少一个变量；<br>
+③ 题面说的「<strong>幂函数</strong>」就是内置的 <code>pow()</code>：<code>pow(3, i)</code> 与 <code>3**i</code>
+<strong>完全等价</strong>（实测 0~199 逐一相同，浮点、负指数也一致）—— 用哪个都对，
+但题面既然这么写，说明出题人心里那个写法是 <code>pow</code>（而且 <code>pow</code> 还能取模，见下）；<br>
+④ 想更快可以<strong>递推</strong>：<code>x = 1</code> 然后每轮 <code>x *= 3</code>，
+不必每次都重算幂。实测 n=100000 时：每次重算 <code>3**i</code> 要 <strong>67.6 s</strong>，
+递推只要 <strong>0.92 s（快 73.7 倍）</strong> —— 因为那时 <code>3**100000</code> 已经是
+<strong>4.7 万位</strong>的大数，重算代价极高（本题 n 很小，两种都瞬间完成）。</p>
+
+<div class="box ok">
+<strong><code>pow()</code> 怎么用（笔记里第一次出现）</strong>
+<table>
+<tr><th>写法</th><th>干什么</th><th>实测</th></tr>
+<tr><td><code>pow(3, i)</code></td><td>幂运算，等价于 <code>3**i</code></td>
+<td><code>pow(3,4)</code> → <code>81</code></td></tr>
+<tr><td><code>pow(3, 4, 10)</code></td><td><strong>第三参数 = 取模</strong>（快速幂取模）</td>
+<td><code>1</code>（= <code>81 % 10</code>）</td></tr>
+<tr><td><code>list(map(lambda i: pow(3,i), range(5)))</code></td>
+<td><code>pow</code> 是<strong>函数</strong>，能当参数传</td>
+<td><code>[1, 3, 9, 27, 81]</code></td></tr>
+<tr><td><code>pow(3, 0.5)</code></td><td>浮点也吃（开平方）</td>
+<td><code>1.7320508075688772</code>（与 <code>3**0.5</code> 相同）</td></tr>
+<tr><td><code>pow(3, -1)</code></td><td>负指数 → 浮点</td><td><code>0.3333333333333333</code></td></tr>
+<tr><td><code>pow(3, 4, 10.0)</code></td><td>第三参数必须是整数</td>
+<td><code>TypeError: pow() 3rd argument not allowed unless all arguments are integers</code></td></tr>
+</table>
+<strong>和 <code>**</code> 的分工</strong>：<code>**</code> 是<strong>运算符</strong>（写法短、优先级要注意，
+见 ④「双星」那张表：<code>-1**2</code> 是 <code>-(1**2)</code>）；
+<code>pow</code> 是<strong>函数</strong>（能传、能 <code>map</code>、能<strong>取模</strong>）。
+平时写 <code>x**2</code>，题面点名「幂函数」或要取模时就写 <code>pow</code>。
+</div>
+
+<div class="box warn">
+<strong>格式：<code>pow(3,0) = 1</code> 里逗号后面没有空格</strong>
+<table>
+<tr><th>写法</th><th>实测输出</th></tr>
+<tr><td><code>f"pow(3,{i}) = {x}"</code>（本题）</td><td><code>'pow(3,0) = 1'</code> ✅</td></tr>
+<tr><td><code>f"pow(3, {i}) = {x}"</code>（多一个空格）</td><td><code>'pow(3, 0) = 1'</code> ❌</td></tr>
+</table>
+这种「格式题」<strong>多一个空格就整行不对</strong>，而样例里一眼扫过去很容易看漏 ——
+所以输出格式必须<strong>逐字符</strong>对着题面抄（等号两边各有一个空格，逗号后没有）。
+</div>
+
+<div class="box ok">
+<strong>实测验收</strong>（期望值由独立实现算出：用内置 <code>pow()</code> 逐行拼）<br>
+· 样例 <code>n=3</code> → 4 行，<code>pow(3,0) = 1</code> … <code>pow(3,3) = 27</code> ✅<br>
+· <strong>两端</strong>：<code>n=0</code> → <strong>只 1 行</strong> ✅；<code>n=1</code>、<code>n=2</code> ✅<br>
+· <strong>长整型边界</strong>：<code>n=19</code>（<code>1162261467</code>，仍在 32 位 long 内）、
+<code>n=20</code>（<code>3486784401</code>，已超）都不崩 ✅ —— Python 整数没有上限<br>
+· <code>n=39</code>、<code>n=100</code> ✅；<code>n=1000</code> → 1001 行、用时 <strong>0.0020 s</strong>（限制 400 ms）<br>
+· <code>py_compile</code> 通过 ｜ PTA <strong>通过</strong>（进度 40/89，第 4 章开张）
+</div>
+
 <h2 id="quick">七、速查总表</h2>
 
 <p><strong>为什么单独开一章：</strong>前面是按「遇到的顺序」记的，翻起来像流水账。
@@ -5996,7 +6066,7 @@ function fillCounts(){
   function put(id, v){ var n = document.getElementById(id); if (n){ n.textContent = v; } }
   put('ce', errs);  put('cs', secs);
   put('cr', total); put('cr2', total);
-  put('c1', ch['1'] || 0);  put('c2', ch['2'] || 0);  put('c3', ch['3'] || 0);
+  put('c1', ch['1'] || 0);  put('c2', ch['2'] || 0);  put('c3', ch['3'] || 0);  put('c4', ch['4'] || 0);
 }
 fillCounts();
 markWideCells();
