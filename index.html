@@ -104,7 +104,7 @@
 -->
 
 <h1>Python 自学笔记</h1>
-<p class="meta">hkh ｜ 更新 2026-10-13 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">22</span> 题 + 第4章 <span id="c4">1</span> 题（浙大版《Python 程序设计》题目集）</p>
+<p class="meta">hkh ｜ 更新 2026-10-13 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">22</span> 题 + 第4章 <span id="c4">2</span> 题（浙大版《Python 程序设计》题目集）</p>
 
 <nav id="toc">
   <div class="toc-head">目录　<span class="toc-hint">点标题展开 · 点条目直接跳</span></div>
@@ -190,7 +190,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>六、真题回顾 <span class="toc-n" id="cr">40</span></summary>
+    <summary>六、真题回顾 <span class="toc-n" id="cr">41</span></summary>
     <ol>
       <li><a onclick="return go('review-1')">1-1 从键盘输入两个数求和</a></li>
       <li><a onclick="return go('review-2')">1-2 按公式输出 b²−4ac</a></li>
@@ -232,6 +232,7 @@
       <li><a onclick="return go('review-38')">3-21 判断回文字符串</a></li>
       <li><a onclick="return go('review-39')">3-22 输出大写英文字母</a></li>
       <li><a onclick="return go('review-40')">4-1 生成3的乘方表</a></li>
+      <li><a onclick="return go('review-41')">4-2 统计素数并求和</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -3593,7 +3594,7 @@ if m!=v[17]:                      # ② 索引</code></pre>
 ② 两边同时改，很容易出现"本地一份、提交另一份"，而且极难发现
 </div>
 
-<h2 id="review">六、真题回顾（<span id="cr2">40</span> 题）</h2>
+<h2 id="review">六、真题回顾（<span id="cr2">41</span> 题）</h2>
 
 <div class="box warn">
 <strong>说明：</strong>下面的题目要求是<strong>我按自己的理解概括写的</strong>，不是 PTA 原文。<br>
@@ -5618,6 +5619,81 @@ for i in m:                      按幂的递增顺序过一遍（i 就是指数
 <code>n=20</code>（<code>3486784401</code>，已超）都不崩 ✅ —— Python 整数没有上限<br>
 · <code>n=39</code>、<code>n=100</code> ✅；<code>n=1000</code> → 1001 行、用时 <strong>0.0020 s</strong>（限制 400 ms）<br>
 · <code>py_compile</code> 通过 ｜ PTA <strong>通过</strong>（进度 40/89，第 4 章开张）
+</div>
+
+<h3 id="review-41">4-2 统计素数并求和 <span class="tag">通过</span></h3>
+<p><strong>要求：</strong>给定两个正整数 M 和 N（<code>1 ≤ M ≤ N ≤ 500</code>），
+统计区间 <code>[M, N]</code> 内<strong>素数的个数</strong>并求它们的<strong>和</strong>；
+一行输出，<code>个数</code> 和 <code>和</code> <strong>之间用空格分隔</strong>（个数在前）。<br>
+<strong>样例：</strong><code>10 31</code> → <code>7 143</code>
+（区间里 7 个素数：11、13、17、19、23、29、31，和是 143）</p>
+
+<p><strong>我的代码（通过）</strong></p>
+<pre><code>M,N=map(int,input().split())   一行读两个整数：split() 按空白切开成两个字符串，map(int) 各转成整数
+yes=0                          计数器：素数的【个数】
+L=[]                           收集素数（待会儿靠 sum() 求和）
+for n in range(M,N+1):         逐个看区间里的每个数（range 左闭右开，写 N+1 才含 N）
+    if n<=1:continue           1 和 0 不是素数 —— 【这一行必须有】，少了它空循环会让 else 执行（见下面盒子）
+    for i in range(2,n):       试除：从 2 试到 n-1（改成试到 √n 更快，见优化用法）
+        if n%i==0:break        除得尽 → 不是素数 → break 打断内层循环
+    else:                      【属于 for 的 else】只有循环没被 break 打断才执行 = 没找到任何因子
+        yes+=1                 是素数：个数 +1
+        L.append(n)            把素数收进列表
+print(f"{yes} {sum(L)}")       一行输出「个数 和」，空格分隔（个数在前）</code></pre>
+
+<p><strong>优化用法：</strong>① <code>L</code> 这个列表<strong>可以不要</strong> ——
+直接 <code>yes += 1; s += n</code> 累加。<strong>但这不是性能问题</strong>（实测 1~500 各跑 300 次：
+累加 <code>0.130s</code> vs 先存列表再 <code>sum</code> <code>0.129s</code>，几乎一样），
+省掉它只是<strong>少一个容器、少一次 <code>sum</code></strong>；<br>
+② <strong>内层只试到 √n</strong>：<code>for i in range(2, int(n**0.5)+1)</code> ——
+实测 <strong>0.46 ms → 0.13 ms（快 3.5 倍）</strong>。理由：若 <code>n = a×b</code> 且 <code>a ≤ b</code>，
+则 <code>a ≤ √n</code>，所以只要有因子，<strong>必有一个不超过 √n</strong>，试到 √n 就够；<br>
+③ 还能再跳过偶数（2 之外都不试），但可读性会下降，这题 <code>n ≤ 500</code> 用不上；<br>
+④ <code>if n &lt;= 1</code> 和 <code>if n &lt; 2</code> 等价，把 1 和 0 挡在外面就行；<br>
+⑤ 不想用 <code>for...else</code> 的话，用 <code>flag</code> 变量完全等价（实测两者给出的素数集合一样）；
+等第 5 章学了 <code>def</code>，可以把判定包成 <code>is_prime(n)</code> 函数，主循环会更短。</p>
+
+<div class="box ok">
+<strong><code>for...else</code>：else 到底什么时候执行（笔记里第一次正式讲）</strong>
+<table>
+<tr><th>情形</th><th><code>else</code> 执不执行</th><th>实测输出</th></tr>
+<tr><td>循环<strong>正常跑完</strong></td><td><strong>执行</strong></td><td><code>'else 执行'</code></td></tr>
+<tr><td>循环里遇到了 <code>break</code></td><td><strong>不执行</strong></td><td><code>''</code>（什么都没有）</td></tr>
+<tr><td><strong>空循环</strong>（如 <code>range(0)</code>）</td><td><strong>执行</strong></td>
+<td><code>'空循环也执行 else'</code> ⚠️</td></tr>
+<tr><td><code>while...else</code></td><td>同理</td><td><code>'while 正常结束 → else 执行'</code></td></tr>
+</table>
+<strong>怎么读它</strong>：<code>else</code> <strong>属于 <code>for</code>（或 <code>while</code>）</strong>，
+不是属于里面的 <code>if</code> —— 缩进上它和 <code>for</code> 对齐。
+语义是「<strong>循环没被 <code>break</code> 打断，就执行</strong>」，<br>
+所以「试除循环一次都没 break」= 「没找到任何因子」= 素数 —— 这正是本题的判定逻辑。<br>
+<strong>和 3-2 那个盒子的关系</strong>：那题「不能 break」（要把所有不合格的都打印出来），
+于是 else <strong>永远执行</strong>、起不到作用，只能自己用计数器判断；
+<strong>能不能 break 决定了 for...else 有没有用</strong> —— 两处放在一起看就通了。
+</div>
+
+<div class="box bad">
+<strong>⚠️ <code>if n&lt;=1: continue</code> 这一行不能省 —— 1 会被误判成素数</strong><br>
+把这一行去掉，同一份数据实测输出：<code>1 素数; 2 素数; 3 素数; 11 素数;</code> ——
+<strong><code>1</code> 被判成了素数</strong>。<br>
+原因就是上面那张表第 3 行：<code>n = 1</code> 时内层是 <code>range(2, 1)</code>，
+<strong>一个数都没有</strong>，循环自然「没被 break」→ <code>else</code> 照样执行 → 判成素数。<br>
+这题 <code>M</code> 的<strong>下限正好是 1</strong>，所以这是最容易丢分的测试点
+（<code>n = 2</code> 也走空循环 <code>range(2, 2)</code>，那个是<strong>对的</strong>——2 确实是素数；
+空循环本身不是错，<strong>错的是没排除 1</strong>）。
+</div>
+
+<div class="box ok">
+<strong>实测验收</strong>（期望值的独立口径：<strong>埃氏筛</strong>先筛出 1~500 的素数表再取区间）<br>
+· 样例 <code>10 31</code> → <code>7 143</code> ✅<br>
+· <strong>两端</strong>：<code>1 1</code> → <code>0 0</code>｜<code>1 2</code> → <code>1 2</code>｜
+<code>2 2</code> → <code>1 2</code>｜<code>499 499</code> → <code>1 499</code>｜
+<code>500 500</code> → <code>0 0</code> ✅<br>
+· <code>1 3</code> → <code>2 5</code>｜<code>1 10</code> → <code>4 17</code>｜
+<code>1 500</code> → <code>95 21536</code>｜<code>250 500</code> → <code>42 15706</code> ✅<br>
+· <strong>1500 组</strong>（1000 组随机 + 全部 500 个 <code>M=N</code>）：<strong>0 组不一致 ✅</strong><br>
+· <strong>最坏用时</strong> <code>1 500</code>：平均 <strong>0.0008 s</strong>（限制 400 ms）<br>
+· <code>py_compile</code> 通过 ｜ PTA <strong>通过</strong>（进度 41/89）
 </div>
 
 <h2 id="quick">七、速查总表</h2>
