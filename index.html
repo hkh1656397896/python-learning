@@ -104,7 +104,7 @@
 -->
 
 <h1>Python 自学笔记</h1>
-<p class="meta">hkh ｜ 更新 2026-10-13 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">22</span> 题 + 第4章 <span id="c4">10</span> 题（浙大版《Python 程序设计》题目集）</p>
+<p class="meta">hkh ｜ 更新 2026-10-13 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">22</span> 题 + 第4章 <span id="c4">11</span> 题（浙大版《Python 程序设计》题目集）</p>
 
 <nav id="toc">
   <div class="toc-head">目录　<span class="toc-hint">点标题展开 · 点条目直接跳</span></div>
@@ -125,7 +125,7 @@
       <li><a onclick="return go('e1-13')">❌ 12. 忘了 input 后面那对括号</a></li>
       <li><a onclick="return go('e1-14')">❌ 13. 把 print 塞进了 sorted() 里面</a></li>
       <li><a onclick="return go('e1-15')">❌ 14. 删掉卫语句时忘了同步改缩进 —— print 还留在循环里</a></li>
-      <li><a onclick="return go('e1-16')">❌ 15. 缩进 = 从属关系（同一个病，三次翻车）</a></li>
+      <li><a onclick="return go('e1-16')">❌ 15. 缩进 = 从属关系（同一个病，四次翻车）</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -193,7 +193,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>六、真题回顾 <span class="toc-n" id="cr">49</span></summary>
+    <summary>六、真题回顾 <span class="toc-n" id="cr">50</span></summary>
     <ol>
       <li><a onclick="return go('review-1')">1-1 从键盘输入两个数求和</a></li>
       <li><a onclick="return go('review-2')">1-2 按公式输出 b²−4ac</a></li>
@@ -255,6 +255,7 @@
       <li><a onclick="return go('quick-5')">⑤ 对象 × 操作 对照表（谁有哪个能力）</a></li>
       <li><a onclick="return go('quick-6')">⑥ 字符串方法总表（按用途分类，全部实测）</a></li>
       <li><a onclick="return go('quick-7')">4-10 最大公约数和最小公倍数</a></li>
+      <li><a onclick="return go('quick-8')">4-11 判断素数</a></li>
     </ol>
   </details>
 </nav>
@@ -684,7 +685,7 @@ sorted(print("y"), reverse=True)  # TypeError: 'NoneType' object is not iterable
 本条讲<strong>更容易发生的一种</strong>：<strong>删代码时只删了变量，忘了它保护的缩进</strong>。
 </div>
 
-<h3 id="e1-16">❌ 15. 缩进 = 从属关系（同一个病，三次翻车）<span class="tag">第3章-19、第4章-4、第4章-7</span></h3>
+<h3 id="e1-16">❌ 15. 缩进 = 从属关系（同一个病，四次翻车）<span class="tag">第3章-19、第4章-4、第4章-7、第4章-11</span></h3>
 <p>这三题挂掉的原因<strong>完全一样</strong>：一行代码<strong>该属于谁</strong>没对上（缩进对齐错了）。
 Python 没有花括号，<strong>缩进就是语法</strong> —— 谁包含谁，全看列位。</p>
 <table>
@@ -701,6 +702,13 @@ Python 没有花括号，<strong>缩进就是语法</strong> —— 谁包含谁
 <td>跑到了 <code>else</code> 外面</td>
 <td><code>N=0</code> 时先打对两行、紧接着
 <code>NameError: name 'average' is not defined</code></td></tr>
+<tr><td><strong>4-11</strong> 判断素数<br><span class="dim">（单行 if 收窄了范围）</span></td>
+<td><code>print("No")</code> 和 <code>break</code> 都该在 <code>if</code> 的块<strong>里面</strong></td>
+<td>写成了 <code>if x%i==0:print("No")</code> 单行，
+下一行的 <code>break</code> 归给了 <code>for</code></td>
+<td><strong>第一圈就无条件 <code>break</code></strong> → <code>for...else</code> 的 <code>else</code> 永不执行
+→ <strong>素数一个都打不出 <code>Yes</code></strong>：<code>4</code> 侥幸对（<code>i=2</code> 真命中）、
+<code>11</code> 和 <code>9</code> 全空</td></tr>
 </table>
 <div class="box warn">
 <strong>为什么编译器和眼睛都抓不到</strong><br>
@@ -713,6 +721,30 @@ Python 没有花括号，<strong>缩进就是语法</strong> —— 谁包含谁
 ① 这件事<strong>每轮都要做</strong>吗？（→ 在循环里）<br>
 ② 这个 <code>else</code> <strong>属于哪个</strong> <code>for</code>？（→ 看它和谁<strong>同列</strong>）<br>
 ③ 这一步<strong>只有正常情况才做</strong>吗？（→ 在 <code>else</code> 里）</p>
+
+<div class="box bad">
+<strong>⚠️ 第四个案例（4-11）的形态最阴：<code>if</code> 写成单行，把自己的范围收窄了</strong>
+<pre><code>if x%i==0:print("No")     # ← 这个 if 的块，已经在【同一行】结束了
+    break                  # ← 缩进 16 格：既不是 if 的下属（if 已结束），也不是 for 的下属
+
+if x%i==0:                 # ✅ 要带下一行，冒号后面就必须空着
+    print("No")            # ← 16 格，属于 if
+    break                  # ← 16 格，同层，也属于 if
+else:print("Yes")          # ← 8 格，属于 for（for...else）</code></pre>
+<strong>两种错会连着出现，而只有第一种会被编译器拦住：</strong>
+<table>
+<tr><th>写法</th><th><code>py_compile</code></th><th>实测输出</th></tr>
+<tr><td><code>print</code> 单行 + <code>break</code> 缩进 16 格</td>
+<td><strong>❌ 拦住</strong><br><code>IndentationError: unexpected indent</code></td>
+<td>根本跑不起来（rc=1）</td></tr>
+<tr><td>把 <code>break</code> 退回 12 格（对齐 <code>if</code>）</td>
+<td><strong>✅ 通过</strong>（编译器不管了）</td>
+<td><strong>❌ 语义错</strong>：<code>11</code> 输出空、<code>9</code> 输出空、只有 <code>4</code> 侥幸对</td></tr>
+<tr><td><code>print</code> 与 <code>break</code> 都放进 <code>if</code> 块</td>
+<td>✅ 通过</td><td>✅ 全对</td></tr>
+</table>
+<strong>教训：修好"能编译"之后，一定要再跑一遍真实输入 —— 第二阶段的错编译器完全不报。</strong>
+</div>
 
 <h2 id="s1">二、常用代码与拓展（每条都带输出）</h2>
 
@@ -4007,7 +4039,7 @@ if m!=v[17]:                      # ② 索引</code></pre>
 ② 两边同时改，很容易出现"本地一份、提交另一份"，而且极难发现
 </div>
 
-<h2 id="review">六、真题回顾（<span id="cr2">49</span> 题）</h2>
+<h2 id="review">六、真题回顾（<span id="cr2">50</span> 题）</h2>
 
 <div class="box warn">
 <strong>说明：</strong>下面的题目要求是<strong>我按自己的理解概括写的</strong>，不是 PTA 原文。<br>
@@ -7153,6 +7185,115 @@ print(f"{g} {l}")</code></pre>
 与 <code>math.gcd</code> 口径<strong>和</strong>「纯穷举」（完全独立实现，不用 gcd 公式）
 <strong>两个口径三方互证，各 0 组不一致</strong>；
 最坏输入 <code>1000 999</code> 单次 <strong>0.0397 ms</strong>。</p>
+
+<h3 id="quick-8">4-11 判断素数 <span class="tag">通过</span></h3>
+
+<p><strong>要求</strong>：第一行给出正整数 N（≤ 10），随后 N 行每行给出一个小于 1000000 的正整数；
+对每个数，素数打 <code>Yes</code>，否则打 <code>No</code>。样例 <code>11</code> → <code>Yes</code>、
+<code>111</code> → <code>No</code>。</p>
+
+<p><strong>我的代码</strong>（第三版才过）</p>
+<pre><code>N=int(input())                          # 先读要判几个数
+for _ in range(N):                      # 循环 N 次（下划线表示"这个循环变量用不上"）
+    x=int(input())                      # 读一个待判断的正整数
+    if x<=1:print("No")                 # 0 和 1 都不是素数（写 x<=1 而不是 x==1，见下）
+    elif x==2:print("Yes")              # 2 是最小的素数，单独放行
+    else:
+        for i in range(2,int(x**0.5)+1):  # 只需试到 √x（超过 √x 的因子必然配对出现）
+            if x%i==0:                  # 找到了一个因子 → 不是素数
+                print("No")             # 立刻打 No（这一步必须在 if 的块里）
+                break                   # 打完再跳出，终止验证
+        else:print("Yes")               # 循环没被 break 打断 → 一个因子都没有 → 素数</code></pre>
+
+<div class="box bad">
+<strong>❌ 我的前两版</strong>
+<pre><code># 第一版：if/elif 收尾的 else 挡住了后面的 for...else，x 不是 1 也不是 2 时什么都不输出
+    if x<=1:print("No")
+    elif x==2:print("Yes")
+    else:
+        for i in range(2,int(x**0.5)+1):
+            if x%i==0:break             # ❌ 只 break，没打 No → 合数【什么都不输出】
+        else:print("Yes")               # ❌ 这个 else 只覆盖"没 break"那条路
+
+# 第二版：想给 break 那条路补 print，写成了单行 if
+            if x%i==0:print("No")       # ❌ 单行：if 的块在这一行就结束了
+                break                   # ❌ 16 格，没有主管 → IndentationError
+</code></pre>
+<strong>第一版实测（6/9 组错）：</strong>
+<table>
+<tr><th>输入</th><th>第一版输出</th><th>期望</th><th>为什么</th></tr>
+<tr><td>样例 <code>11</code> + <code>111</code></td><td><code>Yes</code></td>
+<td><code>Yes</code> <code>No</code></td><td><code>111=3×37</code>，命中后只 <code>break</code>、没打 <code>No</code></td></tr>
+<tr><td><code>4</code> / <code>9</code> / 10 个 <code>4</code></td><td><strong>（空）</strong></td>
+<td><code>No</code></td><td>同上</td></tr>
+<tr><td><code>0</code></td><td><strong><code>Yes</code></strong></td><td><code>No</code></td>
+<td>写的是 <code>x==1</code> → 0 走 <code>else</code> → <code>range(2,1)</code> 空循环 →
+<strong>空循环也执行 <code>for...else</code></strong> → 打 Yes</td></tr>
+</table>
+<strong>第二版实测：</strong><code>py_compile</code> 直接报
+<code>IndentationError: unexpected indent (line 9)</code>，五种输入全部 rc=1。
+</div>
+
+<p><strong>优化用法</strong></p>
+
+<div class="box ok">
+<strong>① 单行 <code>if</code> 要带下一行，冒号后面必须空着</strong>
+<pre><code>if x%i==0:print("No")     # ❌ if 的块在这一行结束，下一行的 break 归给 for
+if x%i==0:                # ✅ 冒号后空着 → 下面缩进的都是它的块
+    print("No")
+    break</code></pre>
+实测把 <code>break</code> 退回 12 格（对齐 <code>if</code>）后 <strong><code>py_compile</code> 通过</strong>，
+但输出变成：<code>4</code>→<code>No</code>（侥幸对）、<strong><code>11</code>→空、<code>9</code>→空</strong>。
+<strong>因为 <code>break</code> 和 <code>if</code> 同层时它属于 <code>for</code>，第一圈就无条件跳出。</strong>
+</div>
+
+<div class="box ok">
+<strong>② 完整写法还有两条路：标志位 / 封成函数 <code>return</code></strong>
+<pre><code># 路 A：标志位（循环只有一个出口，结论在循环外统一打）
+is_prime = True
+for i in range(2, int(x**0.5)+1):
+    if x % i == 0:
+        is_prime = False      # 翻旗子
+        break
+print("Yes" if is_prime else "No")
+
+# 路 B：封成函数 —— return 一步完成「立刻终止 + 带着结论出去」
+def is_prime(n):
+    if n <= 1:
+        return False          # 提前返回
+    for k in range(2, int(n**0.5)+1):
+        if n % k == 0:
+            return False      # 找到因子立刻返回
+    return True               # 全部试完都没返回 False → 是素数
+print("Yes" if is_prime(x) else "No")</code></pre>
+三种写法实测结果完全一致：<code>0→No 1→No 2→Yes 3→Yes 4→No 9→No 11→Yes 111→No 999983→Yes 1000000→No</code>。
+</div>
+
+<div class="box warn">
+<strong>③ <code>x<=1</code> 不是 <code>x==1</code> —— 这个差别 <code>0</code> 会打出来</strong>
+<pre><code>if x<=1:print("No")    # ✅ 0 和 1 都挡掉
+if x==1:print("No")    # ❌ 0 漏过去 → range(2,1) 是空循环 → for...else 执行 → 打 Yes</code></pre>
+题面写的是「正整数」，严格说 <code>0</code> 不在范围内；<strong>但判据写全了不吃亏</strong>，
+而且这是 4-2 那道题（review-41）"少了 <code>n&lt;=1</code> 就把 1 判成素数"的同一个坑 ——
+<strong>空循环也会执行 <code>for...else</code></strong>。
+</div>
+
+<div class="box ok">
+<strong>④ 为什么只需试到 <code>√x</code></strong><br>
+若 <code>x = a × b</code> 且 <code>a ≤ b</code>，则必有 <code>a ≤ √x</code> ——
+<strong>小于 √x 的因子一定配对出现</strong>，所以试到 <code>√x</code> 就能覆盖所有情况。<br>
+<code>1000000</code> 的 <code>√</code> 是 1000，即<strong>最多试 1000 次</strong>（不优化要试 100 万次）。<br>
+<code>range(2, int(x**0.5)+1)</code> 里的 <code>+1</code> 不能省：<code>int()</code> 会截断，
+<code>49</code> 的 <code>√</code> 正好是 <code>7.0</code>，不带 <code>+1</code> 就试不到 7 → 会把 49 判成素数。
+</div>
+
+<p><strong>要点与实测证据</strong>：<code>py_compile</code> 通过；题面样例
+（<code>2 / 11 / 111</code> → <code>Yes / No</code>）逐字节一致；
+危险边界 <code>0</code>、<code>1</code>、<code>49</code>（<code>√</code> 边界）、
+<code>999983</code>（大素数）、<code>1000000</code>（上界外）全对；
+与<strong>埃氏筛</strong>独立口径对拍 <strong>2305 组</strong>
+（<code>0~999</code> 全部 + 每 997 取一个 + 300 个随机 + 边界）<strong>0 组不一致</strong>；
+<code>[0, 1000000)</code> 的素数个数<strong>两个口径都是 78498</strong>。</p>
 
 </body>
 </html>
