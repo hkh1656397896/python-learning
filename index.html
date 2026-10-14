@@ -104,7 +104,7 @@
 -->
 
 <h1>Python 自学笔记</h1>
-<p class="meta">hkh ｜ 更新 2026-10-13 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">22</span> 题 + 第4章 <span id="c4">11</span> 题（浙大版《Python 程序设计》题目集）</p>
+<p class="meta">hkh ｜ 更新 2026-10-13 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">22</span> 题 + 第4章 <span id="c4">12</span> 题（浙大版《Python 程序设计》题目集）</p>
 
 <nav id="toc">
   <div class="toc-head">目录　<span class="toc-hint">点标题展开 · 点条目直接跳</span></div>
@@ -129,7 +129,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>二、常用代码与拓展 <span class="toc-n" id="cs">32</span></summary>
+    <summary>二、常用代码与拓展 <span class="toc-n" id="cs">34</span></summary>
     <ol>
       <li><a onclick="return go('s1-1')">① 读一行数字</a></li>
       <li><a onclick="return go('s1-2')">② range()：生成数字序列</a></li>
@@ -163,6 +163,8 @@
       <li><a onclick="return go('s1-30')">㉚ 集合 set：只管「有没有」，与 .add()</a></li>
       <li><a onclick="return go('s1-31')">㉛ 阶乘 n! / 级数求和 / 复合赋值（/=、+=…）</a></li>
       <li><a onclick="return go('s1-32')">㉜ 最大公约数 / 最小公倍数（辗转相除法）</a></li>
+      <li><a onclick="return go('s1-36')">㉝ eval() / exec() / map()：把字符串当代码跑 vs 批量加工</a></li>
+      <li><a onclick="return go('s1-37')">㉞ sum() 能吃哪些容器？（附字符串禁令与 math.fsum）</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -193,7 +195,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>六、真题回顾 <span class="toc-n" id="cr">50</span></summary>
+    <summary>六、真题回顾 <span class="toc-n" id="cr">51</span></summary>
     <ol>
       <li><a onclick="return go('review-1')">1-1 从键盘输入两个数求和</a></li>
       <li><a onclick="return go('review-2')">1-2 按公式输出 b²−4ac</a></li>
@@ -256,6 +258,7 @@
       <li><a onclick="return go('quick-6')">⑥ 字符串方法总表（按用途分类，全部实测）</a></li>
       <li><a onclick="return go('quick-7')">4-10 最大公约数和最小公倍数</a></li>
       <li><a onclick="return go('quick-8')">4-11 判断素数</a></li>
+      <li><a onclick="return go('quick-9')">4-12 求满足条件的斐波那契数</a></li>
     </ol>
   </details>
 </nav>
@@ -686,8 +689,16 @@ sorted(print("y"), reverse=True)  # TypeError: 'NoneType' object is not iterable
 </div>
 
 <h3 id="e1-16">❌ 15. 缩进 = 从属关系（同一个病，四次翻车）<span class="tag">第3章-19、第4章-4、第4章-7、第4章-11</span></h3>
-<p>这三题挂掉的原因<strong>完全一样</strong>：一行代码<strong>该属于谁</strong>没对上（缩进对齐错了）。
+<p>这四题挂掉的原因<strong>完全一样</strong>：一行代码<strong>该属于谁</strong>没对上（缩进对齐错了）。
 Python 没有花括号，<strong>缩进就是语法</strong> —— 谁包含谁，全看列位。</p>
+<div class="box warn">
+<strong>这个家族还有"分支版"：同一个病，另一种形态</strong><br>
+4-11 那种<strong>单行 <code>if</code></strong>（<code>if x%i==0:print("No")</code>）不是缩进列位错，
+而是<strong>把自己的从属范围收窄到了同一行</strong> —— 结果下一行的 <code>break</code> 归给了 <code>for</code>。<br>
+同理，<strong>"循环出口的归属"</strong>也是这个家族：<code>break</code> 打不打印结论、
+<code>for...else</code> 的 <code>else</code> 对到哪一层 —— <strong>都只看列位</strong>。
+判断标准只有一个：<strong>这件事是"只有这一支才做"还是"整轮都要做"？</strong>
+</div>
 <table>
 <tr><th>题</th><th>本该属于</th><th>实际跑到</th><th>实测后果</th></tr>
 <tr><td><strong>3-19</strong> 找最长的字符串</td><td>判断该在 <code>for</code> <strong>里面</strong></td>
@@ -3695,6 +3706,215 @@ lcm = a // g * b       # ✅ 先除后乘：a 先被 g 约小，中间值不会�
 而 <code>math.gcd</code> 一句话带不过去。
 </div>
 
+<h3 id="s1-36">㉝ <code>eval()</code> / <code>exec()</code> / <code>map()</code>：把字符串当代码跑 vs 批量加工</h3>
+
+<p>三个都常被拿来"读输入"，但<strong>根本不是一类东西</strong>。先看这张表：</p>
+<table>
+<tr><th></th><th><code>eval()</code></th><th><code>map()</code></th></tr>
+<tr><td>干什么</td><td>把一个<strong>字符串</strong>当<strong>代码</strong>算一遍</td>
+<td>把<strong>一个函数</strong>套到<strong>一串</strong>东西上</td></tr>
+<tr><td>输入</td><td>一个字符串</td><td>一个函数 + 一个（或多个）可迭代对象</td></tr>
+<tr><td>输出</td><td><strong>一个值</strong></td><td><strong>一个迭代器</strong>（要给 <code>list()</code> 才看得见）</td></tr>
+<tr><td>方向</td><td><strong>纵向</strong>：一个字符串 → 一个值</td><td><strong>横向</strong>：一串 → 逐个加工 → 一串</td></tr>
+<tr><td>危险吗</td><td><strong>很危险</strong>（真的会执行代码）</td><td>不危险</td></tr>
+</table>
+
+<div class="box ok">
+<strong><code>eval()</code>：把字符串当表达式算</strong>
+<pre><code>eval("1+2")          # 3
+eval("2**10")        # 1024        ← 认得运算符和优先级
+eval("10//4")        # 2           ← 认得整除
+eval("1 + 2*3")      # 7           ← 先乘后加，和手写一样
+eval("len('abcd')")  # 4           ← 能用内置函数
+eval("[0]*3")        # [0, 0, 0]   ← 能造列表
+eval("1, 2")         # (1, 2)      ← 能一次给【多个值】（元组成立）</code></pre>
+<strong>机制</strong>：它把字符串交给 Python 自己的解析器 ——
+<strong>字符串里写什么，就等于直接写了什么</strong>。
+</div>
+
+<div class="box bad">
+<strong>它只认「表达式」，不认「语句」（全实测）</strong>
+<table>
+<tr><th>写法</th><th>结果</th></tr>
+<tr><td><code>eval("a = 1")</code></td><td>❌ <code>SyntaxError</code>（赋值是<strong>语句</strong>）</td></tr>
+<tr><td><code>eval("1+1; 2+2")</code></td><td>❌ <code>SyntaxError</code>（只收<strong>一个</strong>表达式）</td></tr>
+<tr><td><code>eval("for i in range(3): pass")</code></td><td>❌ <code>SyntaxError</code></td></tr>
+<tr><td><code>eval("")</code> / <code>eval("1+")</code></td><td>❌ <code>SyntaxError: unexpected EOF</code></td></tr>
+<tr><td><code>eval("print(1)")</code></td><td>✅ 打 <code>1</code>，返回 <code>None</code>（函数调用算表达式）</td></tr>
+</table>
+<strong>要执行语句就用 <code>exec()</code></strong> —— 它是 <code>eval</code> 的"语句版"，
+能跑赋值和循环，<strong>但没有返回值</strong>，而且<strong>同样危险</strong>。PTA 上用不到。
+</div>
+
+<div class="box warn">
+<strong><code>eval</code> vs <code>int</code> vs <code>float</code>：都能"字符串变数字"，口径不同</strong>
+<table>
+<tr><th><code>s</code></th><th><code>int(s)</code></th><th><code>float(s)</code></th><th><code>eval(s)</code></th></tr>
+<tr><td><code>"42"</code></td><td><code>42</code></td><td><code>42.0</code></td><td><code>42</code>（int）</td></tr>
+<tr><td><code>"3.14"</code></td><td>❌ ValueError</td><td><code>3.14</code></td><td><code>3.14</code>（float）</td></tr>
+<tr><td><code>"1e3"</code></td><td>❌ ValueError</td><td><code>1000.0</code></td><td><code>1000.0</code></td></tr>
+<tr><td><code>"1,2"</code></td><td>❌ ValueError</td><td>❌ ValueError</td><td><strong><code>(1, 2)</code></strong></td></tr>
+<tr><td><code>"0x1f"</code></td><td>❌ ValueError</td><td>❌ ValueError</td><td><strong><code>31</code></strong></td></tr>
+<tr><td><code>"1 2"</code></td><td>❌ ValueError</td><td>❌ ValueError</td><td>❌ SyntaxError</td></tr>
+<tr><td><code>" 42 "</code></td><td><code>42</code></td><td><code>42.0</code></td><td><code>42</code></td></tr>
+</table>
+<code>eval</code> 比 <code>int</code> "宽容得多"（认 <code>0x1f</code>、认逗号）——
+<strong>但这不是优点，是危险信号：它宽容是因为它在执行代码。</strong>
+</div>
+
+<div class="box bad">
+<strong>⚠️ <code>eval</code> 真的会执行 —— 实测</strong>
+<pre><code>eval("__import__('os').getcwd()")   # 实测拿到 'C:\\Users\\Lenovo\\Desktop\\重要\\临时脚本'</code></pre>
+它<strong>真的拿到了当前目录</strong> —— 也就是说 <code>eval</code> 能 import、能读写文件、能删文件。
+<br><code>eval("2**10000000")</code> 还能让程序卡死几秒、吃爆内存。<br>
+<strong>规矩：<code>eval</code> 只能喂自己写死的字符串，绝不能喂 <code>input()</code> 拿到的东西。</strong>
+（别人输入 <code>__import__('os').system('...')</code> 就是在机器上跑命令。）
+</div>
+
+<div class="box ok">
+<strong><code>map()</code>：批量加工</strong>
+<pre><code>map(int, ["1","2","3"])              # 是【迭代器】，不是列表
+list(map(int, ["1","2","3"]))        # [1, 2, 3]
+type(map(int, "123"))                # map
+map(int, "123")                      # &lt;map object at 0x…&gt;  直接 print 只给个对象地址
+list(map(str, [1,2,3]))              # ['1', '2', '3']
+list(map(lambda x: x*2, [1,2,3]))    # [2, 4, 6]
+list(map(int, "1 2 3".split()))      # [1, 2, 3]   ← 读一行多个数的标准写法</code></pre>
+<strong>三条性质</strong>：<br>
+① <strong>返回迭代器</strong>，要 <code>list()</code> 才看得见内容；<br>
+② <strong>惰性 + 只能走一遍</strong>：<code>m = map(int, ["1","2","3"])</code> 时
+<code>list(m)</code> 第一次给 <code>[1,2,3]</code>、<strong>第二次给 <code>[]</code></strong>（用光了）；
+<br>
+③ <strong>可以传多个序列</strong>：<code>list(map(lambda a,b: a+b, [1,2,3], [10,20,30]))</code> → <code>[11, 22, 33]</code>。
+</div>
+
+<div class="box ok">
+<strong>读一行 <code>"1 2 3"</code> 的三种写法（实测）</strong>
+<table>
+<tr><th>写法</th><th>结果</th></tr>
+<tr><td><code>eval("1 2 3")</code></td>
+<td>❌ <code>SyntaxError</code> —— <strong>两个数之间没运算符，不是合法表达式</strong></td></tr>
+<tr><td><code>list(map(int, "1 2 3".split()))</code></td><td>✅ <code>[1, 2, 3]</code></td></tr>
+<tr><td><code>[int(x) for x in "1 2 3".split()]</code></td><td>✅ <code>[1, 2, 3]</code>（列表推导，等价）</td></tr>
+</table>
+<code>eval</code> 想读多个数，必须<strong>先把它凑成一个合法表达式</strong>：
+<pre><code>eval(input().replace(" ", ","))          # 输入 1 2 3 → 元组 (1, 2, 3)
+a, b = eval(input().replace(" ", ","))   # 一行拆成两个变量</code></pre>
+这是 <code>eval</code> 在 ACM 题里<strong>唯一的正经用途</strong> —— 靠"先替换再求值"绕开 <code>split</code>。
+但它<strong>又慢又危险</strong>，所以现在几乎被 <code>map</code> 取代。
+</div>
+
+<div class="box warn">
+<strong>速度实测（各 20 万次）</strong>
+<table>
+<tr><th>写法</th><th>用时</th><th>相对</th></tr>
+<tr><td><code>int('42')</code></td><td>0.0117 s</td><td>1×（基准）</td></tr>
+<tr><td><code>eval('42')</code></td><td><strong>0.3945 s</strong></td><td><strong>慢 33.7 倍</strong></td></tr>
+<tr><td><code>list(map(int, '1 2 3'.split()))</code></td><td>0.0563 s</td><td>—</td></tr>
+<tr><td><code>[int(x) for x in ...split()]</code></td><td><strong>0.0520 s</strong></td><td><strong>比 map 略快（8%）</strong></td></tr>
+</table>
+⚠️ <strong>最后一行和很多教程说的相反</strong> —— 本机实测<strong>列表推导比 <code>map</code> 略快</strong>。
+所以"<code>map</code> 更快"别当铁律，<strong>两者差不多，按可读性选</strong>。
+<code>eval</code> 慢是因为<strong>每次都要启动解析器</strong>。
+</div>
+
+<div class="box ok">
+<strong>该用哪个（刷题结论）</strong>
+<table>
+<tr><th>场景</th><th>用什么</th></tr>
+<tr><td>读一行几个整数</td><td><code>list(map(int, input().split()))</code></td></tr>
+<tr><td>读一行两个数拆成变量</td><td><code>a, b = map(int, input().split())</code></td></tr>
+<tr><td>一行求和 / 求最值</td><td><code>sum(map(int, input().split()))</code> / <code>max(...)</code></td></tr>
+<tr><td>读 N 行每行一个</td><td>循环里 <code>int(input())</code>（4-11 就是这么读的）</td></tr>
+<tr><td><strong>把带运算符的字符串算出来</strong></td><td><code>eval</code> 唯一不可替代处（<strong>PTA 基本用不上</strong>）</td></tr>
+</table>
+<strong>结论：PTA 上几乎永远不需要 <code>eval</code>。</strong> 而且碰到多空格（如 <code>"511   292"</code>）
+<code>split()</code> 能扛、<code>eval</code> 直接报语法错 —— 4-10 那题实测过。
+</div>
+
+<h3 id="s1-37">㉞ <code>sum()</code> 能吃哪些容器？（附字符串禁令与 <code>math.fsum</code>）</h3>
+
+<div class="box ok">
+<strong>核心：<code>sum()</code> 吃【任何可迭代对象】，元组当然可以</strong>
+<table>
+<tr><th>写法</th><th>结果</th></tr>
+<tr><td><code>sum((1, 2, 3))</code></td><td><code>6</code> ← <strong>元组，可以</strong></td></tr>
+<tr><td><code>sum([1, 2, 3])</code></td><td><code>6</code></td></tr>
+<tr><td><code>sum({1, 2, 3})</code></td><td><code>6</code>（集合也行）</td></tr>
+<tr><td><code>sum(range(1, 101))</code></td><td><code>5050</code>（1~100 求和）</td></tr>
+<tr><td><code>sum({1:'a', 2:'b'})</code></td><td><code>3</code> ← <strong>字典累加的是「键」</strong></td></tr>
+<tr><td><code>sum(x for x in [1,2,3])</code></td><td><code>6</code>（生成器）</td></tr>
+<tr><td><code>sum(map(int, "1 2 3".split()))</code></td><td><code>6</code>（和 ㉓ 的 <code>map</code> 配上）</td></tr>
+</table>
+<code>sum</code> 只要求"能被 <code>for</code> 遍历"，<strong>不关心是什么容器</strong>。
+元组的"不可变"<strong>不影响</strong> <code>sum</code> —— 它只读一遍：
+<code>t=(1,2,3)</code> → <code>sum(t)</code> 是 <code>6</code>，<code>t</code> 还是 <code>(1,2,3)</code>。
+</div>
+
+<div class="box ok">
+<strong>第二个参数 <code>start</code>：从哪个数开始累加（默认 <code>0</code>）</strong>
+<pre><code>sum((1, 2, 3))        # 6    ← 等价 0+1+2+3（start 默认 0）
+sum((1, 2, 3), 10)    # 16   ← 等价 10+1+2+3
+sum((1, 2, 3), -10)   # -4
+sum(())               # 0    ← 空元组不报错，返回 start
+sum((), 5)            # 5</code></pre>
+</div>
+
+<div class="box bad">
+<strong>⚠️ 大坑：想用 <code>sum</code> 拼字符串 —— 不行，而且<strong>给了 <code>start</code> 也不行</strong></strong>
+<table>
+<tr><th>写法</th><th>结果</th></tr>
+<tr><td><code>sum(('a','b','c'))</code></td>
+<td>❌ <code>TypeError: unsupported operand type(s) for +: 'int' and 'str'</code></td></tr>
+<tr><td><code>sum(('a','b'), '')</code></td>
+<td>❌ <strong><code>TypeError: sum() can't sum strings [use ''.join(seq) instead]</code></strong></td></tr>
+<tr><td><code>sum(([1],[2]))</code></td><td>❌ <code>TypeError: …'int' and 'list'</code></td></tr>
+<tr><td><code>sum(([1],[2]), [])</code></td><td>✅ <code>[1, 2]</code> ← <strong>列表却放行</strong></td></tr>
+</table>
+<strong>第一行为什么错</strong>：<code>start</code> 默认是 <code>0</code>，代码实际在算 <code>0 + 'a'</code>：
+<pre><code>0 + 'a'   # TypeError: unsupported operand type(s) for +: 'int' and 'str'</code></pre>
+<strong>但第二行更值得记</strong>：明明给了 <code>start=''</code>，Python <strong>还是拦</strong> ——
+它<strong>专门把"用 <code>sum</code> 拼字符串"这条路封死了</strong>（因为 <code>+=</code> 拼字符串是 O(n²)，
+见 ㉒「为什么 <code>join</code> 比 <code>+=</code> 快 44 倍」）。<strong>列表却放行</strong>，
+说明这是特地<strong>为字符串加的检查</strong>。<br>
+<strong>拼字符串的正确答案</strong>：<code>"".join(("a","b","c"))</code> → <code>'abc'</code>（见 ㉒ / ㉘）。
+3-22 那题的 <code>"".join(L) or "Not Found"</code> 走的就是这条路，<strong>不是 <code>sum</code></strong>。
+</div>
+
+<div class="box warn">
+<strong>类型混着放会报错；<code>True</code> 当 1 用</strong>
+<table>
+<tr><th>写法</th><th>结果</th></tr>
+<tr><td><code>sum((1, 2, 'a'))</code></td><td>❌ <code>TypeError: …'int' and 'str'</code></td></tr>
+<tr><td><code>sum((1, 2, None))</code></td><td>❌ <code>TypeError: …'int' and 'NoneType'</code></td></tr>
+<tr><td><code>sum((True, 2, 3))</code></td><td>✅ <code>6</code> ← <strong><code>True</code> 当 1</strong></td></tr>
+</table>
+最后一行和 3-10 那题的 <code>sum(c in HEX for c in M)</code> 是<strong>同一个机制</strong> ——
+<code>True/False</code> 相加就是计数。
+</div>
+
+<div class="box ok">
+<strong>浮点精度：<code>sum</code> 会丢，<code>math.fsum</code> 不会</strong>
+<pre><code>sum((0.1,)*10)                # 0.9999999999999999   ← 不等于 1.0
+math.fsum((0.1,)*10)          # 1.0                  ← 精确
+
+sum((1e16, 1.0, -1e16))       # 0.0   ← 中间的 1.0 被吃掉了！
+math.fsum((1e16, 1.0, -1e16)) # 1.0   ← 保住了</code></pre>
+<code>math.fsum</code> <strong>也接受元组</strong>（任何可迭代对象都行）。要精确求和就用它 ——
+4-5 / 4-8 那两题就是拿 <code>math.fsum</code> 当独立口径对拍的。
+</div>
+
+<div class="box ok">
+<strong>元组的其它"聚合"函数：<code>sum</code> / <code>max</code> / <code>min</code> / <code>len</code> 都吃</strong>
+<pre><code>t = (3, 1, 4, 1, 5, 9, 2, 6)
+sum(t)        # 31
+max(t)        # 9
+min(t)        # 1
+len(t)        # 8
+sorted(t)     # [1, 1, 2, 3, 4, 5, 6, 9]   ← 注意：返回【列表】，不是元组
+sum(t)/len(t) # 3.875   ← 求平均</code></pre>
+</div>
+
 <h2 id="star">三、符号速查：* 和 []</h2>
 
 <h3 id="star-1">——— 第一部分：星号 <code>*</code> ———</h3>
@@ -4039,7 +4259,7 @@ if m!=v[17]:                      # ② 索引</code></pre>
 ② 两边同时改，很容易出现"本地一份、提交另一份"，而且极难发现
 </div>
 
-<h2 id="review">六、真题回顾（<span id="cr2">50</span> 题）</h2>
+<h2 id="review">六、真题回顾（<span id="cr2">51</span> 题）</h2>
 
 <div class="box warn">
 <strong>说明：</strong>下面的题目要求是<strong>我按自己的理解概括写的</strong>，不是 PTA 原文。<br>
@@ -7294,6 +7514,84 @@ if x==1:print("No")    # ❌ 0 漏过去 → range(2,1) 是空循环 → for...e
 与<strong>埃氏筛</strong>独立口径对拍 <strong>2305 组</strong>
 （<code>0~999</code> 全部 + 每 997 取一个 + 300 个随机 + 边界）<strong>0 组不一致</strong>；
 <code>[0, 1000000)</code> 的素数个数<strong>两个口径都是 78498</strong>。</p>
+
+<h3 id="quick-9">4-12 求满足条件的斐波那契数 <span class="tag">通过</span></h3>
+
+<p><strong>要求</strong>：斐波那契数列 <code>1、1、2、3、5、8、13、21、…</code>（从第 3 项起每项是前两项之和）。
+输入一个正整数 <code>n</code>（<code>n≥10</code>），在一行输出<strong>大于 <code>n</code> 的最小斐波那契数</strong>。
+样例 <code>10</code> → <code>13</code>。</p>
+
+<p><strong>我的代码</strong></p>
+<pre><code>m=int(input())                 # 读入 n
+a,b=1,1                        # 从数列开头两项起步（1, 1）
+for _ in range(m):             # 循环上限给 m 次（因为数列到第 m 项一定超过 m）
+    a,b=b,a+b                  # 递推后移一位：新的 b 是前两项之和
+    if a+b>m:                  # 看【下一项】会不会超过 m
+        print(a+b)             # 超过 → 它就是"大于 m 的最小斐波那契数"…但注意见下
+        break                  # 打印后立刻跳出，只输出一个数</code></pre>
+
+<div class="box warn">
+<strong>这题的思路要点：为什么要"提前看下一项"</strong><br>
+如果直接判断当前项 <code>if b &gt; m</code>，那第一个超过 <code>m</code> 的 <code>b</code> 就是答案 ——
+但<strong>当前项可能还没超过</strong>，得继续推。写成"预判 <code>a+b</code>"等价于
+"把答案算出来再看"，可以少维护一个变量。<br>
+<strong>更直白的等价写法</strong>（推荐理解用）：
+<pre><code>m = int(input())
+a, b = 1, 1
+while a + b &lt;= m:      # 只要下一项还没超过 m，就继续往后推
+    a, b = b, a + b
+print(a + b)           # 退出时 a+b 就是第一个 &gt; m 的斐波那契数</code></pre>
+两种写法实测<strong>结果完全一致</strong>（n 在 [10, 100000] 抽样 300 组、0 组不一致）。
+</div>
+
+<div class="box ok">
+<strong>为什么 <code>for _ in range(m)</code> 是安全的（不会"循环不够用"）</strong><br>
+要保证循环次数够，得看<strong>最坏情况</strong>：答案是"大于 <code>m</code> 的最小斐波那契数"，
+而第 <code>k</code> 个斐波那契数约等于 <code>φᵏ/√5</code>（<code>φ≈1.618</code>）。
+要让数列超过 <code>m</code>，大约需要 <code>k ≈ log(m)/log(φ) ≈ 1.44 × log₂(m)</code> 项。<br>
+<code>m</code> 最大取到 <code>10⁶</code> 时，<strong>只要 30 项左右</strong>，
+而循环给了 <code>m</code>（=100 万）次 —— <strong>远超需要，绝不会用完</strong>。<br>
+实测上限：<code>n=1000000</code> → <code>1346269</code>、<code>n=1999999</code> → <code>2178309</code>，都对。
+</div>
+
+<p><strong>优化用法</strong></p>
+
+<div class="box ok">
+<strong>① 循环次数其实只需 ~30 次，写死上限更稳更快</strong>
+<pre><code># 现在的写法：给了 m 次上限（安全，但"上限"和"需要"差 5 个数量级）
+for _ in range(m):
+
+# 更贴切的写法：用一个肯定够的上限
+for _ in range(100):           # 100 项已经到 3.5×10²⁰，远超任何输入
+
+# 或者不用计数，直接用 while（见上面那个等价写法）—— 最清楚
+while a + b &lt;= m:
+    a, b = b, a + b
+print(a + b)</code></pre>
+<strong>三种写法结果一致</strong>；<code>while</code> 版最好读，而且<strong>不需要事先论证"循环够不够"</strong>。
+</div>
+
+<div class="box bad">
+<strong>② 一个只在 <code>n&lt;10</code> 才暴露的机制（题面限定 n≥10，所以不影响判题）</strong><br>
+实测 <code>n=1</code> 时本版输出 <code>3</code>，而正确答案是 <code>2</code>：
+<table>
+<tr><th><code>n</code></th><th>本版输出</th><th>正确答案</th><th></th></tr>
+<tr><td><strong>1</strong></td><td><strong>3</strong></td><td><strong>2</strong></td><td>❌</td></tr>
+<tr><td>2</td><td>3</td><td>3</td><td>✅</td></tr>
+<tr><td>3 ~ 10</td><td>5 / 5 / 8 / 8 / 8 / 8 / 13 / 13</td><td>同左</td><td>✅</td></tr>
+</table>
+<strong>根因</strong>：数列开头的 <code>1, 1, 2</code> 是"重复的 1" ——
+第一轮 <code>a,b = 1,2</code> 后预判 <code>a+b = 3</code>，<strong>一跳就跨过了 2</strong>。
+<code>n ≥ 10</code> 时 2 早就小于 n，所以<strong>永远碰不到</strong>；
+但知道这个机制有好处：<strong>凡是"从 1,1 起步推斐波那契"的代码，都要留意开头的重复 1</strong>。
+</div>
+
+<p><strong>要点与实测证据</strong>：<code>py_compile</code> 通过；样例 <code>n=10</code> →
+<code>13</code> 逐字节一致；边界 <code>n=13</code> → <code>21</code>（正好等于斐波那契数）、
+<code>n=12</code> → <code>13</code>、<code>n=1000</code> → <code>1597</code> 全对；
+<code>n</code> 在 <code>[10, 100000]</code> <strong>抽样 300 组</strong>与独立口径
+（先列出斐波那契表、再线性找第一个 <code>&gt; n</code>）<strong>0 组不一致</strong>；
+上限 <code>n=10⁶</code> → <code>1346269</code>、<code>n=1999999</code> → <code>2178309</code> 均正确。</p>
 
 </body>
 </html>
