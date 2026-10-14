@@ -104,7 +104,7 @@
 -->
 
 <h1>Python 自学笔记</h1>
-<p class="meta">hkh ｜ 更新 2026-10-14 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">22</span> 题 + 第4章 <span id="c4">16</span> 题（浙大版《Python 程序设计》题目集）</p>
+<p class="meta">hkh ｜ 更新 2026-10-14 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">22</span> 题 + 第4章 <span id="c4">17</span> 题（浙大版《Python 程序设计》题目集）</p>
 
 <nav id="toc">
   <div class="toc-head">目录　<span class="toc-hint">点标题展开 · 点条目直接跳</span></div>
@@ -197,7 +197,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>六、真题回顾 <span class="toc-n" id="cr">55</span></summary>
+    <summary>六、真题回顾 <span class="toc-n" id="cr">56</span></summary>
     <ol>
       <li><a onclick="return go('review-1')">1-1 从键盘输入两个数求和</a></li>
       <li><a onclick="return go('review-2')">1-2 按公式输出 b²−4ac</a></li>
@@ -261,6 +261,9 @@
       <li><a onclick="return go('review-60')">4-14 统计字符</a></li>
       <li><a onclick="return go('review-61')">4-15 换硬币</a></li>
       <li><a onclick="return go('review-62')">4-16 jmu-python-判断是否构成三角形</a></li>
+      <li><a onclick="return go('review-63')">补充：查表法（空间换时间）—— 同一个运算别算第二遍</a></li>
+      <li><a onclick="return go('review-64')">补充：剪枝（发现这一支没戏就别往下试）</a></li>
+      <li><a onclick="return go('review-65')">4-17 水仙花数</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -793,7 +796,7 @@ else:print("Yes")          # ← 8 格，属于 for（for...else）</code></pre>
 ② 我用的读法<strong>会不会把我要的东西剥掉</strong>？（<code>input()</code> 剥换行）<br>
 ③ 末尾到底算不算？（<code>split('\n')</code> 末尾多一个空串，<code>splitlines()</code> 不会）</p>
 
-<h3 id="e1-18">❌ 17. 手算循环上界：算错了不报错，只会「悄悄少打印几种」<span class="tag">第4章-15</span></h3>
+<h3 id="e1-18">❌ 17. 手算循环上界：算错了不报错，只会「悄悄少打印几种」<span class="tag">第4章-15、第4章-17</span></h3>
 <p>写多重循环时，为了"少跑几圈"而手算上界，是很自然的做法 ——
 <strong>但上界算错不会有任何报错</strong>，程序照常运行、只是<strong>结果少了几种</strong>，
 所以样例和大多数输入都"看起来对"。这是最难自查的一类 bug。</p>
@@ -809,6 +812,20 @@ else:print("Yes")          # ← 8 格，属于 for（for...else）</code></pre>
 但 <code>Y = 32//3 + 2 = 12</code>（这里只到 12） → 这一种<strong>根本没进循环</strong></td></tr>
 <tr><td>改法</td><td><code>Y = (m-6)//2</code>（由约束推出）→ 全域 <strong>0 个不符合</strong></td></tr>
 </table>
+
+<div class="box bad">
+<strong>第二个案例（4-17 水仙花数）：<code>range</code> 的终点漏了数字 9</strong>
+<pre><code>for a in range(1,9):     # ❌ 实际给 1~8，首位取不到 9
+for b in range(9):       # ❌ 实际给 0~8，也取不到 9</code></pre>
+<strong><code>range</code> 的终点【不包含自己】</strong> —— 要取到 9 必须写
+<code>range(1, 10)</code> / <code>range(10)</code>。<br>
+实测：漏掉的正好都是<strong>"含数字 9"</strong>的水仙花数 ——
+N=3 全对（<code>153/370/371/407</code> 都不含 9）、
+N=4 漏 <code>9474</code>、N=5 漏 <code>92727</code> 和 <code>93084</code>。<br>
+<strong>两题连着栽在"手算循环上界"上</strong>（4-15 是代数式算错、4-17 是
+<code>range</code> 终点差 1）—— 所以写 <code>range</code> 时永远问一句：
+<strong>「终点该不该包含我要的最大值？」</strong>
+</div>
 
 <div class="box ok">
 <strong>正确的上界怎么来：用约束推，不要猜</strong><br>
@@ -4354,7 +4371,7 @@ if m!=v[17]:                      # ② 索引</code></pre>
 ② 两边同时改，很容易出现"本地一份、提交另一份"，而且极难发现
 </div>
 
-<h2 id="review">六、真题回顾（<span id="cr2">55</span> 题）</h2>
+<h2 id="review">六、真题回顾（<span id="cr2">56</span> 题）</h2>
 
 <div class="box warn">
 <strong>说明：</strong>下面的题目要求是<strong>我按自己的理解概括写的</strong>，不是 PTA 原文。<br>
@@ -8111,6 +8128,250 @@ print('yes' if a+b&gt;c else 'no')          # 只比【最小的两边之和】�
 输出逐字节检查 —— <code>3 4 5</code> 给 <code>'yes\n'</code>（4 字节）、
 <code>1 2 3</code> 给 <code>'no\n'</code>（3 字节），<strong>没有任何多余字符</strong>；
 另有 3 组空格变体（多空格 / 行首 / 行尾）也全部正确。</p>
+
+<h3 id="review-63">补充：查表法（空间换时间）—— 同一个运算别算第二遍</h3>
+
+<div class="box ok">
+<strong>核心思想：把「算过的结果」存起来，下次直接取</strong><br>
+算一次要花时间，存下来只要一次下标。<strong>当同一个式子会被反复算很多遍时，先建表。</strong>
+</div>
+
+<div class="box ok">
+<strong>怎么用（三步）</strong>
+<pre><code># ① 找出「被反复计算的表达式」
+#    4-17 里是 d ** m（数字 d 的 m 次幂）—— 90,000 次循环 × 5 个数字 = 45 万次幂运算
+
+# ② 建表：把所有可能要算的输入都先算一遍
+pw = [d ** m for d in range(10)]      # 只有 10 个数字 → 只算 10 次
+
+# ③ 用的时候改成查表
+s += pw[t % 10]                       # 原来是 (t % 10) ** m，现在直接取值</code></pre>
+实测表内容（不同 m 各是什么）：
+<pre><code>m=3 → [0, 1, 8, 27, 64, 125, 216, 343, 512, 729]
+m=4 → [0, 1, 16, 81, 256, 625, 1296, 2401, 4096, 6561]
+m=5 → [0, 1, 32, 243, 1024, 3125, 7776, 16807, 32768, 59049]</code></pre>
+</div>
+
+<div class="box ok">
+<strong>实测效果（同一个动作跑 90,000 次）</strong>
+<table>
+<tr><th>写法</th><th>耗时</th><th>相对</th></tr>
+<tr><td>每次现算 <code>d ** 5</code></td><td>74.7 ms</td><td>1×</td></tr>
+<tr><td><strong>查表 <code>pw[d]</code></strong></td><td><strong>14.8 ms</strong></td><td><strong>快 5.0 倍</strong></td></tr>
+</table>
+放到完整程序里（N=5，整个枚举过程）：
+<table>
+<tr><th>写法</th><th>耗时</th><th>相对</th></tr>
+<tr><td>暴力枚举 + 每次算幂</td><td>119.5 ms</td><td>1×</td></tr>
+<tr><td><strong>暴力枚举 + 幂表</strong></td><td><strong>38.9 ms</strong></td><td><strong>快 3.1 倍</strong></td></tr>
+<tr><td><strong>逐位枚举 + 幂表</strong></td><td><strong>10.3 ms</strong></td><td><strong>快 11.6 倍</strong></td></tr>
+</table>
+</div>
+
+<div class="box warn">
+<strong>什么时候值得建表（判断标准）</strong>
+<table>
+<tr><th>条件</th><th>4-17 的情况</th></tr>
+<tr><td>候选输入<strong>种类很少</strong></td><td>数字只有 10 种 ✅</td></tr>
+<tr><td>但被<strong>反复访问很多次</strong></td><td>90,000 次循环里各访问 5 次 ✅</td></tr>
+<tr><td>计算<strong>本身不太贵</strong>（建表成本要能赚回来）</td><td>幂运算，10 次很便宜 ✅</td></tr>
+</table>
+<strong>反例</strong>：如果候选值有上百万种、每个只用一次 —— 建表反而更慢、更占内存。
+</div>
+
+<div class="box ok">
+<strong>这一招在笔记里的其它地方也出现过（同一个思想）</strong>
+<table>
+<tr><th>出处</th><th>怎么用表</th></tr>
+<tr><td><strong>㉛ 级数求和</strong></td><td>用 <code>term /= i</code> 递推下一项，
+而不是每项重算阶乘（<strong>慢 123~886 倍</strong>）——"不重复算"的另一种形态</td></tr>
+<tr><td><strong>㉙ <code>ord()</code> / <code>chr()</code></strong></td>
+<td>字母表是有限的 26 个，建个 <code>dict</code> 或列表就能查</td></tr>
+<tr><td><strong>㉕ 频次统计</strong></td><td>用字典当"计数器表"，避免反复 <code>count()</code></td></tr>
+<tr><td><strong>4-4 判素数</strong></td><td>埃氏筛：先把合数标记掉，之后判断 O(1) 查表</td></tr>
+</table>
+<strong>一句话：凡是"同一个输入会被算很多遍"，就该考虑先建表。</strong>
+</div>
+
+<h3 id="review-64">补充：剪枝（发现这一支没戏就别往下试）</h3>
+
+<div class="box ok">
+<strong>核心思想：枚举过程中，一旦能判定「这条分支不可能出正确答案」，立刻返回</strong><br>
+不用把它下面的所有可能性试完 —— 这就是"剪掉树枝"。
+</div>
+
+<div class="box ok">
+<strong>这题为什么能剪：两个条件都满足</strong>
+<table>
+<tr><th>条件</th><th>4-17 的情况</th></tr>
+<tr><td>① 有个<strong>上界</strong>可以随时比较</td>
+<td>N 位数最大就是 <code>10^N − 1</code>（N=5 时是 <code>99999</code>）</td></tr>
+<tr><td>② 部分结果<strong>只增不减</strong></td>
+<td>"各位数字的幂和"每加一位只会更大</td></tr>
+</table>
+<strong>所以</strong>：走到第 k 位时幂和已经 <code>&gt; 10^N</code>
+→ 后面再加只会更大 → <strong>这一支彻底没戏，直接 <code>return</code></strong>
+</div>
+
+<div class="box warn">
+<strong>⚠️ 但实测发现：这题剪枝的效果【远没有想象中好】，N=5 时甚至更差</strong>
+<table>
+<tr><th>N</th><th>不剪枝枚举次数</th><th>剪枝后</th><th>省了多少</th></tr>
+<tr><td>3</td><td>90,000</td><td><strong>1,051</strong></td><td><strong>省 98.8%</strong> ✅</td></tr>
+<tr><td>4</td><td>90,000</td><td><strong>10,161</strong></td><td><strong>省 88.7%</strong> ✅</td></tr>
+<tr><td><strong>5</strong></td><td>90,000</td><td><strong>101,811</strong></td>
+<td><strong>反而多 13%</strong> ❌</td></tr>
+</table>
+<strong>为什么 N=5 反而更差</strong>：剪枝门槛是 <code>s &gt; 10^5 = 100000</code>，
+而 <code>9^5 × 5 = 295245</code> —— 要"超上界"就得大部分位都是 9，
+<strong>这种情况很少，几乎剪不掉东西</strong>；而递归写法每次调用都要压栈、传参，
+反而比五层 <code>for</code> 更慢。<br>
+<strong>N=3 / N=4 效果好，是因为它们的位数少 + 上界低（1000 / 10000），
+很容易"超上界"。</strong>
+</div>
+
+<div class="box ok">
+<strong>剪枝的正确用法（骨架）</strong>
+<pre><code>m = int(input())
+pw = [d ** m for d in range(10)]      # 幂表（和查表法一起用）
+hi = 10 ** m                          # N 位数的上限
+
+def dfs(pos, s, val):                 # pos=填到第几位  s=当前幂和  val=当前拼出的数
+    if s &gt; hi:                        # ← 剪枝：超上限，整支放弃
+        return
+    if pos == m:                      # 填满 N 位
+        if s == val:
+            print(val)                # 找到水仙花数
+        return
+    for d in range(10):               # 这一位从 0 试到 9
+        dfs(pos + 1, s + pw[d], val * 10 + d)
+
+dfs(0, 0, 0)</code></pre>
+⚠️ <strong>隐患</strong>：首位不能是 0（否则拼出来的不是 N 位数，而是 N−1 位）——
+递归写法必须自己在 <code>pos == 0</code> 时排除 <code>d = 0</code>；
+而 <strong><code>for</code> 写法天然就写了 <code>range(1, 10)</code>，不会有这个问题。</strong>
+</div>
+
+<div class="box warn">
+<strong>剪枝的通用条件（两条同时满足才能用）</strong><br>
+① 有一个<strong>界</strong>（上界或下界）可以随时拿来比；<br>
+② 部分结果<strong>单调</strong>（只会往一个方向走）。<br>
+<strong>反例</strong>：如果中间结果会上下波动（比如加减号混在一起），
+"已经超了就剪"是错的 —— 因为后面可能又减回来。
+</div>
+
+<h3 id="review-65">4-17 水仙花数 <span class="tag">通过</span></h3>
+
+<p><strong>要求</strong>：N 位正整数（N≥3），各位数字的 <strong>N 次幂</strong>之和等于它本身。
+输入 N（<strong>3 ≤ N ≤ 5</strong>），按<strong>递增</strong>顺序输出所有 N 位水仙花数，每个占一行。
+样例 N=3 → <code>153</code> / <code>370</code> / <code>371</code> / <code>407</code>。</p>
+
+<p><strong>我的代码</strong>（改了一版才过）</p>
+<pre><code>m=int(input())                       # 位数 N
+L=[]
+for a in range(1,9):                 # ❌ 这里是 1~8（漏了 9）
+    for b in range(9):               # ❌ 0~8（漏了 9）
+        for c in range(9):           # ❌
+            for d in range(9):       # ❌
+                for e in range(9):   # ❌
+                    if m==3:
+                        total=a*100+b*10+c
+                        if a**3+b**3+c**3==total and total not in L:
+                            L.append(total)
+                            print(total,sep='\n')
+                    elif m==4:
+                        ...
+                    else:
+                        ...</code></pre>
+
+<div class="box bad">
+<strong>❌ 唯一的错：<code>range</code> 的上界全都漏了数字 9</strong>
+<pre><code>for a in range(1,9):     # 实际给的是 1~8    ❌ 首位取不到 9
+for b in range(9):       # 实际给的是 0~8    ❌ 也取不到 9</code></pre>
+<strong><code>range</code> 的终点本身【不包含】</strong> —— 所以要取到 9，必须写
+<code>range(1, 10)</code> / <code>range(10)</code>。<br>
+<strong>实测漏掉的正好都是"含 9"的水仙花数</strong>：
+<table>
+<tr><th>N</th><th>我的输出</th><th>正确答案</th><th>漏了</th></tr>
+<tr><td>3</td><td><code>153 370 371 407</code></td><td>同左</td>
+<td>✅ 全对（<strong>这四个都不含 9</strong>）</td></tr>
+<tr><td>4</td><td><code>1634 8208</code></td>
+<td><code>1634 8208 9474</code></td><td>❌ 漏 <code>9474</code></td></tr>
+<tr><td>5</td><td><code>54748</code></td>
+<td><code>54748 92727 93084</code></td><td>❌ 漏两个</td></tr>
+</table>
+<strong>这就是"部分正确"的全部原因</strong> —— <code>N=3</code> 恰好全对，
+所以只测样例是发现不了的。改法：五个 <code>range</code> 的终点改成
+<code>10</code>（首位用 <code>range(1, 10)</code>）。
+</div>
+
+<div class="box ok">
+<strong>我的写法里【对】的地方（别改坏了）</strong>
+<br>① <strong>输出顺序天然递增</strong>：循环是 a→b→c→d→e 从高位到低位走的，
+拼出来的数一定递增，<strong>不用额外排序</strong>（实测三个 N 的输出都是升序）。<br>
+② <code>total not in L</code> 这个去重其实<strong>多余</strong>（每套数字组合只会产生一个数），
+但<strong>不影响正确性</strong>，留着也无害。
+</div>
+
+<p><strong>优化用法</strong></p>
+
+<div class="box ok">
+<strong>① 两个浪费（修好上界后仍然存在，实测）</strong>
+<table>
+<tr><th>浪费</th><th>后果</th><th>实测</th></tr>
+<tr><td><strong>不管 N 是几都把 5 层循环跑满</strong></td>
+<td>N=3 时 d、e 两层完全没用 → 白跑 100 倍</td>
+<td>N=3：判断在内 61.5 ms → 挪到循环外 0.61 ms（<strong>快 100.5 倍</strong>）<br>
+N=4：84.8 ms → 8.20 ms（<strong>快 10.3 倍</strong>）</td></tr>
+<tr><td><strong>幂运算在循环里重复算</strong></td>
+<td><code>a**3</code> 这种被算了 9 万次，而数字只有 10 种</td>
+<td>见下面的"查表法"</td></tr>
+</table>
+<strong>改法</strong>：把 <code>if m == 3 / elif m == 4 / else</code> 挪到<strong>循环外面</strong>，
+每个分支里只开该有的层数（3 位就开 3 层）。
+</div>
+
+<div class="box ok">
+<strong>② 查表法：先算好 10 个幂，之后全用查表</strong>
+<pre><code>pw = [d ** m for d in range(10)]      # 只算 10 次
+# 之后凡是 d ** m，都改成 pw[d]</code></pre>
+实测（N=5 完整枚举）：
+<table>
+<tr><th>写法</th><th>耗时</th><th>相对</th></tr>
+<tr><td>暴力 + 每次算幂</td><td>119.5 ms</td><td>1×</td></tr>
+<tr><td>暴力 + 幂表</td><td>38.9 ms</td><td>快 3.1 倍</td></tr>
+<tr><td><strong>逐位枚举 + 幂表</strong></td><td><strong>10.3 ms</strong></td><td><strong>快 11.6 倍</strong></td></tr>
+</table>
+<strong>原理与实测详见本表末尾「查表法（空间换时间）」那一节。</strong>
+</div>
+
+<div class="box ok">
+<strong>③ 不用写 3/4/5 三个分支：拆位用 <code>while</code>，上下界由 m 算</strong>
+<pre><code>m = int(input())
+pw = [d ** m for d in range(10)]      # 幂表
+lo = 10 ** (m - 1)                    # N 位数下界：m=3 → 100
+hi = 10 ** m                          # N 位数上界（不含）：m=3 → 1000
+for x in range(lo, hi):                # 遍历所有 N 位数
+    s = 0
+    t = x
+    while t:                           # 数学拆位：一位一位取
+        s += pw[t % 10]                #   t % 10 = 最后一位 → 查表
+        t //= 10                       #   t // 10 = 去掉最后一位
+    if s == x:
+        print(x)                       # 每个占一行</code></pre>
+<strong>拆位过程实测（x = 153，m = 3）</strong>：
+<pre><code>t=153: t%10=3 → s += pw[3]=27  → s=27   ; t//=10 → 15
+t= 15: t%10=5 → s += pw[5]=125 → s=152  ; t//=10 → 1
+t=  1: t%10=1 → s += pw[1]=1   → s=153  ; t//=10 → 0
+循环结束 s=153 == x=153 → 是水仙花数 ✅</code></pre>
+好处：<strong>一套代码吃三个 N，不用写三个分支</strong>，也不会再出现"某个分支漏了 9"这种事。
+</div>
+
+<p><strong>要点与实测证据</strong>：改法（五个 <code>range</code> 上界补上 9）后，
+<strong>N=3 / 4 / 5 三个输入全部与独立口径一致</strong>：
+<code>[153, 370, 371, 407]</code> / <code>[1634, 8208, 9474]</code> /
+<code>[54748, 92727, 93084]</code>；输出均为<strong>递增</strong>且每个占一行；
+查表法把 N=5 的耗时从 <strong>119.5 ms 降到 10.3 ms</strong>（限制 400 ms）。</p>
 
 <h2 id="quick">七、速查总表</h2>
 
