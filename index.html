@@ -109,7 +109,7 @@
 <nav id="toc">
   <div class="toc-head">目录　<span class="toc-hint">点标题展开 · 点条目直接跳</span></div>
   <details class="toc-g">
-    <summary>一、易错点 <span class="toc-n" id="ce">15</span></summary>
+    <summary>一、易错点 <span class="toc-n" id="ce">16</span></summary>
     <ol>
       <li><a onclick="return go('e1-1')">❌ 1. 输入分隔符猜错</a></li>
       <li><a onclick="return go('e1-2')">❌ 2. int 和 float 用错</a></li>
@@ -126,6 +126,7 @@
       <li><a onclick="return go('e1-14')">❌ 13. 把 print 塞进了 sorted() 里面</a></li>
       <li><a onclick="return go('e1-15')">❌ 14. 删掉卫语句时忘了同步改缩进 —— print 还留在循环里</a></li>
       <li><a onclick="return go('e1-16')">❌ 15. 缩进 = 从属关系（同一个病，四次翻车）</a></li>
+      <li><a onclick="return go('e1-17')">❌ 16. 读输入只读了"一行"，却以为拿到了全部（同一个病三种形态）</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -249,6 +250,10 @@
       <li><a onclick="return go('review-50')">4-11 判断素数</a></li>
       <li><a onclick="return go('review-51')">4-12 求满足条件的斐波那契数</a></li>
       <li><a onclick="return go('review-52')">4-13 求误差小于输入值的e的近似值</a></li>
+      <li><a onclick="return go('review-53')">㉟ 输入：一行 / 多行 / 整块（含统计换行）</a></li>
+      <li><a onclick="return go('review-54')">补充：两个列表拼接（+ / += / extend / append）</a></li>
+      <li><a onclick="return go('review-55')">补充：判素数三件套（4-2 / 4-4 / 4-11 三次收口）</a></li>
+      <li><a onclick="return go('review-56')">补充：哨兵值、break 的归属、负下标自检</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -757,6 +762,29 @@ else:print("Yes")          # ← 8 格，属于 for（for...else）</code></pre>
 </table>
 <strong>教训：修好"能编译"之后，一定要再跑一遍真实输入 —— 第二阶段的错编译器完全不报。</strong>
 </div>
+
+<h3 id="e1-17">❌ 16. 读输入只读了"一行"，却以为拿到了全部（同一个病三种形态）<span class="tag">第4章-13、读多行类题目</span></h3>
+<p>根因都一样：<strong>没先问"我要的数据分布在几行里"</strong>，就随手用了只面向一行的写法。</p>
+<table>
+<tr><th>形态</th><th>错误写法</th><th>实测后果</th></tr>
+<tr><td><strong>以为 <code>split()</code> 能跨行</strong></td>
+<td><code>nums = input().split()</code></td>
+<td>输入 <code>'1 2 3\n4 5 6\n'</code> → 只拿到 <code>['1','2','3']</code>，
+<strong>后面几行永远读不到</strong>（正确：<code>sys.stdin.read().split()</code>）</td></tr>
+<tr><td><strong>把"循环条件"和"数据行数"搞混</strong></td>
+<td>4-13 我写的循环条件</td>
+<td>4-13 那一版是"加项/判断错位一格"，导致<strong>永远少加最后一项</strong>：
+9/9 组全错，且在 <code>(0.0001, 0.01]</code> 扫 9901 个输入<strong>没有一个碰巧对</strong></td></tr>
+<tr><td><strong>想数换行却用 <code>input()</code></strong></td>
+<td><code>input().count("\n")</code></td>
+<td>恒为 <code>0</code> —— <strong><code>input()</code> 已经把行尾换行剥掉了</strong>
+（要数换行必须 <code>sys.stdin.read()</code>）</td></tr>
+</table>
+<p><strong>自检三问</strong>：<br>
+① 我要的数据<strong>在几行</strong>里？（一行 → <code>input().split()</code>；固定多行 → 循环；
+不定多行 → <code>sys.stdin</code>）<br>
+② 我用的读法<strong>会不会把我要的东西剥掉</strong>？（<code>input()</code> 剥换行）<br>
+③ 末尾到底算不算？（<code>split('\n')</code> 末尾多一个空串，<code>splitlines()</code> 不会）</p>
 
 <h2 id="s1">二、常用代码与拓展（每条都带输出）</h2>
 
@@ -7251,6 +7279,299 @@ print(f"{e:.6f}")</code></pre>
 <code>error</code> 恰好等于某一项（<code>1/24</code>）→ <code>2.716667</code> 全对；
 <code>error</code> 在 <code>(1e-6, 0.01]</code> <strong>抽样 200 组</strong>
 与独立口径（纯函数实现 + <code>math.e</code> 距离核对）<strong>0 组不一致</strong>。</p>
+
+<h3 id="review-53">㉟ 输入：一行 / 多行 / 整块（含统计换行）</h3>
+
+<div class="box warn">
+<strong><code>input()</code> 一次只读【一行】，到第一个换行就停</strong><br>
+实测：喂进去 4 行 <code>'10 20 30\napple\nbanana\ncherry\n'</code>
+<table>
+<tr><th>写法</th><th>拿到什么</th></tr>
+<tr><td><code>input()</code></td><td><code>'10 20 30'</code> ← <strong>只有第一行</strong></td></tr>
+<tr><td><strong><code>input().split()</code></strong></td>
+<td><code>['10', '20', '30']</code> ← <strong>只切第一行，不跨行</strong></td></tr>
+<tr><td><code>input()</code> 调两次</td><td><code>'10 20 30'</code>、<code>'apple'</code> ← 每次往后一行</td></tr>
+<tr><td><code>for _ in range(3): input()</code></td>
+<td><code>['10 20 30', 'apple', 'banana']</code> ← 读 3 行</td></tr>
+<tr><td><code>for line in sys.stdin</code></td><td>4 行全拿到（读到 EOF）</td></tr>
+<tr><td><code>sys.stdin.read()</code></td>
+<td><code>'10 20 30\napple\nbanana\ncherry\n'</code> ← <strong>整块</strong></td></tr>
+<tr><td><code>sys.stdin.readlines()</code></td>
+<td><code>['10 20 30\n', 'apple\n', …]</code> ← 4 个元素，<strong>每个都带换行</strong></td></tr>
+</table>
+<strong>最容易误用的一条</strong>：<code>input().split()</code> <strong>不是"读多行"</strong> ——
+它只是把<strong>第一行</strong>按空格切开，后面几行还留在输入流里没被读：
+<pre><code>输入 '1 2 3\n4 5 6\n7 8 9\n'
+  input().split()           # → ['1','2','3']                         只第一行
+  sys.stdin.read().split()  # → ['1',…,'9'] 九个   ← 所有行的所有数字</code></pre>
+</div>
+
+<p><strong>三种"读多行"的正路（都实测过）</strong></p>
+<table>
+<tr><th>场景</th><th>写法</th><th>实测（输入 <code>'3\na\nb\nc\n'</code>）</th></tr>
+<tr><td><strong>知道行数</strong><br><span class="dim">PTA 最常见</span></td>
+<td><code>n = int(input())</code><br><code>rows = [input() for _ in range(n)]</code></td>
+<td><code>['a', 'b', 'c']</code></td></tr>
+<tr><td><strong>不知道行数</strong><br><span class="dim">读到 EOF</span></td>
+<td><code>rows = [l.rstrip("\n") for l in sys.stdin]</code></td>
+<td>3 行输入 → 3 个元素</td></tr>
+<tr><td><strong>要整块文本</strong></td>
+<td><code>s = sys.stdin.read()</code><br><code>rows = s.splitlines()</code></td>
+<td><code>'AAA\nBBB\nCCC\n'</code> → 切出 3 行</td></tr>
+</table>
+
+<div class="box ok">
+<strong>统计换行：三种口径，三个不同的数（必须先想清楚要哪个）</strong><br>
+以 <code>s = 'a\nb\nc'</code>（两个换行、三行）：
+<table>
+<tr><th>写法</th><th>数的是什么</th><th>结果</th></tr>
+<tr><td><code>s.count("\n")</code></td><td><strong>换行「符」个数</strong></td><td><code>2</code></td></tr>
+<tr><td><code>len(s.splitlines())</code></td><td><strong>行数</strong></td><td><code>3</code></td></tr>
+<tr><td><code>len(s.split("\n"))</code></td><td><strong>切出来的段数</strong></td><td><code>3</code></td></tr>
+</table>
+<strong>「N 个换行 = N+1 行」，前提是末尾没有换行。</strong>
+</div>
+
+<div class="box bad">
+<strong>⚠️ 末尾一加换行，三个数就分家（<code>split('\n')</code> 会多一个空串）</strong>
+<pre><code>s2 = 'a\nb\n'          # 末尾也有换行
+  s2.count('\n')          # 2
+  len(s2.splitlines())     # 2   ← 末尾换行【不】额外算一行
+  len(s2.split('\n'))     # 3   ← ❗末尾多一个空串
+  s2.split('\n')          # ['a', 'b', '']</code></pre>
+<strong><code>splitlines()</code> 会把末尾换行吃掉，<code>split('\n')</code> 不会。</strong>
+</div>
+
+<div class="box warn">
+<strong>⚠️ <code>input()</code> 会把行尾换行【剥掉】—— 想数换行就不能用它</strong>
+<table>
+<tr><th>读法</th><th>拿到的东西</th><th>换行在不在</th></tr>
+<tr><td><code>readline()</code></td><td><code>['a\n', 'b\n']</code></td>
+<td>✅ 保留（能 <code>count('\n')</code>）</td></tr>
+<tr><td><strong><code>input()</code></strong></td><td><code>['a', 'b']</code></td>
+<td>❌ <strong>被剥掉</strong>，字符串里永远不会出现 <code>\n</code></td></tr>
+<tr><td><code>sys.stdin.read()</code></td><td><code>'a\nb\n'</code></td>
+<td>✅ 全都在</td></tr>
+</table>
+<code>input()</code> 本质 = <code>readline()</code> 去掉行尾换行。<br>
+<strong>所以"统计换行"必须走 <code>read()</code> 或 <code>readline()</code>。</strong>
+</div>
+
+<div class="box bad">
+<strong>⚠️ 跨平台：<code>\r\n</code>（Windows）与 <code>\n</code>（Linux）不能写死</strong>
+<pre><code>Windows 'a\r\nb\r\n' →  count('\n') = 2   count('\r\n') = 2
+Linux   'a\nb\n'      →  count('\n') = 2   count('\r\n') = 0   ← 一个都数不到！</code></pre>
+<strong><code>splitlines()</code> 是跨平台安全的那个</strong>（三种换行都认）：
+<pre><code>Linux   'a\nb\nc'      → ['a','b','c']
+Windows 'a\r\nb\r\nc'  → ['a','b','c']
+旧 Mac  'a\rb\rc'      → ['a','b','c']</code></pre>
+要数<strong>换行符个数</strong>又想两边通吃，先归一：
+<pre><code>s = s.replace("\r\n", "\n").replace("\r", "\n")   # 三种换行统一成 \n
+n = s.count("\n")</code></pre>
+</div>
+
+<div class="box ok">
+<strong>决策表</strong>
+<table>
+<tr><th>要干什么</th><th>用哪个</th></tr>
+<tr><td>读一行、切开</td><td><code>input().split()</code></td></tr>
+<tr><td>读固定 N 行</td><td><code>for _ in range(n): input()</code></td></tr>
+<tr><td>读所有行（不知道几行）</td><td><code>for line in sys.stdin</code></td></tr>
+<tr><td>读整块文本 / 数换行</td><td><code>sys.stdin.read()</code></td></tr>
+<tr><td>所有数字散在多行里</td><td><code>sys.stdin.read().split()</code></td></tr>
+<tr><td><strong>数行数</strong></td><td><code>len(s.splitlines())</code> ← 最稳</td></tr>
+<tr><td><strong>数换行符</strong></td><td><code>s.count("\n")</code>（先归一 <code>\r\n</code>）</td></tr>
+</table>
+<strong>一句话：<code>input()</code> = 一行；要读多行就循环它，或换成 <code>sys.stdin</code>。</strong>
+</div>
+
+<h3 id="review-54">补充：两个列表拼接（<code>+</code> / <code>+=</code> / <code>extend</code> / <code>append</code>）</h3>
+
+<div class="box ok">
+<strong>最直白：<code>a + b</code> 造一个【新】列表，原列表不动</strong>
+<pre><code>a = [1, 2, 3]
+b = [4, 5]
+c = a + b
+# c = [1, 2, 3, 4, 5]
+# a 还是 [1, 2, 3]（+ 不修改原列表）
+# c is a → False，c is b → False（全新对象）</code></pre>
+顺序有意义：<code>b + a</code> → <code>[4, 5, 1, 2, 3]</code>。
+</div>
+
+<div class="box bad">
+<strong>⚠️ <code>+=</code> 是【原地修改】—— 别名陷阱（和 ㉛ 里列表 <code>+=</code> 那条同一个机制）</strong>
+<pre><code>a = [1, 2, 3]
+d = a              # d 和 a 指向同一个列表
+a += [4, 5]
+# a = [1, 2, 3, 4, 5]
+# d = [1, 2, 3, 4, 5]   ← ❗d 也变了（同一个对象）
+# d is a → True
+
+a = [1, 2, 3]
+d = a
+a = a + [4, 5]
+# a = [1, 2, 3, 4, 5]
+# d = [1, 2, 3]         ← d 没变（+ 造了新列表，a 改指向新对象）</code></pre>
+<strong>用 <code>id()</code> 一眼看穿</strong>：
+<pre><code>id(a) 起始 = 2753712225792
+a += [9]       后 id(a) = 2753712225792   ← 没变 = 原地
+a = a + [9]    后 id(a) = 2753712225728   ← 变了 = 造了新的</code></pre>
+</div>
+
+<div class="box bad">
+<strong>⚠️ 拼两个列表最常错的：<code>append</code> 会把整个列表塞成一个元素</strong>
+<pre><code>a = [1, 2]; a.append([3, 4])    # → [1, 2, [3, 4]]   ❗嵌套了，len = 3
+a = [1, 2]; a.extend([3, 4])    # → [1, 2, 3, 4]     ✅ 逐个摊平，len = 4
+a = [1, 2]; a += [3, 4]         # → [1, 2, 3, 4]     ✅ += 等价于 extend
+a = [1, 2]; a = a + [3, 4]      # → [1, 2, 3, 4]     ✅ 效果同，但换了对象</code></pre>
+<strong>记法：<code>append</code> = 塞一个东西；<code>extend</code> = 摊开一串东西。</strong>
+</div>
+
+<div class="box ok">
+<strong>3 个以上一起拼（四种写法实测结果相同）</strong>
+<pre><code>a, b, c = [1], [2], [3]
+a + b + c                  # [1, 2, 3]
+sum([a, b, c], [])         # [1, 2, 3]   ← 用 sum 也能拼（㉞ 的 start 参数）
+L = []; L += a; L += b; L += c   # [1, 2, 3]   ← 循环累加
+[*a, *b, *c]               # [1, 2, 3]   ← 星号摊开（第三章 ④）</code></pre>
+</div>
+
+<div class="box warn">
+<strong>拼接不挑元素类型，但【两边必须都是 list】</strong>
+<table>
+<tr><th>写法</th><th>结果</th></tr>
+<tr><td><code>[1,2] + [3]</code></td><td><code>[1, 2, 3]</code></td></tr>
+<tr><td><code>['a'] + ['b']</code></td><td><code>['a', 'b']</code></td></tr>
+<tr><td><code>[[1]] + [[2]]</code></td><td><code>[[1], [2]]</code> ← 外层拼、内层各自保持是列表</td></tr>
+<tr><td><code>[1,2] + (3,4)</code></td><td>❌ <code>TypeError: can only concatenate list (not "tuple") to list</code></td></tr>
+<tr><td><code>[1,2] + 'ab'</code></td><td>❌ 同上（not <code>"str"</code>）</td></tr>
+<tr><td><code>[1,2] + {3:4}</code></td><td>❌ 同上（not <code>"dict"</code>）</td></tr>
+<tr><td><code>[1,2] + {3,4}</code></td><td>❌ 同上（not <code>"set"</code>）</td></tr>
+<tr><td><code>[1,2] + range(3)</code></td><td>❌ 同上（not <code>"range"</code>）</td></tr>
+</table>
+要拼这些先转成 <code>list</code>：
+<pre><code>[1,2] + list((3,4))     # [1, 2, 3, 4]
+[1,2] + list('ab')      # [1, 2, 'a', 'b']
+[1,2] + [*range(3)]     # [1, 2, 0, 1, 2]   ← 或者用星号</code></pre>
+</div>
+
+<div class="box warn">
+<strong>同一个符号，列表和字符串行为不一样</strong>
+<pre><code>'ab' + 'cd'     # 'abcd'      ← 字符串 + 也是拼接，也造新对象
+[1,2] * 3       # [1,2,1,2,1,2] ← 列表 * 是【重复】，不是拼接
+'ab' * 3        # 'ababab'      ← 字符串 * 也是重复</code></pre>
+<strong>字符串拼接的正路是 <code>join</code></strong>（㉒）：
+<code>''.join(['a','b'])</code> → <code>'ab'</code>、
+<code>'-'.join(['a','b'])</code> → <code>'a-b'</code>。
+⚠️ 而且 <code>sum(['a','b'], '')</code> 会被 Python <strong>专门拦掉</strong>（㉞ 那条字符串禁令）。
+</div>
+
+<div class="box ok">
+<strong>什么时候用哪个（含循环里的性能）</strong>
+<pre><code>只拼一次          →  a + b           最直观
+要原地改（省内存） →  a += b / a.extend(b)
+循环里反复追加    →  a += [x] 或 a.append(x)   ❌ 别写 a = a + [x]</code></pre>
+<strong>循环里写 <code>a = a + [x]</code> 每轮都造一个新列表 → O(n²)</strong>；
+<code>a += [x]</code> / <code>a.append(x)</code> 是原地追加 → O(n)。
+（各 2 万次、每次拼 100 个元素的实测：原地版明显省下反复复制整表的开销。）
+</div>
+
+<h3 id="review-55">补充：判素数三件套（4-2 / 4-4 / 4-11 三次收口）</h3>
+
+<div class="box ok">
+<strong>三件事，少一件就错</strong>
+<table>
+<tr><th>#</th><th>要做的事</th><th>少了会怎样（实测）</th></tr>
+<tr><td>①</td><td><strong>先挡掉 <code>n &lt;= 1</code></strong>（写 <code>&lt;=</code> 不是 <code>==</code>）</td>
+<td>4-2：<code>n=1</code> 因 <code>range(2,1)</code> 空循环 → <code>for...else</code> 执行 → <strong>1 被判成素数</strong>；<br>
+4-11：写 <code>x==1</code> 则 <code>0</code> 漏过去，同样空循环 → 打 <code>Yes</code></td></tr>
+<tr><td>②</td><td><strong>只试到 <code>√n</code></strong>（<code>range(2, int(n**0.5)+1)</code>）</td>
+<td>不优化要试 <code>n-2</code> 次；4-2 实测试到 <code>√n</code> <strong>快 3.5 倍</strong>（0.46→0.13 ms）；<br>
+4-4 那题 20 亿范围，不优化跑满 10 亿圈 ≈ <strong>51 小时</strong></td></tr>
+<tr><td>③</td><td><strong>看 <code>else</code> 属于哪个 <code>for</code></strong>（缩进必须和 <code>for</code> 齐平）</td>
+<td>4-4：<code>else</code> 对到外层 <code>for p</code> → 外层跑满 10 亿圈；<br>
+4-11：单行 <code>if</code> 让 <code>break</code> 归给 <code>for</code> → 第一圈就无条件 break</td></tr>
+</table>
+</div>
+
+<div class="box warn">
+<strong><code>+1</code> 不能省（<code>int()</code> 是截断，不是四舍五入）</strong>
+<pre><code>49 的 √ = 7.0 恰好是整数
+  range(2, int(49**0.5))      # range(2, 7) → 试不到 7 → ❗49 被判成素数
+  range(2, int(49**0.5) + 1)  # range(2, 8) → 试到 7   → ✅ 判成合数</code></pre>
+（更大范围还有浮点误差隐患，Python 3.8+ 可以用 <code>math.isqrt(n)</code> 精确开方。）
+</div>
+
+<div class="box bad">
+<strong>⚠️ 4-4 踩过的那个坑：<code>√</code> 不能塞进取模的右边</strong>
+<pre><code>n % (i ** (1/2))     # ❌ 错：这是「n 除以 √i 的余数」，不是「i 是不是 n 的因子」
+                     #    素数表会混进 4 / 9 / 25 / 49（28/198 组输出错）
+n % i == 0           # ✅ 对：i 是不是 n 的因子</code></pre>
+</div>
+
+<div class="box ok">
+<strong>三种等价写法（实测结果一致：0→No 1→No 2→Yes 3→Yes 4→No 9→No 11→Yes 111→No）</strong>
+<pre><code># A 标志位：循环只有一个出口，结论在循环外统一打
+is_prime = True
+for i in range(2, int(n**0.5)+1):
+    if n % i == 0:
+        is_prime = False
+        break
+print("Yes" if is_prime else "No")
+
+# B for...else：命中就打印 + break，else 只覆盖"没 break"那条路
+for i in range(2, int(n**0.5)+1):
+    if n % i == 0:
+        print("No")
+        break
+else:
+    print("Yes")
+
+# C 封成函数：return 一步完成「立刻终止 + 带着结论出去」
+def is_prime(n):
+    if n &lt;= 1:
+        return False
+    for k in range(2, int(n**0.5)+1):
+        if n % k == 0:
+            return False
+    return True</code></pre>
+</div>
+
+<h3 id="review-56">补充：哨兵值、<code>break</code> 的归属、负下标自检</h3>
+
+<div class="box ok">
+<strong>① 哨兵值（sentinel）：用一个"不可能是正常数据"的值表示"还没找到"</strong>
+<pre><code>r = 0            # 哨兵：0 不可能是答案时，用它当"没找到"
+for i in range(2, int(x**0.5)+1):
+    if x % i == 0:
+        r = i
+        break
+print("No" if r == 0 else "Yes")</code></pre>
+4-9（查询水果价格）就是这么做的：<strong>其他编号打 <code>0.00</code>、而不是跳过</strong> ——
+<strong>哨兵值是"打一个约定的默认值"，比 "什么都不输出" 对判题安全得多。</strong><br>
+⚠️ 但它要求<strong>能保证哨兵值不会和真答案撞上</strong>（本题编号从 1 开始，所以 0 安全）。
+</div>
+
+<div class="box bad">
+<strong>② <code>break</code> 后面的语句【本轮】就不会执行了 —— 顺序决定输出</strong>
+<pre><code>if x % i == 0:
+    print("No")     # ✅ 先输出
+    break           # ✅ 再跳出
+                    # （反过来写 break;print(...) → print 永远执行不到）
+    print("??")     # ❌ 死代码，永远打不出来</code></pre>
+"跳出循环"这件事本身<strong>不输出任何东西</strong> —— 想输出就得写在 <code>break</code> 之前。
+</div>
+
+<div class="box bad">
+<strong>③ 负下标自检：<code>if 下标</code> 和 <code>if 下标 &gt;= 0</code> 不是一回事</strong>
+<pre><code>i = s.find("x")      # 找不到时 find 返回 -1
+if i:                # ❌ 当 i = 0 时也判假（0 是假值）→ 第一个字符命中反而被漏掉
+if i != -1:          # ✅ 这才是"找到了"
+if i >= 0:           # ✅ 等价，也行</code></pre>
+3-9 踩过更狠的版本：<code>-1 &lt;= min(K)</code> 恒成立 → 全被判成负数。
+<strong>凡是"用 <code>-1</code> 表示找不到"的函数（<code>find</code> / <code>rfind</code> / <code>index</code> 例外），
+判断一定要写 <code>!= -1</code> 或 <code>&gt;= 0</code>。</strong>
+</div>
 
 <h2 id="quick">七、速查总表</h2>
 
