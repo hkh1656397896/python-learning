@@ -265,7 +265,7 @@
       <li><a onclick="return go('quick-1')">① 内置函数总表</a></li>
       <li><a onclick="return go('quick-2')">② 方法总表（字符串 / 列表 / 字典）</a></li>
       <li><a onclick="return go('quick-3')">③ 格式化与输出参数</a></li>
-      <li><a onclick="return go('quick-4')">④ 用途分类索引（把「二、常用代码」30 节按用途归位）</a></li>
+      <li><a onclick="return go('quick-4')">④ 用途分类索引（把「二、常用代码」37 节按用途归位）</a></li>
       <li><a onclick="return go('quick-5')">⑤ 对象 × 操作 对照表（谁有哪个能力）</a></li>
       <li><a onclick="return go('quick-6')">⑥ 字符串方法总表（按用途分类，全部实测）</a></li>
     </ol>
@@ -7820,6 +7820,19 @@ text = text.removesuffix("\n")
 <tr><td><code>ord()</code> / <code>chr()</code></td><td>字符 ↔ 编号（互逆）</td>
 <td><code>ord("A")</code> <code>65</code>｜<code>chr(65)</code> <code>'A'</code>｜<code>chr(ord("A")+2)</code> <code>'C'</code></td>
 <td><strong>㉙</strong>；大写 65~90、小写 97~122、数字 48~57；<code>ord</code> 只吃一个字符</td></tr>
+<tr><td><code>s.isascii()</code></td><td>全是 ASCII（0~127）吗</td>
+<td><code>"abc".isascii()</code> <code>True</code>｜<code>"中".isascii()</code> <code>False</code>｜
+<code>"".isascii()</code> <code>True</code></td>
+<td>只认 ASCII。<strong>空串也是 True</strong>；配合 <code>isalpha</code> 可排除中文
+（4-14 统计字符就是 <code>c.isascii() and c.isalpha()</code> 判「英文字母」的）</td></tr>
+<tr><td><code>eval(表达式)</code></td><td>把字符串当<strong>表达式</strong>算出一个值</td>
+<td><code>eval("1+2")</code> <code>3</code>｜<code>eval("[0]*3")</code> <code>[0, 0, 0]</code>｜
+<code>eval("1,2")</code> <code>(1, 2)</code></td>
+<td><strong>㉝</strong>；只收表达式，<code>eval("a=1")</code> 报 <code>SyntaxError</code>；
+<strong>绝不能喂 <code>input()</code> 来的东西</strong>（真会执行代码）</td></tr>
+<tr><td><code>exec(语句)</code></td><td>把字符串当<strong>语句</strong>执行</td>
+<td><code>exec("a=1")</code> 能跑通，<strong>没有返回值</strong></td>
+<td><strong>㉝</strong>；<code>eval</code> 的"语句版"，同样危险；PTA 上用不到</td></tr>
 
 <tr><td><code>zip()</code> / <code>list()</code></td><td>多个序列并排走 / 转成列表</td>
 <td><code>list(zip([1,2], ["a","b"]))</code> <code>[(1, 'a'), (2, 'b')]</code>｜<code>list("ab")</code> <code>['a', 'b']</code></td>
@@ -7952,7 +7965,7 @@ text = text.removesuffix("\n")
 <tr><td><code>print("\\n".join(L))</code></td><td>同上，但<strong>只吃字符串</strong>（数字要 <code>map(str, …)</code>）</td><td>㉗；想先拼成一个串再用</td></tr>
 </table>
 
-<h3 id="quick-4">④ 用途分类索引（把「二、常用代码」30 节按用途归位）</h3>
+<h3 id="quick-4">④ 用途分类索引（把「二、常用代码」37 节按用途归位）</h3>
 
 <table>
 <tr><th>想知道的事</th><th>看哪几节</th></tr>
@@ -7993,6 +8006,22 @@ text = text.removesuffix("\n")
 
 <tr><td><strong>怎么控制流程走法</strong></td>
 <td>⑤ 条件判断与分段｜⑯ 循环外判断「全部合格」｜⑲ continue 与卫语句</td></tr>
+
+<tr><td><strong>读输入：一行 / 多行 / 整块 / 数换行</strong></td>
+<td><strong>㉟ 输入：一行 / 多行 / 整块</strong>（<code>input()</code> 只读一行、
+<code>input().split()</code> 不跨行、<code>sys.stdin</code> 三个读法、<br>
+统计换行三种口径、<code>\r\n</code> 跨平台、<code>splitlines()</code> 为什么稳）｜
+① 读一行数字｜⑬ 读多行（第一行是数量）｜<strong>本表末尾「<code>sys.stdin</code> 的四个读法」</strong></td></tr>
+
+<tr><td><strong>拼字符串 / 拼列表</strong></td>
+<td>㉒ join 与 <code>extend</code>｜<strong>本表末尾「两个列表拼接」</strong>
+（<code>+</code> 造新列表 vs <code>+=</code> 原地、<code>append</code> 会嵌套 vs <code>extend</code> 摊平、
+两边必须都是 <code>list</code>）｜❌13 必须接住返回值</td></tr>
+
+<tr><td><strong>判断「是不是数字 / 整数」</strong></td>
+<td>⑯ 检查「全是数字」｜<strong>本表末尾「怎么判断是不是整数」</strong>
+（<code>isdecimal</code> ⊂ <code>isdigit</code> ⊂ <code>isnumeric</code> 的包含关系、
+<code>isdigit()</code> 是 True 但 <code>int()</code> 会炸、负数三个判据全 False）｜㉝ <code>eval</code> 不能当 <code>int</code> 用</td></tr>
 </table>
 
 <h3 id="quick-5">⑤ 对象 × 操作 对照表（谁有哪个能力）</h3>
@@ -8056,7 +8085,7 @@ hasattr("a", "strip")     # True</code></pre>
 <table>
 <tr><th>用途</th><th>方法</th><th>实测</th><th>注意</th></tr>
 
-<tr><td rowspan="7"><strong>判断<br>（给 True / False）</strong></td>
+<tr><td rowspan="9"><strong>判断<br>（给 True / False）</strong></td>
 <td><code>.isdigit()</code></td>
 <td><code>"123"</code>→True｜<code>"12a"</code>→False｜<code>""</code>→False</td>
 <td>⚠️ <code>"²".isdigit()</code> 也是 True 但 <code>int()</code> 转不动（⑯）</td></tr>
@@ -8070,9 +8099,20 @@ hasattr("a", "strip")     # True</code></pre>
 <tr><td><code>.startswith(前缀)</code></td><td><code>"hello".startswith("he")</code>→True</td>
 <td>可加区间：<code>.startswith("he", 0, 3)</code></td></tr>
 <tr><td><code>.endswith(后缀)</code></td><td><code>"a.txt".endswith(".txt")</code>→True</td>
-<td>判断文件名、结尾最常用</td></tr>
+<td>判断文件名、结尾最常用；<strong>可传元组</strong>（<code>.endswith((".py",".c"))</code>）、
+<strong>可加区间</strong>（<code>.endswith(".txt",0,9)</code>）、<strong>空串恒 True</strong>、大小写敏感</td></tr>
+<tr><td><code>.isdecimal()</code><br><code>.isnumeric()</code></td>
+<td><code>"123".isdecimal()</code>→True｜<code>"²".isdecimal()</code>→False｜
+<code>"²".isnumeric()</code>→True｜<code>"三".isnumeric()</code>→True</td>
+<td><strong>包含关系 <code>isdecimal</code> ⊂ <code>isdigit</code> ⊂ <code>isnumeric</code></strong>：<br>
+<code>isdecimal</code> 最严（≈能不能 <code>int()</code>），
+<code>isnumeric</code> 连汉字数字都认但 <code>int()</code> 转不动（review-39）</td></tr>
+<tr><td><code>.removeprefix()</code><br><code>.removesuffix()</code></td>
+<td><code>"a.txt".removesuffix(".txt")</code> <code>'a'</code>｜<code>"xabc".removeprefix("x")</code> <code>'abc'</code></td>
+<td><strong>只去掉开头/结尾那一段，只去一次</strong>（Python 3.9+，㉟ 用的是它）；<br>
+比 <code>[:-1]</code> 安全（<strong>没有该后缀时原样返回，不会误删字符</strong>）</td></tr>
 
-<tr><td rowspan="3"><strong>大小写<br>转换</strong></td>
+<tr><td rowspan="7"><strong>大小写<br>转换</strong></td>
 <td><code>.upper()</code><br><strong>小写 → 大写</strong></td>
 <td><code>"abc".upper()</code> <code>'ABC'</code><br>
 <code>"aBc".upper()</code> <code>'ABC'</code>（混合的整串也一起转）</td>
@@ -8085,6 +8125,15 @@ hasattr("a", "strip")     # True</code></pre>
 <td><code>"Hello".swapcase()</code> <code>'hELLO'</code><br>
 <code>"aB".swapcase()</code> <code>'Ab'</code>（两个方向同时做）</td>
 <td><strong>大写变小写、小写变大写</strong> —— 3-14 就靠它</td></tr>
+<tr><td><code>.capitalize()</code><br><code>.title()</code></td>
+<td><code>"hello world".capitalize()</code> <code>'Hello world'</code>｜
+<code>"hello world".title()</code> <code>'Hello World'</code></td>
+<td><strong>首字母大写</strong>：<code>capitalize</code> 只管<strong>整串第一个</strong>；
+<code>title</code> <strong>每个单词</strong>都大写。<br>⚠️ <code>title</code> 按"非字母"切词，<code>"it's".title()</code> → <code>"It'S"</code></td></tr>
+<tr><td><code>.casefold()</code></td><td><code>"Straße".casefold()</code> <code>'strasse'</code>｜
+<code>"Straße".lower()</code> <code>'straße'</code></td>
+<td>比 <code>lower()</code> 更彻底的"小写化"（德文 ß → ss）；<br>
+<strong>做大小写无关比较时用它，比 <code>lower()</code> 稳</strong></td></tr>
 <tr><td><code>.strip()</code> / <code>.lstrip()</code> / <code>.rstrip()</code></td>
 <td><code>" 12 34 \t\n".strip()</code><code>'12 34'</code>｜<code>"xxabcxx".strip("x")</code><code>'abc'</code></td>
 <td>去<strong>首尾</strong>空白；<strong>中间的去不掉</strong>；可指定要去的字符集（⑱）</td></tr>
@@ -8104,7 +8153,7 @@ hasattr("a", "strip")     # True</code></pre>
 <tr><td><code>.count(子串)</code></td><td><code>"banana".count("a")</code><code>3</code>｜<code>.count("an")</code><code>2</code></td>
 <td>数<strong>不重叠</strong>的出现次数；不是 <code>len</code>（㉕）</td></tr>
 
-<tr><td rowspan="4"><strong>拆分 / 拼接 / 对齐</strong></td>
+<tr><td rowspan="8"><strong>拆分 / 拼接 / 对齐</strong></td>
 <td><code>.split()</code></td>
 <td><code>"a b  c".split()</code><code>['a','b','c']</code>｜<code>"a,b".split(",")</code><code>['a','b']</code>｜
 <code>"a b".split(" ")</code><code>['a','b']</code></td>
@@ -8116,6 +8165,20 @@ hasattr("a", "strip")     # True</code></pre>
 <tr><td><code>.center()</code> / <code>.ljust()</code> / <code>.rjust()</code></td>
 <td><code>"ab".center(6,".")</code><code>'..ab..'</code>｜<code>.ljust(4,".")</code><code>'ab..'</code></td>
 <td>对齐输出（③ 的亲戚）</td></tr>
+<tr><td><code>.splitlines()</code></td>
+<td><code>"a\nb\nc".splitlines()</code> <code>['a','b','c']</code>｜<code>"a\r\nb".splitlines()</code> <code>['a','b']</code>｜
+<code>"a\nb\n".splitlines()</code> <code>['a','b']</code></td>
+<td><strong>按行切，跨平台安全</strong>（<code>\n</code> / <code>\r\n</code> / <code>\r</code> 都认）；
+<strong>末尾换行不额外算一行</strong> —— 数行数用它最稳（㉟）</td></tr>
+<tr><td><code>.rsplit(分隔符, 次数)</code></td>
+<td><code>"a-b-c".rsplit("-", 1)</code> <code>['a-b','c']</code>｜<code>.split("-", 1)</code> <code>['a','b-c']</code></td>
+<td><strong>从右边开始切，最多切几次</strong>；<code>split</code> 是从左往右。
+取"最后一个分隔符之后的"很有用（㉘ 的亲戚）</td></tr>
+<tr><td><code>.partition(分隔符)</code> / <code>.rpartition()</code></td>
+<td><code>"a=b=c".partition("=")</code> <code>('a','=','b=c')</code>｜
+<code>.rpartition("=")</code> <code>('a=b','=','c')</code></td>
+<td><strong>切成三段</strong>（分隔符本身也留着）；<strong>找不到时给 <code>(原串,'','')</code></strong>，
+不会报错 —— 比 <code>split</code> + 下标更省事</td></tr>
 </table>
 
 <div class="box warn">
