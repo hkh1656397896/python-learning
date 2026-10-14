@@ -254,6 +254,9 @@
       <li><a onclick="return go('review-54')">补充：两个列表拼接（+ / += / extend / append）</a></li>
       <li><a onclick="return go('review-55')">补充：判素数三件套（4-2 / 4-4 / 4-11 三次收口）</a></li>
       <li><a onclick="return go('review-56')">补充：哨兵值、break 的归属、负下标自检</a></li>
+      <li><a onclick="return go('review-57')">补充：sys.stdin 的四个读法（read / readline / readlines / read(n)）</a></li>
+      <li><a onclick="return go('review-58')">补充：endswith() / startswith()（怎么用 + 四种拓展）</a></li>
+      <li><a onclick="return go('review-59')">补充：切片 [:-1] 与「去掉末尾换行」的四种写法</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -7571,6 +7574,175 @@ if i >= 0:           # ✅ 等价，也行</code></pre>
 3-9 踩过更狠的版本：<code>-1 &lt;= min(K)</code> 恒成立 → 全被判成负数。
 <strong>凡是"用 <code>-1</code> 表示找不到"的函数（<code>find</code> / <code>rfind</code> / <code>index</code> 例外），
 判断一定要写 <code>!= -1</code> 或 <code>&gt;= 0</code>。</strong>
+</div>
+
+<h3 id="review-57">补充：<code>sys.stdin</code> 的四个读法（<code>read</code> / <code>readline</code> / <code>readlines</code> / <code>read(n)</code>）</h3>
+
+<div class="box ok">
+<strong>同一份输入 <code>'aZ &amp;\n09 Az\n'</code>，五个读法各拿到什么（实测）</strong>
+<table>
+<tr><th>写法</th><th>拿到</th><th>换行在不在</th></tr>
+<tr><td><strong><code>sys.stdin.read()</code></strong></td>
+<td><code>'aZ &amp;\n09 Az\n'</code> ← <strong>整块，原样</strong></td><td>✅ 全在</td></tr>
+<tr><td><code>sys.stdin.readline()</code></td><td><code>'aZ &amp;\n'</code> ← 一行，<strong>带回车</strong></td><td>✅ 在</td></tr>
+<tr><td><code>sys.stdin.readlines()</code></td>
+<td><code>['aZ &amp;\n', '09 Az\n']</code> ← 每行一个元素，都带回车</td><td>✅ 在</td></tr>
+<tr><td><code>sys.stdin.read(3)</code></td><td><code>'aZ '</code> ← <strong>只读 3 个字符</strong>（可指定长度）</td><td>看读到哪里</td></tr>
+<tr><td><code>input()</code></td><td><code>'aZ &amp;'</code> ← 一行，<strong>回车被剥掉</strong></td><td>❌ 剥掉了</td></tr>
+</table>
+</div>
+
+<div class="box ok">
+<strong>怎么用</strong>
+<pre><code>import sys
+
+text = sys.stdin.read()        # ① 一次拿到【全部】输入（含所有换行），返回一个 str
+line = sys.stdin.readline()    # ② 只拿【一行】，带回车；读不到返回 ''（空串）
+rows = sys.stdin.readlines()   # ③ 拿到【所有行】的列表，每个元素带回车
+part = sys.stdin.read(3)       # ④ 只读 3 个字符（长度参数）</code></pre>
+<strong>三个常用套路</strong>
+<pre><code># 不固定行数，逐行处理
+for line in sys.stdin:
+    line = line.rstrip("\n")   # 每行自己去回车
+
+# 一次读全部数字（所有行里的都行）
+nums = list(map(int, sys.stdin.read().split()))
+
+# 按行切（跨平台安全）
+rows = sys.stdin.read().splitlines()</code></pre>
+</div>
+
+<div class="box warn">
+<strong>关键区别：要不要换行 / 能不能重复读</strong>
+<table>
+<tr><th></th><th><code>read()</code></th><th><code>readline()</code></th><th><code>input()</code></th></tr>
+<tr><td>返回类型</td><td><code>str</code>（整块）</td><td><code>str</code>（一行）</td><td><code>str</code>（一行）</td></tr>
+<tr><td>带回车吗</td><td>✅ 带</td><td>✅ 带</td><td>❌ 不带</td></tr>
+<tr><td>读完毕返回</td><td><code>''</code></td><td><code>''</code></td><td>抛 <code>EOFError</code></td></tr>
+<tr><td>要统计换行</td><td>✅ 用它</td><td>✅ 可以用</td><td>❌ 用不了</td></tr>
+</table>
+<strong>读完了怎么判断</strong>：<code>read()</code>/<code>readline()</code> 返回空串 <code>''</code>（假值），
+<code>input()</code> 直接抛 <code>EOFError</code> ——
+所以循环 <code>input()</code> 要配 <code>try/except EOFError</code>，或者干脆用 <code>for line in sys.stdin</code>。
+</div>
+
+<h3 id="review-58">补充：<code>endswith()</code> / <code>startswith()</code>（怎么用 + 四种拓展）</h3>
+
+<div class="box ok">
+<strong>怎么用：判断"是不是以某段开头 / 结尾"，返回 <code>True</code>/<code>False</code></strong>
+<pre><code>s = "hello.txt"
+s.endswith(".txt")      # True      ← 以 .txt 结尾？
+s.startswith("hello")   # True      ← 以 hello 开头？
+s.endswith(".py")       # False</code></pre>
+<strong>为什么需要它</strong>：不用它就得自己切片比 ——
+<code>s[-4:] == ".txt"</code> 也行，但<strong>长度写死容易错</strong>（后缀长度一变就漏）。
+<code>endswith</code> 不用数长度。
+</div>
+
+<div class="box ok">
+<strong>拓展 1：传【元组】—— 任何一个匹配就算 <code>True</code>（非常常用）</strong>
+<pre><code>s = "hello.txt"
+s.endswith((".txt", ".md"))   # True    ← .txt 命中了
+s.endswith((".py", ".md"))    # False
+# 等价于但不啰嗦:  s.endswith(".txt") or s.endswith(".md")</code></pre>
+判断"是不是某几类文件"的标准写法，比如
+<code>fname.endswith((".py", ".c", ".cpp"))</code>。
+</div>
+
+<div class="box ok">
+<strong>拓展 2：可以加【区间】参数 <code>start</code> / <code>end</code>（对 <code>s[start:end]</code> 判断）</strong>
+<pre><code>s2 = "hello.txt.bak"
+s2.endswith(".txt")           # False  ← 整体不是以 .txt 结尾
+s2.endswith(".txt", 0, 9)     # True   ← 只看 s2[0:9] = 'hello.txt'
+s2.startswith("txt", 6)       # True   ← 从下标 6 开始看</code></pre>
+用在"只看路径/文件名某一段"的场合（跳过目录名等）。
+</div>
+
+<div class="box warn">
+<strong>拓展 3：空串永远算 <code>True</code>（最容易踩的边界）</strong>
+<pre><code>"abc".endswith("")    # True   ← 任何字符串都以空串结尾！
+"abc".startswith("")  # True</code></pre>
+所以<strong>不能</strong>用 <code>s.endswith(后缀)</code> 来判断"后缀非空" ——
+如果后缀是从输入里来的空串，判断会恒为 <code>True</code>。
+</div>
+
+<div class="box warn">
+<strong>拓展 4：大小写敏感（不认大小写要自己 <code>lower()</code>）</strong>
+<pre><code>"A.TXT".endswith(".txt")            # False  ← 区分大小写
+"A.TXT".lower().endswith(".txt")    # True   ← 先统一成小写
+# 反过来:  "a.txt".upper().endswith(".TXT")   → True</code></pre>
+这和 <code>find</code>/<code>count</code>/<code>replace</code> 一样，<strong>字符串方法基本都区分大小写</strong>
+（3-17 那题"删除字符不分大小写"就得自己处理）。
+</div>
+
+<div class="box ok">
+<strong>家族里还有几个同类的（都在 ⑥ 表里）</strong>
+<pre><code>s.find(x)        找位置，找不到给 -1        s.index(x)   找不到抛 ValueError
+s.count(x)       数出现次数
+s.startswith(x) / s.endswith(x)            判断开头/结尾
+s.removeprefix(x) / s.removesuffix(x)      Python 3.9+，去掉开头/结尾那一段（只去一次）</code></pre>
+</div>
+
+<h3 id="review-59">补充：切片 <code>[:-1]</code> 与「去掉末尾换行」的四种写法</h3>
+
+<div class="box ok">
+<strong>切片怎么用（负数下标 = 从末尾数）</strong>
+<pre><code>t = "aZ &amp;\n09 Az\n"        # 长度 11
+t[-1]     # '\n'                ← 最后一个字符
+t[:-1]    # 'aZ &amp;\n09 Az'        ← 【去掉最后一个】
+t[1:]     # 'Z &amp;\n09 Az\n'      ← 去掉第一个
+t[-2:]    # 'z\n'                ← 最后两个
+t[2:5]    # ' &amp;\n'                ← 下标 2~4（含头不含尾）
+t[::-1]   # '\nzA 90\n&amp; Za'      ← 反转（步长 -1）</code></pre>
+<strong>规则一句话：<code>s[start:end:step]</code>，含 start、不含 end；负数从末尾数。</strong>
+</div>
+
+<div class="box bad">
+<strong>边界（实测）</strong>
+<table>
+<tr><th>写法</th><th>结果</th></tr>
+<tr><td><code>"abc"[:-1]</code></td><td><code>'ab'</code></td></tr>
+<tr><td><code>"a"[:-1]</code></td><td><code>''</code> ← <strong>不报错</strong>，切没了就是空串</td></tr>
+<tr><td><code>""[:-1]</code></td><td><code>''</code> ← 也不报错</td></tr>
+<tr><td><code>""[-1]</code></td><td>❌ <code>IndexError: string index out of range</code></td></tr>
+</table>
+<strong>切片越界不报错，取值越界才报错</strong> —— 这两个必须分清。
+</div>
+
+<div class="box ok">
+<strong>四种「去掉末尾换行」的写法，实测区别（这题必须只去【一个】）</strong>
+<pre><code>t  = "abc\n"      →  t[:-1]="abc"   t.rstrip("\n")="abc"   t.rstrip()="abc"   t.removesuffix("\n")="abc"
+t2 = "abc\n\n\n"  →  t2[:-1]="abc\n\n"  t2.rstrip("\n")="abc"  t2.removesuffix("\n")="abc\n\n"
+t3 = "abc \n"     →  t3[:-1]="abc "  t3.rstrip("\n")="abc "  t3.rstrip()="abc"  ← ❗空格也被去掉</code></pre>
+<table>
+<tr><th>写法</th><th>去几个</th><th>会误伤吗</th></tr>
+<tr><td><code>t[:-1]</code></td><td><strong>固定去 1 个</strong></td>
+<td>⚠️ 末尾没有换行时<strong>会误删最后一个正常字符</strong> → 必须先判 <code>endswith</code></td></tr>
+<tr><td><code>t.rstrip("\n")</code></td><td><strong>去掉所有</strong>末尾换行</td>
+<td>✅ 不会误伤空格；但<strong>会多去</strong>（3 个换行全没）</td></tr>
+<tr><td><code>t.rstrip()</code></td><td>去掉所有末尾空白</td>
+<td>❌ <strong>会把末尾空格也去掉</strong> —— 影响 blank 计数</td></tr>
+<tr><td><code>t.removesuffix("\n")</code></td><td><strong>只去 1 个后缀</strong>（Python 3.9+）</td>
+<td>✅ 最贴切；末尾没有该后缀时原样返回，不用先判</td></tr>
+</table>
+</div>
+
+<div class="box ok">
+<strong>所以「去掉表示结束的那一个回车」的正确写法</strong>
+<pre><code># 写法A：先判断再切（最稳，任何版本都能用）
+if text.endswith("\n"):
+    text = text[:-1]
+
+# 写法B：Python 3.9+ 一行
+text = text.removesuffix("\n")
+
+# ❌ 不能直接 text = text[:-1]  —— 末尾没有换行时会吃掉一个正常字符
+# ❌ 不能用 text = text.rstrip() —— 会把末尾空格也吃掉（blank 会少）</code></pre>
+实测这四种在四种输入上的表现（含"末行无换行"、"空输入"）都与题面口径一致：
+<pre><code>"aZ &amp;\n09 Az\n"   → 去掉后 "aZ &amp;\n09 Az"
+"aZ &amp;\n09 Az"     → 不带换行，原样不动
+"abc\n"          → "abc"
+"\n"             → ""</code></pre>
 </div>
 
 <h2 id="quick">七、速查总表</h2>
