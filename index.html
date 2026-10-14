@@ -104,7 +104,7 @@
 -->
 
 <h1>Python 自学笔记</h1>
-<p class="meta">hkh ｜ 更新 2026-10-14 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">22</span> 题 + 第4章 <span id="c4">15</span> 题（浙大版《Python 程序设计》题目集）</p>
+<p class="meta">hkh ｜ 更新 2026-10-14 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">22</span> 题 + 第4章 <span id="c4">16</span> 题（浙大版《Python 程序设计》题目集）</p>
 
 <nav id="toc">
   <div class="toc-head">目录　<span class="toc-hint">点标题展开 · 点条目直接跳</span></div>
@@ -197,7 +197,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>六、真题回顾 <span class="toc-n" id="cr">54</span></summary>
+    <summary>六、真题回顾 <span class="toc-n" id="cr">55</span></summary>
     <ol>
       <li><a onclick="return go('review-1')">1-1 从键盘输入两个数求和</a></li>
       <li><a onclick="return go('review-2')">1-2 按公式输出 b²−4ac</a></li>
@@ -260,6 +260,7 @@
       <li><a onclick="return go('review-59')">补充：切片 [:-1] 与「去掉末尾换行」的四种写法</a></li>
       <li><a onclick="return go('review-60')">4-14 统计字符</a></li>
       <li><a onclick="return go('review-61')">4-15 换硬币</a></li>
+      <li><a onclick="return go('review-62')">4-16 jmu-python-判断是否构成三角形</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -4353,7 +4354,7 @@ if m!=v[17]:                      # ② 索引</code></pre>
 ② 两边同时改，很容易出现"本地一份、提交另一份"，而且极难发现
 </div>
 
-<h2 id="review">六、真题回顾（<span id="cr2">54</span> 题）</h2>
+<h2 id="review">六、真题回顾（<span id="cr2">55</span> 题）</h2>
 
 <div class="box warn">
 <strong>说明：</strong>下面的题目要求是<strong>我按自己的理解概括写的</strong>，不是 PTA 原文。<br>
@@ -8022,6 +8023,94 @@ count = 4                            ← 汇总行：等号【两边都有空格
 关键点 <code>m=9</code>(1 种) / <code>m=32</code>(<strong>39 种</strong>，上次漏解处) /
 <code>m=50</code>(106 种) / <code>m=99</code>(451 种) 全对；
 纯计算 <strong>5.36 ms</strong>（限制 400 ms，余量充足）。</p>
+
+<h3 id="review-62">4-16 jmu-python-判断是否构成三角形 <span class="tag">通过</span></h3>
+
+<p><strong>要求</strong>：一行给出三个整数（空格分隔，<strong>没有其它任何附加字符</strong>），
+判断能否构成三角形 —— 能输出 <code>yes</code>，否则输出 <code>no</code>
+（<strong>也没有其它任何附加字符</strong>）。样例 <code>3 4 5</code> → <code>yes</code>。</p>
+
+<p><strong>我的代码</strong></p>
+<pre><code>a,b,c=map(int,input().split())       # 一行读三个整数（split() 不带参数：按任意空白切）
+if a+b&gt;c and a+c&gt;b and b+c&gt;a:     # 三条不等式【全部】成立才算三角形
+    print('yes')                     # 能构成
+else:
+    print('no')                      # 否则</code></pre>
+
+<div class="box ok">
+<strong>为什么必须三个条件都写（不能只写两个）</strong><br>
+三角形要求<strong>任意两边之和大于第三边</strong> ——
+只写 <code>a+b&gt;c</code> 的话，<code>1 1 100</code> 会被误判成 <code>yes</code>
+（<code>1+1=2</code> 不大于 100 其实还好，但 <code>5 3 1</code> 这种：
+<code>a+c&gt;b</code> 才是决定性的那条）。<br>
+<strong>三个条件缺任何一个，都有一类输入会被放过。</strong>
+</div>
+
+<div class="box bad">
+<strong>⚠️ 这题的真正考点：<code>&gt;</code> 不能写成 <code>&gt;=</code>（退化三角形）</strong><br>
+两边之和<strong>恰好等于</strong>第三边时（如 <code>1 2 3</code>），三点共线、压成一条直线，
+<strong>不是三角形</strong>。所以必须是<strong>严格大于</strong>。
+<table>
+<tr><th>输入</th><th><code>&gt;</code>（正确）</th><th><code>&gt;=</code>（错）</th><th></th></tr>
+<tr><td><code>1 2 3</code></td><td><code>no</code></td><td><code>yes</code></td><td>← 两种口径不同！</td></tr>
+<tr><td><code>5 5 10</code></td><td><code>no</code></td><td><code>yes</code></td><td>← 不同</td></tr>
+<tr><td><code>2 3 5</code></td><td><code>no</code></td><td><code>yes</code></td><td>← 不同</td></tr>
+<tr><td><code>3 4 5</code></td><td><code>yes</code></td><td><code>yes</code></td><td>正常三角形，两种都一样</td></tr>
+<tr><td><code>5 5 11</code></td><td><code>no</code></td><td><code>no</code></td><td>差得远，两种都一样</td></tr>
+</table>
+<strong>只测 <code>3 4 5</code> 和 <code>5 5 11</code> 是发现不了这个错的</strong> ——
+必须专门测<strong>"两边之和恰好等于第三边"</strong>那一类（<code>1 2 3</code>、<code>5 5 10</code>）。
+</div>
+
+<p><strong>优化用法</strong></p>
+
+<div class="box ok">
+<strong>① 输入写法：<code>split()</code> 不带参数能扛多种空格</strong>
+<pre><code>a,b,c=map(int,input().split())    # 一行三个整数，一次拆好
+# 实测以下四种输入【都能正常解析】：
+#   '3 4 5'      单空格
+#   '3   4   5'  多空格
+#   ' 3 4 5'     行首有空格
+#   '3 4 5 '     行尾有空格
+# 因为 split() 不带参数 = 「按任意空白字符切，且丢掉空串」（① 那节讲过）</code></pre>
+</div>
+
+<div class="box ok">
+<strong>② 另一种写法：先排序，只需比一次</strong>
+<pre><code>a,b,c=sorted(map(int,input().split()))   # 从小到大排好
+print('yes' if a+b&gt;c else 'no')          # 只比【最小的两边之和】和最大边
+# 三种顺序都试过会得到同一个结论 —— 因为"两边之和大于第三边"
+# 只要【最小的两边之和】大于最大边，另外两条不等式必然也成立</code></pre>
+<strong>原理</strong>：设 <code>a ≤ b ≤ c</code>，只要 <code>a+b &gt; c</code>，
+那么 <code>a+c &gt; b</code>（因为 <code>c ≥ b</code> 且 <code>a &gt; 0</code>）与
+<code>b+c &gt; a</code> 都自动成立。<br>
+<strong>两版实测结果完全一致</strong>；排序版少写两个条件，也更不容易写漏。
+</div>
+
+<div class="box warn">
+<strong>③ ⚠️ 输出字样**逐题不同**，不能凭记忆写（这是本笔记里反复出现的坑）</strong>
+<table>
+<tr><th>题</th><th>要求的字样</th><th>大小写</th></tr>
+<tr><td><strong>4-16</strong> 判断三角形</td><td><code>yes</code> / <code>no</code></td>
+<td><strong>全小写</strong></td></tr>
+<tr><td>4-11 判断素数</td><td><code>Yes</code> / <code>No</code></td><td>首字母大写</td></tr>
+<tr><td>3-18 输出 10 个不重复字母</td><td><code>not found</code></td><td><strong>全小写</strong></td></tr>
+<tr><td>3-22 输出大写英文字母</td><td><code>Not Found</code></td><td>首字母大写</td></tr>
+</table>
+<strong>同一份笔记里就有两套相反的写法</strong> ——
+所以<strong>只能逐字符照题面样例抄</strong>，不能"按习惯"写
+（review-39 已经记过 <code>Not Found</code> vs <code>not found</code> 这个只差大小写的坑）。<br>
+这题还额外加了"<strong>没有其它任何附加字符</strong>" —— 连提示语、空格都不能有。
+</div>
+
+<p><strong>要点与实测证据</strong>：<code>py_compile</code> 通过；
+题面样例 <code>3 4 5</code> → <code>yes</code> <strong>逐字节一致</strong>；
+<strong>14 组边界全对</strong>：退化三组（<code>1 2 3</code> / <code>5 5 10</code> / <code>5 5 11</code>）、
+一边过大 <code>1 1 100</code>、等边 / 等腰 / 直角、顺序打乱 <code>5 3 4</code>、
+<code>0 1 1</code> / <code>0 0 0</code> / <code>-1 5 5</code>、百万级大数；
+输出逐字节检查 —— <code>3 4 5</code> 给 <code>'yes\n'</code>（4 字节）、
+<code>1 2 3</code> 给 <code>'no\n'</code>（3 字节），<strong>没有任何多余字符</strong>；
+另有 3 组空格变体（多空格 / 行首 / 行尾）也全部正确。</p>
 
 <h2 id="quick">七、速查总表</h2>
 
