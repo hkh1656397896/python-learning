@@ -245,6 +245,9 @@
       <li><a onclick="return go('review-46')">4-7 统计学生平均成绩与及格人数</a></li>
       <li><a onclick="return go('review-47')">4-8 求分数序列前N项和</a></li>
       <li><a onclick="return go('review-48')">4-9 查询水果价格</a></li>
+      <li><a onclick="return go('review-49')">4-10 最大公约数和最小公倍数</a></li>
+      <li><a onclick="return go('review-50')">4-11 判断素数</a></li>
+      <li><a onclick="return go('review-51')">4-12 求满足条件的斐波那契数</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -256,9 +259,6 @@
       <li><a onclick="return go('quick-4')">④ 用途分类索引（把「二、常用代码」30 节按用途归位）</a></li>
       <li><a onclick="return go('quick-5')">⑤ 对象 × 操作 对照表（谁有哪个能力）</a></li>
       <li><a onclick="return go('quick-6')">⑥ 字符串方法总表（按用途分类，全部实测）</a></li>
-      <li><a onclick="return go('quick-7')">4-10 最大公约数和最小公倍数</a></li>
-      <li><a onclick="return go('quick-8')">4-11 判断素数</a></li>
-      <li><a onclick="return go('quick-9')">4-12 求满足条件的斐波那契数</a></li>
     </ol>
   </details>
 </nav>
@@ -6839,6 +6839,278 @@ for m in K:                                                                  第
 · <code>py_compile</code> 通过 ｜ PTA <strong>通过</strong>（进度 48/89）
 </div>
 
+<h3 id="review-49">4-10 最大公约数和最小公倍数 <span class="tag">通过</span></h3>
+
+<p><strong>要求</strong>：给出两个正整数 M 和 N（≤ 1000），在一行里顺序输出它们的最大公约数和最小公倍数，
+中间用 1 个空格隔开。样例 <code>511 292</code> → <code>73 2044</code>。</p>
+
+<p><strong>我的代码</strong>（改了两版才过）</p>
+<pre><code>M,N=list(map(int,input().split()))     # 读一行，拆成两个整数：M、N
+for i in range(min(M,N),0,-1):         # 从 min(M,N) 往下试到 1（含 min，不含 0）
+    if M%i==0 and N%i==0:              # 能同时整除 M 和 N → 它就是公约数
+        r=i                            # 记下当前这个（越往下越小，所以第一个命中的最大）
+        break                          # 第一个命中的就是最大公约数，立刻停
+l=M*N//r                               # 最小公倍数 = 两数之积 ÷ 最大公约数（// 保证是整数）
+print(f"{r} {l}")                      # 一行输出，中间一个空格</code></pre>
+
+<div class="box bad">
+<strong>❌ 我的第一版（两个 bug）</strong>
+<pre><code>M,N=list(map(int,input().split()))
+for i in range(min(M,N))[::-1]:        # ❌ 坑1：range(min(M,N)) 不含 min(M,N) 本身，且倒数第一个是 0
+    if M%i==0 and N%i==0:              # ❌ 坑1 的后果：i=0 时 M%0 直接崩
+        r=i
+        break
+l=M*N/r                                # ❌ 坑2：/ 给 float，不是整数
+print(f"{r} {int(l)}")                 # ❌ 坑2 的补丁：int() 兜住，是给 float 擦屁股</code></pre>
+<strong>坑 1 的三种后果（全都实测出来了）：</strong>
+<table>
+<tr><th>输入</th><th>第一版输出</th><th>正确答案</th><th>为什么</th></tr>
+<tr><td><code>1 1</code>、<code>1 1000</code>、<code>1 2</code></td>
+<td><strong>崩，退出码 1</strong></td><td><code>1 1</code> 等</td>
+<td>互质 → 一路试到 <code>i=0</code> → <code>M % 0</code> →
+<code>ZeroDivisionError</code>。<strong>这就是 PTA 上「存在部分非零返回」的来源</strong></td></tr>
+<tr><td><code>3 12</code>、<code>12 3</code></td>
+<td><code>1 36</code></td><td><code>3 12</code></td>
+<td><code>min=3</code> 本身就是 gcd，但 <code>range(3)</code> 只给 0~2，<strong>永远找不到 3</strong></td></tr>
+<tr><td><code>5 5</code>、<code>1000 1000</code></td>
+<td><code>1 25</code>、<code>500 2000</code></td><td><code>5 5</code>、<code>1000 1000</code></td>
+<td>同上，退而求其次找到了个更小的除数</td></tr>
+</table>
+<strong>坑 2 实测：</strong><code>511*292/73</code> → <code>2044.0</code>（<code>float</code>），
+f-string 直接打就是 <code>'2044.0'</code> 整行错；本题 <code>int()</code> 兜得住，
+但数一大浮点失真、<code>int()</code> 会<strong>悄悄返回一个错的整数</strong>
+（10¹² 和 999999999989 那组差 35106816，见 ㉜）。
+</div>
+
+<p><strong>优化用法</strong></p>
+
+<div class="box ok">
+<strong>① 改成 <code>range(min(M,N),0,-1)</code> —— 起点、终点前后各挪一格</strong>
+<pre><code>range(min(M,N))        # ❌ 给 0 … min-1：漏了 min，多了 0
+range(min(M,N),0,-1)   # ✅ 给 min … 1：含 min（整除/相等时就是答案），不含 0（0 不能当除数）
+range(min(M,N))[::-1]  # ⚠️ 结果同 ❌，而且先造完整列表再倒过来，多一份内存</code></pre>
+实测对比（<code>M=3, N=12</code>，正确答案是 <code>3</code>）：
+<table>
+<tr><th>写法</th><th>结果</th></tr>
+<tr><td><code>range(3)</code></td><td><strong>崩</strong> <code>ZeroDivisionError</code> ❌</td></tr>
+<tr><td><code>range(3, 0, -1)</code></td><td>找到 <code>3</code> ✅</td></tr>
+</table>
+<strong>② 换成整数除法，<code>int()</code> 就没用了</strong>
+<pre><code>l = M * N // r     # ✅ int，一步到位
+l = M * N / r      # ❌ float，还得 int() 补救
+l = M // r * N      # ✅ 更好：先除后乘，中间值不会无谓变大</code></pre>
+<strong>③ 换成辗转相除（本题用不上，但必须会）</strong>
+<pre><code>a, b = M, N            # 借两个变量来换，不破坏 M、N
+while b:               # b 不为 0 就一直换
+    a, b = b, a % b    # 元组同时赋值，右边先全算完 —— 拆成两句就错
+g = a                  # 循环退出时 b=0，此时 a 就是 gcd
+l = M // g * N
+print(f"{g} {l}")</code></pre>
+<code>gcd(1000, 999)</code> 实测：<strong>辗转 2 圈（0.0001 ms）vs 暴力 999 次（0.0220 ms），快 238 倍</strong>。
+本题 min ≤ 1000 所以暴力完全来得及，<strong>但换个上界 10⁹ 就死定了</strong> —— 这就是辗转相除存在的意义。
+</div>
+
+<div class="box warn">
+<strong>为什么第一版「样例能过」却还是错的</strong><br>
+样例是 <code>511 292</code>（gcd = 73，落在 1…291 中间），<strong>恰好不踩两个坑</strong>，
+所以样例打出 <code>73 2044</code> 完全正确 —— 这就是「<strong>样例过 ≠ 代码对</strong>」。<br>
+真正暴露 bug 的是<strong>边界</strong>：<strong>互质</strong>（gcd=1 → 试到 0 崩）和
+<strong>整除/相等</strong>（gcd=min → 漏掉 min 找不到）。<strong>这两类恰好就是这题的死穴。</strong>
+</div>
+
+<p><strong>要点与实测证据</strong>：13 组边界（样例 / 整除两个方向 / 两数相同 / 都是 1 / 互质 /
+互质含 1 / 上下限 / 上限互质 / 约分不整除 / 多空格 / 行首空格）<strong>0 组不符合</strong>；
+<strong>整个输入域 M,N ∈ [1,1000] 共 1,000,000 组</strong>，
+与 <code>math.gcd</code> 口径<strong>和</strong>「纯穷举」（完全独立实现，不用 gcd 公式）
+<strong>两个口径三方互证，各 0 组不一致</strong>；
+最坏输入 <code>1000 999</code> 单次 <strong>0.0397 ms</strong>。</p>
+
+<h3 id="review-50">4-11 判断素数 <span class="tag">通过</span></h3>
+
+<p><strong>要求</strong>：第一行给出正整数 N（≤ 10），随后 N 行每行给出一个小于 1000000 的正整数；
+对每个数，素数打 <code>Yes</code>，否则打 <code>No</code>。样例 <code>11</code> → <code>Yes</code>、
+<code>111</code> → <code>No</code>。</p>
+
+<p><strong>我的代码</strong>（第三版才过）</p>
+<pre><code>N=int(input())                          # 先读要判几个数
+for _ in range(N):                      # 循环 N 次（下划线表示"这个循环变量用不上"）
+    x=int(input())                      # 读一个待判断的正整数
+    if x<=1:print("No")                 # 0 和 1 都不是素数（写 x<=1 而不是 x==1，见下）
+    elif x==2:print("Yes")              # 2 是最小的素数，单独放行
+    else:
+        for i in range(2,int(x**0.5)+1):  # 只需试到 √x（超过 √x 的因子必然配对出现）
+            if x%i==0:                  # 找到了一个因子 → 不是素数
+                print("No")             # 立刻打 No（这一步必须在 if 的块里）
+                break                   # 打完再跳出，终止验证
+        else:print("Yes")               # 循环没被 break 打断 → 一个因子都没有 → 素数</code></pre>
+
+<div class="box bad">
+<strong>❌ 我的前两版</strong>
+<pre><code># 第一版：if/elif 收尾的 else 挡住了后面的 for...else，x 不是 1 也不是 2 时什么都不输出
+    if x<=1:print("No")
+    elif x==2:print("Yes")
+    else:
+        for i in range(2,int(x**0.5)+1):
+            if x%i==0:break             # ❌ 只 break，没打 No → 合数【什么都不输出】
+        else:print("Yes")               # ❌ 这个 else 只覆盖"没 break"那条路
+
+# 第二版：想给 break 那条路补 print，写成了单行 if
+            if x%i==0:print("No")       # ❌ 单行：if 的块在这一行就结束了
+                break                   # ❌ 16 格，没有主管 → IndentationError
+</code></pre>
+<strong>第一版实测（6/9 组错）：</strong>
+<table>
+<tr><th>输入</th><th>第一版输出</th><th>期望</th><th>为什么</th></tr>
+<tr><td>样例 <code>11</code> + <code>111</code></td><td><code>Yes</code></td>
+<td><code>Yes</code> <code>No</code></td><td><code>111=3×37</code>，命中后只 <code>break</code>、没打 <code>No</code></td></tr>
+<tr><td><code>4</code> / <code>9</code> / 10 个 <code>4</code></td><td><strong>（空）</strong></td>
+<td><code>No</code></td><td>同上</td></tr>
+<tr><td><code>0</code></td><td><strong><code>Yes</code></strong></td><td><code>No</code></td>
+<td>写的是 <code>x==1</code> → 0 走 <code>else</code> → <code>range(2,1)</code> 空循环 →
+<strong>空循环也执行 <code>for...else</code></strong> → 打 Yes</td></tr>
+</table>
+<strong>第二版实测：</strong><code>py_compile</code> 直接报
+<code>IndentationError: unexpected indent (line 9)</code>，五种输入全部 rc=1。
+</div>
+
+<p><strong>优化用法</strong></p>
+
+<div class="box ok">
+<strong>① 单行 <code>if</code> 要带下一行，冒号后面必须空着</strong>
+<pre><code>if x%i==0:print("No")     # ❌ if 的块在这一行结束，下一行的 break 归给 for
+if x%i==0:                # ✅ 冒号后空着 → 下面缩进的都是它的块
+    print("No")
+    break</code></pre>
+实测把 <code>break</code> 退回 12 格（对齐 <code>if</code>）后 <strong><code>py_compile</code> 通过</strong>，
+但输出变成：<code>4</code>→<code>No</code>（侥幸对）、<strong><code>11</code>→空、<code>9</code>→空</strong>。
+<strong>因为 <code>break</code> 和 <code>if</code> 同层时它属于 <code>for</code>，第一圈就无条件跳出。</strong>
+</div>
+
+<div class="box ok">
+<strong>② 完整写法还有两条路：标志位 / 封成函数 <code>return</code></strong>
+<pre><code># 路 A：标志位（循环只有一个出口，结论在循环外统一打）
+is_prime = True
+for i in range(2, int(x**0.5)+1):
+    if x % i == 0:
+        is_prime = False      # 翻旗子
+        break
+print("Yes" if is_prime else "No")
+
+# 路 B：封成函数 —— return 一步完成「立刻终止 + 带着结论出去」
+def is_prime(n):
+    if n <= 1:
+        return False          # 提前返回
+    for k in range(2, int(n**0.5)+1):
+        if n % k == 0:
+            return False      # 找到因子立刻返回
+    return True               # 全部试完都没返回 False → 是素数
+print("Yes" if is_prime(x) else "No")</code></pre>
+三种写法实测结果完全一致：<code>0→No 1→No 2→Yes 3→Yes 4→No 9→No 11→Yes 111→No 999983→Yes 1000000→No</code>。
+</div>
+
+<div class="box warn">
+<strong>③ <code>x<=1</code> 不是 <code>x==1</code> —— 这个差别 <code>0</code> 会打出来</strong>
+<pre><code>if x<=1:print("No")    # ✅ 0 和 1 都挡掉
+if x==1:print("No")    # ❌ 0 漏过去 → range(2,1) 是空循环 → for...else 执行 → 打 Yes</code></pre>
+题面写的是「正整数」，严格说 <code>0</code> 不在范围内；<strong>但判据写全了不吃亏</strong>，
+而且这是 4-2 那道题（review-41）"少了 <code>n&lt;=1</code> 就把 1 判成素数"的同一个坑 ——
+<strong>空循环也会执行 <code>for...else</code></strong>。
+</div>
+
+<div class="box ok">
+<strong>④ 为什么只需试到 <code>√x</code></strong><br>
+若 <code>x = a × b</code> 且 <code>a ≤ b</code>，则必有 <code>a ≤ √x</code> ——
+<strong>小于 √x 的因子一定配对出现</strong>，所以试到 <code>√x</code> 就能覆盖所有情况。<br>
+<code>1000000</code> 的 <code>√</code> 是 1000，即<strong>最多试 1000 次</strong>（不优化要试 100 万次）。<br>
+<code>range(2, int(x**0.5)+1)</code> 里的 <code>+1</code> 不能省：<code>int()</code> 会截断，
+<code>49</code> 的 <code>√</code> 正好是 <code>7.0</code>，不带 <code>+1</code> 就试不到 7 → 会把 49 判成素数。
+</div>
+
+<p><strong>要点与实测证据</strong>：<code>py_compile</code> 通过；题面样例
+（<code>2 / 11 / 111</code> → <code>Yes / No</code>）逐字节一致；
+危险边界 <code>0</code>、<code>1</code>、<code>49</code>（<code>√</code> 边界）、
+<code>999983</code>（大素数）、<code>1000000</code>（上界外）全对；
+与<strong>埃氏筛</strong>独立口径对拍 <strong>2305 组</strong>
+（<code>0~999</code> 全部 + 每 997 取一个 + 300 个随机 + 边界）<strong>0 组不一致</strong>；
+<code>[0, 1000000)</code> 的素数个数<strong>两个口径都是 78498</strong>。</p>
+
+<h3 id="review-51">4-12 求满足条件的斐波那契数 <span class="tag">通过</span></h3>
+
+<p><strong>要求</strong>：斐波那契数列 <code>1、1、2、3、5、8、13、21、…</code>（从第 3 项起每项是前两项之和）。
+输入一个正整数 <code>n</code>（<code>n≥10</code>），在一行输出<strong>大于 <code>n</code> 的最小斐波那契数</strong>。
+样例 <code>10</code> → <code>13</code>。</p>
+
+<p><strong>我的代码</strong></p>
+<pre><code>m=int(input())                 # 读入 n
+a,b=1,1                        # 从数列开头两项起步（1, 1）
+for _ in range(m):             # 循环上限给 m 次（因为数列到第 m 项一定超过 m）
+    a,b=b,a+b                  # 递推后移一位：新的 b 是前两项之和
+    if a+b>m:                  # 看【下一项】会不会超过 m
+        print(a+b)             # 超过 → 它就是"大于 m 的最小斐波那契数"…但注意见下
+        break                  # 打印后立刻跳出，只输出一个数</code></pre>
+
+<div class="box warn">
+<strong>这题的思路要点：为什么要"提前看下一项"</strong><br>
+如果直接判断当前项 <code>if b &gt; m</code>，那第一个超过 <code>m</code> 的 <code>b</code> 就是答案 ——
+但<strong>当前项可能还没超过</strong>，得继续推。写成"预判 <code>a+b</code>"等价于
+"把答案算出来再看"，可以少维护一个变量。<br>
+<strong>更直白的等价写法</strong>（推荐理解用）：
+<pre><code>m = int(input())
+a, b = 1, 1
+while a + b &lt;= m:      # 只要下一项还没超过 m，就继续往后推
+    a, b = b, a + b
+print(a + b)           # 退出时 a+b 就是第一个 &gt; m 的斐波那契数</code></pre>
+两种写法实测<strong>结果完全一致</strong>（n 在 [10, 100000] 抽样 300 组、0 组不一致）。
+</div>
+
+<div class="box ok">
+<strong>为什么 <code>for _ in range(m)</code> 是安全的（不会"循环不够用"）</strong><br>
+要保证循环次数够，得看<strong>最坏情况</strong>：答案是"大于 <code>m</code> 的最小斐波那契数"，
+而第 <code>k</code> 个斐波那契数约等于 <code>φᵏ/√5</code>（<code>φ≈1.618</code>）。
+要让数列超过 <code>m</code>，大约需要 <code>k ≈ log(m)/log(φ) ≈ 1.44 × log₂(m)</code> 项。<br>
+<code>m</code> 最大取到 <code>10⁶</code> 时，<strong>只要 30 项左右</strong>，
+而循环给了 <code>m</code>（=100 万）次 —— <strong>远超需要，绝不会用完</strong>。<br>
+实测上限：<code>n=1000000</code> → <code>1346269</code>、<code>n=1999999</code> → <code>2178309</code>，都对。
+</div>
+
+<p><strong>优化用法</strong></p>
+
+<div class="box ok">
+<strong>① 循环次数其实只需 ~30 次，写死上限更稳更快</strong>
+<pre><code># 现在的写法：给了 m 次上限（安全，但"上限"和"需要"差 5 个数量级）
+for _ in range(m):
+
+# 更贴切的写法：用一个肯定够的上限
+for _ in range(100):           # 100 项已经到 3.5×10²⁰，远超任何输入
+
+# 或者不用计数，直接用 while（见上面那个等价写法）—— 最清楚
+while a + b &lt;= m:
+    a, b = b, a + b
+print(a + b)</code></pre>
+<strong>三种写法结果一致</strong>；<code>while</code> 版最好读，而且<strong>不需要事先论证"循环够不够"</strong>。
+</div>
+
+<div class="box bad">
+<strong>② 一个只在 <code>n&lt;10</code> 才暴露的机制（题面限定 n≥10，所以不影响判题）</strong><br>
+实测 <code>n=1</code> 时本版输出 <code>3</code>，而正确答案是 <code>2</code>：
+<table>
+<tr><th><code>n</code></th><th>本版输出</th><th>正确答案</th><th></th></tr>
+<tr><td><strong>1</strong></td><td><strong>3</strong></td><td><strong>2</strong></td><td>❌</td></tr>
+<tr><td>2</td><td>3</td><td>3</td><td>✅</td></tr>
+<tr><td>3 ~ 10</td><td>5 / 5 / 8 / 8 / 8 / 8 / 13 / 13</td><td>同左</td><td>✅</td></tr>
+</table>
+<strong>根因</strong>：数列开头的 <code>1, 1, 2</code> 是"重复的 1" ——
+第一轮 <code>a,b = 1,2</code> 后预判 <code>a+b = 3</code>，<strong>一跳就跨过了 2</strong>。
+<code>n ≥ 10</code> 时 2 早就小于 n，所以<strong>永远碰不到</strong>；
+但知道这个机制有好处：<strong>凡是"从 1,1 起步推斐波那契"的代码，都要留意开头的重复 1</strong>。
+</div>
+
+<p><strong>要点与实测证据</strong>：<code>py_compile</code> 通过；样例 <code>n=10</code> →
+<code>13</code> 逐字节一致；边界 <code>n=13</code> → <code>21</code>（正好等于斐波那契数）、
+<code>n=12</code> → <code>13</code>、<code>n=1000</code> → <code>1597</code> 全对；
+<code>n</code> 在 <code>[10, 100000]</code> <strong>抽样 300 组</strong>与独立口径
+（先列出斐波那契表、再线性找第一个 <code>&gt; n</code>）<strong>0 组不一致</strong>；
+上限 <code>n=10⁶</code> → <code>1346269</code>、<code>n=1999999</code> → <code>2178309</code> 均正确。</p>
 <h2 id="quick">七、速查总表</h2>
 
 <p><strong>为什么单独开一章：</strong>前面是按「遇到的顺序」记的，翻起来像流水账。
@@ -7320,278 +7592,7 @@ window.addEventListener('touchmove', onScroll, false);
 onScroll();
 </script>
 
-<h3 id="quick-7">4-10 最大公约数和最小公倍数 <span class="tag">通过</span></h3>
 
-<p><strong>要求</strong>：给出两个正整数 M 和 N（≤ 1000），在一行里顺序输出它们的最大公约数和最小公倍数，
-中间用 1 个空格隔开。样例 <code>511 292</code> → <code>73 2044</code>。</p>
-
-<p><strong>我的代码</strong>（改了两版才过）</p>
-<pre><code>M,N=list(map(int,input().split()))     # 读一行，拆成两个整数：M、N
-for i in range(min(M,N),0,-1):         # 从 min(M,N) 往下试到 1（含 min，不含 0）
-    if M%i==0 and N%i==0:              # 能同时整除 M 和 N → 它就是公约数
-        r=i                            # 记下当前这个（越往下越小，所以第一个命中的最大）
-        break                          # 第一个命中的就是最大公约数，立刻停
-l=M*N//r                               # 最小公倍数 = 两数之积 ÷ 最大公约数（// 保证是整数）
-print(f"{r} {l}")                      # 一行输出，中间一个空格</code></pre>
-
-<div class="box bad">
-<strong>❌ 我的第一版（两个 bug）</strong>
-<pre><code>M,N=list(map(int,input().split()))
-for i in range(min(M,N))[::-1]:        # ❌ 坑1：range(min(M,N)) 不含 min(M,N) 本身，且倒数第一个是 0
-    if M%i==0 and N%i==0:              # ❌ 坑1 的后果：i=0 时 M%0 直接崩
-        r=i
-        break
-l=M*N/r                                # ❌ 坑2：/ 给 float，不是整数
-print(f"{r} {int(l)}")                 # ❌ 坑2 的补丁：int() 兜住，是给 float 擦屁股</code></pre>
-<strong>坑 1 的三种后果（全都实测出来了）：</strong>
-<table>
-<tr><th>输入</th><th>第一版输出</th><th>正确答案</th><th>为什么</th></tr>
-<tr><td><code>1 1</code>、<code>1 1000</code>、<code>1 2</code></td>
-<td><strong>崩，退出码 1</strong></td><td><code>1 1</code> 等</td>
-<td>互质 → 一路试到 <code>i=0</code> → <code>M % 0</code> →
-<code>ZeroDivisionError</code>。<strong>这就是 PTA 上「存在部分非零返回」的来源</strong></td></tr>
-<tr><td><code>3 12</code>、<code>12 3</code></td>
-<td><code>1 36</code></td><td><code>3 12</code></td>
-<td><code>min=3</code> 本身就是 gcd，但 <code>range(3)</code> 只给 0~2，<strong>永远找不到 3</strong></td></tr>
-<tr><td><code>5 5</code>、<code>1000 1000</code></td>
-<td><code>1 25</code>、<code>500 2000</code></td><td><code>5 5</code>、<code>1000 1000</code></td>
-<td>同上，退而求其次找到了个更小的除数</td></tr>
-</table>
-<strong>坑 2 实测：</strong><code>511*292/73</code> → <code>2044.0</code>（<code>float</code>），
-f-string 直接打就是 <code>'2044.0'</code> 整行错；本题 <code>int()</code> 兜得住，
-但数一大浮点失真、<code>int()</code> 会<strong>悄悄返回一个错的整数</strong>
-（10¹² 和 999999999989 那组差 35106816，见 ㉜）。
-</div>
-
-<p><strong>优化用法</strong></p>
-
-<div class="box ok">
-<strong>① 改成 <code>range(min(M,N),0,-1)</code> —— 起点、终点前后各挪一格</strong>
-<pre><code>range(min(M,N))        # ❌ 给 0 … min-1：漏了 min，多了 0
-range(min(M,N),0,-1)   # ✅ 给 min … 1：含 min（整除/相等时就是答案），不含 0（0 不能当除数）
-range(min(M,N))[::-1]  # ⚠️ 结果同 ❌，而且先造完整列表再倒过来，多一份内存</code></pre>
-实测对比（<code>M=3, N=12</code>，正确答案是 <code>3</code>）：
-<table>
-<tr><th>写法</th><th>结果</th></tr>
-<tr><td><code>range(3)</code></td><td><strong>崩</strong> <code>ZeroDivisionError</code> ❌</td></tr>
-<tr><td><code>range(3, 0, -1)</code></td><td>找到 <code>3</code> ✅</td></tr>
-</table>
-<strong>② 换成整数除法，<code>int()</code> 就没用了</strong>
-<pre><code>l = M * N // r     # ✅ int，一步到位
-l = M * N / r      # ❌ float，还得 int() 补救
-l = M // r * N      # ✅ 更好：先除后乘，中间值不会无谓变大</code></pre>
-<strong>③ 换成辗转相除（本题用不上，但必须会）</strong>
-<pre><code>a, b = M, N            # 借两个变量来换，不破坏 M、N
-while b:               # b 不为 0 就一直换
-    a, b = b, a % b    # 元组同时赋值，右边先全算完 —— 拆成两句就错
-g = a                  # 循环退出时 b=0，此时 a 就是 gcd
-l = M // g * N
-print(f"{g} {l}")</code></pre>
-<code>gcd(1000, 999)</code> 实测：<strong>辗转 2 圈（0.0001 ms）vs 暴力 999 次（0.0220 ms），快 238 倍</strong>。
-本题 min ≤ 1000 所以暴力完全来得及，<strong>但换个上界 10⁹ 就死定了</strong> —— 这就是辗转相除存在的意义。
-</div>
-
-<div class="box warn">
-<strong>为什么第一版「样例能过」却还是错的</strong><br>
-样例是 <code>511 292</code>（gcd = 73，落在 1…291 中间），<strong>恰好不踩两个坑</strong>，
-所以样例打出 <code>73 2044</code> 完全正确 —— 这就是「<strong>样例过 ≠ 代码对</strong>」。<br>
-真正暴露 bug 的是<strong>边界</strong>：<strong>互质</strong>（gcd=1 → 试到 0 崩）和
-<strong>整除/相等</strong>（gcd=min → 漏掉 min 找不到）。<strong>这两类恰好就是这题的死穴。</strong>
-</div>
-
-<p><strong>要点与实测证据</strong>：13 组边界（样例 / 整除两个方向 / 两数相同 / 都是 1 / 互质 /
-互质含 1 / 上下限 / 上限互质 / 约分不整除 / 多空格 / 行首空格）<strong>0 组不符合</strong>；
-<strong>整个输入域 M,N ∈ [1,1000] 共 1,000,000 组</strong>，
-与 <code>math.gcd</code> 口径<strong>和</strong>「纯穷举」（完全独立实现，不用 gcd 公式）
-<strong>两个口径三方互证，各 0 组不一致</strong>；
-最坏输入 <code>1000 999</code> 单次 <strong>0.0397 ms</strong>。</p>
-
-<h3 id="quick-8">4-11 判断素数 <span class="tag">通过</span></h3>
-
-<p><strong>要求</strong>：第一行给出正整数 N（≤ 10），随后 N 行每行给出一个小于 1000000 的正整数；
-对每个数，素数打 <code>Yes</code>，否则打 <code>No</code>。样例 <code>11</code> → <code>Yes</code>、
-<code>111</code> → <code>No</code>。</p>
-
-<p><strong>我的代码</strong>（第三版才过）</p>
-<pre><code>N=int(input())                          # 先读要判几个数
-for _ in range(N):                      # 循环 N 次（下划线表示"这个循环变量用不上"）
-    x=int(input())                      # 读一个待判断的正整数
-    if x<=1:print("No")                 # 0 和 1 都不是素数（写 x<=1 而不是 x==1，见下）
-    elif x==2:print("Yes")              # 2 是最小的素数，单独放行
-    else:
-        for i in range(2,int(x**0.5)+1):  # 只需试到 √x（超过 √x 的因子必然配对出现）
-            if x%i==0:                  # 找到了一个因子 → 不是素数
-                print("No")             # 立刻打 No（这一步必须在 if 的块里）
-                break                   # 打完再跳出，终止验证
-        else:print("Yes")               # 循环没被 break 打断 → 一个因子都没有 → 素数</code></pre>
-
-<div class="box bad">
-<strong>❌ 我的前两版</strong>
-<pre><code># 第一版：if/elif 收尾的 else 挡住了后面的 for...else，x 不是 1 也不是 2 时什么都不输出
-    if x<=1:print("No")
-    elif x==2:print("Yes")
-    else:
-        for i in range(2,int(x**0.5)+1):
-            if x%i==0:break             # ❌ 只 break，没打 No → 合数【什么都不输出】
-        else:print("Yes")               # ❌ 这个 else 只覆盖"没 break"那条路
-
-# 第二版：想给 break 那条路补 print，写成了单行 if
-            if x%i==0:print("No")       # ❌ 单行：if 的块在这一行就结束了
-                break                   # ❌ 16 格，没有主管 → IndentationError
-</code></pre>
-<strong>第一版实测（6/9 组错）：</strong>
-<table>
-<tr><th>输入</th><th>第一版输出</th><th>期望</th><th>为什么</th></tr>
-<tr><td>样例 <code>11</code> + <code>111</code></td><td><code>Yes</code></td>
-<td><code>Yes</code> <code>No</code></td><td><code>111=3×37</code>，命中后只 <code>break</code>、没打 <code>No</code></td></tr>
-<tr><td><code>4</code> / <code>9</code> / 10 个 <code>4</code></td><td><strong>（空）</strong></td>
-<td><code>No</code></td><td>同上</td></tr>
-<tr><td><code>0</code></td><td><strong><code>Yes</code></strong></td><td><code>No</code></td>
-<td>写的是 <code>x==1</code> → 0 走 <code>else</code> → <code>range(2,1)</code> 空循环 →
-<strong>空循环也执行 <code>for...else</code></strong> → 打 Yes</td></tr>
-</table>
-<strong>第二版实测：</strong><code>py_compile</code> 直接报
-<code>IndentationError: unexpected indent (line 9)</code>，五种输入全部 rc=1。
-</div>
-
-<p><strong>优化用法</strong></p>
-
-<div class="box ok">
-<strong>① 单行 <code>if</code> 要带下一行，冒号后面必须空着</strong>
-<pre><code>if x%i==0:print("No")     # ❌ if 的块在这一行结束，下一行的 break 归给 for
-if x%i==0:                # ✅ 冒号后空着 → 下面缩进的都是它的块
-    print("No")
-    break</code></pre>
-实测把 <code>break</code> 退回 12 格（对齐 <code>if</code>）后 <strong><code>py_compile</code> 通过</strong>，
-但输出变成：<code>4</code>→<code>No</code>（侥幸对）、<strong><code>11</code>→空、<code>9</code>→空</strong>。
-<strong>因为 <code>break</code> 和 <code>if</code> 同层时它属于 <code>for</code>，第一圈就无条件跳出。</strong>
-</div>
-
-<div class="box ok">
-<strong>② 完整写法还有两条路：标志位 / 封成函数 <code>return</code></strong>
-<pre><code># 路 A：标志位（循环只有一个出口，结论在循环外统一打）
-is_prime = True
-for i in range(2, int(x**0.5)+1):
-    if x % i == 0:
-        is_prime = False      # 翻旗子
-        break
-print("Yes" if is_prime else "No")
-
-# 路 B：封成函数 —— return 一步完成「立刻终止 + 带着结论出去」
-def is_prime(n):
-    if n <= 1:
-        return False          # 提前返回
-    for k in range(2, int(n**0.5)+1):
-        if n % k == 0:
-            return False      # 找到因子立刻返回
-    return True               # 全部试完都没返回 False → 是素数
-print("Yes" if is_prime(x) else "No")</code></pre>
-三种写法实测结果完全一致：<code>0→No 1→No 2→Yes 3→Yes 4→No 9→No 11→Yes 111→No 999983→Yes 1000000→No</code>。
-</div>
-
-<div class="box warn">
-<strong>③ <code>x<=1</code> 不是 <code>x==1</code> —— 这个差别 <code>0</code> 会打出来</strong>
-<pre><code>if x<=1:print("No")    # ✅ 0 和 1 都挡掉
-if x==1:print("No")    # ❌ 0 漏过去 → range(2,1) 是空循环 → for...else 执行 → 打 Yes</code></pre>
-题面写的是「正整数」，严格说 <code>0</code> 不在范围内；<strong>但判据写全了不吃亏</strong>，
-而且这是 4-2 那道题（review-41）"少了 <code>n&lt;=1</code> 就把 1 判成素数"的同一个坑 ——
-<strong>空循环也会执行 <code>for...else</code></strong>。
-</div>
-
-<div class="box ok">
-<strong>④ 为什么只需试到 <code>√x</code></strong><br>
-若 <code>x = a × b</code> 且 <code>a ≤ b</code>，则必有 <code>a ≤ √x</code> ——
-<strong>小于 √x 的因子一定配对出现</strong>，所以试到 <code>√x</code> 就能覆盖所有情况。<br>
-<code>1000000</code> 的 <code>√</code> 是 1000，即<strong>最多试 1000 次</strong>（不优化要试 100 万次）。<br>
-<code>range(2, int(x**0.5)+1)</code> 里的 <code>+1</code> 不能省：<code>int()</code> 会截断，
-<code>49</code> 的 <code>√</code> 正好是 <code>7.0</code>，不带 <code>+1</code> 就试不到 7 → 会把 49 判成素数。
-</div>
-
-<p><strong>要点与实测证据</strong>：<code>py_compile</code> 通过；题面样例
-（<code>2 / 11 / 111</code> → <code>Yes / No</code>）逐字节一致；
-危险边界 <code>0</code>、<code>1</code>、<code>49</code>（<code>√</code> 边界）、
-<code>999983</code>（大素数）、<code>1000000</code>（上界外）全对；
-与<strong>埃氏筛</strong>独立口径对拍 <strong>2305 组</strong>
-（<code>0~999</code> 全部 + 每 997 取一个 + 300 个随机 + 边界）<strong>0 组不一致</strong>；
-<code>[0, 1000000)</code> 的素数个数<strong>两个口径都是 78498</strong>。</p>
-
-<h3 id="quick-9">4-12 求满足条件的斐波那契数 <span class="tag">通过</span></h3>
-
-<p><strong>要求</strong>：斐波那契数列 <code>1、1、2、3、5、8、13、21、…</code>（从第 3 项起每项是前两项之和）。
-输入一个正整数 <code>n</code>（<code>n≥10</code>），在一行输出<strong>大于 <code>n</code> 的最小斐波那契数</strong>。
-样例 <code>10</code> → <code>13</code>。</p>
-
-<p><strong>我的代码</strong></p>
-<pre><code>m=int(input())                 # 读入 n
-a,b=1,1                        # 从数列开头两项起步（1, 1）
-for _ in range(m):             # 循环上限给 m 次（因为数列到第 m 项一定超过 m）
-    a,b=b,a+b                  # 递推后移一位：新的 b 是前两项之和
-    if a+b>m:                  # 看【下一项】会不会超过 m
-        print(a+b)             # 超过 → 它就是"大于 m 的最小斐波那契数"…但注意见下
-        break                  # 打印后立刻跳出，只输出一个数</code></pre>
-
-<div class="box warn">
-<strong>这题的思路要点：为什么要"提前看下一项"</strong><br>
-如果直接判断当前项 <code>if b &gt; m</code>，那第一个超过 <code>m</code> 的 <code>b</code> 就是答案 ——
-但<strong>当前项可能还没超过</strong>，得继续推。写成"预判 <code>a+b</code>"等价于
-"把答案算出来再看"，可以少维护一个变量。<br>
-<strong>更直白的等价写法</strong>（推荐理解用）：
-<pre><code>m = int(input())
-a, b = 1, 1
-while a + b &lt;= m:      # 只要下一项还没超过 m，就继续往后推
-    a, b = b, a + b
-print(a + b)           # 退出时 a+b 就是第一个 &gt; m 的斐波那契数</code></pre>
-两种写法实测<strong>结果完全一致</strong>（n 在 [10, 100000] 抽样 300 组、0 组不一致）。
-</div>
-
-<div class="box ok">
-<strong>为什么 <code>for _ in range(m)</code> 是安全的（不会"循环不够用"）</strong><br>
-要保证循环次数够，得看<strong>最坏情况</strong>：答案是"大于 <code>m</code> 的最小斐波那契数"，
-而第 <code>k</code> 个斐波那契数约等于 <code>φᵏ/√5</code>（<code>φ≈1.618</code>）。
-要让数列超过 <code>m</code>，大约需要 <code>k ≈ log(m)/log(φ) ≈ 1.44 × log₂(m)</code> 项。<br>
-<code>m</code> 最大取到 <code>10⁶</code> 时，<strong>只要 30 项左右</strong>，
-而循环给了 <code>m</code>（=100 万）次 —— <strong>远超需要，绝不会用完</strong>。<br>
-实测上限：<code>n=1000000</code> → <code>1346269</code>、<code>n=1999999</code> → <code>2178309</code>，都对。
-</div>
-
-<p><strong>优化用法</strong></p>
-
-<div class="box ok">
-<strong>① 循环次数其实只需 ~30 次，写死上限更稳更快</strong>
-<pre><code># 现在的写法：给了 m 次上限（安全，但"上限"和"需要"差 5 个数量级）
-for _ in range(m):
-
-# 更贴切的写法：用一个肯定够的上限
-for _ in range(100):           # 100 项已经到 3.5×10²⁰，远超任何输入
-
-# 或者不用计数，直接用 while（见上面那个等价写法）—— 最清楚
-while a + b &lt;= m:
-    a, b = b, a + b
-print(a + b)</code></pre>
-<strong>三种写法结果一致</strong>；<code>while</code> 版最好读，而且<strong>不需要事先论证"循环够不够"</strong>。
-</div>
-
-<div class="box bad">
-<strong>② 一个只在 <code>n&lt;10</code> 才暴露的机制（题面限定 n≥10，所以不影响判题）</strong><br>
-实测 <code>n=1</code> 时本版输出 <code>3</code>，而正确答案是 <code>2</code>：
-<table>
-<tr><th><code>n</code></th><th>本版输出</th><th>正确答案</th><th></th></tr>
-<tr><td><strong>1</strong></td><td><strong>3</strong></td><td><strong>2</strong></td><td>❌</td></tr>
-<tr><td>2</td><td>3</td><td>3</td><td>✅</td></tr>
-<tr><td>3 ~ 10</td><td>5 / 5 / 8 / 8 / 8 / 8 / 13 / 13</td><td>同左</td><td>✅</td></tr>
-</table>
-<strong>根因</strong>：数列开头的 <code>1, 1, 2</code> 是"重复的 1" ——
-第一轮 <code>a,b = 1,2</code> 后预判 <code>a+b = 3</code>，<strong>一跳就跨过了 2</strong>。
-<code>n ≥ 10</code> 时 2 早就小于 n，所以<strong>永远碰不到</strong>；
-但知道这个机制有好处：<strong>凡是"从 1,1 起步推斐波那契"的代码，都要留意开头的重复 1</strong>。
-</div>
-
-<p><strong>要点与实测证据</strong>：<code>py_compile</code> 通过；样例 <code>n=10</code> →
-<code>13</code> 逐字节一致；边界 <code>n=13</code> → <code>21</code>（正好等于斐波那契数）、
-<code>n=12</code> → <code>13</code>、<code>n=1000</code> → <code>1597</code> 全对；
-<code>n</code> 在 <code>[10, 100000]</code> <strong>抽样 300 组</strong>与独立口径
-（先列出斐波那契表、再线性找第一个 <code>&gt; n</code>）<strong>0 组不一致</strong>；
-上限 <code>n=10⁶</code> → <code>1346269</code>、<code>n=1999999</code> → <code>2178309</code> 均正确。</p>
 
 </body>
 </html>
