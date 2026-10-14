@@ -104,7 +104,7 @@
 -->
 
 <h1>Python 自学笔记</h1>
-<p class="meta">hkh ｜ 更新 2026-10-13 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">22</span> 题 + 第4章 <span id="c4">13</span> 题（浙大版《Python 程序设计》题目集）</p>
+<p class="meta">hkh ｜ 更新 2026-10-13 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">22</span> 题 + 第4章 <span id="c4">14</span> 题（浙大版《Python 程序设计》题目集）</p>
 
 <nav id="toc">
   <div class="toc-head">目录　<span class="toc-hint">点标题展开 · 点条目直接跳</span></div>
@@ -196,7 +196,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>六、真题回顾 <span class="toc-n" id="cr">52</span></summary>
+    <summary>六、真题回顾 <span class="toc-n" id="cr">53</span></summary>
     <ol>
       <li><a onclick="return go('review-1')">1-1 从键盘输入两个数求和</a></li>
       <li><a onclick="return go('review-2')">1-2 按公式输出 b²−4ac</a></li>
@@ -257,6 +257,7 @@
       <li><a onclick="return go('review-57')">补充：sys.stdin 的四个读法（read / readline / readlines / read(n)）</a></li>
       <li><a onclick="return go('review-58')">补充：endswith() / startswith()（怎么用 + 四种拓展）</a></li>
       <li><a onclick="return go('review-59')">补充：切片 [:-1] 与「去掉末尾换行」的四种写法</a></li>
+      <li><a onclick="return go('review-60')">4-14 统计字符</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -4306,7 +4307,7 @@ if m!=v[17]:                      # ② 索引</code></pre>
 ② 两边同时改，很容易出现"本地一份、提交另一份"，而且极难发现
 </div>
 
-<h2 id="review">六、真题回顾（<span id="cr2">52</span> 题）</h2>
+<h2 id="review">六、真题回顾（<span id="cr2">53</span> 题）</h2>
 
 <div class="box warn">
 <strong>说明：</strong>下面的题目要求是<strong>我按自己的理解概括写的</strong>，不是 PTA 原文。<br>
@@ -7744,6 +7745,135 @@ text = text.removesuffix("\n")
 "abc\n"          → "abc"
 "\n"             → ""</code></pre>
 </div>
+
+<h3 id="review-60">4-14 统计字符 <span class="tag">通过</span></h3>
+
+<p><strong>要求</strong>：输入 10 个字符，统计其中<strong>英文字母</strong>、
+<strong>空格或回车</strong>、<strong>数字字符</strong>和<strong>其他字符</strong>的个数。
+<strong>最后一个回车表示输入结束，不算在内</strong>。在一行内输出
+<code>letter = ? , blank = ? , digit = ? , other = ?</code>。
+样例输入 <code>aZ &amp;</code> + <code>09 Az</code> →
+输出 <code>letter = 4, blank = 3, digit = 2, other = 1</code>。</p>
+
+<div class="box warn">
+<strong>先把口径钉死：题面那两句话是两回事</strong><br>
+① 「输入为 10 个字符。<strong>最后一个回车表示输入结束，不算在内</strong>」
+→ 这是 <strong>输入终止条件</strong><br>
+② 「blank = <strong>空格或回车</strong>个数」→ 这是 <strong>统计对象（回车要算进 blank）</strong><br>
+<strong>所以：中间那个回车要算进 blank，只有末尾那个"表示结束"的回车去掉。</strong>
+用样例当锚点验证（逐字符摊开 <code>'aZ &amp;\n09 Az\n'</code>）：
+<table>
+<tr><th>下标</th><th>字符</th><th>归类</th></tr>
+<tr><td>0 / 1</td><td><code>a</code> / <code>Z</code></td><td>letter ×2</td></tr>
+<tr><td>2</td><td>空格</td><td>blank</td></tr>
+<tr><td>3</td><td><code>&amp;</code></td><td>other</td></tr>
+<tr><td><strong>4</strong></td><td><strong><code>\n</code>（中间的）</strong></td>
+<td><strong>blank ← 这个要算</strong></td></tr>
+<tr><td>5 / 6</td><td><code>0</code> / <code>9</code></td><td>digit ×2</td></tr>
+<tr><td>7</td><td>空格</td><td>blank</td></tr>
+<tr><td>8 / 9</td><td><code>A</code> / <code>z</code></td><td>letter ×2</td></tr>
+<tr><td>10</td><td><code>\n</code>（末尾的）</td><td><strong>去掉，不算</strong></td></tr>
+</table>
+合计：letter=4、blank=3（空格×2 + 中间回车×1）、digit=2、other=1 —— <strong>正好是样例</strong>。
+</div>
+
+<p><strong>我的代码</strong></p>
+<pre><code>import sys
+import string
+
+l=b=d=o=0                       # 四个计数器：字母 / 空白 / 数字 / 其他（链式赋值）
+text=sys.stdin.read()           # 【整块读】—— 换行都在里面，不能用 input()（它会剥掉换行）
+if text.endswith("\n"):         # 末尾那个回车是"表示结束"的
+    text=text[:-1]              # 去掉它；没有则不切（避免误删正常字符）
+    for i in text:              # 逐字符遍历
+        if i in string.ascii_letters:   # 英文字母（大小写都在里面）
+            l+=1
+        elif i.isdigit():       # 数字字符
+            d+=1
+        elif i in [" ","\n"]:    # 空格或回车 → 都算 blank
+            b+=1
+        else:                   # 其余
+            o+=1
+        if l+b+d+o&gt;=10:          # 已经统计满 10 个 → 停止
+            break
+print(f"letter = {l}, blank = {b}, digit = {d}, other = {o}")</code></pre>
+
+<div class="box ok">
+<strong>三个"开关"（这题的全部设计）</strong>
+<table>
+<tr><th>#</th><th>开关</th><th>为什么这样写</th></tr>
+<tr><td>①</td><td><strong>用 <code>sys.stdin.read()</code> 整块读</strong></td>
+<td><code>input()</code> 会把行尾换行<strong>剥掉</strong>，那就统计不到"回车"了；
+<code>read()</code> 原样给，中间的回车才能算进 <code>blank</code>（㉟）</td></tr>
+<tr><td>②</td><td><strong><code>if text.endswith("\n"): text=text[:-1]</code></strong></td>
+<td>只去掉<strong>末尾那一个</strong>回车。不能直接 <code>text[:-1]</code>（没换行时会误删一个字符），
+也不能 <code>rstrip()</code>（会把末尾空格也吃掉，影响 blank 计数）（㉟ 末尾那节）</td></tr>
+<tr><td>③</td><td><strong><code>if l+b+d+o&gt;=10: break</code> 放在统计之后</strong></td>
+<td>保证<strong>第 10 个字符先被统计、再停</strong>；若写在统计之前，就会少统计最后一个</td></tr>
+</table>
+</div>
+
+<div class="box bad">
+<strong>❌ 我的第一版（三个问题叠在一起，一个都跑不通）</strong>
+<pre><code>for line in sys.stdin:      # ❌ 问题1：外层把【一行】读走了
+    x=list(input())         # ❌        循环体里又 input()，读的是【下一行】
+    for i in x:
+        ...                 # ❌ 结果第一行被完全丢掉、没统计
+        if l+b+d+o&gt;10:break  # ❌ 问题2：&gt;10 才停（应 &gt;=10）；
+                            #          而且这行只跳出【内层】，外层还会转 → EOFError
+    # ❌ 问题3：没处理"末尾回车"，也没法统计中间的换行</code></pre>
+实测后果（第一版）：
+<table>
+<tr><th>输入</th><th>实际</th><th>说明</th></tr>
+<tr><td>样例两行 <code>aZ &amp;</code> / <code>09 Az</code></td>
+<td><code>letter=2 blank=1 digit=2 other=0</code></td>
+<td><strong>只统计了第二行</strong>（第一行被 <code>for</code> 吃掉丢了）</td></tr>
+<tr><td>两行 <code>AAA</code> / <code>BBB</code></td><td><code>letter=3</code></td>
+<td>同理，只算了 <code>BBB</code></td></tr>
+<tr><td><strong>只有一行</strong>（如 <code>abc</code>）</td><td><strong>崩，<code>EOFError</code></strong></td>
+<td>循环体里的 <code>input()</code> 没数据可读 &rarr; 连 <code>print</code> 都到不了
+（这就是"没有运行结果"的来源）</td></tr>
+</table>
+<strong>教训：<code>for line in sys.stdin</code> 和循环体里的 <code>input()</code> 会抢着读，二选一。</strong>
+</div>
+
+<p><strong>优化用法</strong></p>
+
+<div class="box ok">
+<strong>① 判"英文字母"的三种写法（实测等价性）</strong>
+<pre><code>i in string.ascii_letters        # 要 import string；52 个字符，大小写都含
+i.isascii() and i.isalpha()      # 不用 import；纯 ASCII 的字母
+i.isalpha()                      # ⚠️ 中文也返回 True（"中".isalpha() → True）</code></pre>
+第三种的坑在 4-14 特别致命：如果输入里出现中文，<code>isalpha()</code> 会把它算成字母。
+<strong>前两种才安全。</strong>
+</div>
+
+<div class="box warn">
+<strong>② <code>import string</code> 其实可以省掉</strong><br>
+这版用了 <code>string.ascii_letters</code>，但用 <code>i.isascii() and i.isalpha()</code>
+就不需要 import 了 —— <strong>两版实测结果完全一致</strong>（见上面的等价性）。
+两种都能过，选哪个看习惯；<strong>但要知道 <code>isalpha()</code> 单独用是不安全的</strong>。
+</div>
+
+<div class="box ok">
+<strong>③ 为什么"停在 10 个字符"是对的（不用管"输入多于 10 个"）</strong><br>
+题面写死「<strong>输入为 10 个字符</strong>」，所以：
+<table>
+<tr><th>输入长度</th><th>本版行为</th><th>对不对</th></tr>
+<tr><td>正好 10 个</td><td>全统计</td><td>✅ 题面场景</td></tr>
+<tr><td>不足 10 个</td><td>全统计（<code>break</code> 不触发）</td><td>✅ 也对</td></tr>
+<tr><td>多于 10 个</td><td>只统计前 10 个</td><td>✅ <strong>题面不会给这种输入</strong>，
+<code>break</code> 在这里正好起"防越界"的作用</td></tr>
+</table>
+实测：<code>abcdefghij</code>（10 个）→ <code>letter = 10</code>；<code>abcdefghijk</code>（11 个）
+→ <code>letter = 10</code>（停在第 10 个）。
+</div>
+
+<p><strong>要点与实测证据</strong>：<code>py_compile</code> 通过；
+<strong>题面样例</strong> <code>aZ &amp;\n09 Az</code> → <code>letter = 4, blank = 3, digit = 2, other = 1</code>
+<strong>逐字节一致</strong>；
+边界 7 组（10 个纯字母 / 正好 10 个含空格 / 10 个数字 / 10 个其他符号 / 6 个字符不足 10 /
+含 Tab）全对；11 个字符那组停在 10 个 —— <strong>超出题面范围，属预期行为</strong>。</p>
 
 <h2 id="quick">七、速查总表</h2>
 
