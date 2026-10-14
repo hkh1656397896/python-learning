@@ -104,12 +104,12 @@
 -->
 
 <h1>Python 自学笔记</h1>
-<p class="meta">hkh ｜ 更新 2026-10-13 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">22</span> 题 + 第4章 <span id="c4">14</span> 题（浙大版《Python 程序设计》题目集）</p>
+<p class="meta">hkh ｜ 更新 2026-10-14 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">22</span> 题 + 第4章 <span id="c4">15</span> 题（浙大版《Python 程序设计》题目集）</p>
 
 <nav id="toc">
   <div class="toc-head">目录　<span class="toc-hint">点标题展开 · 点条目直接跳</span></div>
   <details class="toc-g">
-    <summary>一、易错点 <span class="toc-n" id="ce">16</span></summary>
+    <summary>一、易错点 <span class="toc-n" id="ce">17</span></summary>
     <ol>
       <li><a onclick="return go('e1-1')">❌ 1. 输入分隔符猜错</a></li>
       <li><a onclick="return go('e1-2')">❌ 2. int 和 float 用错</a></li>
@@ -127,6 +127,7 @@
       <li><a onclick="return go('e1-15')">❌ 14. 删掉卫语句时忘了同步改缩进 —— print 还留在循环里</a></li>
       <li><a onclick="return go('e1-16')">❌ 15. 缩进 = 从属关系（同一个病，四次翻车）</a></li>
       <li><a onclick="return go('e1-17')">❌ 16. 读输入只读了"一行"，却以为拿到了全部（同一个病三种形态）</a></li>
+      <li><a onclick="return go('e1-18')">❌ 17. 手算循环上界：算错了不报错，只会「悄悄少打印几种」</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -196,7 +197,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>六、真题回顾 <span class="toc-n" id="cr">53</span></summary>
+    <summary>六、真题回顾 <span class="toc-n" id="cr">54</span></summary>
     <ol>
       <li><a onclick="return go('review-1')">1-1 从键盘输入两个数求和</a></li>
       <li><a onclick="return go('review-2')">1-2 按公式输出 b²−4ac</a></li>
@@ -258,6 +259,7 @@
       <li><a onclick="return go('review-58')">补充：endswith() / startswith()（怎么用 + 四种拓展）</a></li>
       <li><a onclick="return go('review-59')">补充：切片 [:-1] 与「去掉末尾换行」的四种写法</a></li>
       <li><a onclick="return go('review-60')">4-14 统计字符</a></li>
+      <li><a onclick="return go('review-61')">4-15 换硬币</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -789,6 +791,50 @@ else:print("Yes")          # ← 8 格，属于 for（for...else）</code></pre>
 不定多行 → <code>sys.stdin</code>）<br>
 ② 我用的读法<strong>会不会把我要的东西剥掉</strong>？（<code>input()</code> 剥换行）<br>
 ③ 末尾到底算不算？（<code>split('\n')</code> 末尾多一个空串，<code>splitlines()</code> 不会）</p>
+
+<h3 id="e1-18">❌ 17. 手算循环上界：算错了不报错，只会「悄悄少打印几种」<span class="tag">第4章-15</span></h3>
+<p>写多重循环时，为了"少跑几圈"而手算上界，是很自然的做法 ——
+<strong>但上界算错不会有任何报错</strong>，程序照常运行、只是<strong>结果少了几种</strong>，
+所以样例和大多数输入都"看起来对"。这是最难自查的一类 bug。</p>
+<table>
+<tr><th>现象</th><th>本案例（4-15 换硬币）</th></tr>
+<tr><td>需求</td><td>把 <code>m</code> 分成 5 分 / 2 分 / 1 分，每种<strong>至少一枚</strong>，
+枚举所有 <code>(x, y, z)</code></td></tr>
+<tr><td>写的上界</td><td><code>X = m//5</code>、<code>Y = m//3 + 2</code>、<code>Z = m-6</code></td></tr>
+<tr><td>实际结果</td><td><code>m ≤ 31</code> 全对；<strong><code>m ≥ 32</code> 起开始漏解</strong> ——
+91 个输入里 <strong>67 个错</strong></td></tr>
+<tr><td>为什么 <code>m=32</code> 漏</td>
+<td><code>x=1</code> 时 <code>fen2</code> 最大应为 <code>13</code>（<code>32 = 5×1 + 2×13 + 1</code>），
+但 <code>Y = 32//3 + 2 = 12</code>（这里只到 12） → 这一种<strong>根本没进循环</strong></td></tr>
+<tr><td>改法</td><td><code>Y = (m-6)//2</code>（由约束推出）→ 全域 <strong>0 个不符合</strong></td></tr>
+</table>
+
+<div class="box ok">
+<strong>正确的上界怎么来：用约束推，不要猜</strong><br>
+已知 <code>m = 5x + 2y + z</code> 且 <code>x ≥ 1、y ≥ 1、z ≥ 1</code>：
+<table>
+<tr><th>要谁最大</th><th>把谁压到最小</th><th>推出的上界</th></tr>
+<tr><td><code>y</code>（fen2）</td><td><code>x = 1、z = 1</code> →
+<code>m = 2y + 6</code></td><td><code>y_max = (m-6)//2</code></td></tr>
+<tr><td><code>x</code>（fen5）</td><td><code>y = 1、z = 1</code> →
+<code>m = 5x + 3</code></td><td><code>x_max = (m-3)//5</code></td></tr>
+<tr><td><code>z</code>（fen1）</td><td><code>x = 1、y = 1</code> →
+<code>m = 7 + z</code></td><td><code>z_max = m - 7</code></td></tr>
+</table>
+<strong>套路：要让某个变量取最大，就把其他变量都压到最小值（因为约束是"至少一枚"）。</strong>
+</div>
+
+<div class="box warn">
+<strong>两个自检习惯（这类 bug 只能靠它们抓）</strong><br>
+① <strong>上界要"宁大勿小"</strong>：多跑几圈只是慢，算小了直接漏答案。
+拿不准就写个大一点的值（甚至写 <code>m</code>），把约束交给 <code>if</code> 判断。<br>
+② <strong>超过 3 层循环就考虑"反解"</strong>：只枚举 <code>x</code>、<code>y</code>，
+<code>z</code> 由等式<strong>直接算出来</strong>（<code>z = m - 5x - 2y</code>）再判 <code>z ≥ 1</code> ——
+<strong>少一个手算的公式，就少一个出错的地方</strong>，而且圈数最少
+（实测：三层 5.36 ms → 两层反解 0.1 ms）。<br>
+③ ⚠️ <strong>样例过了不代表全对</strong>：本例样例（<code>m=13</code>）和 <code>m ≤ 31</code> 全对，
+<strong>只有全域扫描才暴露</strong> —— 所以"扫描整个输入域"是这类题的必备验收动作。
+</div>
 
 <h2 id="s1">二、常用代码与拓展（每条都带输出）</h2>
 
@@ -4307,7 +4353,7 @@ if m!=v[17]:                      # ② 索引</code></pre>
 ② 两边同时改，很容易出现"本地一份、提交另一份"，而且极难发现
 </div>
 
-<h2 id="review">六、真题回顾（<span id="cr2">53</span> 题）</h2>
+<h2 id="review">六、真题回顾（<span id="cr2">54</span> 题）</h2>
 
 <div class="box warn">
 <strong>说明：</strong>下面的题目要求是<strong>我按自己的理解概括写的</strong>，不是 PTA 原文。<br>
@@ -7874,6 +7920,108 @@ i.isalpha()                      # ⚠️ 中文也返回 True（"中".isalpha()
 <strong>逐字节一致</strong>；
 边界 7 组（10 个纯字母 / 正好 10 个含空格 / 10 个数字 / 10 个其他符号 / 6 个字符不足 10 /
 含 Tab）全对；11 个字符那组停在 10 个 —— <strong>超出题面范围，属预期行为</strong>。</p>
+
+<h3 id="review-61">4-15 换硬币 <span class="tag">通过</span></h3>
+
+<p><strong>要求</strong>：把 <code>x</code> 元零钱换成 5 分、2 分、1 分的硬币，
+<strong>每种硬币至少有一枚</strong>，问有几种换法（<code>x ∈ (8, 100)</code>，即 9~99）。
+按 5 分、2 分、1 分的数量<strong>从大到小</strong>输出每种换法，
+格式 <code>fen5:?, fen2:?, fen1:?, total:?</code>，最后一行 <code>count = 换法个数</code>。
+样例 <code>13</code> → 4 种。</p>
+
+<p><strong>我的代码</strong></p>
+<pre><code>m=int(input())                  # 待换的零钱
+count=0                         # 换法计数
+X=m//5                          # fen5 的枚举上界
+Y=(m-6)//2                      # fen2 的枚举上界（由 m = 2y + 6 推出）
+Z=m-6                           # fen1 的枚举上界
+for x in range(X,0,-1):         # fen5 从大到小（决定输出的先后顺序）
+    for y in range(Y,0,-1):     # fen2 从大到小
+        for z in range(Z,0,-1): # fen1 从大到小
+            if m==5*x+2*y+z:    # 正好凑成 m → 这是一种换法
+                count+=1
+                total=x+y+z     # 硬币总枚数
+                print(f"fen5:{x}, fen2:{y}, fen1:{z}, total:{total}")
+print(f"count = {count}")       # 最后一行汇总</code></pre>
+
+<div class="box ok">
+<strong>两个循环"方向"都对（这是本题最容易搞反的地方）</strong>
+<table>
+<tr><th>要点</th><th>为什么这样写</th></tr>
+<tr><td><strong>三个循环都从大到小</strong>（<code>range(X,0,-1)</code>）</td>
+<td>题面要求"按数量<strong>从大到小</strong>的顺序输出"，而循环顺序就决定了打印顺序 ——
+<strong>不用排序，方向写对就天然有序</strong></td></tr>
+<tr><td><strong>外层是 fen5、内层是 fen2</strong></td>
+<td>样例里 <code>fen5</code> 是 <code>2 → 1</code>，同一 <code>fen5</code> 下 <code>fen2</code> 是
+<code>3 → 2 → 1</code>：<strong>先把 fen5 走完，再走 fen2</strong> ——
+所以 fen5 必须是外层</td></tr>
+</table>
+</div>
+
+<div class="box bad">
+<strong>❌ 我第一版：只有 <code>Y</code> 这一个上界算错了（结果 91 个输入里错 67 个）</strong>
+<pre><code>Y=m//3+2          # ❌ 这是"拍脑袋的近似"，不是从约束推出来的
+                  #     m ≤ 31 碰巧够用；m ≥ 32 起开始漏解</code></pre>
+<strong><code>m=32</code> 为什么漏（这就是分水岭）</strong>：
+<pre><code>32 = 5×1 + 2×13 + 1      ← x=1 时 fen2 最大是 13
+Y = 32//3 + 2 = 12       ← 只枚举到 y=12，所以 fen2:13 这一种【根本没进循环】
+正确值 (32-6)//2 = 13     ← 这才够</code></pre>
+实测对照：
+<table>
+<tr><th><code>m</code></th><th><code>Y=m//3+2</code></th><th>需要的 <code>(m-6)//2</code></th><th></th></tr>
+<tr><td>13</td><td>6</td><td>3</td><td>✅ 够（多跑几圈而已）</td></tr>
+<tr><td>30</td><td>12</td><td>12</td><td>✅ 刚好够</td></tr>
+<tr><td><strong>32</strong></td><td><strong>12</strong></td><td><strong>13</strong></td><td><strong>❌ 少 1</strong></td></tr>
+<tr><td>50</td><td>18</td><td>22</td><td>❌ 少 4</td></tr>
+<tr><td>99</td><td>35</td><td>46</td><td>❌ 少 11</td></tr>
+</table>
+<strong>改一行就好</strong>：<code>Y=(m-6)//2</code> → 全域 <code>m=9..99</code>
+<strong>91 个值 0 个不符合</strong>（详见 ❌17）。<br>
+<strong>而且这个错 <code>py_compile</code> 不报、样例也不报</strong> —— 只有全域扫描才现形。
+</div>
+
+<p><strong>优化用法</strong></p>
+
+<div class="box ok">
+<strong>① 上界由约束推出来，不要猜（三个都列在这）</strong>
+<pre><code>m = 5x + 2y + z，且 x≥1、y≥1、z≥1
+
+要 y 最大 → x=1、z=1 → m = 2y + 6 → Y = (m-6)//2
+要 x 最大 → y=1、z=1 → m = 5x + 3 → X = (m-3)//5
+要 z 最大 → x=1、y=1 → m = 7 + z  → Z = m - 7</code></pre>
+<strong>套路：要让某个变量取最大，就把其他变量都压到最小值。</strong><br>
+（本题实测：<code>X = m//5</code> 恒 ≥ <code>(m-3)//5</code>、<code>Z = m-6</code> 恒比 <code>m-7</code> 多 1，
+<strong>所以只有 <code>Y</code> 那个是错的</strong>。）
+</div>
+
+<div class="box ok">
+<strong>② 更稳：两层循环 + <code>z</code> 反解（不用给 z 算上界）</strong>
+<pre><code>for x in range(m//5, 0, -1):
+    for y in range(m//2, 0, -1):     # 上界放开，多余的交给 if 过滤
+        z = m - 5*x - 2*y            # ← 由等式【直接算出】z，省掉第三层循环
+        if z >= 1:                   # 再判"至少一枚"
+            count += 1
+            print(f"fen5:{x}, fen2:{y}, fen1:{z}, total:{x+y+z}")</code></pre>
+实测两版结果完全一致；<strong>纯计算耗时：三层 5.36 ms → 两层反解 0.1 ms</strong>。<br>
+<strong>少一个手算公式 = 少一个出错点</strong>，而且 <code>z</code> 反解天然保证
+<code>5x + 2y + z == m</code>，连等号判断都省了。
+</div>
+
+<div class="box ok">
+<strong>③ 输出格式的小差别（照样例抄最保险）</strong>
+<pre><code>fen5:2, fen2:1, fen1:1, total:4     ← 换法行：冒号后无空格、逗号后有空格
+count = 4                            ← 汇总行：等号【两边都有空格】</code></pre>
+⚠️ 两行的格式不一样（一个 <code>:</code> 一个 <code>=</code>），
+<strong>必须逐字符照题面样例抄</strong> —— 多一个空格就整行错（4-1 那题也栽在这）。
+</div>
+
+<p><strong>要点与实测证据</strong>：<code>py_compile</code> 通过；
+<strong>全域 <code>m = 9..99</code> 共 91 个值</strong>与独立口径（三层穷举、不做任何上界优化）
+<strong>逐行 0 个不一致</strong>；
+题面样例 <code>m=13</code> <strong>逐字节一致</strong>（4 行换法 + <code>count = 4</code>）；
+关键点 <code>m=9</code>(1 种) / <code>m=32</code>(<strong>39 种</strong>，上次漏解处) /
+<code>m=50</code>(106 种) / <code>m=99</code>(451 种) 全对；
+纯计算 <strong>5.36 ms</strong>（限制 400 ms，余量充足）。</p>
 
 <h2 id="quick">七、速查总表</h2>
 
