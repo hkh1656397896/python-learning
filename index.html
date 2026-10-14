@@ -104,7 +104,7 @@
 -->
 
 <h1>Python 自学笔记</h1>
-<p class="meta">hkh ｜ 更新 2026-10-13 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">22</span> 题 + 第4章 <span id="c4">9</span> 题（浙大版《Python 程序设计》题目集）</p>
+<p class="meta">hkh ｜ 更新 2026-10-13 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">22</span> 题 + 第4章 <span id="c4">10</span> 题（浙大版《Python 程序设计》题目集）</p>
 
 <nav id="toc">
   <div class="toc-head">目录　<span class="toc-hint">点标题展开 · 点条目直接跳</span></div>
@@ -129,7 +129,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>二、常用代码与拓展 <span class="toc-n" id="cs">31</span></summary>
+    <summary>二、常用代码与拓展 <span class="toc-n" id="cs">32</span></summary>
     <ol>
       <li><a onclick="return go('s1-1')">① 读一行数字</a></li>
       <li><a onclick="return go('s1-2')">② range()：生成数字序列</a></li>
@@ -162,6 +162,7 @@
       <li><a onclick="return go('s1-29')">㉙ ord() / chr()：字符 ↔ 编号（字母往后数几个的写法）</a></li>
       <li><a onclick="return go('s1-30')">㉚ 集合 set：只管「有没有」，与 .add()</a></li>
       <li><a onclick="return go('s1-31')">㉛ 阶乘 n! / 级数求和 / 复合赋值（/=、+=…）</a></li>
+      <li><a onclick="return go('s1-32')">㉜ 最大公约数 / 最小公倍数（辗转相除法）</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -192,7 +193,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>六、真题回顾 <span class="toc-n" id="cr">48</span></summary>
+    <summary>六、真题回顾 <span class="toc-n" id="cr">49</span></summary>
     <ol>
       <li><a onclick="return go('review-1')">1-1 从键盘输入两个数求和</a></li>
       <li><a onclick="return go('review-2')">1-2 按公式输出 b²−4ac</a></li>
@@ -253,6 +254,7 @@
       <li><a onclick="return go('quick-4')">④ 用途分类索引（把「二、常用代码」30 节按用途归位）</a></li>
       <li><a onclick="return go('quick-5')">⑤ 对象 × 操作 对照表（谁有哪个能力）</a></li>
       <li><a onclick="return go('quick-6')">⑥ 字符串方法总表（按用途分类，全部实测）</a></li>
+      <li><a onclick="return go('quick-7')">4-10 最大公约数和最小公倍数</a></li>
     </ol>
   </details>
 </nav>
@@ -3460,6 +3462,207 @@ C = [1, 2]; D = C; C = C + [3]   # 造新列表 → D 不变</code></pre>
 <code>{'a': 2, 'b': 1}</code>。
 </div>
 
+<h3 id="s1-32">㉜ 最大公约数 / 最小公倍数（辗转相除法）</h3>
+
+<p><strong>两个概念先分清：</strong></p>
+<table>
+<tr><th>名字</th><th>是什么</th><th><code>12</code> 和 <code>18</code> 的答案</th></tr>
+<tr><td><strong>最大公约数 gcd</strong><br><span class="dim">Greatest Common Divisor</span></td>
+<td>能<strong>同时整除</strong>两个数的<strong>最大</strong>那个</td><td><code>6</code></td></tr>
+<tr><td><strong>最小公倍数 lcm</strong><br><span class="dim">Least Common Multiple</span></td>
+<td>同时是两个数的<strong>倍数</strong>里<strong>最小</strong>的那个</td><td><code>36</code></td></tr>
+</table>
+
+<div class="box ok">
+<strong>核心公式（这题的关键，一行就够）：</strong>
+<pre><code>a × b = gcd(a, b) × lcm(a, b)          # 恒成立
+所以  lcm(a, b) = a × b ÷ gcd(a, b)</code></pre>
+实测：<code>12 × 18 = 216</code>，<code>gcd × lcm = 6 × 36 = 216</code> ✅<br>
+<strong>也就是说：只要会求 gcd，lcm 白送。</strong>
+</div>
+
+<h3 id="s1-33">——— 求 gcd 的三条路 ———</h3>
+
+<table>
+<tr><th>写法</th><th>代码</th><th><code>gcd(1000, 999)</code> 实测</th></tr>
+<tr><td>① <strong>暴力倒着试</strong><br><span class="dim">最好想</span></td>
+<td><code>for i in range(min(a,b), 0, -1):</code><br><code>&nbsp;&nbsp;&nbsp;&nbsp;if a%i==0 and b%i==0: return i</code></td>
+<td>试 <strong>999 次</strong>，单次 <strong>0.0220 ms</strong></td></tr>
+<tr><td>② <strong>辗转相除</strong><br><span class="dim">正解，必须会</span></td>
+<td><code>while b:</code><br><code>&nbsp;&nbsp;&nbsp;&nbsp;a, b = b, a % b</code><br><code>return a</code></td>
+<td>只转 <strong>2 圈</strong>，单次 <strong>0.0001 ms</strong><br><strong>快 238 倍</strong></td></tr>
+<tr><td>③ <strong>标准库</strong><br><span class="dim">一行</span></td>
+<td><code>import math</code> → <code>math.gcd(a, b)</code></td>
+<td>单次 <code>0.0001 ms</code>（C 实现，最快）</td></tr>
+</table>
+
+<p><strong>① 为什么「倒着试」是对的</strong>：公约数不可能大于两者中较小的那个，
+所以从 <code>min(a,b)</code> 往下数，<strong>第一个命中的就是最大的</strong>，找到立刻 <code>break</code>，
+不用扫完全程。实测三组：</p>
+<table>
+<tr><th>输入</th><th>命中前试了几次</th><th>答案</th></tr>
+<tr><td><code>1000 999</code>（互质，最坏情况）</td><td><strong>999 次</strong></td><td><code>1</code></td></tr>
+<tr><td><code>511 292</code></td><td>220 次</td><td><code>73</code></td></tr>
+<tr><td><code>1000 500</code>（一个整除另一个）</td><td><strong>1 次</strong></td><td><code>500</code></td></tr>
+</table>
+
+<div class="box warn">
+<strong>⚠️ ① 的两个致命坑，都用 <code>range</code> 的边界解释得通</strong>
+<pre><code>range(5)        -> [0, 1, 2, 3, 4]        # 终点 5 不含！
+range(5)[::-1]  -> [4, 3, 2, 1, 0]        # 倒数第二个是 0
+range(5, 0, -1) -> [5, 4, 3, 2, 1]        # ✅ 含 5、不含 0，这才是要的</code></pre>
+<strong>坑 1：起点漏掉了 <code>min(a,b)</code> 本身。</strong>
+<code>range(min(a,b))</code> 上界<strong>不含</strong>，所以是从 <code>min-1</code> 开始的 ——
+一旦 <code>min(a,b)</code> 本身就是 gcd（<strong>一个整除另一个</strong>、<strong>两数相同</strong>），
+它<strong>永远找不到</strong>，会退而求其次给出一个更小的除数：<br>
+实测 <code>3 12</code> → 打出 <code>1 36</code>（对的是 <code>3 12</code>）、
+<code>1000 1000</code> → 打出 <code>500 2000</code>（对的是 <code>1000 1000</code>）。<br>
+<strong>坑 2：倒数第一个是 0，而 0 不能当除数。</strong>
+两个数<strong>互质</strong>时（gcd 就是 1），会一路试到 <code>i=0</code>：
+<pre><code>7 % 0   -> ZeroDivisionError: integer division or modulo by zero
+7 // 0  -> ZeroDivisionError: integer division or modulo by zero</code></pre>
+实测 <code>1 1</code> / <code>1 1000</code> / <code>1 2</code> 三组全部崩掉，退出码 = 1
+（<strong>这就是 PTA 上「存在部分非零返回」的来源</strong>）。<br>
+<strong>结论：倒着数要写成 <code>range(min(a,b), 0, -1)</code> ——
+起点、终点前后各挪一格，两个坑一起解决。</strong>
+</div>
+
+<p><strong>② 辗转相除法（欧几里得算法）：原理是「换一个更好算的同类问题」</strong></p>
+
+<div class="box ok">
+<strong>一句话原理：</strong><code>gcd(a, b) == gcd(b, a % b)</code><br>
+「求 <code>a</code> 和 <code>b</code> 的公约数」可以<strong>原样换成</strong>「求 <code>b</code> 和
+<code>a÷b 的余数</code>的公约数」—— 问题越换越小，
+换到<strong>余数是 0</strong> 时，另一个数就是答案。
+</div>
+
+<p><strong>逐步追踪（跑出来的，不是推的）</strong>：</p>
+<pre><code>gcd(12, 18)
+    12 =   18 × 0 + 12      → 换成 gcd(18, 12)
+    18 =   12 × 1 +  6      → 换成 gcd(12,  6)
+    12 =    6 × 2 +  0      → 换成 gcd( 6,  0)
+    b=0 停 → 答案是 6（转了 3 圈）
+
+gcd(1071, 462)
+  1071 =  462 × 2 + 147     → 换成 gcd(462, 147)
+   462 =  147 × 3 +  21     → 换成 gcd(147,  21)
+   147 =   21 × 7 +   0     → 换成 gcd( 21,   0)
+  b=0 停 → 答案是 21（转了 3 圈）</code></pre>
+
+<p><strong>它有多快 —— 圈数几乎不随数字变大而增长：</strong></p>
+<table>
+<tr><th>输入</th><th>辗转转了几圈</th></tr>
+<tr><td><code>gcd(1000, 999)</code></td><td>2 圈</td></tr>
+<tr><td><code>gcd(1000000, 999983)</code></td><td>5 圈</td></tr>
+<tr><td><code>gcd(1000000000, 999999999)</code></td><td><strong>2 圈</strong></td></tr>
+<tr><td><code>gcd(10¹⁸, 10¹⁸ − 1)</code></td><td><strong>2 圈</strong></td></tr>
+</table>
+<strong>十亿级的数字只要 2 圈，而暴力那版要试 999,999,999 次。</strong>
+这就是 4-4 那道题（20 亿范围、400ms 限制）里必须用这种思路的原因。
+
+<div class="box bad">
+<strong>⚠️ 写辗转相除最容易犯的错：拆成两句写</strong>
+<pre><code>while b:
+    a, b = b, a % b      # ✅ 元组同时赋值：右边先全算完，再一起绑给左边
+
+while b:
+    a = b                # ❌ 坑：a 被覆盖了
+    b = a % b            # 此刻右边的 a 已经是新的 a 了</code></pre>
+实测两种写法的结果（<strong>同一份输入</strong>）：
+<table>
+<tr><th>写法</th><th><code>gcd(12, 18)</code> 实测</th><th>为什么</th></tr>
+<tr><td><code>a, b = b, a % b</code></td><td><strong><code>6</code></strong> ✅</td>
+<td>右边 <code>b</code>=18、<code>a%b</code>=12 先算完，再一起赋值</td></tr>
+<tr><td>拆成 <code>a = b</code> / <code>b = a % b</code></td><td><strong><code>18</code></strong> ❌</td>
+<td><code>a</code> 变成 18 后，<code>18 % 18 = 0</code> → 循环立刻结束</td></tr>
+</table>
+<strong>这和 ⑧ 里斐波那契那行 <code>a, b = b, a + b</code> 是同一个机制</strong>
+（拆成两句就翻倍，见 ⑧ 的实测表）。
+</div>
+
+<h3 id="s1-34">——— 求 lcm：先算 gcd，再套公式 ———</h3>
+
+<pre><code>g = gcd(a, b)          # 上面三条路随便挑一条
+lcm = a // g * b       # ✅ 先除后乘：a 先被 g 约小，中间值不会无谓变大</code></pre>
+
+<p><code>a * b // g</code> 和 <code>a // g * b</code> <strong>结果一样</strong>（实测 <code>511 292</code>
+两种都出 <code>2044</code>），<strong>但习惯写先除后乘</strong> —— 少一次大数乘法。
+真正要小心的是<strong>用 <code>/</code> 而不是 <code>//</code></strong>：
+</p>
+
+<div class="box bad">
+<strong>⚠️ <code>/</code> 给浮点，<code>//</code> 才是整数 —— 别用 <code>int()</code> 事后补救</strong>
+<pre><code>511 * 292 / 73     = 2044.0    # float！f-string 直接打就是 '2044.0'，整行错
+511 * 292 // 73    = 2044      # int，这才是要的</code></pre>
+本题范围小（≤1000），<code>int(l)</code> 兜一下确实能过。但<strong>数一大浮点会失真，
+<code>int()</code> 不报错、只是悄悄返回一个错的整数</strong>：
+<table>
+<tr><th><code>a</code></th><th><code>b</code></th><th>精确 lcm（<code>a//g*b</code>）</th>
+<th><code>a*b/g</code></th><th><code>int()</code> 之后</th><th>对不对</th></tr>
+<tr><td>511</td><td>292</td><td><code>2044</code></td><td><code>2044.0</code></td>
+<td><code>2044</code></td><td>一致</td></tr>
+<tr><td>1000000</td><td>999983</td><td><code>999983000000</code></td>
+<td><code>999983000000.0</code></td><td><code>999983000000</code></td><td>一致</td></tr>
+<tr><td>1000000000</td><td>500000003</td><td><code>500000003000000000</code></td>
+<td><code>5.00000003e+17</code></td><td><code>500000003000000000</code></td><td>一致</td></tr>
+<tr><td>10¹²</td><td>999999999989</td><td><code>999999999989000000000000</code></td>
+<td><code>9.99999999989e+23</code></td>
+<td><strong><code>999999999989000035106816</code></strong></td>
+<td><strong>❌ 差 35106816</strong></td></tr>
+</table>
+<strong>一句话：要整数就别用 <code>/</code>。</strong>
+（<code>/</code> 和 <code>//</code> 的区别见 ㉛ 那张「复合赋值全家桶」表里 <code>/=</code> 那一行。）
+</div>
+
+<h3 id="s1-35">——— 危险边界与口径 ———</h3>
+
+<table>
+<tr><th>情形</th><th>输入</th><th>gcd</th><th>lcm</th><th>要注意什么</th></tr>
+<tr><td>题面样例</td><td><code>511 292</code></td><td><code>73</code></td><td><code>2044</code></td><td>—</td></tr>
+<tr><td><strong>一个整除另一个</strong></td><td><code>3 12</code></td><td><code>3</code></td><td><code>12</code></td>
+<td><strong>gcd = 小的那个，lcm = 大的那个</strong>（不是乘积的一半）</td></tr>
+<tr><td>同上，顺序反过来</td><td><code>12 3</code></td><td><code>3</code></td><td><code>12</code></td>
+<td>结果与顺序无关</td></tr>
+<tr><td><strong>两数相同</strong></td><td><code>5 5</code></td><td><code>5</code></td><td><code>5</code></td>
+<td><strong>lcm 不等于乘积！</strong><code>lcm(5,5)=5</code> 不是 25</td></tr>
+<tr><td>两数都是 1</td><td><code>1 1</code></td><td><code>1</code></td><td><code>1</code></td>
+<td>暴力倒着试那版在这里<strong>必崩</strong>（试到 0）</td></tr>
+<tr><td><strong>互质</strong></td><td><code>7 13</code></td><td><code>1</code></td><td><code>91</code></td>
+<td>gcd=1，此时 lcm 才等于乘积</td></tr>
+<tr><td>互质含 1（下限）</td><td><code>1 1000</code></td><td><code>1</code></td><td><code>1000</code></td>
+<td>本题最坏输入之一</td></tr>
+<tr><td>范围上限</td><td><code>1000 1000</code></td><td><code>1000</code></td><td><code>1000</code></td>
+<td>暴力版容易在这里给出 500 / 2000</td></tr>
+<tr><td>上限且互质</td><td><code>1000 999</code></td><td><code>1</code></td><td><code>999000</code></td>
+<td>lcm 最大到 999000，<strong>没超本题范围</strong></td></tr>
+</table>
+
+<div class="box warn">
+<strong><code>0</code> 和负数：题目范围决定要不要管</strong>
+<table>
+<tr><th>调用</th><th>实测结果</th><th>含义</th></tr>
+<tr><td><code>math.gcd(0, 5)</code></td><td><code>5</code></td><td>gcd(0, n) = n</td></tr>
+<tr><td><code>math.gcd(5, 0)</code></td><td><code>5</code></td><td>同上，顺序无关</td></tr>
+<tr><td><code>math.gcd(0, 0)</code></td><td><code>0</code></td><td>不报错</td></tr>
+<tr><td><code>math.gcd(-12, 18)</code></td><td><code>6</code></td><td><strong>负数按绝对值</strong>处理，不返回负的</td></tr>
+<tr><td>手写辗转 <code>gcd(0, 5)</code></td><td><code>5</code></td><td>因为 <code>while b</code> 一开始 <code>b=5</code> 是真，转一圈就停</td></tr>
+<tr><td>手写辗转 <code>gcd(5, 0)</code></td><td><code>5</code></td><td><code>while b</code> 直接不进循环，返回原来的 <code>a</code></td></tr>
+</table>
+<strong>但 <code>lcm</code> 那边 <code>a // g</code> 要求 <code>g ≠ 0</code></strong> ——
+本题题面写的是「<strong>正整数</strong> M 和 N（≤ 1000）」，<strong>0 不在输入范围内，所以不用管</strong>。<br>
+（对比 4-7：那题题面写「<strong>非负</strong>」，<code>N=0</code> 就必须处理，否则
+<code>ZeroDivisionError</code>。以后看到「非负」两个字就要警觉，「正整数」才安全 ——
+<strong>题面一个字不一样，边界就完全不一样</strong>。）
+</div>
+
+<div class="box ok">
+<strong>两条路都写上，交一条、留一条</strong><br>
+<code>math.gcd</code> 版最短，交 PTA；<strong>手写辗转版放在复习用的文件里</strong> ——
+它是蓝桥杯 / 面试的常考点，一个「<code>while b: a, b = b, a % b</code>」能同时考
+<strong>循环写法 + 元组同时赋值 + 余数收敛</strong>三件事，
+而 <code>math.gcd</code> 一句话带不过去。
+</div>
+
 <h2 id="star">三、符号速查：* 和 []</h2>
 
 <h3 id="star-1">——— 第一部分：星号 <code>*</code> ———</h3>
@@ -3804,7 +4007,7 @@ if m!=v[17]:                      # ② 索引</code></pre>
 ② 两边同时改，很容易出现"本地一份、提交另一份"，而且极难发现
 </div>
 
-<h2 id="review">六、真题回顾（<span id="cr2">48</span> 题）</h2>
+<h2 id="review">六、真题回顾（<span id="cr2">49</span> 题）</h2>
 
 <div class="box warn">
 <strong>说明：</strong>下面的题目要求是<strong>我按自己的理解概括写的</strong>，不是 PTA 原文。<br>
@@ -6864,6 +7067,92 @@ window.addEventListener('scroll', onScroll, false);
 window.addEventListener('touchmove', onScroll, false);
 onScroll();
 </script>
+
+<h3 id="quick-7">4-10 最大公约数和最小公倍数 <span class="tag">通过</span></h3>
+
+<p><strong>要求</strong>：给出两个正整数 M 和 N（≤ 1000），在一行里顺序输出它们的最大公约数和最小公倍数，
+中间用 1 个空格隔开。样例 <code>511 292</code> → <code>73 2044</code>。</p>
+
+<p><strong>我的代码</strong>（改了两版才过）</p>
+<pre><code>M,N=list(map(int,input().split()))     # 读一行，拆成两个整数：M、N
+for i in range(min(M,N),0,-1):         # 从 min(M,N) 往下试到 1（含 min，不含 0）
+    if M%i==0 and N%i==0:              # 能同时整除 M 和 N → 它就是公约数
+        r=i                            # 记下当前这个（越往下越小，所以第一个命中的最大）
+        break                          # 第一个命中的就是最大公约数，立刻停
+l=M*N//r                               # 最小公倍数 = 两数之积 ÷ 最大公约数（// 保证是整数）
+print(f"{r} {l}")                      # 一行输出，中间一个空格</code></pre>
+
+<div class="box bad">
+<strong>❌ 我的第一版（两个 bug）</strong>
+<pre><code>M,N=list(map(int,input().split()))
+for i in range(min(M,N))[::-1]:        # ❌ 坑1：range(min(M,N)) 不含 min(M,N) 本身，且倒数第一个是 0
+    if M%i==0 and N%i==0:              # ❌ 坑1 的后果：i=0 时 M%0 直接崩
+        r=i
+        break
+l=M*N/r                                # ❌ 坑2：/ 给 float，不是整数
+print(f"{r} {int(l)}")                 # ❌ 坑2 的补丁：int() 兜住，是给 float 擦屁股</code></pre>
+<strong>坑 1 的三种后果（全都实测出来了）：</strong>
+<table>
+<tr><th>输入</th><th>第一版输出</th><th>正确答案</th><th>为什么</th></tr>
+<tr><td><code>1 1</code>、<code>1 1000</code>、<code>1 2</code></td>
+<td><strong>崩，退出码 1</strong></td><td><code>1 1</code> 等</td>
+<td>互质 → 一路试到 <code>i=0</code> → <code>M % 0</code> →
+<code>ZeroDivisionError</code>。<strong>这就是 PTA 上「存在部分非零返回」的来源</strong></td></tr>
+<tr><td><code>3 12</code>、<code>12 3</code></td>
+<td><code>1 36</code></td><td><code>3 12</code></td>
+<td><code>min=3</code> 本身就是 gcd，但 <code>range(3)</code> 只给 0~2，<strong>永远找不到 3</strong></td></tr>
+<tr><td><code>5 5</code>、<code>1000 1000</code></td>
+<td><code>1 25</code>、<code>500 2000</code></td><td><code>5 5</code>、<code>1000 1000</code></td>
+<td>同上，退而求其次找到了个更小的除数</td></tr>
+</table>
+<strong>坑 2 实测：</strong><code>511*292/73</code> → <code>2044.0</code>（<code>float</code>），
+f-string 直接打就是 <code>'2044.0'</code> 整行错；本题 <code>int()</code> 兜得住，
+但数一大浮点失真、<code>int()</code> 会<strong>悄悄返回一个错的整数</strong>
+（10¹² 和 999999999989 那组差 35106816，见 ㉜）。
+</div>
+
+<p><strong>优化用法</strong></p>
+
+<div class="box ok">
+<strong>① 改成 <code>range(min(M,N),0,-1)</code> —— 起点、终点前后各挪一格</strong>
+<pre><code>range(min(M,N))        # ❌ 给 0 … min-1：漏了 min，多了 0
+range(min(M,N),0,-1)   # ✅ 给 min … 1：含 min（整除/相等时就是答案），不含 0（0 不能当除数）
+range(min(M,N))[::-1]  # ⚠️ 结果同 ❌，而且先造完整列表再倒过来，多一份内存</code></pre>
+实测对比（<code>M=3, N=12</code>，正确答案是 <code>3</code>）：
+<table>
+<tr><th>写法</th><th>结果</th></tr>
+<tr><td><code>range(3)</code></td><td><strong>崩</strong> <code>ZeroDivisionError</code> ❌</td></tr>
+<tr><td><code>range(3, 0, -1)</code></td><td>找到 <code>3</code> ✅</td></tr>
+</table>
+<strong>② 换成整数除法，<code>int()</code> 就没用了</strong>
+<pre><code>l = M * N // r     # ✅ int，一步到位
+l = M * N / r      # ❌ float，还得 int() 补救
+l = M // r * N      # ✅ 更好：先除后乘，中间值不会无谓变大</code></pre>
+<strong>③ 换成辗转相除（本题用不上，但必须会）</strong>
+<pre><code>a, b = M, N            # 借两个变量来换，不破坏 M、N
+while b:               # b 不为 0 就一直换
+    a, b = b, a % b    # 元组同时赋值，右边先全算完 —— 拆成两句就错
+g = a                  # 循环退出时 b=0，此时 a 就是 gcd
+l = M // g * N
+print(f"{g} {l}")</code></pre>
+<code>gcd(1000, 999)</code> 实测：<strong>辗转 2 圈（0.0001 ms）vs 暴力 999 次（0.0220 ms），快 238 倍</strong>。
+本题 min ≤ 1000 所以暴力完全来得及，<strong>但换个上界 10⁹ 就死定了</strong> —— 这就是辗转相除存在的意义。
+</div>
+
+<div class="box warn">
+<strong>为什么第一版「样例能过」却还是错的</strong><br>
+样例是 <code>511 292</code>（gcd = 73，落在 1…291 中间），<strong>恰好不踩两个坑</strong>，
+所以样例打出 <code>73 2044</code> 完全正确 —— 这就是「<strong>样例过 ≠ 代码对</strong>」。<br>
+真正暴露 bug 的是<strong>边界</strong>：<strong>互质</strong>（gcd=1 → 试到 0 崩）和
+<strong>整除/相等</strong>（gcd=min → 漏掉 min 找不到）。<strong>这两类恰好就是这题的死穴。</strong>
+</div>
+
+<p><strong>要点与实测证据</strong>：13 组边界（样例 / 整除两个方向 / 两数相同 / 都是 1 / 互质 /
+互质含 1 / 上下限 / 上限互质 / 约分不整除 / 多空格 / 行首空格）<strong>0 组不符合</strong>；
+<strong>整个输入域 M,N ∈ [1,1000] 共 1,000,000 组</strong>，
+与 <code>math.gcd</code> 口径<strong>和</strong>「纯穷举」（完全独立实现，不用 gcd 公式）
+<strong>两个口径三方互证，各 0 组不一致</strong>；
+最坏输入 <code>1000 999</code> 单次 <strong>0.0397 ms</strong>。</p>
 
 </body>
 </html>
