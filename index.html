@@ -132,7 +132,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>二、常用代码与拓展 <span class="toc-n" id="cs">36</span></summary>
+    <summary>二、常用代码与拓展 <span class="toc-n" id="cs">37</span></summary>
     <ol>
       <li><a onclick="return go('s1-1')">① 读一行数字</a></li>
       <li><a onclick="return go('s1-2')">② range()：生成数字序列</a></li>
@@ -170,6 +170,7 @@
       <li><a onclick="return go('s1-37')">㉞ sum() 能吃哪些容器？（附字符串禁令与 math.fsum）</a></li>
       <li><a onclick="return go('s1-38')">㊱ 列表推导（list comprehension）</a></li>
       <li><a onclick="return go('s1-39')">㊲ 矩阵：取一行 / 取一列（L[i] 能表示什么）</a></li>
+      <li><a onclick="return go('s1-40')">㊳ 输出的格式控制：end / sep / 行尾空白</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -4311,6 +4312,110 @@ cmin = min(row[j] for row in L)     # 列：生成器表达式</code></pre>
 <strong>⑰</strong> 切片 vs range、<strong>㉞</strong> <code>sum</code> 与容器；
 真题 <strong>4-19</strong>（副对角线）、<strong>4-20</strong>（各行求和）、<strong>4-21</strong>（取下方格子）；
 <strong>❌18</strong>（判「全是 0」要用 <code>all</code> / <code>any</code>）。</p>
+
+<h3 id="s1-40">㊳ 输出的格式控制：<code>end</code> / <code>sep</code> / 行尾空白</h3>
+
+<p><strong>一句话：<code>print</code> 每次调用末尾都会自动加一个换行</strong>，
+想"不换行、接着打"就得动 <code>end</code>。这一节把三件事分开讲清楚 ——
+<strong>换不换行（<code>end</code>）、多个值之间放什么（<code>sep</code>）、行尾会不会多出空格</strong>。</p>
+
+<div class="box ok">
+<strong>① <code>end</code> 是"这一句打完以后，再补印什么"，默认是 <code>\n</code></strong>
+<pre><code>print(1);              print(2)                  # → '1\n2\n'   两次各占一行
+print(1, end="");      print(2)                  # → '12\n'      ← 挤在同一行
+print(1, end=" ");     print(2, end=" ")         # → '1 2 '       ← 末尾多一个空格
+print(1, end="-");     print(2, end="-")         # → '1-2-'
+print("a", end="");    print();      print("b")  # → 'a\n b\n'  ← 空 print() 只打一个换行</code></pre>
+以上六个输出全部实测（Python 3.9），<code>repr</code> 逐字如上。<br>
+<strong><code>print()</code> 不带任何参数 = 只输出一个换行</strong> ——
+这是"拼完一整行以后手工收尾"最常用的那一下。
+</div>
+
+<div class="box warn">
+<strong>⚠️ <code>sep</code> 只在"一次打印多个值"时才有用（4-24 前的经典误会）</strong>
+<table>
+<tr><th>写法</th><th>实测输出</th><th>说明</th></tr>
+<tr><td><code>print(1, 2, 3, sep="-")</code></td><td><code>'1-2-3\n'</code></td>
+<td>✅ 三个值之间插 <code>-</code></td></tr>
+<tr><td><code>print(123, sep="-")</code></td><td><code>'123\n'</code></td>
+<td>❌ <strong>只有一个值，没有"之间"</strong>，<code>sep</code> 完全不生效</td></tr>
+<tr><td><code>print(123, " ", sep="")</code></td><td><code>'123 \n'</code></td>
+<td>想给单个值补空格，得<strong>自己写进参数</strong></td></tr>
+<tr><td><code>print(1, 2, sep="+", end="!\n")</code></td><td><code>'1+2!\n'</code></td>
+<td><code>sep</code> 和 <code>end</code> 互不干扰，各管一段</td></tr>
+</table>
+<strong>所以「<code>print(n, sep=" ")</code> 想在数字后面留个空格」是行不通的</strong> ——
+那是 3-1 那题踩过的坑（❌ 里记着），要写就写 <code>print(n, end=" ")</code>，或者把空格拼进字符串。
+</div>
+
+<div class="box ok">
+<strong>② 「每行 N 个」的四种写法（4-6 的每行 5 个、4-24 的每行 j 个都是这一类）</strong>
+<table>
+<tr><th>写法</th><th>关键那两句</th><th>实测输出（1~5，每格 4 位宽）</th></tr>
+<tr><td><strong>A 内层 <code>end=""</code>，内层结束后补 <code>print()</code></strong></td>
+<td><code>print(x, end="")</code><br><code>print()</code> ← 在<strong>内层 for 之后</strong></td>
+<td><code>'   1   2   3   4   5\n'</code> ✅</td></tr>
+<tr><td><strong>B 整行攒成字符串，最后 <code>print</code> 一次</strong></td>
+<td><code>s += …</code><br><code>print(s)</code></td>
+<td><code>'   1   2   3   4   5\n'</code> ✅</td></tr>
+<tr><td><strong>C 用 <code>join</code> 拼整行</strong></td>
+<td><code>print("".join(…))</code></td>
+<td><code>'   1   2   3   4   5\n'</code> ✅</td></tr>
+<tr><td>D 用三目让 <code>end</code> 最后一项变 <code>\n</code></td>
+<td><code>end=" " if i&lt;5 else "\n"</code></td>
+<td><code>'   1    2    3    4    5\n'</code> ⚠️ 每格之间多一个空格</td></tr>
+</table>
+A / B / C 三种输出<strong>逐字节相同</strong>，随便选；<strong>D 要多留个心眼</strong>：
+<code>end=" "</code> 是在<strong>每一项后面</strong>都补一个空格，
+所以它跟"每格 4 位宽"叠起来就变成 5 位一格（输出里数字之间有两个空格）。
+<strong>D 不是错，只是"分隔符"和"对齐"被同一段代码同时干了，容易算漏。</strong>
+</div>
+
+<div class="box warn">
+<strong>⚠️ 行尾空白：<code>end=" "</code> 会让<strong>每一行的末尾</strong>都多一个空格</strong>
+<pre><code>for i in range(1, 4): print(i, end=" ")     # → '1 2 3 '   末尾那个空格去不掉
+</code></pre>
+<strong>什么时候这是对的</strong>：题面明写「每个数<strong>后面</strong>有一个空格」（如 2-14、3-1 那类），
+那 <code>end=" "</code> 才是<strong>正确写法</strong>，末尾那个空格反而不能删。<br>
+<strong>什么时候它是隐患</strong>：题面只写「数字间以空格分隔」时，
+严谨的判题器会把它判成"格式错误"。<br>
+<strong>本地怎么看出来</strong>：屏幕上<strong>看不见</strong>行尾空格！只能靠 <code>repr</code>：
+<pre><code>out = "1 2 3 "
+print(repr(out))        # '1 2 3 '   ← 一眼看见末尾那个空格
+print(out == out.rstrip())   # False  ← 更好的自检：直接问"有没有尾随空白"
+</code></pre>
+<strong>规避写法</strong>：想让最后一项不带空格，让 <code>end</code> 最后变一下（就是上面 D），
+或者<strong>只在前 N-1 项后面补</strong>，最后一项单独打。
+</div>
+
+<div class="box ok">
+<strong>③ 4-24 那道题：<code>:&lt;4</code> 与 <code>:&gt;4</code> 的差别<strong>只在行尾</strong></strong>
+<br>
+同一个"下三角乘法表"，两种对齐符实测（<code>N=4</code> 那一行）：
+<pre><code>左对齐  :&lt;4   →  '1*4=4   2*4=8   3*4=12  4*4=16  '      ← 末尾 2 个空格，空格在数字【后】
+右对齐  :&gt;4   →  '1*4=   42*4=   83*4=  124*4=  16'      ← 末尾无空格，空格在数字【前】</code></pre>
+把两边的空格全删掉<strong>完全一样</strong>（实测 <code>replace(" ","")</code> 后相等），
+<strong>屏幕上两种更是长得一模一样</strong>（行尾空格不可见）。<br>
+这题的题面文字写的是「乘积占 4 位、<strong>左对齐</strong>」→ 空格补在数字后 → 用 <code>:&lt;4</code>。
+<strong>样例对此无能为力</strong>：样例是截图，看不出行尾有没有空格 ——
+<strong>只能靠题面文字 + 提交结果两者对照</strong>（这也是"样例过了 ≠ 理解对了"的又一例）。
+</div>
+
+<p><strong>一张速查</strong>：</p>
+<table>
+<tr><th>想干的事</th><th>写法</th></tr>
+<tr><td>打一行、换行</td><td><code>print(x)</code></td></tr>
+<tr><td>接着打、不换行</td><td><code>print(x, end="")</code></td></tr>
+<tr><td>只在拼完一整行后换行</td><td>内层 <code>end=""</code> + 循环外一个 <code>print()</code></td></tr>
+<tr><td>多个值之间插符号</td><td><code>print(a, b, sep="-")</code>（单值<strong>无效</strong>）</td></tr>
+<tr><td>竖着输出（每行一个）</td><td><code>sep="\n"</code>、<code>"\n".join(L)</code>、或直接循环 <code>print</code>（见 ㉗）</td></tr>
+<tr><td>控制每个值的宽度/对齐</td><td><code>f"{x:&gt;4}"</code> / <code>f"{x:&lt;4}"</code> / <code>f"{x:^4}"</code>（㊱ 的格式化）</td></tr>
+<tr><td>去掉行尾空白再比较</td><td><code>out.rstrip()</code></td></tr>
+</table>
+
+<p>相关小节：<strong>㉗</strong> 竖向输出、<strong>㉒</strong> 字符串拼接（<code>join</code> vs <code>+=</code>）、
+<strong>③ 格式化与输出参数</strong>（速查总表）、真题 <strong>2-14</strong> / <strong>3-1</strong>（末尾那个空格是对的）、
+<strong>4-6</strong>（末行不足 5 个也要换行）、<strong>4-24</strong>（左对齐 vs 右对齐）。</p>
 
 <h2 id="star">三、符号速查：* 和 []</h2>
 
