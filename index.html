@@ -4417,6 +4417,43 @@ print(out == out.rstrip())   # False  ← 更好的自检：直接问"有没有�
 </table>
 
 <div class="box ok">
+<strong>④ 列表里的元素怎么"各占几位"（<code>f"{x:4}"</code> 那一套）</strong><br>
+<strong>格式符只能作用于【一个值】</strong> —— 拿整个列表去套会直接报错（实测）：
+<pre><code>L = ["A", "BB", "CCC", "D"]
+f"{L:4}"   # → TypeError: unsupported format string passed to list.__format__
+f"{L}"     # → "['A', 'BB', 'CCC', 'D']"   ← 不带格式符就没事</code></pre>
+<strong>想要"每个元素各占几位"，就对每个元素分别套</strong>（推导式 + <code>join</code>）：
+<table>
+<tr><th>写法</th><th>实测输出</th><th>说明</th></tr>
+<tr><td><code>"".join(f"{c:4}" for c in L)</code></td><td><code>'A   BB  CCC D   '</code></td>
+<td>每格 4 宽，<strong>左</strong>对齐（字符串默认）</td></tr>
+<tr><td><code>"".join(f"{c:&gt;4}" for c in L)</code></td><td><code>'   A  BB CCC   D'</code></td>
+<td>每格 4 宽，<strong>右</strong>对齐（数字默认）</td></tr>
+<tr><td><code>"".join(f"{c:^4}" for c in L)</code></td><td><code>' A   BB CCC  D  '</code></td><td>居中</td></tr>
+<tr><td><code>" ".join(L)</code></td><td><code>'A BB CCC D'</code></td>
+<td>只插空格，<strong>完全不管宽度</strong></td></tr>
+</table>
+数字版 <code>[1, 22, 333, 4]</code>：<code>"".join(f"{x:4}" for x in N)</code> → <code>'   1  22 333   4'</code>。<br>
+<strong>⚠️ 宽度是"每格"，<code>join</code> 的分隔符是额外加的</strong>，两个一起用会变宽（实测）：
+<pre><code>"".join(f"{x:&gt;4}" for x in N)   # '   1  22 333   4'   每格 4
+" ".join(f"{x:&gt;4}" for x in N)   # '   1   22  333    4'  每格 4 + 1 个空格 = 5</code></pre>
+格式符里那一位的四种摆法：<code>f"{123:&lt;4}"</code> → <code>'123 '</code>、
+<code>f"{123:&gt;4}"</code> → <code>' 123'</code>、<code>f"{123:^4}"</code> → <code>'123 '</code>、
+<code>f"{123:4}"</code> → <code>' 123'</code>（不写符号 = 右对齐）；
+<code>f"{3.14159:8.2f}"</code> → <code>'    3.14'</code>（<strong><code>8</code> 是宽度、<code>.2f</code> 是精度</strong>，两回事）。
+</div>
+
+<div class="box warn">
+<strong>⚠️ 带上宽度之后，行尾空格的账要重新算一遍</strong>
+<pre><code>"".join(f"{c:4}" for c in L)   # 'A   BB  CCC D   '   行尾 3 个空格
+" ".join(L)                    # 'A BB CCC D'          行尾 0 个
+" ".join(L) + " "              # 'A BB CCC D '         行尾 1 个</code></pre>
+题面写「<strong>每个元素后面都有一个空格</strong>」→ 要的是最后那种效果（4-25 就是这类）；
+只写「以空格分隔」→ <strong>别在行尾多留</strong>（4-24 那题的左右对齐之争也是这个账）。
+<strong>屏幕上看不见，只能靠 <code>repr</code> 或 <code>out == out.rstrip()</code> 自检。</strong>
+</div>
+
+<div class="box ok">
 <strong>④ 实战补充：<code>end=" \n"</code> —— 让<strong>每行末尾也带一个空格</strong></strong><br>
 题面写「每个字母后面都有一个空格」时，<code>sep=" "</code> <strong>做不到</strong>
 （它只管"值之间"，末尾没有下一个值就不补）。实测（4-25，<code>n=4</code>）：
