@@ -132,7 +132,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>二、常用代码与拓展 <span class="toc-n" id="cs">34</span></summary>
+    <summary>二、常用代码与拓展 <span class="toc-n" id="cs">36</span></summary>
     <ol>
       <li><a onclick="return go('s1-1')">① 读一行数字</a></li>
       <li><a onclick="return go('s1-2')">② range()：生成数字序列</a></li>
@@ -168,6 +168,8 @@
       <li><a onclick="return go('s1-32')">㉜ 最大公约数 / 最小公倍数（辗转相除法）</a></li>
       <li><a onclick="return go('s1-36')">㉝ eval() / exec() / map()：把字符串当代码跑 vs 批量加工</a></li>
       <li><a onclick="return go('s1-37')">㉞ sum() 能吃哪些容器？（附字符串禁令与 math.fsum）</a></li>
+      <li><a onclick="return go('s1-38')">㊱ 列表推导（list comprehension）</a></li>
+      <li><a onclick="return go('s1-39')">㊲ 矩阵：取一行 / 取一列（L[i] 能表示什么）</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -4074,6 +4076,239 @@ len(t)        # 8
 sorted(t)     # [1, 1, 2, 3, 4, 5, 6, 9]   ← 注意：返回【列表】，不是元组
 sum(t)/len(t) # 3.875   ← 求平均</code></pre>
 </div>
+
+<h3 id="s1-38">㊱ 列表推导（list comprehension）</h3>
+
+<p class="meta">编号说明：编号是全笔记连续的 —— <strong>㉟</strong> 那节在第六章末尾
+（「输入：一行 / 多行 / 整块」），所以常用代码从 <strong>㊱</strong> 接着往下排。</p>
+
+<p><strong>一句话</strong>：<strong>用一个表达式，把一段可迭代对象变成一个新列表</strong>。
+它不提供新能力，只是把「建空列表 → <code>for</code> → <code>append</code>」三步压成一行。</p>
+
+<p><strong>① 基本形式：三块拼起来</strong></p>
+<pre><code>[ 表达式   for 变量 in 可迭代对象 ]
+  ^算出来      ^一个个取出来</code></pre>
+
+<table>
+<tr><th>写法（实测）</th><th>结果</th></tr>
+<tr><td><code>[x*2 for x in range(5)]</code></td><td><code>[0, 2, 4, 6, 8]</code></td></tr>
+<tr><td><code>[c.upper() for c in 'abc']</code></td><td><code>['A', 'B', 'C']</code></td></tr>
+<tr><td><code>[len(w) for w in ['hi','hey']]</code></td><td><code>[2, 3]</code></td></tr>
+<tr><td><code>[int(x) for x in '1 2 3'.split()]</code></td><td><code>[1, 2, 3]</code></td></tr>
+</table>
+
+<div class="box ok">
+<strong>读法：从右往左念</strong> ——
+「<strong>对 <code>range(5)</code> 里每个 <code>x</code>，收下 <code>x*2</code></strong>」。<br>
+它和下面这段完全等价（⑳ 的 <code>append</code> 就是它的展开版）：
+<pre><code>out = []
+for x in range(5):
+    out.append(x * 2)</code></pre>
+</div>
+
+<p><strong>② 加 <code>if</code>：筛选（只要一部分）—— <code>if</code> 放在最后</strong></p>
+<pre><code>[x for x in range(10) if x % 2 == 0]          # [0, 2, 4, 6, 8]
+[w for w in ['a','bb','ccc'] if len(w) &gt; 1]   # ['bb', 'ccc']</code></pre>
+
+<p><strong>③ <code>if-else</code>：改值（一个都不丢）—— 放在最前面</strong></p>
+<pre><code>['偶' if x % 2 == 0 else '奇' for x in range(5)]   # ['偶','奇','偶','奇','偶']
+[x if x &gt; 0 else 0 for x in [-1, 2, -3]]           # [0, 2, 0]</code></pre>
+
+<div class="box warn">
+<strong>⚠️ 位置决定含义，这两个别混</strong>
+<table>
+<tr><th>位置</th><th>作用</th><th>长度</th><th>实测</th></tr>
+<tr><td><code>if</code> 写在<strong>最后</strong><br><code>[x for x in ... if 条件]</code></td>
+<td><strong>筛选</strong>：不满足就丢掉</td><td><strong>会变短</strong></td>
+<td><code>[x for x in range(6) if x % 2 == 0]</code> → <code>[0, 2, 4]</code>，长度 <strong>3</strong></td></tr>
+<tr><td><code>if-else</code> 写在<strong>最前面</strong><br><code>[A if 条件 else B for x in ...]</code></td>
+<td><strong>改值</strong>：每个都留，只是换成 A 或 B</td><td><strong>不变</strong></td>
+<td><code>['y' if x % 2 == 0 else 'n' for x in range(6)]</code> → 长度 <strong>6</strong></td></tr>
+</table>
+<strong>只有 <code>if</code> 没有 <code>else</code>、却写在前面 → 语法错</strong>
+（<code>[x if x&gt;0 for x in range(3)]</code> 过不了编译）。
+</div>
+
+<p><strong>④ 双层 <code>for</code>：展平 / 建矩阵</strong></p>
+<pre><code>L = [[1, 2, 3], [4, 5, 6]]
+[x for row in L for x in row]     # [1, 2, 3, 4, 5, 6]   ← 拍平成一维</code></pre>
+<strong>两个 <code>for</code> 的顺序 = 嵌套循环的书写顺序</strong>（外层在前、内层在后）。
+<strong>⚠️ 变量名只是标签，不参与运算</strong>：写成 <code>[row for x in L for row in x]</code>
+结果<strong>一模一样</strong>（还是 <code>[1,2,3,4,5,6]</code>）—— 名字换了位置，两个循环干的事没变。
+<strong>正因为写反了也不报错，才更容易让人读错</strong>：习惯上外层叫 <code>row</code>、内层叫元素名。
+
+<div class="box bad">
+<strong>⚠️ 建二维列表：<code>[[0]*n]*n</code> 是坑，必须用推导式</strong>
+<pre><code>good = [[0]*3 for _ in range(3)]     # ✅ 三行是三个不同的列表
+bad  = [[0]*3]*3                     # ❌ 三行是【同一行】的三个别名</code></pre>
+实测：<code>good[0][0] = 9</code> → <code>[[9,0,0],[0,0,0],[0,0,0]]</code>（只改一行）；
+<code>bad[0][0] = 9</code> → <code>[[9,0,0],[9,0,0],[9,0,0]]</code>（<strong>三行全变</strong>）。<br>
+<code>id(bad[0]) == id(bad[1]) == id(bad[2])</code> → <code>True</code>；正确版 → <code>False</code>。<br>
+<strong><code>*n</code> 复制的是「引用」不是「内容」</strong> —— 和 <code>b = a</code>（起别名）
+vs <code>b = a[:]</code>（复制）是同一个道理，㊲ 的坑 2 也是它。
+</div>
+
+<p><strong>⑤ 速度实测（造 100 万个元素的列表，3 轮中位数）</strong></p>
+<table>
+<tr><th>写法</th><th>耗时</th><th>结果</th></tr>
+<tr><td><code>[x*2 for x in range(1000000)]</code></td><td><strong>45.4 ms</strong></td><td>一致</td></tr>
+<tr><td><code>for</code> + <code>append</code></td><td>57.6 ms</td><td>一致</td></tr>
+<tr><td><code>list(map(lambda x: x*2, range(N)))</code></td><td>64.0 ms</td><td>一致</td></tr>
+<tr><td><code>list(map(具名函数, range(N)))</code></td><td>60.8 ms</td><td>一致</td></tr>
+</table>
+<strong>列表推导最快</strong>（它有自己的字节码，不用每圈调用一次 <code>append</code>），
+但差距只有 <strong>1.3 ~ 1.4 倍</strong>，不是数量级 ——
+<strong>可读性优先，别为了这点速度把代码写花</strong>。
+
+<p><strong>⑥ <code>[...]</code> 列表推导 vs <code>(...)</code> 生成器表达式</strong></p>
+<p>把方括号换成圆括号就是<strong>生成器表达式</strong>：<strong>不立刻造列表</strong>，用一次算一个。</p>
+<pre><code>gen = (x*2 for x in range(5))
+print(gen)     # &lt;generator object &lt;genexpr&gt; at 0x...&gt;   ← 不是列表
+list(gen)      # [0, 2, 4, 6, 8]
+list(gen)      # []   ← ⚠️ 用完就空了，取不了第二次</code></pre>
+<table>
+<tr><th></th><th>列表 <code>[...]</code></th><th>生成器 <code>(...)</code></th></tr>
+<tr><td>内存（10 万个元素）</td><td><strong>800,984 字节</strong></td><td><strong>112 字节</strong></td></tr>
+<tr><td><code>sum(...)</code> 耗时（100 万）</td><td>44.2 ms</td><td><strong>26.2 ms</strong></td></tr>
+<tr><td>能取第二次 / 看 <code>len</code> / 下标</td><td>能</td><td>不能（一次性）</td></tr>
+</table>
+<strong>规矩</strong>：结果只喂给 <code>sum</code> / <code>max</code> / <code>min</code> / <code>any</code> / <code>all</code> /
+<code>join</code> → 用 <code>()</code>（⑯ 里讲过 <code>any</code>/<code>all</code> 吃生成器）；
+要反复用、要索引、要看长度 → 用 <code>[]</code>。
+
+<p><strong>⑦ 三个常踩的坑</strong></p>
+
+<div class="box warn">
+<strong>坑 1：推导式里的变量不会漏到外面（Python 3）</strong>
+<pre><code>[x for x in range(3)]
+print(x)      # NameError: name 'x' is not defined
+
+for z in range(3):
+    pass
+print(z)      # 2   ← for 循环的变量【会】留下来</code></pre>
+同一个名字 <code>x</code>：<strong>推导式里用完就没了，普通 <code>for</code> 循环用完留在外面</strong>。
+所以推导式里别用和外面重名的变量 —— 不会覆盖，但读起来容易误会。
+</div>
+
+<div class="box warn">
+<strong>坑 2：别在推导式里干「有副作用」的事</strong>
+<pre><code>res = [print(x) for x in range(2)]   # 确实会打印，但 res = [None, None]</code></pre>
+<code>print</code> / <code>append</code> 这类「只为副作用」的调用放进去，收回来一堆 <code>None</code>，
+等于白建一个列表。要打印就写普通 <code>for</code> 循环。
+</div>
+
+<div class="box warn">
+<strong>坑 3：三层以上、或多条件 → 换回 <code>for</code> 循环</strong>
+<pre><code>[a+b for a in range(2) if a &gt;= 0 for b in range(2) if b != a if a+b &gt; 0]   # [1, 1]</code></pre>
+写成这样，读的人得当场在心里跑一遍循环才知道结果。等价的 <code>for</code> 版长几行，但一眼能看懂。
+<strong>列表推导的舒适区是「一层 for + 一个条件」</strong>。
+</div>
+
+<p><strong>⑧ 刷题里最常用的四种（前三种从第 2 章就在用）</strong></p>
+<pre><code>[int(x) for x in input().split()]                       # ① 读一行整数
+[int(input()) for _ in range(n)]                        # ② 读 n 行、每行一个数
+[list(map(int, input().split())) for _ in range(n)]     # ③ 读 n 行、每行多个数 = 矩阵
+[row[j] for row in L]                                   # ④ 取第 j 列（见 ㊲）</code></pre>
+<strong>① 和 <code>list(map(int, input().split()))</code> 完全等价</strong>（抽样 3 组逐项一致）——
+短一点用推导式，已经是现成函数就用 <code>map</code>，两种都对。<br>
+<strong>③ 的「外层推导 + 内层 <code>map</code>」混搭</strong>是读矩阵的通用写法（4-19 ~ 4-21 都在用）：
+外层推导决定「读几行」，内层 <code>map</code> 决定「一行怎么切」。
+
+<h3 id="s1-39">㊲ 矩阵：取一行 / 取一列（<code>L[i]</code> 能表示什么）</h3>
+
+<div class="box bad">
+<strong>结论先给：<code>L[i]</code> 只能取「行」，取不了「列」。</strong>
+<table>
+<tr><th>想要</th><th>写法</th><th>结果</th></tr>
+<tr><td>第 <code>i</code> <strong>行</strong></td><td><code>L[i]</code></td>
+<td>✅ 一整行（它本身就是个 <code>list</code>）</td></tr>
+<tr><td>第 <code>j</code> <strong>列</strong></td><td><code>L[j]</code>？</td>
+<td>❌ 拿到的还是第 <code>j</code> <strong>行</strong></td></tr>
+</table>
+<strong>原因</strong>：<code>L = [[1,2,3],[4,5,6],[7,8,9]]</code> 的本质是「<strong>列表的列表</strong>」。
+外层 <code>L</code> 只知道自己有 3 个元素，而这 3 个元素恰好是 3 个列表 ——
+所以 <code>L[i]</code> 只能拿到「第 i 个元素」，也就是第 i 行。
+<strong>列不是一个容器</strong>，它只是「每一行里下标相同的那些元素」凑起来的概念，Python 没给它做语法。
+</div>
+
+<p><strong>① <code>L[i]</code>：整行就是一个普通列表</strong></p>
+<pre><code>L[0]        # [1, 2, 3]    ← 第 0 行
+L[1]        # [4, 5, 6]
+L[-1]       # [7, 8, 9]    ← 负下标照样能用（最后一行）
+L[0][1]     # 2            ← 再点一个下标才是「格子」</code></pre>
+<strong>既然是 <code>list</code>，所有列表函数都能直接吃它</strong>：
+<pre><code>sum(L[1])                    # 15        ← 4-20 求各行和就是这么写的
+max(L[2])                    # 9
+min(L[0])                    # 1
+len(L[1])                    # 3
+sorted(L[2], reverse=True)   # [9, 8, 7]
+L[1].index(max(L[1]))        # 2         ← 最大值的【列下标】</code></pre>
+
+<p><strong>② 取一整列的三种写法（实测）</strong></p>
+<pre><code># 写法 A：列表推导 —— 首选，最好读
+[row[1] for row in L]        # [2, 5, 8]
+
+# 写法 B：zip(*L) 转置 —— 「先把列变成行」
+list(zip(*L))                # [(1,4,7), (2,5,8), (3,6,9)]   ← 转置后的矩阵
+list(zip(*L))[1]             # (2, 5, 8)   ← 元组，不是 list
+
+# 写法 C：只要这一列的某个统计量，根本不用取出来
+min(row[1] for row in L)     # 2
+sum(row[1] for row in L)     # 15</code></pre>
+
+<div class="box ok">
+<strong><code>zip(*L)</code> 为什么等于转置</strong><br>
+<code>*L</code> 是「把三行摊开当三个参数传进去」，也就是
+<code>zip([1,2,3], [4,5,6], [7,8,9])</code>；
+<code>zip</code> 再把每个列表的第 0 个配一组、第 1 个配一组……
+<strong>记法：<code>zip(*矩阵)</code> = 转置</strong>（⑳ 里 <code>zip</code> 的用法在这里的实战）。
+</div>
+
+<div class="box warn">
+<strong>⚠️ 三个坑</strong><br>
+<strong>坑 1：<code>L[:, 1]</code> 不存在</strong> —— 那是 numpy 的语法，纯列表会报
+<code>TypeError: list indices must be integers or slices, not tuple</code>。<br>
+<strong>坑 2：<code>L[i]</code> 是引用，不是复印件</strong>
+<pre><code>M = [[1,2],[3,4]]
+row = M[0];   row[0] = 99    # M 变成 [[99,2],[3,4]]   ← 矩阵被改了！
+row = M[0][:]; row[0] = 99   # M 不变                 ← 切片才是复制</code></pre>
+<strong>坑 3：列访问要求每行等长</strong>
+<pre><code>L = [[1,2,3], [4,5], [6,7,8]]     # 第 1 行只有 2 个
+[row[2] for row in L]   # IndexError: list index out of range  ← 报错
+list(zip(*L))           # [(1,4,6), (2,5,7)]      ← 不报错，但【悄悄丢掉第 3 列】</code></pre>
+<code>zip</code> 按最短的那行截断 —— <strong>静默丢数据比报错更危险</strong>。
+读矩阵时每行都来自一次 <code>input().split()</code>，天然等长；
+自己拼的、筛过的列表就可能不等长。
+</div>
+
+<p><strong>③ 要反复按列取，就先转置一次</strong></p>
+<p>n=300 的矩阵取同一列 1000 次（3 轮中位数）：</p>
+<table>
+<tr><th>写法</th><th>1000 次耗时</th></tr>
+<tr><td>A 列表推导 <code>[row[5] for row in big]</code></td><td>4.56 ms</td></tr>
+<tr><td>B 先 <code>T = list(zip(*big))</code> 存好，循环里只取 <code>T[5]</code></td>
+<td><strong>0.05 ms</strong></td></tr>
+<tr><td>C 每次都重新 <code>list(zip(*big))</code></td><td>458.39 ms ❌</td></tr>
+</table>
+<strong>只取一两次 → 列表推导；要反复按列访问 → 先转置一次存起来</strong>。
+<strong>千万别把 <code>zip(*L)</code> 写在循环体里</strong> —— C 比 A 还慢 100 倍。
+
+<p><strong>④ 4-22 找鞍点用到的就是这两句</strong></p>
+<pre><code>rmax = max(L[i])                    # 行：直接用 L[i]
+j    = L[i].index(rmax)             # 它在第几列
+cmin = min(row[j] for row in L)     # 列：生成器表达式</code></pre>
+
+<div class="box warn">
+<strong>⚠️ <code>index</code> 和 <code>min</code> 都只给【第一个】位置</strong>
+<pre><code>[[1,1],[0,0]]     # 第 0 行最大值 1 出现两次（列 0 和列 1），index 只给 0</code></pre>
+同一列的最小值也可能在多行同时出现。所以<strong>题面要求「所有鞍点」或「输出个数」时，
+「一行找一个最大值」这种写法就会漏</strong> —— 那种情况要双重循环把每个格子都验一遍。
+</div>
+
+<p>相关小节：<strong>㊱</strong> 列表推导（<code>[row[j] for row in L]</code> 就是它）、
+<strong>⑰</strong> 切片 vs range、<strong>㉞</strong> <code>sum</code> 与容器；
+真题 <strong>4-19</strong>（副对角线）、<strong>4-20</strong>（各行求和）、<strong>4-21</strong>（取下方格子）；
+<strong>❌18</strong>（判「全是 0」要用 <code>all</code> / <code>any</code>）。</p>
 
 <h2 id="star">三、符号速查：* 和 []</h2>
 
@@ -9769,7 +10004,7 @@ function fillCounts(){
   if (el){
     el = el.nextElementSibling;
     while (el && el.tagName !== 'H2'){
-      if (el.tagName === 'H3' && /^\s*[\u2460-\u2473\u3251-\u325f]/.test(el.textContent || '')) { secs++; }
+      if (el.tagName === 'H3' && /^\s*[\u2460-\u2473\u3251-\u325f\u32b1-\u32bf]/.test(el.textContent || '')) { secs++; }
       el = el.nextElementSibling;
     }
   }
