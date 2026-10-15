@@ -104,7 +104,7 @@
 -->
 
 <h1>Python 自学笔记</h1>
-<p class="meta">hkh ｜ 更新 2026-10-14 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">22</span> 题 + 第4章 <span id="c4">19</span> 题（浙大版《Python 程序设计》题目集）</p>
+<p class="meta">hkh ｜ 更新 2026-10-14 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">22</span> 题 + 第4章 <span id="c4">20</span> 题（浙大版《Python 程序设计》题目集）</p>
 
 <nav id="toc">
   <div class="toc-head">目录　<span class="toc-hint">点标题展开 · 点条目直接跳</span></div>
@@ -197,7 +197,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>六、真题回顾 <span class="toc-n" id="cr">58</span></summary>
+    <summary>六、真题回顾 <span class="toc-n" id="cr">59</span></summary>
     <ol>
       <li><a onclick="return go('review-1')">1-1 从键盘输入两个数求和</a></li>
       <li><a onclick="return go('review-2')">1-2 按公式输出 b²−4ac</a></li>
@@ -269,6 +269,7 @@
       <li><a onclick="return go('review-68')">补充：递推公式是怎么"推"出来的（以约瑟夫环为例）</a></li>
       <li><a onclick="return go('review-69')">补充：二维列表（矩阵）—— 下标怎么走 + 两条对角线公式</a></li>
       <li><a onclick="return go('review-70')">4-19 矩阵运算</a></li>
+      <li><a onclick="return go('review-71')">4-20 求矩阵各行元素之和</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -4376,7 +4377,7 @@ if m!=v[17]:                      # ② 索引</code></pre>
 ② 两边同时改，很容易出现"本地一份、提交另一份"，而且极难发现
 </div>
 
-<h2 id="review">六、真题回顾（<span id="cr2">58</span> 题）</h2>
+<h2 id="review">六、真题回顾（<span id="cr2">59</span> 题）</h2>
 
 <div class="box warn">
 <strong>说明：</strong>下面的题目要求是<strong>我按自己的理解概括写的</strong>，不是 PTA 原文。<br>
@@ -9006,6 +9007,88 @@ for i in range(m-1):        # 掐掉末行
 <code>n=10</code> 全 0 → <code>0</code>；
 <strong>全域随机对拍 <code>n=2..10</code> 各 100 个矩阵共 900 组，与独立口径 0 组不一致</strong>；
 扩展性抽查 <code>n=50</code> 也一致；含进程启动约 <strong>25 ms</strong>（限制 400 ms）。</p>
+
+<h3 id="review-71">4-20 求矩阵各行元素之和 <span class="tag">通过</span></h3>
+
+<p><strong>要求</strong>：输入第一行给出两个正整数 <code>m</code> 和 <code>n</code>
+（<code>1 ≤ m, n ≤ 6</code>），随后 <code>m</code> 行每行给出 <code>n</code> 个整数
+（以空格分隔）。<strong>每行输出对应矩阵行元素之和</strong>（共 m 行，每行一个数）。
+样例 <code>3 2</code> + <code>6 3</code> / <code>1 -8</code> / <code>3 12</code>
+→ <code>9</code> / <code>-7</code> / <code>15</code>。</p>
+
+<p><strong>我的代码（一次通过，4 行）</strong></p>
+<pre><code>m,n=map(int,input().split())          # 第一行读两个数：行数 m、列数 n
+for _ in range(m):                    # 循环 m 次（每次处理一行）
+    a=list(map(int,input().split()))  # 读这一行的 n 个整数 → 列表
+    print(sum(a))                     # 求和并直接打印（print 自带换行）</code></pre>
+
+<div class="box ok">
+<strong>这版的关键：<code>sum()</code> 直接把一行的和算出来</strong><br>
+不用写内层 <code>for j in range(n)</code> 累加 —— <code>sum</code> 接受任何可迭代对象，
+<code>sum(a)</code> 就是"把这一行全加起来"（㉞ 那一节讲过 <code>sum</code> 能吃哪些容器）。<br>
+<strong>而且这里根本不需要用到 <code>n</code></strong> —— 因为
+<code>input().split()</code> 读完这一行就自动知道有几个数了。
+</div>
+
+<div class="box ok">
+<strong>为什么<strong>不必</strong>存成二维列表（和 4-19 的差别）</strong>
+<table>
+<tr><th>题</th><th>要不要存整个矩阵</th><th>原因</th></tr>
+<tr><td><strong>4-19</strong> 矩阵运算</td><td><strong>要</strong>存成二维列表</td>
+<td>要判断"<code>i+j==n-1</code> 副对角线"——<strong>必须知道每个元素的行列位置</strong>，
+所以得先读完整个矩阵</td></tr>
+<tr><td><strong>4-20</strong> 各行求和</td><td><strong>不用</strong>存</td>
+<td>每行的和<strong>只依赖这一行内部</strong>，与别的行无关 →
+<strong>读完一行、算完、打印、丢掉</strong>即可（这叫"流式处理"）</td></tr>
+</table>
+<strong>判断标准：这个元素的处理需不需要别的行/列的信息？</strong>
+不需要就流式处理，省内存也更简洁。
+</div>
+
+<p><strong>优化用法</strong></p>
+
+<div class="box ok">
+<strong>① 三种等价写法（实测结果完全一致）</strong>
+<pre><code># 写法1（我用的）：读一行 → sum → 打印
+for _ in range(m):
+    print(sum(map(int, input().split())))     # 连 list() 都能省！
+
+# 写法2：先转 list 再 sum（我写的这版，可读性更清楚）
+for _ in range(m):
+    a = list(map(int, input().split()))
+    print(sum(a))
+
+# 写法3：存成二维列表后统一输出（不推荐 —— 白存一遍）
+a = [list(map(int, input().split())) for _ in range(m)]
+print("\n".join(str(sum(row)) for row in a))</code></pre>
+<strong>写法 1 更短</strong>：<code>sum</code> 直接吃 <code>map</code> 对象（迭代器），
+<strong>不需要先 <code>list()</code></strong>（㉞ 里实测过 <code>sum(map(int, '1 2 3'.split()))</code> = 6）。
+</div>
+
+<div class="box warn">
+<strong>② ⚠️ 输出格式：这里是【每行一个数】，不是"一行空格隔开"</strong><br>
+题面写"<strong>每行输出</strong>对应矩阵行元素之和" → 所以要 <strong>m 行</strong>。<br>
+对比 4-19 是"在一行中给出该矩阵……之和" → <strong>只有一行</strong>。<br>
+<strong><code>print</code> 自带换行</strong>，所以循环里直接 <code>print(sum(a))</code> 就正好是 m 行。
+若改成"一行输出、空格隔开"，那要写成 <code>print(sum(a), end=" ")</code> 或者最后统一 <code>join</code>。
+</div>
+
+<div class="box warn">
+<strong>③ 这题有个"看起来要、其实不要"的变量：<code>n</code></strong><br>
+<code>n</code>（列数）读进来之后<strong>一次都没用到</strong> —— 因为
+<code>split()</code> 已经按空格切好了，切出几个就是几个。<br>
+<code>m,n=map(int,input().split())</code> 里 <code>n</code> 是"为了解包"收下的，
+<strong>不用它会不被检查（Python 没有"未使用变量"的报错）</strong>，但读题时要知道：
+<strong>列数在这里是冗余信息</strong>（题面给它是为了描述矩阵形状）。
+</div>
+
+<p><strong>要点与实测证据</strong>：<code>py_compile</code> 通过；
+<strong>题面样例</strong> <code>9 / -7 / 15</code> <strong>逐字节一致</strong>；
+<strong>8 组边界全对</strong>：<code>m=n=1</code> 单元素、负数和为 0、
+全是负数（<code>-6 / -27</code>）、全 0、上限 <code>m=n=6</code>、
+每行只有 1 个、<code>n=1</code> 含 0、大数（<code>6000000</code>）；
+<strong><code>m,n ∈ [1,6]</code> 全组合 × 10 个随机矩阵 = 360 组，与独立口径 0 组不一致</strong>；
+含进程启动 <strong>26 ms</strong>（限制 400 ms）。</p>
 
 <h2 id="quick">七、速查总表</h2>
 
