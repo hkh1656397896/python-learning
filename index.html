@@ -104,7 +104,7 @@
 -->
 
 <h1>Python 自学笔记</h1>
-<p class="meta">hkh ｜ 更新 2026-10-15 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">22</span> 题 + 第4章 <span id="c4">22</span> 题（浙大版《Python 程序设计》题目集）</p>
+<p class="meta">hkh ｜ 更新 2026-10-15 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">22</span> 题 + 第4章 <span id="c4">23</span> 题（浙大版《Python 程序设计》题目集）</p>
 
 <nav id="toc">
   <div class="toc-head">目录　<span class="toc-hint">点标题展开 · 点条目直接跳</span></div>
@@ -200,7 +200,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>六、真题回顾 <span class="toc-n" id="cr">61</span></summary>
+    <summary>六、真题回顾 <span class="toc-n" id="cr">62</span></summary>
     <ol>
       <li><a onclick="return go('review-1')">1-1 从键盘输入两个数求和</a></li>
       <li><a onclick="return go('review-2')">1-2 按公式输出 b²−4ac</a></li>
@@ -275,6 +275,7 @@
       <li><a onclick="return go('review-71')">4-20 求矩阵各行元素之和</a></li>
       <li><a onclick="return go('review-72')">4-21 判断上三角矩阵</a></li>
       <li><a onclick="return go('review-73')">4-22 找鞍点</a></li>
+      <li><a onclick="return go('review-74')">4-23 求矩阵的局部极大值</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -4655,7 +4656,7 @@ if m!=v[17]:                      # ② 索引</code></pre>
 ② 两边同时改，很容易出现"本地一份、提交另一份"，而且极难发现
 </div>
 
-<h2 id="review">六、真题回顾（<span id="cr2">61</span> 题）</h2>
+<h2 id="review">六、真题回顾（<span id="cr2">62</span> 题）</h2>
 
 <div class="box warn">
 <strong>说明：</strong>下面的题目要求是<strong>我按自己的理解概括写的</strong>，不是 PTA 原文。<br>
@@ -9643,6 +9644,123 @@ print("%d %d"%p if p else "NONE")</code></pre>
 <strong>穷举 <code>n=2,3</code> × 值域 <code>{0,1,2}</code> 全空间 19764 组 0 不一致</strong>；
 <strong>第三种机制</strong>（行最大值集合 ∩ 列最小值集合）对拍 3000 组也 0 不一致 ——
 三种口径互证。</p>
+
+<h3 id="review-74">4-23 求矩阵的局部极大值 <span class="tag">一次通过</span></h3>
+
+<p><strong>要求</strong>：第一行给出行数 <code>M</code> 和列数 <code>N</code>（<code>3 ≤ M, N ≤ 20</code>），
+随后 <code>M</code> 行、每行 <code>N</code> 个整数。
+<strong>非边界元素</strong> <code>A[i][j]</code> 若<strong>大于上下左右 4 个元素</strong>，就是局部极大值；
+每行按 <code>元素值 行号 列号</code> 输出一个（<strong>行、列从 1 开始</strong>），
+按行号递增、同行按列号递增；<strong>一个都没有</strong>则输出 <code>None 总行数 总列数</code>。
+样例1（4×5）→ <code>9 2 3</code> / <code>5 3 2</code> / <code>5 3 4</code>；样例2（3×5）→ <code>None 3 5</code>。</p>
+
+<p><strong>我的代码（一次通过）</strong></p>
+<pre><code>M,N=map(int,input().split())                      # 第一行：行数 M、列数 N
+x=[list(map(int,input().split())) for _ in range(M)]   # 读 M 行，每行转成整数列表
+cnt=0                                             # 局部极大值的个数
+for i in range(1,M-1):                            # 只走非边界行（0 和 M-1 跳过）
+    for j in range(1,N-1):                        # 只走非边界列
+        if x[i][j]&gt;x[i-1][j] and x[i][j]&gt;x[i+1][j] and x[i][j]&gt;x[i][j-1] and x[i][j]&gt;x[i][j+1]:   # 比上下左右 4 个都大
+            cnt+=1                                # 记一个
+            print(x[i][j],i+1,j+1)                # 输出「元素值 行号 列号」，行列从 1 开始
+if cnt==0:                                        # 一个都没有
+    print("None",M,N)                             # 打「None 总行数 总列数」</code></pre>
+
+<div class="box ok">
+<strong>★ 这题的开关：<code>&gt;</code> 不能写成 <code>&gt;=</code>（平台不算）</strong><br>
+局部极大值的定义是「<strong>严格</strong>大于 4 个邻居」。写成 <code>&gt;=</code> 的话，
+一片相等的高地会<strong>每一格都自认是极大值</strong>，全部多打出来。
+拿样例2 第 1 行中间那两个 <code>9</code> 实测（<code>1 1 1 1 1 / 9 3 9 9 1 / …</code>）：
+<table>
+<tr><th>下标</th><th>值</th><th>邻居</th><th><code>&gt;</code> 判据</th><th><code>&gt;=</code> 判据</th></tr>
+<tr><td><code>(1,0)</code></td><td><code>9</code></td><td><code>1, 5, 1, 3</code></td>
+<td>边界，不参与</td><td>边界，不参与</td></tr>
+<tr><td><code>(1,2)</code></td><td><code>9</code></td><td><code>1, 3, 3, 9</code></td>
+<td>右边邻居也是 <code>9</code> → <strong>不算</strong> ✅</td>
+<td><code>9 &gt;= 9</code> 成立 → 被骗成极大值 ❌</td></tr>
+</table>
+<strong>判据是"比邻居都大"而不是"不比邻居小"</strong> —— 「平台」「并列」都不算。
+（实测：<code>1 9 9 1</code> 这种行，用 <code>&gt;</code> 输出 <code>None</code>，
+用 <code>&gt;=</code> 会多报。）
+</div>
+
+<div class="box warn">
+<strong>⚠️ <code>None</code> 是首字母大写的，且要带「总行数 总列数」</strong><br>
+题面原文是 <code>"None 总行数 总列数"</code> ——
+<strong>只差大小写</strong>的坑咱们栽过两次（3-18 的 <code>not found</code>、
+3-22 的 <code>Not Found</code>），这题又是 <code>None</code> 不是 <code>NONE</code>。
+<strong>别凭记忆写，回去看样例</strong> —— 这题的两个样例正好一个打坐标、一个打 <code>None</code>，
+样例本身就是校验器。
+</div>
+
+<div class="box ok">
+<strong>★ <code>range(1, M-1)</code> 一步就把"非边界"这件事做掉了</strong><br>
+题面强调「<strong>非边界</strong>元素」。常见写法是在 <code>if</code> 里补一串条件：
+<pre><code>for i in range(M):                       # 跑满，然后在 if 里挡边界
+    for j in range(N):
+        if i!=0 and i!=M-1 and j!=0 and j!=N-1 and ...:   # ← 又长又容易错</code></pre>
+本写法让 <code>range</code> <strong>直接生成内部下标</strong>：<code>i</code> 从 1 到 <code>M-2</code>，
+<code>j</code> 从 1 到 <code>N-2</code> —— <code>x[i-1]</code> / <code>x[i+1]</code> /
+<code>x[i][j-1]</code> / <code>x[i][j+1]</code> 这 <strong>4 个下标全都落在合法范围里，
+不需要任何越界检查</strong>。这和 4-21 的 <code>for j in range(i)</code>（下三角）是同一个思路：
+<strong>把"形状"交给 <code>range</code>，别交给 <code>if</code></strong>。
+</div>
+
+<p><strong>优化用法</strong></p>
+
+<div class="box ok">
+<strong>① 四个邻居写进列表 + <code>all()</code>：判据短一半，还能短路</strong>
+<pre><code>for i in range(1,M-1):
+    for j in range(1,N-1):
+        nb=[x[i-1][j], x[i+1][j], x[i][j-1], x[i][j+1]]   # 上下左右 4 个邻居
+        if all(x[i][j]&gt;v for v in nb):                    # 「比它们全都大」
+            cnt+=1
+            print(x[i][j],i+1,j+1)</code></pre>
+好处有两个：<strong>四个 <code>x[i][j]</code> 只写一次</strong>（少抄三遍，少改三处）；
+<code>all()</code> <strong>遇到第一个不满足就停</strong>（短路），比手写 <code>and</code> 链更明确地表达
+"全部满足"这个意图（❌18 里说过：判"全都"用 <code>all</code>，别用求和）。
+<strong>注意仍是 <code>&gt;</code></strong> —— 简化的是写法，不是判据。
+</div>
+
+<div class="box ok">
+<strong>② 一行里"左右邻居"本来就是相邻切片</strong>
+<pre><code>row=x[i]                       # 第 i 行
+for j in range(1,N-1):
+    if row[j]&gt;row[j-1] and row[j]&gt;row[j+1]:   # 左右只跟本行有关
+        if row[j]&gt;x[i-1][j] and row[j]&gt;x[i+1][j]:   # 上下才要跨行
+            ...</code></pre>
+把 4 个邻居<strong>按"要不要看别的行"分成两组</strong>（4-20 立的那条判断标准）：
+左右是<strong>本行内</strong>的事，上下才需要别的行。
+好处是<strong>先做便宜的检查</strong>：绝大多数格子在自己这一行就被否掉了，
+根本走不到跨行的两次取下标。<code>M,N ≤ 20</code> 时这只是习惯，
+但"<strong>先做便宜且更容易失败的检查</strong>"是通用的。
+</div>
+
+<div class="box ok">
+<strong>③ 想知道"上下邻居"也能切片：<code>zip(*x)</code> 转置（㊲ 的实战）</strong>
+<pre><code>T=list(zip(*x))                # T[j] 是第 j 列（元组）
+col=T[j]                       # 第 j 列
+if col[i]&gt;col[i-1] and col[i]&gt;col[i+1]:   # 上下邻居 = 这一列的相邻元素
+</code></pre>
+<code>x[i-1][j]</code> 和 <code>x[i+1][j]</code> 这种"<strong>列方向</strong>"的取法，
+转置一次之后就变成<strong>同一行的相邻元素</strong>，和左右邻居写法对称了。
+代价是 <code>O(M·N)</code> 转一次 + <code>O(M·N)</code> 内存 ——
+本题 <code>20×20</code> 无所谓，<strong>这题其实用不上</strong>，记这个思路是为了以后
+"<strong>要反复按列看</strong>"的题（㊲ 实测：反复按列取，转置后 0.05 ms vs 每次重算 458.39 ms）。
+</div>
+
+<p><strong>要点与实测证据</strong>：<code>py_compile</code> 通过；
+<strong>两个题面样例逐字节一致</strong>（样例1 <code>9 2 3</code>/<code>5 3 2</code>/<code>5 3 4</code>，
+样例2 <code>None 3 5</code>）；
+<strong>8 组边界全对</strong>（<code>M=N=3</code> 下限且中心是极大、<code>M=N=3</code> 全相同、
+全 0 矩阵、负数矩阵、同行两个极大值验列号递增、平台/并列不算极大、<code>20×20</code> 上限中心突起）；
+<strong>随机对拍 3000 组 0 不一致</strong>（<code>M,N∈[3,8]</code>，值域故意取小
+<code>(0,1)</code>/<code>(0,2)</code>/<code>(-2,2)</code>/<code>(0,9)</code>/<code>(-5,5)</code>/<code>(7,7)</code>
+以制造大量并列与平台）；
+<strong>全相同矩阵 75 组 0 不一致</strong>（必然无极大值）；
+<strong>单点突起 36 组 0 不一致</strong>（穷举每个非边界位置）；
+<strong>对照实现机制不同</strong>（把 4 个邻居拼成列表用 <code>all()</code>，
+输出顺序靠 <code>sort(key=(行,列))</code> 显式保证，不依赖循环顺序）—— 四种口径互证。</p>
 
 <h2 id="quick">七、速查总表</h2>
 
