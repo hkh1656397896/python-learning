@@ -104,7 +104,7 @@
 -->
 
 <h1>Python 自学笔记</h1>
-<p class="meta">hkh ｜ 更新 2026-10-15 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">22</span> 题 + 第4章 <span id="c4">28</span> 题（浙大版《Python 程序设计》题目集）</p>
+<p class="meta">hkh ｜ 更新 2026-10-15 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">22</span> 题 + 第4章 <span id="c4">29</span> 题（浙大版《Python 程序设计》题目集）</p>
 
 <nav id="toc">
   <div class="toc-head">目录　<span class="toc-hint">点标题展开 · 点条目直接跳</span></div>
@@ -202,7 +202,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>六、真题回顾 <span class="toc-n" id="cr">67</span></summary>
+    <summary>六、真题回顾 <span class="toc-n" id="cr">68</span></summary>
     <ol>
       <li><a onclick="return go('review-1')">1-1 从键盘输入两个数求和</a></li>
       <li><a onclick="return go('review-2')">1-2 按公式输出 b²−4ac</a></li>
@@ -282,6 +282,7 @@
       <li><a onclick="return go('review-76')">4-26 求 1!+3!+5!+……+n!</a></li>
       <li><a onclick="return go('review-77')">4-27 二维数组中每行最大值和每行和</a></li>
       <li><a onclick="return go('review-78')">4-28 矩阵转置</a></li>
+      <li><a onclick="return go('review-79')">4-29 找出不是两个数组共有的元素</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -4923,7 +4924,7 @@ if m!=v[17]:                      # ② 索引</code></pre>
 ② 两边同时改，很容易出现"本地一份、提交另一份"，而且极难发现
 </div>
 
-<h2 id="review">六、真题回顾（<span id="cr2">67</span> 题）</h2>
+<h2 id="review">六、真题回顾（<span id="cr2">68</span> 题）</h2>
 
 <div class="box warn">
 <strong>说明：</strong>下面的题目要求是<strong>我按自己的理解概括写的</strong>，不是 PTA 原文。<br>
@@ -10400,6 +10401,107 @@ for i in range(3):
 <code>"".join("%4d" % …)</code> 另算一份）。
 另记一笔：源文件里 <code>for _ in range(3): </code> 行尾留了一个空格，
 <strong>Python 忽略行尾空白</strong>，无影响（4-24 那题的 <code>end=" ")</code> 行尾空格是另一回事，那是输出的一部分）。</p>
+
+<h3 id="review-79">4-29 找出不是两个数组共有的元素 <span class="tag">一次通过</span></h3>
+
+<p><strong>要求</strong>：两行各给一个整型数组（每行<strong>先给正整数 N（≤20）</strong>、再给 N 个整数），
+要求输出<strong>不是两者共有</strong>的元素 —— 也就是「对称差」。
+但有三条附加要求：<strong>按数字给出的顺序</strong>输出（先第一行的、再第二行的）、
+<strong>同一数字不重复输出</strong>、数字间空格分隔且<strong>行末不得有多余空格</strong>
+（题面保证至少存在一个这样的数字）。
+样例 <code>10 3 -5 2 8 0 3 5 -15 9 100</code> / <code>11 6 4 8 2 -5 9 0 100 8 1</code> →
+<code>'3 5 -15 6 4 1'</code>。</p>
+
+<p><strong>我的代码（一次通过）</strong></p>
+<pre><code>m=list(map(int,input().split()))              # 第一行读成整数列表，它第 0 个元素是 N（个数）
+n=list(map(int,input().split()))              # 第二行同样读成整数列表，第 0 个也是 N
+L=[]                                          # 结果列表 —— 同时兼任「已经输出过」的登记表
+for a in m[1:m[0]+1]:                         # 只遍历第一行那 N 个数（m[1:m[0]+1] 把开头的 N 切掉）
+    if a not in n[1:n[0]+1] and a not in L:   # 既不在第二行的数据里、也还没输出过
+        L.append(a)                           # 收进结果
+for b in n[1:n[0]+1]:                         # 第二行再走一遍
+    if b not in m[1:m[0]+1] and b not in L:   # 不在第一行的数据里、且没输出过
+        L.append(b)                           # 收进结果
+print(*L)                                     # 摊开输出：默认空格分隔，行末不加空格</code></pre>
+
+<div class="box warn">
+<strong>★ 判据可以用集合，但【顺序】必须靠原列表 —— 这题最容易踩的坑</strong><br>
+「不是两者共有」的集合就是<strong>对称差</strong> <code>set(A) ^ set(B)</code>，
+<strong>判据它完全正确</strong>；但直接把它打印出来，<strong>顺序就错了</strong>：
+<pre><code>set(A) ^ set(B)  = {1, 3, 4, 6, 5, -15}      ← 这 6 个正是答案，判据没错
+" ".join(map(str, …)) = '1 3 4 6 5 -15'
+题面要求的顺序     = '3 5 -15 6 4 1'          ← ❌ 完全不同</code></pre>
+实测（同一个进程里连跑 5 次，结果<strong>一模一样</strong> —— 所以这不是"随机"，是<strong>假象</strong>）：
+<table>
+<tr><th>写法</th><th>输出</th><th>说明</th></tr>
+<tr><td><code>set(A) ^ set(B)</code> 直接输出</td><td><code>'1 3 4 6 5 -15'</code></td><td>❌ 顺序不是输入顺序</td></tr>
+<tr><td>同一进程连跑 5 次</td><td>5 次完全相同</td><td>「稳定」≠「正确」</td></tr>
+<tr><td><code>set([1,200,53,8])</code></td><td><code>'200 1 53 8'</code></td><td>也<strong>不是</strong>升序</td></tr>
+<tr><td><code>set([1,200,53,8,-5])</code></td><td><code>'1 200 8 53 -5'</code></td><td>掺进负数更乱</td></tr>
+</table>
+集合的顺序由<strong>哈希值/表长</strong>决定（整数的哈希就是它自己，所以小正数看起来"像升序"，纯属巧）——
+<strong>集合只用来「判断在不在」，顺序一律靠原列表走</strong>。这就是 ㉚ 里那条「<code>set</code> 会丢序」在真题上的落地
+（3-22「去重 + 保序」也是同一个道理）。
+</div>
+
+<div class="box ok">
+<strong>★ 题面里还藏着两条「格式要求」，少一条就错</strong><br>
+① <strong>同一数字不重复输出</strong> → 必须有一个「已经输出过」的登记。
+样例第一行就是 <code>3 -5 2 8 0 3 5 -15 9 100</code> —— 其中 <code>3</code> 出现了两次，
+少了 <code>a not in L</code> 这句判断，<code>3</code> 会被打两遍。<br>
+② <strong>行末不得有多余空格</strong> → <code>print(*L)</code> 正好满足：
+<code>sep</code> <strong>只加在值之间、不加在末尾</strong>。
+如果写成 <code>for x in L: print(x, end=" ")</code>，每行末尾就会多一个空格
+（4-25 「<code>sep</code> 不补末尾」是同一族）。
+实测样例输出：1 行、<strong>行尾 0 个空格</strong>、共 13 字符。<br>
+③ 读入用 <code>m[1:m[0]+1]</code> 把开头的 N 切掉 —— 在合法数据下它和 <code>m[1:]</code> 等价，
+用 <code>m[0]</code> 是为了表达「这一行确实有 N 个数」这个意图（4-27 / 4-28 那种"先给个数"的题都这么读）。
+</div>
+
+<p><strong>优化用法</strong></p>
+
+<div class="box ok">
+<strong>① 集合管判断、列表管顺序（本题的标准解）</strong>
+<pre><code>A=m[1:m[0]+1]; B=n[1:n[0]+1]            # 先把两行的数据切出来，后面反复用
+sA, sB=set(A), set(B)                   # 集合查「在不在」是 O(1)，列表是 O(N)
+out=[]
+for x in A+B:                           # 顺序仍然老老实实按 A 然后 B
+    if x in sA and x in sB: continue    # 两边都有的（共有）→ 跳过
+    if x in out: continue               # 已经输出过的 → 跳过
+    out.append(x)
+print(*out)</code></pre>
+原来写法里 <code>a not in n[1:n[0]+1]</code> <strong>每一轮都要把第二行重扫一遍</strong>（还顺便重新切片一次）；
+N ≤ 20 时快慢感觉不到，但<strong>「集合管判断、列表管顺序」这个分工是标准解</strong>，
+数据一大差距就出来了（㉚ 量过：集合查找快 14000 倍那一类量级）。
+</div>
+
+<div class="box ok">
+<strong>② 保序去重可以一行写完：<code>dict.fromkeys</code></strong>
+<pre><code>common=set(A)&set(B)                    # 「共有」的元素集合
+print(*[x for x in dict.fromkeys(A+B) if x not in common])   # dict 的键【按首次出现顺序】排</code></pre>
+<code>dict.fromkeys(序列)</code> 返回的字典，<strong>键的顺序 = 首次出现的顺序</strong>，
+再滤掉"共有"的就是答案。实测与题面<strong>逐字节一致</strong>（这一招 3-22 用过，㉔ 里讲过字典保序）。
+</div>
+
+<div class="box warn">
+<strong>③ 为什么这题<strong>必须</strong>转 <code>int</code>（别为了省事留着字符串）</strong>
+<pre><code>'05' != '5'          → True    ← 字符串比：被当成两个不同的数
+int('05')==int('5')  → True    ← 转成整数就相等</code></pre>
+本题只做"相等判断"、不做四则运算，看着像可以不转；但<strong>字符串的"相等"和数字的"相等"不是一回事</strong>
+（<code>'-0' != '0'</code> 也是 True）。<strong>这跟 4-28 那张「字符串 vs 数字」的开关表是同一族</strong>：
+写法能成立都带着前提，前提一变就翻车。
+<br>另记一条边界：题面保证「至少存在一个」这样的数字，所以结果不可能为空；
+真喂进去两个完全相同的数组时，<code>print(*[])</code> 会打一个<strong>空行</strong>（实测 rc=0、不崩）。
+</div>
+
+<p><strong>要点与实测证据</strong>：<code>py_compile</code> 通过；
+<strong>题面样例逐字节一致</strong>（<code>'3 5 -15 6 4 1'</code>，1 行、行尾 0 个空格、13 字符）；
+<strong>7 组边界全对</strong>（两数组毫无交集 / 共有元素在两边都重复多次 / N=1 各一个 /
+上限 N=20（含 0 与负数）/ <strong>两数组完全相同</strong>（题面保证不会出现，只验不崩）/ 输入带多余空格（含制表符））；
+<strong>随机对拍 600 组（两轮各 300）与两个独立口径 0 组不一致</strong> ——
+第一轮 N∈1..20、值域 <code>0..20</code>；第二轮值域 <code>-3..3</code>（几乎必然重叠+重复），
+两个口径是「集合求交 + 按 <code>A+B</code> 原序过滤」与「<code>dict.fromkeys</code> 保序去重」。
+另实测三种正确写法（本题的列表 <code>in</code> / 集合+推导 / 双重 <code>not in</code>）输出<strong>逐字节相同</strong>。</p>
 
 <h2 id="quick">七、速查总表</h2>
 
