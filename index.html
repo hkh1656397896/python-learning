@@ -104,7 +104,7 @@
 -->
 
 <h1>Python 自学笔记</h1>
-<p class="meta">hkh ｜ 更新 2026-10-14 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">22</span> 题 + 第4章 <span id="c4">18</span> 题（浙大版《Python 程序设计》题目集）</p>
+<p class="meta">hkh ｜ 更新 2026-10-14 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">22</span> 题 + 第4章 <span id="c4">19</span> 题（浙大版《Python 程序设计》题目集）</p>
 
 <nav id="toc">
   <div class="toc-head">目录　<span class="toc-hint">点标题展开 · 点条目直接跳</span></div>
@@ -197,7 +197,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>六、真题回顾 <span class="toc-n" id="cr">57</span></summary>
+    <summary>六、真题回顾 <span class="toc-n" id="cr">58</span></summary>
     <ol>
       <li><a onclick="return go('review-1')">1-1 从键盘输入两个数求和</a></li>
       <li><a onclick="return go('review-2')">1-2 按公式输出 b²−4ac</a></li>
@@ -268,6 +268,7 @@
       <li><a onclick="return go('review-67')">4-18 猴子选大王（约瑟夫环）</a></li>
       <li><a onclick="return go('review-68')">补充：递推公式是怎么"推"出来的（以约瑟夫环为例）</a></li>
       <li><a onclick="return go('review-69')">补充：二维列表（矩阵）—— 下标怎么走 + 两条对角线公式</a></li>
+      <li><a onclick="return go('review-70')">4-19 矩阵运算</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -4375,7 +4376,7 @@ if m!=v[17]:                      # ② 索引</code></pre>
 ② 两边同时改，很容易出现"本地一份、提交另一份"，而且极难发现
 </div>
 
-<h2 id="review">六、真题回顾（<span id="cr2">57</span> 题）</h2>
+<h2 id="review">六、真题回顾（<span id="cr2">58</span> 题）</h2>
 
 <div class="box warn">
 <strong>说明：</strong>下面的题目要求是<strong>我按自己的理解概括写的</strong>，不是 PTA 原文。<br>
@@ -8911,6 +8912,100 @@ print(s)</code></pre>
 </table>
 三种写法（<code>range(n-1)</code>+判断 / 排除集合 / <code>enumerate</code>）结果完全一致。
 </div>
+
+<h3 id="review-70">4-19 矩阵运算 <span class="tag">通过</span></h3>
+
+<p><strong>要求</strong>：给定一个 <code>n × n</code> 的方阵，求该矩阵
+<strong>除副对角线、最后一列和最后一行以外</strong>的所有元素之和
+（副对角线 = 从右上角到左下角的连线）。输入第一行 <code>n</code>（<code>1 &lt; n ≤ 10</code>），
+随后 <code>n</code> 行每行 <code>n</code> 个整数；输出一行，即该和。</p>
+
+<p><strong>我的代码（一次通过）</strong></p>
+<pre><code>m=int(input())                                    # 矩阵阶数 n
+s=0                                               # 累加器
+a=[list(map(int,input().split())) for _ in range(m)]   # 读 n 行，每行 n 个整数 → 二维列表
+for i in range(m-1):                              # 只遍历【前 n-1 行】→ 天然排掉最后一行
+    for j in range(m-1):                          # 只遍历【前 n-1 列】→ 天然排掉最后一列
+        if i+j==m-1:continue                      # 副对角线 → 跳过
+        s+=a[i][j]                                # 剩下的累加
+print(s)                                          # 输出一行</code></pre>
+
+<div class="box ok">
+<strong>这版写法好在哪：只剩【一条】规则要判</strong>
+<table>
+<tr><th>要排除的</th><th>怎么排的</th></tr>
+<tr><td>最后一行</td><td><code>range(m-1)</code> —— <strong>循环天然不含</strong></td></tr>
+<tr><td>最后一列</td><td><code>range(m-1)</code> —— <strong>循环天然不含</strong></td></tr>
+<tr><td>副对角线</td><td><code>if i+j==m-1: continue</code> —— 唯一要判的</td></tr>
+</table>
+<strong>为什么这样能避开最大的坑</strong>：如果把三条规则都写成"判断"再排除，
+很容易写成"总和 − 副对角线和 − 末列和 − 末行和"，
+而 <code>(0, n-1)</code> 这个格子<strong>既在末列、又在副对角线上</strong> → 会被减两次。
+<strong>用 <code>range(m-1)</code> 把末行末列"提前排除掉"，就不存在重叠问题了。</strong>
+（详见本表末尾「二维列表（矩阵）」那一节。）
+</div>
+
+<div class="box warn">
+<strong>容易写错的四处理（都对过了）</strong>
+<table>
+<tr><th>#</th><th>要点</th><th>写错会怎样</th></tr>
+<tr><td>①</td><td><code>range(m-1)</code> 不是 <code>range(m)</code></td>
+<td>写成 <code>range(m)</code> 就把末行末列也算进去了 → 结果偏大</td></tr>
+<tr><td>②</td><td><code>i+j==m-1</code> 是<strong>副</strong>对角线</td>
+<td>写成 <code>i==j</code> 是正对角线（左上→右下），完全另一条线</td></tr>
+<tr><td>③</td><td><code>a[i][j]</code> 是 <strong>i 行 j 列</strong></td>
+<td>顺序反了写法上仍能跑，但这题恰好结果不变（保留区对称）——
+<strong>别靠巧合</strong>，别的矩阵题就会错</td></tr>
+<tr><td>④</td><td>读矩阵用<strong>列表推导式</strong>一行读完</td>
+<td><code>[list(map(int, input().split())) for _ in range(m)]</code>
+——<code>list(map(...))</code> 把每行转成整数列表，外层再收集 n 行</td></tr>
+</table>
+</div>
+
+<p><strong>优化用法</strong></p>
+
+<div class="box ok">
+<strong>① 想"按位置排除"必须能拿到下标 —— 三种遍历只有两种行</strong>
+<table>
+<tr><th>写法</th><th>能判位置吗</th></tr>
+<tr><td><code>for i in range(n): for j in range(n): a[i][j]</code></td><td>✅</td></tr>
+<tr><td><code>for i, row in enumerate(a): for j, x in enumerate(row): x</code></td><td>✅</td></tr>
+<tr><td><code>for row in a: for x in row: x</code></td><td>❌ 只有值、没下标</td></tr>
+</table>
+</div>
+
+<div class="box ok">
+<strong>② <code>enumerate</code> 版（等价写法，规则更"显式"）</strong>
+<pre><code>s = 0
+for i, row in enumerate(a):
+    if i == m - 1: continue          # 最后一行
+    for j, x in enumerate(row):
+        if j == m - 1: continue      # 最后一列
+        if i + j == m - 1: continue  # 副对角线
+        s += x
+print(s)</code></pre>
+实测与上面那版结果<strong>完全一致</strong>，保留的格子是
+<code>[(0,0),(0,1),(0,2),(1,0),(1,1),(2,0),(2,2)]</code>（n=4），和 = <code>35</code>。
+</div>
+
+<div class="box ok">
+<strong>③ 排除整块区域时，用「范围」比用「条件」更不容易错</strong>
+<pre><code># ❌ 三个条件各判一次 + 分别减（会因重叠出错）
+# ✅ 能用 range 提前掐掉的，就别留到 if 里判
+for i in range(m-1):        # 掐掉末行
+    for j in range(m-1):    # 掐掉末列
+        if i+j == m-1: continue</code></pre>
+<strong>一般是"整块区域用范围、单独的线用条件"</strong> —— 这样条件写得少、重叠机会就少。
+</div>
+
+<p><strong>要点与实测证据</strong>：<code>py_compile</code> 通过；
+<strong>题面样例 n=4 → 35</strong> 逐字节一致；
+边界全对：<code>n=2</code>（<strong>只剩 (0,0)</strong>）→ <code>1</code>、
+<code>n=3</code> 手算 <code>1+2+4</code> → <code>7</code>、
+<code>n=10</code> 全 1 → <code>73</code>（100 格 − 排除 27）、
+<code>n=10</code> 全 0 → <code>0</code>；
+<strong>全域随机对拍 <code>n=2..10</code> 各 100 个矩阵共 900 组，与独立口径 0 组不一致</strong>；
+扩展性抽查 <code>n=50</code> 也一致；含进程启动约 <strong>25 ms</strong>（限制 400 ms）。</p>
 
 <h2 id="quick">七、速查总表</h2>
 
