@@ -8745,6 +8745,50 @@ N 取 1 / 2 / 3 / 4 / 5 / 6 / 7 / 10 / 11 / 20 / 100 / 1000 逐个核对无误�
 换算里的那个"偏移量"就是从这个位置来的。
 </div>
 
+<div class="box ok">
+<strong>完整可运行的代码（5 行，直接能交）</strong>
+<pre><code>n = int(input())              # 猴子数量 N
+ans = 0                       # f(1) = 0：只剩 1 只时，猴王在【下标】0
+for i in range(2, n + 1):     # 规模从 2 推到 n
+    ans = (ans + 3) % i       # f(i) = (f(i-1) + k) % i，本题 k = 3
+print(ans + 1)                # 下标（从 0 数）→ 编号（从 1 数）</code></pre>
+实测：题面样例 <code>N=11</code> → <code>7</code>；<strong>全域 <code>N=1..1000</code>
+与列表模拟互证 0 个不一致</strong>；边界 <code>N=1</code>→<code>1</code>、
+<code>N=2</code>→<code>2</code>、<code>N=5</code>→<code>4</code> 全对。<br>
+<code>N=1000</code> 只需 <strong>0.047 ms</strong>（列表模拟是 0.203 ms）。
+</div>
+
+<div class="box bad">
+<strong>⚠️ 这段代码有三个容易写错的地方</strong>
+<table>
+<tr><th>坑</th><th>错法</th><th>后果</th></tr>
+<tr><td>① <code>ans</code> 是<strong>下标</strong>不是编号</td>
+<td>写成 <code>ans = 1</code>（当成编号）</td><td>结果整体<strong>错一位</strong>；必须最后 <code>+1</code></td></tr>
+<tr><td>② 循环从 <code>2</code> 开始</td>
+<td>写 <code>range(1, n+1)</code></td>
+<td><code>f(1) = 0</code> 是已知起点，多算一次会把初值冲掉</td></tr>
+<tr><td>③ <code>+3</code> 是本题的 <code>k</code></td>
+<td>题目改成"报到 5 出局"还写 <code>+3</code></td>
+<td>把 <code>+3</code> 换成 <code>+k</code>（<code>ans = (ans + k) % i</code>）即可通用</td></tr>
+</table>
+</div>
+
+<div class="box ok">
+<strong>两种写法怎么选（都留着最好）</strong>
+<table>
+<tr><th></th><th>列表模拟（<code>pop</code> + 取模）</th><th>数学递推</th></tr>
+<tr><td>行数</td><td>7 行</td><td><strong>5 行</strong></td></tr>
+<tr><td>思路</td><td>模拟整个圈，直观</td><td>数学递推，需要理解推导</td></tr>
+<tr><td>复杂度</td><td>O(n²)</td><td><strong>O(n)</strong></td></tr>
+<tr><td>N=1000 耗时</td><td>0.203 ms</td><td><strong>0.047 ms</strong></td></tr>
+<tr><td>N=10⁶ 耗时</td><td>非常慢</td><td><strong>45.4 ms</strong></td></tr>
+<tr><td>适合</td><td><strong>题目变种多、要改规则时</strong></td>
+<td><strong>面试 / 竞赛的标准答案</strong></td></tr>
+</table>
+<strong>建议两个都留</strong>：交一份、另一份放复习文件里 ——
+"O(n) 的思维"比这段代码本身更值钱。
+</div>
+
 <h2 id="quick">七、速查总表</h2>
 
 <p><strong>为什么单独开一章：</strong>前面是按「遇到的顺序」记的，翻起来像流水账。
