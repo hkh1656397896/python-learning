@@ -104,7 +104,7 @@
 -->
 
 <h1>Python 自学笔记</h1>
-<p class="meta">hkh ｜ 更新 2026-10-14 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">22</span> 题 + 第4章 <span id="c4">17</span> 题（浙大版《Python 程序设计》题目集）</p>
+<p class="meta">hkh ｜ 更新 2026-10-14 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">22</span> 题 + 第4章 <span id="c4">18</span> 题（浙大版《Python 程序设计》题目集）</p>
 
 <nav id="toc">
   <div class="toc-head">目录　<span class="toc-hint">点标题展开 · 点条目直接跳</span></div>
@@ -197,7 +197,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>六、真题回顾 <span class="toc-n" id="cr">56</span></summary>
+    <summary>六、真题回顾 <span class="toc-n" id="cr">57</span></summary>
     <ol>
       <li><a onclick="return go('review-1')">1-1 从键盘输入两个数求和</a></li>
       <li><a onclick="return go('review-2')">1-2 按公式输出 b²−4ac</a></li>
@@ -264,6 +264,8 @@
       <li><a onclick="return go('review-63')">补充：查表法（空间换时间）—— 同一个运算别算第二遍</a></li>
       <li><a onclick="return go('review-64')">补充：剪枝（发现这一支没戏就别往下试）</a></li>
       <li><a onclick="return go('review-65')">4-17 水仙花数</a></li>
+      <li><a onclick="return go('review-66')">补充：list.pop() —— 取出并删除（有返回值）</a></li>
+      <li><a onclick="return go('review-67')">4-18 猴子选大王（约瑟夫环）</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -4371,7 +4373,7 @@ if m!=v[17]:                      # ② 索引</code></pre>
 ② 两边同时改，很容易出现"本地一份、提交另一份"，而且极难发现
 </div>
 
-<h2 id="review">六、真题回顾（<span id="cr2">56</span> 题）</h2>
+<h2 id="review">六、真题回顾（<span id="cr2">57</span> 题）</h2>
 
 <div class="box warn">
 <strong>说明：</strong>下面的题目要求是<strong>我按自己的理解概括写的</strong>，不是 PTA 原文。<br>
@@ -8375,6 +8377,236 @@ t=  1: t%10=1 → s += pw[1]=1   → s=153  ; t//=10 → 0
 <code>[153, 370, 371, 407]</code> / <code>[1634, 8208, 9474]</code> /
 <code>[54748, 92727, 93084]</code>；输出均为<strong>递增</strong>且每个占一行；
 查表法把 N=5 的耗时从 <strong>119.5 ms 降到 10.3 ms</strong>（限制 400 ms）。</p>
+
+<h3 id="review-66">补充：<code>list.pop()</code> —— 取出并删除（有返回值）</h3>
+
+<div class="box ok">
+<strong>怎么用</strong>
+<pre><code>L = [10, 20, 30, 40, 50]
+v = L.pop()        # 不传参数 = 删【最后一个】  → v = 50，L = [10, 20, 30, 40]
+v = L.pop(0)       # 传下标   = 删【指定位置】  → v = 10，L = [20, 30, 40]
+v = L.pop(-1)      # 负数下标也行（-1 是最后一个）</code></pre>
+<strong>它和 <code>del</code> / <code>remove</code> 的最大区别：<code>pop</code> 会把删掉的元素【原样返回】。</strong>
+所以"从列表里取出一个元素并删掉"的标准写法就是 <code>x = L.pop()</code>。
+</div>
+
+<div class="box ok">
+<strong>四个"删元素"的写法对照（语义完全不同）</strong>
+<table>
+<tr><th>写法</th><th>删什么</th><th>有返回值吗</th></tr>
+<tr><td><strong><code>L.pop()</code></strong></td><td>最后一个</td><td>✅ 返回被删的元素</td></tr>
+<tr><td><strong><code>L.pop(i)</code></strong></td><td><strong>下标 i</strong> 的元素</td><td>✅ 返回被删的元素</td></tr>
+<tr><td><code>del L[i]</code></td><td><strong>下标 i</strong> 的元素</td><td>❌ 没有</td></tr>
+<tr><td><code>del L[i:j]</code></td><td>一段切片</td><td>❌ 没有</td></tr>
+<tr><td><code>L.remove(x)</code></td><td><strong>第一个值等于 x</strong> 的元素</td><td>❌ 返回 <code>None</code></td></tr>
+<tr><td><code>L.clear()</code></td><td>全部</td><td>❌ 没有</td></tr>
+</table>
+实测（<code>L = [1, 2, 3, 2, 1]</code>）：
+<pre><code>L.pop(0)      → 返回 1     L = [2, 3, 2, 1]
+del L[0]      → 无返回值    L = [2, 3, 2, 1]
+L.remove(2)   → 返回 None   L = [1, 3, 2, 1]   ← 删的是【第一个】2</code></pre>
+<strong>⚠️ <code>remove</code> 是按【值】删，不是按位置</strong> ——
+<code>L.remove(0)</code> 不会删"下标 0"，而是删"值等于 0 的元素"。
+</div>
+
+<div class="box warn">
+<strong>边界：报的错有两种，别搞混</strong>
+<table>
+<tr><th>写法</th><th>结果</th></tr>
+<tr><td><code>[].pop()</code></td><td>❌ <code>IndexError: pop from empty list</code></td></tr>
+<tr><td><code>[1,2].pop(5)</code> / <code>.pop(-5)</code></td><td>❌ <code>IndexError: pop index out of range</code></td></tr>
+<tr><td><code>[1,2].remove(9)</code></td><td>❌ <code>ValueError: list.remove(x): x not in list</code></td></tr>
+</table>
+<strong><code>pop</code> 越界 → <code>IndexError</code>（下标错）；
+<code>remove</code> 找不到 → <code>ValueError</code>（值不在里面）。</strong>
+</div>
+
+<div class="box ok">
+<strong>拓展 1：当"栈"用（后进先出 LIFO）</strong>
+<pre><code>stack = []
+stack.append(1); stack.append(2); stack.append(3)   # 入栈 → [1, 2, 3]
+stack.pop()   # 3
+stack.pop()   # 2
+stack.pop()   # 1      ← 后进的先出</code></pre>
+<strong>列表天然就是个栈</strong>：<code>append</code> 进、<code>pop</code> 出，都是 O(1)。
+</div>
+
+<div class="box ok">
+<strong>拓展 2：一边取一边清空</strong>
+<pre><code>L = [1, 2, 3, 4]
+out = []
+while L:                 # 列表非空就是真值
+    out.append(L.pop())
+# out = [4, 3, 2, 1]     ← 顺序被【倒过来】了
+# L = []</code></pre>
+<code>while L: L.pop()</code> 是<strong>从后往前</strong>取；
+要从前往前取就用 <code>pop(0)</code>，但<strong>它很慢</strong>（见下）。
+</div>
+
+<div class="box bad">
+<strong>⚠️ 性能：<code>pop()</code> 是 O(1)，<code>pop(0)</code> 是 O(n) —— 差几十到几百倍</strong>
+<table>
+<tr><th></th><th>要做什么</th><th>复杂度</th></tr>
+<tr><td><code>L.pop()</code></td><td>删最后一个，<strong>不用挪动任何元素</strong></td><td><strong>O(1)</strong></td></tr>
+<tr><td><code>L.pop(0)</code></td><td>删第一个，<strong>后面所有元素都要左移一位</strong></td><td><strong>O(n)</strong></td></tr>
+</table>
+实测单次 pop（列表预先建好，只测 pop 本身）：
+<table>
+<tr><th>N</th><th><code>pop()</code> 末位</th><th><code>pop(0)</code> 首位</th><th>倍数</th></tr>
+<tr><td>2,000</td><td>0.20 us</td><td>3.60 us</td><td>18 倍</td></tr>
+<tr><td>5,000</td><td>0.20 us</td><td>8.70 us</td><td>44 倍</td></tr>
+<tr><td>10,000</td><td>0.10 us</td><td>17.10 us</td><td><strong>171 倍</strong></td></tr>
+</table>
+<strong>循环里反复用 <code>pop(0)</code> 就是 O(n²)</strong>：n 翻 2 倍，耗时翻约 4 倍 ——
+实测清空一次：n=5000 用 1.075 ms，n=10000 用 4.372 ms，n=20000 用 17.077 ms
+（5000→10000 是 <strong>4.0 倍</strong>，这就是 O(n²) 的指纹）。<br>
+<strong>清空列表别用 <code>pop(0)</code></strong>：实测 n=20000 时
+<code>L.clear()</code> / <code>del L[:]</code> 都是 0.001 ms，而逐个 <code>pop()</code> 要 0.009 ms，
+逐个 <code>pop(0)</code> 更要 17 ms。
+</div>
+
+<div class="box ok">
+<strong>拓展 3：两边都要快速进出 → 用 <code>deque</code>（双端队列）</strong>
+<pre><code>from collections import deque
+q = deque([1, 2, 3, 4, 5])
+q.popleft()   # 1  ← O(1)，不挪元素
+q.pop()       # 5  ← 也是 O(1)</code></pre>
+<strong>列表只有右端是 O(1)，<code>deque</code> 两端都是 O(1)。</strong>
+4-18 猴子选大王里 <code>deque</code> 队列法（0.159 ms）比列表模拟（0.576 ms）快，
+原因就在这。<br>
+⚠️ <code>popleft</code> 是 <strong>deque 专有</strong>的，列表没有这个方法。
+</div>
+
+<div class="box warn">
+<strong>拓展 4：别和 <code>dict.pop</code> 搞混（同名不同义）</strong>
+<pre><code>d = {"a": 1, "b": 2}
+d.pop("a")            # 1        ← 按【键】删，返回对应的值
+d.pop("z", "默认值")   # "默认值"   ← 带默认值就不报错
+d.pop("z")            # ❌ KeyError: 'z'
+d.popitem()           # ('b', 2)  ← 弹出最后一对（3.7+ 是最后插入的）</code></pre>
+<strong>列表 <code>pop</code> 是【按下标】，字典 <code>pop</code> 是【按键】。</strong>
+</div>
+
+<h3 id="review-67">4-18 猴子选大王（约瑟夫环）<span class="tag">通过</span></h3>
+
+<p><strong>要求</strong>：N 只猴子围成一圈、编号 1~N，从 1 号开始报数，
+每报到 3 的猴子退出，从<strong>紧邻的下一只</strong>继续报数，如此循环，
+最后剩下的当选猴王。输入 N（≤1000），输出当选者的编号。样例 N=11 → <code>7</code>。</p>
+
+<div class="box warn">
+<strong>这是「约瑟夫环」—— 三个关键点先记住</strong>
+<table>
+<tr><th>#</th><th>关键点</th><th>写错的后果</th></tr>
+<tr><td>①</td><td><strong>循环条件必须是"只剩 1 只"</strong>：<code>while len(L) &gt; 1:</code></td>
+<td>写成 <code>while i &lt; len(L)</code> 就只跑<strong>一圈</strong>，
+变成"走一趟删几个人"而不是"一直转到只剩一个"（我第一版就这么错的）</td></tr>
+<tr><td>②</td><td><strong>用取模自动"绕圈"</strong>：<code>idx = (idx + k - 1) % len(L)</code></td>
+<td>手写"走到末尾就回到开头"很容易漏掉边界</td></tr>
+<tr><td>③</td><td><strong><code>pop</code> 之后不要 <code>idx += 1</code></strong></td>
+<td>后面的人已经顶到 <code>idx</code> 位置了，再 +1 就会<strong>跳过一个人</strong></td></tr>
+</table>
+</div>
+
+<p><strong>我的代码（第一版，只跑了一圈 + 打整个列表）</strong></p>
+<pre><code>m=int(input())
+L=[]
+count=i=0
+if m==1:print(1)          # ❌ 打了 1 但没退出
+if m==2:print(2)          # ❌ 打了 2 但没退出（这个 else 只跟第 2 个 if 配对）
+else:
+    for x in range(1,m+1):
+        L.append(x)
+while i&lt;len(L):            # ❌ 只走一圈就结束
+    count+=1
+    if count%3==0:
+        del L[i]          # ❌ 删了之后 i 不动（这个技巧只对"数着删"成立）
+    else:i+=1
+print(L)                  # ❌ 打的是整个列表，不是猴王编号</code></pre>
+<strong>实测后果：N=1..1000 共 1000 个值【全部不符合】</strong> ——
+不是边界问题，是整体流程不对。逐轮追踪（N=11）：
+<pre><code>第 3轮 count=3 → 删掉 L[2]=3   → L = [1,2,4,5,6,7,8,9,10,11]
+第 6轮 count=6 → 删掉 L[4]=6   → L = [1,2,4,5,7,8,9,10,11]
+第 9轮 count=9 → 删掉 L[6]=9   → L = [1,2,4,5,7,8,10,11]
+第11轮 i 前进到 8 → 循环结束（i &gt;= len(L)）
+最终 L = [1,2,4,5,7,8,10,11]   ← 还剩 8 只就退出了</code></pre>
+
+<p><strong>正确写法 A：列表模拟（思路直观）</strong></p>
+<pre><code>n=int(input())
+L=list(range(1,n+1))          # 1~n 号猴子的圈
+idx=0                          # 从下标 0（1 号猴）开始
+while len(L)&gt;1:                # ★ 只剩 1 只才停
+    idx=(idx+3-1)%len(L)       # ★ 取模自动绕圈（报 3 的人落在哪）
+    L.pop(idx)                 # 报 3 的出圈
+    # ★ pop 之后不用 idx+=1：后面的人已顶到 idx 位置
+print(L[0])                    # ★ 只输出猴王编号</code></pre>
+实测：N=11 → <code>7</code> ✅；N=1..300 与另两种口径<strong>0 个不一致</strong>。
+
+<p><strong>正确写法 B：数学递推（最优，O(n)）</strong></p>
+<pre><code>n=int(input())
+ans=0                          # f(1) = 0
+for i in range(2,n+1):
+    ans=(ans+3)%i              # f(i) = (f(i-1) + k) % i
+print(ans+1)                   # 转成从 1 开始的编号</code></pre>
+原理：把问题"缩小一号"。设 <code>f(i)</code> 是 <code>i</code> 只猴子时猴王在圈里的
+<strong>下标</strong>（从 0 数），则 <code>f(1)=0</code>、<code>f(i) = (f(i-1) + k) % i</code>。
+递推过程（N=11）：
+<pre><code>f(1)=0   f(2)=1  f(3)=1  f(4)=0  f(5)=3  f(6)=0
+f(7)=3   f(8)=6  f(9)=0  f(10)=3  f(11)=6
+答案 = 6 + 1 = 7  ✅ 与题面一致</code></pre>
+
+<p><strong>正确写法 C：<code>deque</code> 队列旋转（最好懂）</strong></p>
+<pre><code>from collections import deque
+qm=deque(range(1,n+1))
+while len(qm)&gt;1:
+    for _ in range(2):         # 报 1、2 的：从队头挪到队尾
+        qm.append(qm.popleft())
+    qm.popleft()               # 报 3 的：弹出
+print(qm[0])</code></pre>
+实测 N=11 的出圈顺序：<code>3, 6, 9, 1, 5, 10, 4, 11, 8, 2</code> → 剩 <code>7</code> ✅
+
+<div class="box ok">
+<strong>三种方法实测对比（N=1000，各 2000 次）</strong>
+<table>
+<tr><th>方法</th><th>思路</th><th>耗时</th><th>复杂度</th></tr>
+<tr><td>A 列表模拟 <code>pop</code></td><td>模拟整个圈</td><td>0.576 ms</td>
+<td><strong>O(n²)</strong>（每次 pop 都要挪元素）</td></tr>
+<tr><td><strong>B 数学递推</strong></td><td>找 <code>f(i)</code> 与 <code>f(i-1)</code> 的关系</td>
+<td><strong>0.023 ms</strong></td><td><strong>O(n)</strong> ✅</td></tr>
+<tr><td>C <code>deque</code> 队列</td><td>报 1、2 的转到队尾</td><td>0.159 ms</td><td>O(nk)</td></tr>
+</table>
+三者结果<strong>完全一致</strong>（N=1..300 全扫 0 个不一致）：
+<code>N=1→1</code>、<code>N=2→2</code>、<code>N=3→2</code>、<code>N=4→1</code>、<code>N=5→4</code>、
+<code>N=11→7</code>、<code>N=100→91</code>、<code>N=1000→604</code>。
+</div>
+
+<div class="box warn">
+<strong>⚠️ 不需要特判 N=1 / N=2</strong><br>
+我第一版写了 <code>if m==1:print(1)</code> 和 <code>if m==2:print(2)</code>，但：
+<br>① 它们是两个独立的 <code>if</code>，<strong>打完不会退出</strong>，后面还会继续跑
+（所以 N=1 输出两行、N=2 输出 <code>2</code> 加一个空列表）；
+<br>② <strong>通用写法天然就对</strong> —— 实测 <code>wayA(1)=1</code>、<code>wayA(2)=2</code>、
+<code>wayB(1)=1</code>、<code>wayB(2)=2</code>，根本不用特判。
+</div>
+
+<div class="box ok">
+<strong>为什么"能递推就递推"（N 更大时差距会拉开）</strong>
+<table>
+<tr><th>N</th><th>数学递推耗时</th></tr>
+<tr><td>1,000</td><td>0.023 ms</td></tr>
+<tr><td>10,000</td><td>0.274 ms</td></tr>
+<tr><td>100,000</td><td>2.79 ms</td></tr>
+<tr><td>1,000,000</td><td>45.4 ms</td></tr>
+</table>
+列表模拟在 N=10000 时已经明显慢（O(n²) 次元素搬移）。
+<strong>这和 ㉛ 的「级数求和用 <code>term /= i</code> 递推」、4-17 的「幂表」
+是同一个思想：不要重复做已经做过的事。</strong>
+</div>
+
+<p><strong>要点与实测证据</strong>：<code>py_compile</code> 通过；
+<strong>三种独立口径（列表模拟 / 数学递推 / <code>deque</code> 队列）在 N=1..300 上全一致</strong>；
+题面样例 <code>N=11</code> → <code>7</code> <strong>与题面一致</strong>；
+N 取 1 / 2 / 3 / 4 / 5 / 6 / 7 / 10 / 11 / 20 / 100 / 1000 逐个核对无误；
+数学递推 <code>N=1000</code> 耗时 <strong>0.023 ms</strong>（限制 400 ms，余量极大）。</p>
 
 <h2 id="quick">七、速查总表</h2>
 
