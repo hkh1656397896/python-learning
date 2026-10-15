@@ -104,12 +104,12 @@
 -->
 
 <h1>Python 自学笔记</h1>
-<p class="meta">hkh ｜ 更新 2026-10-14 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">22</span> 题 + 第4章 <span id="c4">20</span> 题（浙大版《Python 程序设计》题目集）</p>
+<p class="meta">hkh ｜ 更新 2026-10-15 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">22</span> 题 + 第4章 <span id="c4">21</span> 题（浙大版《Python 程序设计》题目集）</p>
 
 <nav id="toc">
   <div class="toc-head">目录　<span class="toc-hint">点标题展开 · 点条目直接跳</span></div>
   <details class="toc-g">
-    <summary>一、易错点 <span class="toc-n" id="ce">17</span></summary>
+    <summary>一、易错点 <span class="toc-n" id="ce">18</span></summary>
     <ol>
       <li><a onclick="return go('e1-1')">❌ 1. 输入分隔符猜错</a></li>
       <li><a onclick="return go('e1-2')">❌ 2. int 和 float 用错</a></li>
@@ -128,6 +128,7 @@
       <li><a onclick="return go('e1-16')">❌ 15. 缩进 = 从属关系（同一个病，四次翻车）</a></li>
       <li><a onclick="return go('e1-17')">❌ 16. 读输入只读了"一行"，却以为拿到了全部（同一个病三种形态）</a></li>
       <li><a onclick="return go('e1-18')">❌ 17. 手算循环上界：算错了不报错，只会「悄悄少打印几种」</a></li>
+      <li><a onclick="return go('e1-19')">❌ 18. 「加起来等于 0」不等于「全是 0」 —— 正负会互相抵消</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -197,7 +198,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>六、真题回顾 <span class="toc-n" id="cr">59</span></summary>
+    <summary>六、真题回顾 <span class="toc-n" id="cr">60</span></summary>
     <ol>
       <li><a onclick="return go('review-1')">1-1 从键盘输入两个数求和</a></li>
       <li><a onclick="return go('review-2')">1-2 按公式输出 b²−4ac</a></li>
@@ -270,6 +271,7 @@
       <li><a onclick="return go('review-69')">补充：二维列表（矩阵）—— 下标怎么走 + 两条对角线公式</a></li>
       <li><a onclick="return go('review-70')">4-19 矩阵运算</a></li>
       <li><a onclick="return go('review-71')">4-20 求矩阵各行元素之和</a></li>
+      <li><a onclick="return go('review-72')">4-21 判断上三角矩阵</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -859,6 +861,46 @@ N=4 漏 <code>9474</code>、N=5 漏 <code>92727</code> 和 <code>93084</code>。
 ③ ⚠️ <strong>样例过了不代表全对</strong>：本例样例（<code>m=13</code>）和 <code>m ≤ 31</code> 全对，
 <strong>只有全域扫描才暴露</strong> —— 所以"扫描整个输入域"是这类题的必备验收动作。
 </div>
+
+<h3 id="e1-19">❌ 18. 「加起来等于 0」不等于「全是 0」 —— 正负会互相抵消 <span class="tag">第4章-21</span></h3>
+<p>判断"某一片区域是不是全为 0"时，很容易想成<strong>把这片区域加起来，和为 0 就是全 0</strong>。
+<strong>只要输入里可能出现负数，这个判据就直接失效</strong>：<code>1 + (-1) = 0</code>，
+和确实是 0，但这两个元素没有一个是 0。</p>
+<table>
+<tr><th>写法</th><th>实际含义</th><th>有负数时</th></tr>
+<tr><td><code>sum(下三角) == 0</code></td><td>下三角<strong>元素之和</strong>为 0</td>
+<td>❌ 会误判（正负抵消）</td></tr>
+<tr><td><code>any(元素非 0)</code> / <code>all(元素 == 0)</code></td>
+<td>下三角<strong>每个元素</strong>都为 0</td><td>✅ 正确</td></tr>
+</table>
+
+<div class="box bad">
+<strong>反例（4-21 判断上三角矩阵，实测）</strong>
+<pre><code>1  2  3
+1  4  5      下三角 = 1 + 0 + (-1) = 0
+0 -1  6      但 (1,0) = 1 不是 0 → 正确答案 NO</code></pre>
+<strong><code>sum(下三角) == 0</code> 在这一组给出 <code>YES</code>（错）</strong>。<br>
+分歧率实测（3000 个随机矩阵，<code>n=1..10</code>）：
+数据取 <code>{0,0,1,-1,2,-2}</code> → <strong>204/3000 = 6.8%</strong>；
+取 <code>[-5,5]</code> 连续整数 → <strong>75/3000 = 2.5%</strong>。<br>
+<strong>而题面样例全是非负数，永远碰不到这个 bug</strong> ——
+它属于"样例过了、提交也可能过、但逻辑是错的"那一类。
+</div>
+
+<div class="box ok">
+<strong>通用规则：「全都满足」用 <code>all</code>，「存在一个满足」用 <code>any</code>，不要拿求和代替。</strong><br>
+求和只能说明"平均下来互相抵消了"，永远证明不了"每个都是 0"。<br>
+顺带两个好处：<code>all</code> / <code>any</code> 都<strong>短路</strong>
+（<code>all</code> 碰到第一个假、<code>any</code> 碰到第一个真就立刻返回），
+所以<strong>连收集用的列表都不用建</strong>，写成生成器表达式就行：
+<pre><code>all(M[i][j] == 0 for i in range(n) for j in range(i))    # 下三角全是 0？
+any(M[i][j] != 0 for i in range(n) for j in range(i))    # 下三角有非 0？</code></pre>
+</div>
+
+<p>相关小节：<strong>⑯</strong> 两个实用套路（检查「全是数字」+ 循环外判断「全部合格」，
+里面讲过 <code>all</code> / <code>any</code> 的短路）、<strong>㉞</strong> <code>sum()</code> 能吃哪些容器；
+<strong>❌ 6</strong> 是同一题的另一个坑（累加器被清零 → 跨用例累加）；
+速查总表 ① 里 <code>all()</code>/<code>any()</code> 那一行也补了这条。</p>
 
 <h2 id="s1">二、常用代码与拓展（每条都带输出）</h2>
 
@@ -4377,7 +4419,7 @@ if m!=v[17]:                      # ② 索引</code></pre>
 ② 两边同时改，很容易出现"本地一份、提交另一份"，而且极难发现
 </div>
 
-<h2 id="review">六、真题回顾（<span id="cr2">59</span> 题）</h2>
+<h2 id="review">六、真题回顾（<span id="cr2">60</span> 题）</h2>
 
 <div class="box warn">
 <strong>说明：</strong>下面的题目要求是<strong>我按自己的理解概括写的</strong>，不是 PTA 原文。<br>
@@ -9090,6 +9132,141 @@ print("\n".join(str(sum(row)) for row in a))</code></pre>
 <strong><code>m,n ∈ [1,6]</code> 全组合 × 10 个随机矩阵 = 360 组，与独立口径 0 组不一致</strong>；
 含进程启动 <strong>26 ms</strong>（限制 400 ms）。</p>
 
+<h3 id="review-72">4-21 判断上三角矩阵 <span class="tag">通过</span></h3>
+
+<p><strong>要求</strong>：第一行给出正整数 <code>T</code>（待测矩阵的个数）。
+接下来 <code>T</code> 个矩阵，每个矩阵第一行给出 <code>n</code>（<code>1 ≤ n ≤ 10</code>），
+随后 <code>n</code> 行、每行 <code>n</code> 个整数。
+<strong>上三角矩阵 ＝ 主对角线以下的元素全为 0</strong>；是则输出 <code>YES</code>，
+否则 <code>NO</code>，<strong>每个矩阵输出一行</strong>。
+样例 <code>T=3</code> → <code>YES</code> / <code>NO</code> / <code>NO</code>。</p>
+
+<p><strong>我的代码（第 1 版，一次提交 3 个 bug）</strong></p>
+<pre><code>T=int(input()); s=0
+for _ in range(T):
+    n=int(input()); L=[list(map(int,input().split())) for _ in range(n)]
+    for i in range(n):
+        for j in range(n):
+            if j>=i:continue
+            else:s+=L[i][j]
+    print(s)
+    if s==0: print("YES")
+    else:print("NO")</code></pre>
+
+<div class="box bad">
+<strong>bug 1（最致命）：<code>s=0</code> 写在了 <code>for _ in range(T)</code> 外面</strong><br>
+<code>s</code> 的语义是"<strong>这一个矩阵</strong>的下三角和"，
+写在循环外就变成<strong>跨矩阵累加</strong> —— 第二个矩阵的判断会带上第一个矩阵的下三角和。<br>
+<strong>反例（实测）</strong>：<code>[[1,0],[-5,2]]</code> 后面跟 <code>[[1,2,3],[0,4,5],[0,0,6]]</code>。
+第一个是 <code>NO</code>（<code>-5</code>）、第二个本该 <code>YES</code>，
+但 <code>s</code> 累加成 <code>-5 + 0 = -5</code>，两行都打成 <code>NO</code> → <code>NO,NO</code>（错）。<br>
+<strong>样例碰不到</strong>：样例里唯一的 <code>YES</code> 是<strong>第一个</strong>矩阵，
+后面两个本来就是 <code>NO</code>，"错成 <code>NO</code>"和正确答案长得一模一样。<br>
+→ 凡是"<strong>每个用例独立算一次</strong>"的累加器，<strong>声明必须搬进循环里</strong>
+（❌ 6 的第二个症状就是这个病）。改法：<code>s=[]</code> 放进 <code>for _ in range(T)</code> 内部。
+</div>
+
+<div class="box bad">
+<strong>bug 2：多留了一句 <code>print(s)</code></strong><br>
+题面只要求输出 <code>T</code> 行 <code>YES</code>/<code>NO</code>；
+中间的 <code>print(s)</code> 把输出变成 <strong>2T 行</strong>（样例：6 行而不是 3 行）→ 直接判错。<br>
+这是<strong>调试打印忘了删</strong>。自检动作：提交前数一遍
+"题面要求几行输出"和"代码里有几个 <code>print</code> 会跑到"。
+</div>
+
+<div class="box bad">
+<strong>bug 3（最隐蔽）：拿"下三角元素之和为 0"当判据</strong><br>
+需求是"下三角<strong>每个元素</strong>都是 0"，而 <code>sum(...) == 0</code> 只说明"加起来是 0" ——
+<strong>负数会抵消</strong>。<br>
+反例：<code>[[1,2,3],[1,4,5],[0,-1,6]]</code> 的下三角是 <code>1 + 0 + (-1) = 0</code>，
+可 <code>(1,0)=1</code> 根本不是 0 → 正确 <code>NO</code>，这一版给 <code>YES</code>。<br>
+实测分歧率（3000 个随机矩阵）：<code>{0,0,1,-1,2,-2}</code> → <strong>6.8%</strong>；
+<code>[-5,5]</code> → <strong>2.5%</strong>（详见 ❌ 18）。<br>
+改法：收集成列表后用 <code>any(s)</code> 问"<strong>有没有一个非 0</strong>"。
+</div>
+
+<p><strong>最终代码（第 2 版，全部通过）</strong></p>
+<pre><code>T=int(input())
+for _ in range(T):
+    s=[]                              # ← bug1：搬进循环，每个矩阵重新开始
+    n=int(input())
+    L=[list(map(int,input().split())) for _ in range(n)]
+    for i in range(n):
+        for j in range(n):
+            if j>=i:continue          # 只要下三角：j &lt; i
+            else:s.append(L[i][j])
+    if any(s)==0:                     # ← bug3：改成"有没有非 0"
+        print("YES")                  # ← bug2：多打的 print(s) 已删
+    else:print("NO")</code></pre>
+
+<div class="box warn">
+<strong>★ <code>any(s)==0</code> 为什么是对的？（这行写法容易看晕）</strong><br>
+<code>any(s)</code> 返回的是 <strong><code>True</code> / <code>False</code></strong>，
+再拿它和 <code>0</code> 比较：
+<table>
+<tr><th><code>any(s)</code></th><th>含义</th><th><code>any(s)==0</code></th>
+<th>走哪个分支</th><th>输出</th></tr>
+<tr><td><code>False</code></td><td>下三角全是 0</td>
+<td><code>False==0</code> → <code>True</code></td><td><code>if</code></td><td><code>YES</code> ✅</td></tr>
+<tr><td><code>True</code></td><td>下三角有非 0</td>
+<td><code>True==0</code> → <code>False</code></td><td><code>else</code></td><td><code>NO</code> ✅</td></tr>
+</table>
+根因是 <strong><code>True == 1</code>、<code>False == 0</code></strong>（bool 是 int 的子类，❌ 11 讲过这个亲戚关系），
+所以 <code>any(s)==0</code> 恰好等价于 <code>not any(s)</code>。<br>
+<strong>结果对，但读起来费劲</strong> —— 建议直接写 <code>if not any(s):</code>，
+"一个非 0 都没有"，一眼就懂。
+</div>
+
+<p><strong>优化用法</strong></p>
+
+<div class="box ok">
+<strong>① <code>j</code> 不用从 0 跑满：<code>range(i)</code> 本身就是 <code>j &lt; i</code></strong>
+<pre><code>for i in range(n):
+    for j in range(i):        # 等价于 for j in range(n): if j &gt;= i: continue
+        s.append(L[i][j])</code></pre>
+下三角的 <code>j</code> 范围<strong>本来就是 <code>0 ~ i-1</code></strong>，
+让 <code>range</code> 直接生成它，比"跑满 n 再 <code>continue</code> 跳掉"少一半判断，
+还少一层缩进。<strong>画矩阵时数一遍行列下标，循环边界就自然出来了</strong>（4-19 的副对角线同理）。
+</div>
+
+<div class="box ok">
+<strong>② 判据再短一点：<code>all</code> 直接问"全是 0"</strong>
+<pre><code>if all(L[i][j] == 0 for i in range(n) for j in range(i)):
+    print("YES")
+else:
+    print("NO")</code></pre>
+<strong><code>all</code> 碰到第一个非 0 立刻停</strong>（短路），所以连 <code>s</code> 这个列表都不用建。
+</div>
+
+<div class="box ok">
+<strong>③ 这题其实可以「流式」做 —— 和 4-20 一样不必存整个矩阵</strong><br>
+判断标准还是 4-20 立下的那句：<strong>处理第 <code>i</code> 行需不需要别的行的信息？</strong>
+上三角的定义换个说法就是"<strong>第 i 行的前 i 个元素必须都是 0</strong>" ——
+<strong>只依赖这一行自己</strong>，所以读完一行就能判、判完就丢：
+<pre><code>T=int(input())
+for _ in range(T):
+    n=int(input())
+    ok=True
+    for i in range(n):
+        row=list(map(int,input().split()))
+        if any(row[:i]):     # 第 i 行前 i 个必须全是 0（i=0 时切片为空，any 为 False）
+            ok=False
+    print("YES" if ok else "NO")</code></pre>
+⚠️ <strong>不能提前 <code>break</code></strong>：这一组还剩 <code>n-1-i</code> 行输入没读完，
+跳出去会把剩下的行当成下一组的 <code>n</code>，后面全乱。<br>
+<strong>实测</strong>（T=2000 个 <code>n=10</code> 矩阵，纯计算）：本写法 <strong>14.79 ms</strong>，
+存矩阵版 <strong>20.08 ms</strong>；两者对拍 300 组 × 3 种数据（2711 个矩阵）<strong>0 组不一致</strong>。
+</div>
+
+<p><strong>要点与实测证据</strong>：<code>py_compile</code> 通过；
+<strong>题面样例 <code>YES/NO/NO</code> 逐字节一致</strong>；
+<strong>10 组边界全对</strong>（含原版本的两个反例：<code>NO</code> 在前 <code>YES</code> 在后、
+下三角非 0 但和为 0；以及 <code>n=1</code> 单元素、<code>n=1</code> 元素为 0、全 0 矩阵、
+对角矩阵、上三角、下三角只一个非 0、<code>n=10</code> 两个极端）；
+<strong>全域随机对拍 300 组（共 870 个矩阵，<code>n=1..10</code>、三种数据分布）与独立口径 0 组不一致</strong>；
+流式写法另做 300 组 × 3 种数据（2711 个矩阵）0 组不一致、6 组手算边界全对；
+真实文件跑样例<strong>中位数 24.0 ms</strong>（7 次 23.8~28.2 ms，含进程启动，限制 400 ms）。</p>
+
 <h2 id="quick">七、速查总表</h2>
 
 <p><strong>为什么单独开一章：</strong>前面是按「遇到的顺序」记的，翻起来像流水账。
@@ -9196,7 +9373,8 @@ print("\n".join(str(sum(row)) for row in a))</code></pre>
 
 <tr><td><code>all()</code> / <code>any()</code></td><td>全部成立 / 有一个成立</td>
 <td><code>all([True, True])</code> <code>True</code>｜<code>any([False, True])</code> <code>True</code>｜<code>any([])</code> <code>False</code></td>
-<td>⑯；<code>all(c.isdigit() for c in s[:17])</code></td></tr>
+<td>⑯、❌18；<code>all(c.isdigit() for c in s[:17])</code>；
+<strong>判「一片区域全是 0」只能用 all/any，不能写 <code>sum(...) == 0</code></strong>（负数会抵消）</td></tr>
 </table>
 
 <div class="box warn">
