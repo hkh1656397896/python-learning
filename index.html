@@ -8507,7 +8507,7 @@ d.popitem()           # ('b', 2)  ← 弹出最后一对（3.7+ 是最后插入�
 </table>
 </div>
 
-<p><strong>我的代码（第一版，只跑了一圈 + 打整个列表）</strong></p>
+<p><strong>我的第一版（没通过：只跑了一圈 + 打整个列表）</strong></p>
 <pre><code>m=int(input())
 L=[]
 count=i=0
@@ -8529,6 +8529,17 @@ print(L)                  # ❌ 打的是整个列表，不是猴王编号</code
 第 9轮 count=9 → 删掉 L[6]=9   → L = [1,2,4,5,7,8,10,11]
 第11轮 i 前进到 8 → 循环结束（i &gt;= len(L)）
 最终 L = [1,2,4,5,7,8,10,11]   ← 还剩 8 只就退出了</code></pre>
+
+<p><strong>我的代码（最终版，7 行通过）</strong></p>
+<pre><code>m=int(input())                # 猴子数量 N
+L=list(range(1,m+1))          # 圈里的猴子：1 ~ N
+i=0                           # 从下标 0（1 号猴）开始报数
+while len(L)&gt;1:                # ★ 只剩 1 只才停
+    i=(i+2)%len(L)            # ★ 取模自动绕圈；+2 就是 +(k-1)，k=3
+    L.pop(i)                  # 报 3 的出圈（pop 返回被删的元素，这里不需要）
+print(L[0])                   # ★ 只输出猴王编号</code></pre>
+<strong>三个 ★ 就是全部关键</strong>：终止条件是"只剩 1 只"、取模自动绕圈、
+<code>pop</code> 之后不再 <code>i += 1</code>。
 
 <p><strong>正确写法 A：列表模拟（思路直观）</strong></p>
 <pre><code>n=int(input())
