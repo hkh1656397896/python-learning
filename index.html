@@ -132,7 +132,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>二、常用代码与拓展 <span class="toc-n" id="cs">37</span></summary>
+    <summary>二、常用代码与拓展 <span class="toc-n" id="cs">38</span></summary>
     <ol>
       <li><a onclick="return go('s1-1')">① 读一行数字</a></li>
       <li><a onclick="return go('s1-2')">② range()：生成数字序列</a></li>
@@ -168,9 +168,10 @@
       <li><a onclick="return go('s1-32')">㉜ 最大公约数 / 最小公倍数（辗转相除法）</a></li>
       <li><a onclick="return go('s1-36')">㉝ eval() / exec() / map()：把字符串当代码跑 vs 批量加工</a></li>
       <li><a onclick="return go('s1-37')">㉞ sum() 能吃哪些容器？（附字符串禁令与 math.fsum）</a></li>
-      <li><a onclick="return go('s1-38')">㊱ 列表推导（list comprehension）</a></li>
-      <li><a onclick="return go('s1-39')">㊲ 矩阵：取一行 / 取一列（L[i] 能表示什么）</a></li>
-      <li><a onclick="return go('s1-40')">㊳ 输出的格式控制：end / sep / 行尾空白</a></li>
+      <li><a onclick="return go('s1-38')">㉟ 输入：一行 / 多行 / 整块（含统计换行）</a></li>
+      <li><a onclick="return go('s1-39')">㊱ 列表推导（list comprehension）</a></li>
+      <li><a onclick="return go('s1-40')">㊲ 矩阵：取一行 / 取一列（L[i] 能表示什么）</a></li>
+      <li><a onclick="return go('s1-41')">㊳ 输出的格式控制：end / sep / 行尾空白</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -255,33 +256,32 @@
       <li><a onclick="return go('review-50')">4-11 判断素数</a></li>
       <li><a onclick="return go('review-51')">4-12 求满足条件的斐波那契数</a></li>
       <li><a onclick="return go('review-52')">4-13 求误差小于输入值的e的近似值</a></li>
-      <li><a onclick="return go('review-53')">㉟ 输入：一行 / 多行 / 整块（含统计换行）</a></li>
-      <li><a onclick="return go('review-54')">补充：两个列表拼接（+ / += / extend / append）</a></li>
-      <li><a onclick="return go('review-55')">补充：判素数三件套（4-2 / 4-4 / 4-11 三次收口）</a></li>
-      <li><a onclick="return go('review-56')">补充：哨兵值、break 的归属、负下标自检</a></li>
-      <li><a onclick="return go('review-57')">补充：sys.stdin 的四个读法（read / readline / readlines / read(n)）</a></li>
-      <li><a onclick="return go('review-58')">补充：endswith() / startswith()（怎么用 + 四种拓展）</a></li>
-      <li><a onclick="return go('review-59')">补充：切片 [:-1] 与「去掉末尾换行」的四种写法</a></li>
-      <li><a onclick="return go('review-60')">4-14 统计字符</a></li>
-      <li><a onclick="return go('review-61')">4-15 换硬币</a></li>
-      <li><a onclick="return go('review-62')">4-16 jmu-python-判断是否构成三角形</a></li>
-      <li><a onclick="return go('review-63')">补充：查表法（空间换时间）—— 同一个运算别算第二遍</a></li>
-      <li><a onclick="return go('review-64')">补充：剪枝（发现这一支没戏就别往下试）</a></li>
-      <li><a onclick="return go('review-65')">4-17 水仙花数</a></li>
-      <li><a onclick="return go('review-66')">补充：list.pop() —— 取出并删除（有返回值）</a></li>
-      <li><a onclick="return go('review-67')">4-18 猴子选大王（约瑟夫环）</a></li>
-      <li><a onclick="return go('review-68')">补充：递推公式是怎么"推"出来的（以约瑟夫环为例）</a></li>
-      <li><a onclick="return go('review-69')">补充：二维列表（矩阵）—— 下标怎么走 + 两条对角线公式</a></li>
-      <li><a onclick="return go('review-70')">4-19 矩阵运算</a></li>
-      <li><a onclick="return go('review-71')">4-20 求矩阵各行元素之和</a></li>
-      <li><a onclick="return go('review-72')">4-21 判断上三角矩阵</a></li>
-      <li><a onclick="return go('review-73')">4-22 找鞍点</a></li>
-      <li><a onclick="return go('review-74')">4-23 求矩阵的局部极大值</a></li>
-      <li><a onclick="return go('review-75')">4-24 打印九九口诀表</a></li>
-      <li><a onclick="return go('review-76')">4-25 输出三角形字符阵列</a></li>
-      <li><a onclick="return go('review-77')">4-26 求 1!+3!+5!+……+n!</a></li>
-      <li><a onclick="return go('review-78')">4-27 二维数组中每行最大值和每行和</a></li>
-      <li><a onclick="return go('review-79')">4-28 矩阵转置</a></li>
+      <li><a onclick="return go('review-53')">补充：两个列表拼接（+ / += / extend / append）</a></li>
+      <li><a onclick="return go('review-54')">补充：判素数三件套（4-2 / 4-4 / 4-11 三次收口）</a></li>
+      <li><a onclick="return go('review-55')">补充：哨兵值、break 的归属、负下标自检</a></li>
+      <li><a onclick="return go('review-56')">补充：sys.stdin 的四个读法（read / readline / readlines / read(n)）</a></li>
+      <li><a onclick="return go('review-57')">补充：endswith() / startswith()（怎么用 + 四种拓展）</a></li>
+      <li><a onclick="return go('review-58')">补充：切片 [:-1] 与「去掉末尾换行」的四种写法</a></li>
+      <li><a onclick="return go('review-59')">4-14 统计字符</a></li>
+      <li><a onclick="return go('review-60')">4-15 换硬币</a></li>
+      <li><a onclick="return go('review-61')">4-16 jmu-python-判断是否构成三角形</a></li>
+      <li><a onclick="return go('review-62')">补充：查表法（空间换时间）—— 同一个运算别算第二遍</a></li>
+      <li><a onclick="return go('review-63')">补充：剪枝（发现这一支没戏就别往下试）</a></li>
+      <li><a onclick="return go('review-64')">4-17 水仙花数</a></li>
+      <li><a onclick="return go('review-65')">补充：list.pop() —— 取出并删除（有返回值）</a></li>
+      <li><a onclick="return go('review-66')">4-18 猴子选大王（约瑟夫环）</a></li>
+      <li><a onclick="return go('review-67')">补充：递推公式是怎么"推"出来的（以约瑟夫环为例）</a></li>
+      <li><a onclick="return go('review-68')">补充：二维列表（矩阵）—— 下标怎么走 + 两条对角线公式</a></li>
+      <li><a onclick="return go('review-69')">4-19 矩阵运算</a></li>
+      <li><a onclick="return go('review-70')">4-20 求矩阵各行元素之和</a></li>
+      <li><a onclick="return go('review-71')">4-21 判断上三角矩阵</a></li>
+      <li><a onclick="return go('review-72')">4-22 找鞍点</a></li>
+      <li><a onclick="return go('review-73')">4-23 求矩阵的局部极大值</a></li>
+      <li><a onclick="return go('review-74')">4-24 打印九九口诀表</a></li>
+      <li><a onclick="return go('review-75')">4-25 输出三角形字符阵列</a></li>
+      <li><a onclick="return go('review-76')">4-26 求 1!+3!+5!+……+n!</a></li>
+      <li><a onclick="return go('review-77')">4-27 二维数组中每行最大值和每行和</a></li>
+      <li><a onclick="return go('review-78')">4-28 矩阵转置</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -4085,10 +4085,115 @@ sorted(t)     # [1, 1, 2, 3, 4, 5, 6, 9]   ← 注意：返回【列表】，不
 sum(t)/len(t) # 3.875   ← 求平均</code></pre>
 </div>
 
-<h3 id="s1-38">㊱ 列表推导（list comprehension）</h3>
+<h3 id="s1-38">㉟ 输入：一行 / 多行 / 整块（含统计换行）</h3>
 
-<p class="meta">编号说明：编号是全笔记连续的 —— <strong>㉟</strong> 那节在第六章末尾
-（「输入：一行 / 多行 / 整块」），所以常用代码从 <strong>㊱</strong> 接着往下排。</p>
+<div class="box warn">
+<strong><code>input()</code> 一次只读【一行】，到第一个换行就停</strong><br>
+实测：喂进去 4 行 <code>'10 20 30\napple\nbanana\ncherry\n'</code>
+<table>
+<tr><th>写法</th><th>拿到什么</th></tr>
+<tr><td><code>input()</code></td><td><code>'10 20 30'</code> ← <strong>只有第一行</strong></td></tr>
+<tr><td><strong><code>input().split()</code></strong></td>
+<td><code>['10', '20', '30']</code> ← <strong>只切第一行，不跨行</strong></td></tr>
+<tr><td><code>input()</code> 调两次</td><td><code>'10 20 30'</code>、<code>'apple'</code> ← 每次往后一行</td></tr>
+<tr><td><code>for _ in range(3): input()</code></td>
+<td><code>['10 20 30', 'apple', 'banana']</code> ← 读 3 行</td></tr>
+<tr><td><code>for line in sys.stdin</code></td><td>4 行全拿到（读到 EOF）</td></tr>
+<tr><td><code>sys.stdin.read()</code></td>
+<td><code>'10 20 30\napple\nbanana\ncherry\n'</code> ← <strong>整块</strong></td></tr>
+<tr><td><code>sys.stdin.readlines()</code></td>
+<td><code>['10 20 30\n', 'apple\n', …]</code> ← 4 个元素，<strong>每个都带换行</strong></td></tr>
+</table>
+<strong>最容易误用的一条</strong>：<code>input().split()</code> <strong>不是"读多行"</strong> ——
+它只是把<strong>第一行</strong>按空格切开，后面几行还留在输入流里没被读：
+<pre><code>输入 '1 2 3\n4 5 6\n7 8 9\n'
+  input().split()           # → ['1','2','3']                         只第一行
+  sys.stdin.read().split()  # → ['1',…,'9'] 九个   ← 所有行的所有数字</code></pre>
+</div>
+
+<p><strong>三种"读多行"的正路（都实测过）</strong></p>
+<table>
+<tr><th>场景</th><th>写法</th><th>实测（输入 <code>'3\na\nb\nc\n'</code>）</th></tr>
+<tr><td><strong>知道行数</strong><br><span class="dim">PTA 最常见</span></td>
+<td><code>n = int(input())</code><br><code>rows = [input() for _ in range(n)]</code></td>
+<td><code>['a', 'b', 'c']</code></td></tr>
+<tr><td><strong>不知道行数</strong><br><span class="dim">读到 EOF</span></td>
+<td><code>rows = [l.rstrip("\n") for l in sys.stdin]</code></td>
+<td>3 行输入 → 3 个元素</td></tr>
+<tr><td><strong>要整块文本</strong></td>
+<td><code>s = sys.stdin.read()</code><br><code>rows = s.splitlines()</code></td>
+<td><code>'AAA\nBBB\nCCC\n'</code> → 切出 3 行</td></tr>
+</table>
+
+<div class="box ok">
+<strong>统计换行：三种口径，三个不同的数（必须先想清楚要哪个）</strong><br>
+以 <code>s = 'a\nb\nc'</code>（两个换行、三行）：
+<table>
+<tr><th>写法</th><th>数的是什么</th><th>结果</th></tr>
+<tr><td><code>s.count("\n")</code></td><td><strong>换行「符」个数</strong></td><td><code>2</code></td></tr>
+<tr><td><code>len(s.splitlines())</code></td><td><strong>行数</strong></td><td><code>3</code></td></tr>
+<tr><td><code>len(s.split("\n"))</code></td><td><strong>切出来的段数</strong></td><td><code>3</code></td></tr>
+</table>
+<strong>「N 个换行 = N+1 行」，前提是末尾没有换行。</strong>
+</div>
+
+<div class="box bad">
+<strong>⚠️ 末尾一加换行，三个数就分家（<code>split('\n')</code> 会多一个空串）</strong>
+<pre><code>s2 = 'a\nb\n'          # 末尾也有换行
+  s2.count('\n')          # 2
+  len(s2.splitlines())     # 2   ← 末尾换行【不】额外算一行
+  len(s2.split('\n'))     # 3   ← ❗末尾多一个空串
+  s2.split('\n')          # ['a', 'b', '']</code></pre>
+<strong><code>splitlines()</code> 会把末尾换行吃掉，<code>split('\n')</code> 不会。</strong>
+</div>
+
+<div class="box warn">
+<strong>⚠️ <code>input()</code> 会把行尾换行【剥掉】—— 想数换行就不能用它</strong>
+<table>
+<tr><th>读法</th><th>拿到的东西</th><th>换行在不在</th></tr>
+<tr><td><code>readline()</code></td><td><code>['a\n', 'b\n']</code></td>
+<td>✅ 保留（能 <code>count('\n')</code>）</td></tr>
+<tr><td><strong><code>input()</code></strong></td><td><code>['a', 'b']</code></td>
+<td>❌ <strong>被剥掉</strong>，字符串里永远不会出现 <code>\n</code></td></tr>
+<tr><td><code>sys.stdin.read()</code></td><td><code>'a\nb\n'</code></td>
+<td>✅ 全都在</td></tr>
+</table>
+<code>input()</code> 本质 = <code>readline()</code> 去掉行尾换行。<br>
+<strong>所以"统计换行"必须走 <code>read()</code> 或 <code>readline()</code>。</strong>
+</div>
+
+<div class="box bad">
+<strong>⚠️ 跨平台：<code>\r\n</code>（Windows）与 <code>\n</code>（Linux）不能写死</strong>
+<pre><code>Windows 'a\r\nb\r\n' →  count('\n') = 2   count('\r\n') = 2
+Linux   'a\nb\n'      →  count('\n') = 2   count('\r\n') = 0   ← 一个都数不到！</code></pre>
+<strong><code>splitlines()</code> 是跨平台安全的那个</strong>（三种换行都认）：
+<pre><code>Linux   'a\nb\nc'      → ['a','b','c']
+Windows 'a\r\nb\r\nc'  → ['a','b','c']
+旧 Mac  'a\rb\rc'      → ['a','b','c']</code></pre>
+要数<strong>换行符个数</strong>又想两边通吃，先归一：
+<pre><code>s = s.replace("\r\n", "\n").replace("\r", "\n")   # 三种换行统一成 \n
+n = s.count("\n")</code></pre>
+</div>
+
+<div class="box ok">
+<strong>决策表</strong>
+<table>
+<tr><th>要干什么</th><th>用哪个</th></tr>
+<tr><td>读一行、切开</td><td><code>input().split()</code></td></tr>
+<tr><td>读固定 N 行</td><td><code>for _ in range(n): input()</code></td></tr>
+<tr><td>读所有行（不知道几行）</td><td><code>for line in sys.stdin</code></td></tr>
+<tr><td>读整块文本 / 数换行</td><td><code>sys.stdin.read()</code></td></tr>
+<tr><td>所有数字散在多行里</td><td><code>sys.stdin.read().split()</code></td></tr>
+<tr><td><strong>数行数</strong></td><td><code>len(s.splitlines())</code> ← 最稳</td></tr>
+<tr><td><strong>数换行符</strong></td><td><code>s.count("\n")</code>（先归一 <code>\r\n</code>）</td></tr>
+</table>
+<strong>一句话：<code>input()</code> = 一行；要读多行就循环它，或换成 <code>sys.stdin</code>。</strong>
+</div>
+
+<h3 id="s1-39">㊱ 列表推导（list comprehension）</h3>
+
+<p class="meta">编号说明：圈数字编号<strong>全篇连续</strong> —— 这一节前面是
+<strong>㉟ 输入：一行 / 多行 / 整块（含统计换行）</strong>，再往前是 ①~㉞。</p>
 
 <p><strong>一句话</strong>：<strong>用一个表达式，把一段可迭代对象变成一个新列表</strong>。
 它不提供新能力，只是把「建空列表 → <code>for</code> → <code>append</code>」三步压成一行。</p>
@@ -4222,7 +4327,7 @@ print(z)      # 2   ← for 循环的变量【会】留下来</code></pre>
 <strong>③ 的「外层推导 + 内层 <code>map</code>」混搭</strong>是读矩阵的通用写法（4-19 ~ 4-21 都在用）：
 外层推导决定「读几行」，内层 <code>map</code> 决定「一行怎么切」。
 
-<h3 id="s1-39">㊲ 矩阵：取一行 / 取一列（<code>L[i]</code> 能表示什么）</h3>
+<h3 id="s1-40">㊲ 矩阵：取一行 / 取一列（<code>L[i]</code> 能表示什么）</h3>
 
 <div class="box bad">
 <strong>结论先给：<code>L[i]</code> 只能取「行」，取不了「列」。</strong>
@@ -4318,7 +4423,7 @@ cmin = min(row[j] for row in L)     # 列：生成器表达式</code></pre>
 真题 <strong>4-19</strong>（副对角线）、<strong>4-20</strong>（各行求和）、<strong>4-21</strong>（取下方格子）；
 <strong>❌18</strong>（判「全是 0」要用 <code>all</code> / <code>any</code>）。</p>
 
-<h3 id="s1-40">㊳ 输出的格式控制：<code>end</code> / <code>sep</code> / 行尾空白</h3>
+<h3 id="s1-41">㊳ 输出的格式控制：<code>end</code> / <code>sep</code> / 行尾空白</h3>
 
 <p><strong>一句话：<code>print</code> 每次调用末尾都会自动加一个换行</strong>，
 想"不换行、接着打"就得动 <code>end</code>。这一节把三件事分开讲清楚 ——
@@ -7796,112 +7901,7 @@ print(f"{e:.6f}")</code></pre>
 <code>error</code> 在 <code>(1e-6, 0.01]</code> <strong>抽样 200 组</strong>
 与独立口径（纯函数实现 + <code>math.e</code> 距离核对）<strong>0 组不一致</strong>。</p>
 
-<h3 id="review-53">㉟ 输入：一行 / 多行 / 整块（含统计换行）</h3>
-
-<div class="box warn">
-<strong><code>input()</code> 一次只读【一行】，到第一个换行就停</strong><br>
-实测：喂进去 4 行 <code>'10 20 30\napple\nbanana\ncherry\n'</code>
-<table>
-<tr><th>写法</th><th>拿到什么</th></tr>
-<tr><td><code>input()</code></td><td><code>'10 20 30'</code> ← <strong>只有第一行</strong></td></tr>
-<tr><td><strong><code>input().split()</code></strong></td>
-<td><code>['10', '20', '30']</code> ← <strong>只切第一行，不跨行</strong></td></tr>
-<tr><td><code>input()</code> 调两次</td><td><code>'10 20 30'</code>、<code>'apple'</code> ← 每次往后一行</td></tr>
-<tr><td><code>for _ in range(3): input()</code></td>
-<td><code>['10 20 30', 'apple', 'banana']</code> ← 读 3 行</td></tr>
-<tr><td><code>for line in sys.stdin</code></td><td>4 行全拿到（读到 EOF）</td></tr>
-<tr><td><code>sys.stdin.read()</code></td>
-<td><code>'10 20 30\napple\nbanana\ncherry\n'</code> ← <strong>整块</strong></td></tr>
-<tr><td><code>sys.stdin.readlines()</code></td>
-<td><code>['10 20 30\n', 'apple\n', …]</code> ← 4 个元素，<strong>每个都带换行</strong></td></tr>
-</table>
-<strong>最容易误用的一条</strong>：<code>input().split()</code> <strong>不是"读多行"</strong> ——
-它只是把<strong>第一行</strong>按空格切开，后面几行还留在输入流里没被读：
-<pre><code>输入 '1 2 3\n4 5 6\n7 8 9\n'
-  input().split()           # → ['1','2','3']                         只第一行
-  sys.stdin.read().split()  # → ['1',…,'9'] 九个   ← 所有行的所有数字</code></pre>
-</div>
-
-<p><strong>三种"读多行"的正路（都实测过）</strong></p>
-<table>
-<tr><th>场景</th><th>写法</th><th>实测（输入 <code>'3\na\nb\nc\n'</code>）</th></tr>
-<tr><td><strong>知道行数</strong><br><span class="dim">PTA 最常见</span></td>
-<td><code>n = int(input())</code><br><code>rows = [input() for _ in range(n)]</code></td>
-<td><code>['a', 'b', 'c']</code></td></tr>
-<tr><td><strong>不知道行数</strong><br><span class="dim">读到 EOF</span></td>
-<td><code>rows = [l.rstrip("\n") for l in sys.stdin]</code></td>
-<td>3 行输入 → 3 个元素</td></tr>
-<tr><td><strong>要整块文本</strong></td>
-<td><code>s = sys.stdin.read()</code><br><code>rows = s.splitlines()</code></td>
-<td><code>'AAA\nBBB\nCCC\n'</code> → 切出 3 行</td></tr>
-</table>
-
-<div class="box ok">
-<strong>统计换行：三种口径，三个不同的数（必须先想清楚要哪个）</strong><br>
-以 <code>s = 'a\nb\nc'</code>（两个换行、三行）：
-<table>
-<tr><th>写法</th><th>数的是什么</th><th>结果</th></tr>
-<tr><td><code>s.count("\n")</code></td><td><strong>换行「符」个数</strong></td><td><code>2</code></td></tr>
-<tr><td><code>len(s.splitlines())</code></td><td><strong>行数</strong></td><td><code>3</code></td></tr>
-<tr><td><code>len(s.split("\n"))</code></td><td><strong>切出来的段数</strong></td><td><code>3</code></td></tr>
-</table>
-<strong>「N 个换行 = N+1 行」，前提是末尾没有换行。</strong>
-</div>
-
-<div class="box bad">
-<strong>⚠️ 末尾一加换行，三个数就分家（<code>split('\n')</code> 会多一个空串）</strong>
-<pre><code>s2 = 'a\nb\n'          # 末尾也有换行
-  s2.count('\n')          # 2
-  len(s2.splitlines())     # 2   ← 末尾换行【不】额外算一行
-  len(s2.split('\n'))     # 3   ← ❗末尾多一个空串
-  s2.split('\n')          # ['a', 'b', '']</code></pre>
-<strong><code>splitlines()</code> 会把末尾换行吃掉，<code>split('\n')</code> 不会。</strong>
-</div>
-
-<div class="box warn">
-<strong>⚠️ <code>input()</code> 会把行尾换行【剥掉】—— 想数换行就不能用它</strong>
-<table>
-<tr><th>读法</th><th>拿到的东西</th><th>换行在不在</th></tr>
-<tr><td><code>readline()</code></td><td><code>['a\n', 'b\n']</code></td>
-<td>✅ 保留（能 <code>count('\n')</code>）</td></tr>
-<tr><td><strong><code>input()</code></strong></td><td><code>['a', 'b']</code></td>
-<td>❌ <strong>被剥掉</strong>，字符串里永远不会出现 <code>\n</code></td></tr>
-<tr><td><code>sys.stdin.read()</code></td><td><code>'a\nb\n'</code></td>
-<td>✅ 全都在</td></tr>
-</table>
-<code>input()</code> 本质 = <code>readline()</code> 去掉行尾换行。<br>
-<strong>所以"统计换行"必须走 <code>read()</code> 或 <code>readline()</code>。</strong>
-</div>
-
-<div class="box bad">
-<strong>⚠️ 跨平台：<code>\r\n</code>（Windows）与 <code>\n</code>（Linux）不能写死</strong>
-<pre><code>Windows 'a\r\nb\r\n' →  count('\n') = 2   count('\r\n') = 2
-Linux   'a\nb\n'      →  count('\n') = 2   count('\r\n') = 0   ← 一个都数不到！</code></pre>
-<strong><code>splitlines()</code> 是跨平台安全的那个</strong>（三种换行都认）：
-<pre><code>Linux   'a\nb\nc'      → ['a','b','c']
-Windows 'a\r\nb\r\nc'  → ['a','b','c']
-旧 Mac  'a\rb\rc'      → ['a','b','c']</code></pre>
-要数<strong>换行符个数</strong>又想两边通吃，先归一：
-<pre><code>s = s.replace("\r\n", "\n").replace("\r", "\n")   # 三种换行统一成 \n
-n = s.count("\n")</code></pre>
-</div>
-
-<div class="box ok">
-<strong>决策表</strong>
-<table>
-<tr><th>要干什么</th><th>用哪个</th></tr>
-<tr><td>读一行、切开</td><td><code>input().split()</code></td></tr>
-<tr><td>读固定 N 行</td><td><code>for _ in range(n): input()</code></td></tr>
-<tr><td>读所有行（不知道几行）</td><td><code>for line in sys.stdin</code></td></tr>
-<tr><td>读整块文本 / 数换行</td><td><code>sys.stdin.read()</code></td></tr>
-<tr><td>所有数字散在多行里</td><td><code>sys.stdin.read().split()</code></td></tr>
-<tr><td><strong>数行数</strong></td><td><code>len(s.splitlines())</code> ← 最稳</td></tr>
-<tr><td><strong>数换行符</strong></td><td><code>s.count("\n")</code>（先归一 <code>\r\n</code>）</td></tr>
-</table>
-<strong>一句话：<code>input()</code> = 一行；要读多行就循环它，或换成 <code>sys.stdin</code>。</strong>
-</div>
-
-<h3 id="review-54">补充：两个列表拼接（<code>+</code> / <code>+=</code> / <code>extend</code> / <code>append</code>）</h3>
+<h3 id="review-53">补充：两个列表拼接（<code>+</code> / <code>+=</code> / <code>extend</code> / <code>append</code>）</h3>
 
 <div class="box ok">
 <strong>最直白：<code>a + b</code> 造一个【新】列表，原列表不动</strong>
@@ -7992,7 +7992,7 @@ L = []; L += a; L += b; L += c   # [1, 2, 3]   ← 循环累加
 （各 2 万次、每次拼 100 个元素的实测：原地版明显省下反复复制整表的开销。）
 </div>
 
-<h3 id="review-55">补充：判素数三件套（4-2 / 4-4 / 4-11 三次收口）</h3>
+<h3 id="review-54">补充：判素数三件套（4-2 / 4-4 / 4-11 三次收口）</h3>
 
 <div class="box ok">
 <strong>三件事，少一件就错</strong>
@@ -8053,7 +8053,7 @@ def is_prime(n):
     return True</code></pre>
 </div>
 
-<h3 id="review-56">补充：哨兵值、<code>break</code> 的归属、负下标自检</h3>
+<h3 id="review-55">补充：哨兵值、<code>break</code> 的归属、负下标自检</h3>
 
 <div class="box ok">
 <strong>① 哨兵值（sentinel）：用一个"不可能是正常数据"的值表示"还没找到"</strong>
@@ -8089,7 +8089,7 @@ if i >= 0:           # ✅ 等价，也行</code></pre>
 判断一定要写 <code>!= -1</code> 或 <code>&gt;= 0</code>。</strong>
 </div>
 
-<h3 id="review-57">补充：<code>sys.stdin</code> 的四个读法（<code>read</code> / <code>readline</code> / <code>readlines</code> / <code>read(n)</code>）</h3>
+<h3 id="review-56">补充：<code>sys.stdin</code> 的四个读法（<code>read</code> / <code>readline</code> / <code>readlines</code> / <code>read(n)</code>）</h3>
 
 <div class="box ok">
 <strong>同一份输入 <code>'aZ &amp;\n09 Az\n'</code>，五个读法各拿到什么（实测）</strong>
@@ -8139,7 +8139,7 @@ rows = sys.stdin.read().splitlines()</code></pre>
 所以循环 <code>input()</code> 要配 <code>try/except EOFError</code>，或者干脆用 <code>for line in sys.stdin</code>。
 </div>
 
-<h3 id="review-58">补充：<code>endswith()</code> / <code>startswith()</code>（怎么用 + 四种拓展）</h3>
+<h3 id="review-57">补充：<code>endswith()</code> / <code>startswith()</code>（怎么用 + 四种拓展）</h3>
 
 <div class="box ok">
 <strong>怎么用：判断"是不是以某段开头 / 结尾"，返回 <code>True</code>/<code>False</code></strong>
@@ -8196,7 +8196,7 @@ s.startswith(x) / s.endswith(x)            判断开头/结尾
 s.removeprefix(x) / s.removesuffix(x)      Python 3.9+，去掉开头/结尾那一段（只去一次）</code></pre>
 </div>
 
-<h3 id="review-59">补充：切片 <code>[:-1]</code> 与「去掉末尾换行」的四种写法</h3>
+<h3 id="review-58">补充：切片 <code>[:-1]</code> 与「去掉末尾换行」的四种写法</h3>
 
 <div class="box ok">
 <strong>切片怎么用（负数下标 = 从末尾数）</strong>
@@ -8258,7 +8258,7 @@ text = text.removesuffix("\n")
 "\n"             → ""</code></pre>
 </div>
 
-<h3 id="review-60">4-14 统计字符 <span class="tag">通过</span></h3>
+<h3 id="review-59">4-14 统计字符 <span class="tag">通过</span></h3>
 
 <p><strong>要求</strong>：输入 10 个字符，统计其中<strong>英文字母</strong>、
 <strong>空格或回车</strong>、<strong>数字字符</strong>和<strong>其他字符</strong>的个数。
@@ -8387,7 +8387,7 @@ i.isalpha()                      # ⚠️ 中文也返回 True（"中".isalpha()
 边界 7 组（10 个纯字母 / 正好 10 个含空格 / 10 个数字 / 10 个其他符号 / 6 个字符不足 10 /
 含 Tab）全对；11 个字符那组停在 10 个 —— <strong>超出题面范围，属预期行为</strong>。</p>
 
-<h3 id="review-61">4-15 换硬币 <span class="tag">通过</span></h3>
+<h3 id="review-60">4-15 换硬币 <span class="tag">通过</span></h3>
 
 <p><strong>要求</strong>：把 <code>x</code> 元零钱换成 5 分、2 分、1 分的硬币，
 <strong>每种硬币至少有一枚</strong>，问有几种换法（<code>x ∈ (8, 100)</code>，即 9~99）。
@@ -8489,7 +8489,7 @@ count = 4                            ← 汇总行：等号【两边都有空格
 <code>m=50</code>(106 种) / <code>m=99</code>(451 种) 全对；
 纯计算 <strong>5.36 ms</strong>（限制 400 ms，余量充足）。</p>
 
-<h3 id="review-62">4-16 jmu-python-判断是否构成三角形 <span class="tag">通过</span></h3>
+<h3 id="review-61">4-16 jmu-python-判断是否构成三角形 <span class="tag">通过</span></h3>
 
 <p><strong>要求</strong>：一行给出三个整数（空格分隔，<strong>没有其它任何附加字符</strong>），
 判断能否构成三角形 —— 能输出 <code>yes</code>，否则输出 <code>no</code>
@@ -8577,7 +8577,7 @@ print('yes' if a+b&gt;c else 'no')          # 只比【最小的两边之和】�
 <code>1 2 3</code> 给 <code>'no\n'</code>（3 字节），<strong>没有任何多余字符</strong>；
 另有 3 组空格变体（多空格 / 行首 / 行尾）也全部正确。</p>
 
-<h3 id="review-63">补充：查表法（空间换时间）—— 同一个运算别算第二遍</h3>
+<h3 id="review-62">补充：查表法（空间换时间）—— 同一个运算别算第二遍</h3>
 
 <div class="box ok">
 <strong>核心思想：把「算过的结果」存起来，下次直接取</strong><br>
@@ -8641,7 +8641,7 @@ m=5 → [0, 1, 32, 243, 1024, 3125, 7776, 16807, 32768, 59049]</code></pre>
 <strong>一句话：凡是"同一个输入会被算很多遍"，就该考虑先建表。</strong>
 </div>
 
-<h3 id="review-64">补充：剪枝（发现这一支没戏就别往下试）</h3>
+<h3 id="review-63">补充：剪枝（发现这一支没戏就别往下试）</h3>
 
 <div class="box ok">
 <strong>核心思想：枚举过程中，一旦能判定「这条分支不可能出正确答案」，立刻返回</strong><br>
@@ -8708,7 +8708,7 @@ dfs(0, 0, 0)</code></pre>
 "已经超了就剪"是错的 —— 因为后面可能又减回来。
 </div>
 
-<h3 id="review-65">4-17 水仙花数 <span class="tag">通过</span></h3>
+<h3 id="review-64">4-17 水仙花数 <span class="tag">通过</span></h3>
 
 <p><strong>要求</strong>：N 位正整数（N≥3），各位数字的 <strong>N 次幂</strong>之和等于它本身。
 输入 N（<strong>3 ≤ N ≤ 5</strong>），按<strong>递增</strong>顺序输出所有 N 位水仙花数，每个占一行。
@@ -8824,7 +8824,7 @@ t=  1: t%10=1 → s += pw[1]=1   → s=153  ; t//=10 → 0
 <code>[54748, 92727, 93084]</code>；输出均为<strong>递增</strong>且每个占一行；
 查表法把 N=5 的耗时从 <strong>119.5 ms 降到 10.3 ms</strong>（限制 400 ms）。</p>
 
-<h3 id="review-66">补充：<code>list.pop()</code> —— 取出并删除（有返回值）</h3>
+<h3 id="review-65">补充：<code>list.pop()</code> —— 取出并删除（有返回值）</h3>
 
 <div class="box ok">
 <strong>怎么用</strong>
@@ -8933,7 +8933,7 @@ d.popitem()           # ('b', 2)  ← 弹出最后一对（3.7+ 是最后插入�
 <strong>列表 <code>pop</code> 是【按下标】，字典 <code>pop</code> 是【按键】。</strong>
 </div>
 
-<h3 id="review-67">4-18 猴子选大王（约瑟夫环）<span class="tag">通过</span></h3>
+<h3 id="review-66">4-18 猴子选大王（约瑟夫环）<span class="tag">通过</span></h3>
 
 <p><strong>要求</strong>：N 只猴子围成一圈、编号 1~N，从 1 号开始报数，
 每报到 3 的猴子退出，从<strong>紧邻的下一只</strong>继续报数，如此循环，
@@ -9065,7 +9065,7 @@ print(qm[0])</code></pre>
 N 取 1 / 2 / 3 / 4 / 5 / 6 / 7 / 10 / 11 / 20 / 100 / 1000 逐个核对无误；
 数学递推 <code>N=1000</code> 耗时 <strong>0.023 ms</strong>（限制 400 ms，余量极大）。</p>
 
-<h3 id="review-68">补充：递推公式是怎么"推"出来的（以约瑟夫环为例）</h3>
+<h3 id="review-67">补充：递推公式是怎么"推"出来的（以约瑟夫环为例）</h3>
 
 <div class="box warn">
 <strong>先纠正一个常见误解：递推公式不是"看数列看出来的"</strong><br>
@@ -9234,7 +9234,7 @@ print(ans + 1)                # 下标（从 0 数）→ 编号（从 1 数）</
 "O(n) 的思维"比这段代码本身更值钱。
 </div>
 
-<h3 id="review-69">补充：二维列表（矩阵）—— 下标怎么走 + 两条对角线公式</h3>
+<h3 id="review-68">补充：二维列表（矩阵）—— 下标怎么走 + 两条对角线公式</h3>
 
 <div class="box ok">
 <strong>一、<code>M[i][j]</code> 到底是什么：<code>M[i]</code> 是「一整行」</strong>
@@ -9356,7 +9356,7 @@ print(s)</code></pre>
 三种写法（<code>range(n-1)</code>+判断 / 排除集合 / <code>enumerate</code>）结果完全一致。
 </div>
 
-<h3 id="review-70">4-19 矩阵运算 <span class="tag">通过</span></h3>
+<h3 id="review-69">4-19 矩阵运算 <span class="tag">通过</span></h3>
 
 <p><strong>要求</strong>：给定一个 <code>n × n</code> 的方阵，求该矩阵
 <strong>除副对角线、最后一列和最后一行以外</strong>的所有元素之和
@@ -9450,7 +9450,7 @@ for i in range(m-1):        # 掐掉末行
 <strong>全域随机对拍 <code>n=2..10</code> 各 100 个矩阵共 900 组，与独立口径 0 组不一致</strong>；
 扩展性抽查 <code>n=50</code> 也一致；含进程启动约 <strong>25 ms</strong>（限制 400 ms）。</p>
 
-<h3 id="review-71">4-20 求矩阵各行元素之和 <span class="tag">通过</span></h3>
+<h3 id="review-70">4-20 求矩阵各行元素之和 <span class="tag">通过</span></h3>
 
 <p><strong>要求</strong>：输入第一行给出两个正整数 <code>m</code> 和 <code>n</code>
 （<code>1 ≤ m, n ≤ 6</code>），随后 <code>m</code> 行每行给出 <code>n</code> 个整数
@@ -9532,7 +9532,7 @@ print("\n".join(str(sum(row)) for row in a))</code></pre>
 <strong><code>m,n ∈ [1,6]</code> 全组合 × 10 个随机矩阵 = 360 组，与独立口径 0 组不一致</strong>；
 含进程启动 <strong>26 ms</strong>（限制 400 ms）。</p>
 
-<h3 id="review-72">4-21 判断上三角矩阵 <span class="tag">通过</span></h3>
+<h3 id="review-71">4-21 判断上三角矩阵 <span class="tag">通过</span></h3>
 
 <p><strong>要求</strong>：第一行给出正整数 <code>T</code>（待测矩阵的个数）。
 接下来 <code>T</code> 个矩阵，每个矩阵第一行给出 <code>n</code>（<code>1 ≤ n ≤ 10</code>），
@@ -9667,7 +9667,7 @@ for _ in range(T):
 流式写法另做 300 组 × 3 种数据（2711 个矩阵）0 组不一致、6 组手算边界全对；
 真实文件跑样例<strong>中位数 24.0 ms</strong>（7 次 23.8~28.2 ms，含进程启动，限制 400 ms）。</p>
 
-<h3 id="review-73">4-22 找鞍点 <span class="tag">一次通过</span></h3>
+<h3 id="review-72">4-22 找鞍点 <span class="tag">一次通过</span></h3>
 
 <p><strong>要求</strong>：输入第一行给出正整数 <code>n</code>（<code>1 ≤ n ≤ 6</code>），
 随后 <code>n</code> 行每行 <code>n</code> 个整数。
@@ -9808,7 +9808,7 @@ print("%d %d"%p if p else "NONE")</code></pre>
 <strong>第三种机制</strong>（行最大值集合 ∩ 列最小值集合）对拍 3000 组也 0 不一致 ——
 三种口径互证。</p>
 
-<h3 id="review-74">4-23 求矩阵的局部极大值 <span class="tag">一次通过</span></h3>
+<h3 id="review-73">4-23 求矩阵的局部极大值 <span class="tag">一次通过</span></h3>
 
 <p><strong>要求</strong>：第一行给出行数 <code>M</code> 和列数 <code>N</code>（<code>3 ≤ M, N ≤ 20</code>），
 随后 <code>M</code> 行、每行 <code>N</code> 个整数。
@@ -9925,7 +9925,7 @@ if col[i]&gt;col[i-1] and col[i]&gt;col[i+1]:   # 上下邻居 = 这一列的相
 <strong>对照实现机制不同</strong>（把 4 个邻居拼成列表用 <code>all()</code>，
 输出顺序靠 <code>sort(key=(行,列))</code> 显式保证，不依赖循环顺序）—— 四种口径互证。</p>
 
-<h3 id="review-75">4-24 打印九九口诀表 <span class="tag">一次通过</span></h3>
+<h3 id="review-74">4-24 打印九九口诀表 <span class="tag">一次通过</span></h3>
 
 <p><strong>要求</strong>：输入一个正整数 <code>N</code>（<code>1 ≤ N ≤ 9</code>），
 输出<strong>下三角</strong>的 <code>N*N</code> 部分口诀表（第 j 行放 <code>1*1</code> 到 <code>j*j</code>），
@@ -10017,7 +10017,7 @@ for j in range(1,n+1):                            # 外层：第 j 行（行号�
 <strong>9 种不同写法的 N=1..9 输出两两逐字节相同</strong>（<code>N=9</code> 总输出 369 字节）；
 每种写法的"行尾空格数"也逐个核对过（左对齐版每行 2~3 个，与规则算出来的一致）。</p>
 
-<h3 id="review-76">4-25 输出三角形字符阵列 <span class="tag">一次通过</span></h3>
+<h3 id="review-75">4-25 输出三角形字符阵列 <span class="tag">一次通过</span></h3>
 
 <p><strong>要求</strong>：输入一个正整数 <code>n</code>（<code>1 ≤ n &lt; 7</code>），
 输出 <code>n</code> 行由大写字母 <code>A</code> 开始构成的<strong>三角形字符阵列</strong>：
@@ -10130,7 +10130,7 @@ for j in range(n,0,-1):                # 行长从 n 递减到 1
 <strong>整个输入域 <code>n=1..6</code> 全对</strong>，每行<strong>恰好 1 个行尾空格</strong>（逐行量过）；
 把 <code>while</code>/<code>i</code> 三行删掉后输出<strong>不变</strong>（也是实测）。</p>
 
-<h3 id="review-77">4-26 求 <code>1!+3!+5!+……+n!</code> <span class="tag">改了两次才对</span></h3>
+<h3 id="review-76">4-26 求 <code>1!+3!+5!+……+n!</code> <span class="tag">改了两次才对</span></h3>
 
 <p><strong>要求</strong>：输入一个不超过 12 的正整数 <code>n</code>，
 按格式 <code>n=n值,s=阶乘和</code> 输出 <code>1!+3!+5!+…+n!</code> 的和
@@ -10211,7 +10211,7 @@ print(f"n={n},s={t}")                # 只有这一处输出</code></pre>
 递推过程<strong>逐轮核对了 <code>term</code> 与 <code>t</code></strong>（六轮全部与阶乘定义吻合）；
 "不分支"那种写法也跑了 <code>n=1..12</code>，输出与本版<strong>逐字节相同</strong>。</p>
 
-<h3 id="review-78">4-27 二维数组中每行最大值和每行和 <span class="tag">一次通过</span></h3>
+<h3 id="review-77">4-27 二维数组中每行最大值和每行和 <span class="tag">一次通过</span></h3>
 
 <p><strong>要求</strong>：一行输入 <strong>9 个小于 100 的整数</strong>（空格分隔），
 输出 3 行 3 列；<strong>每行后面再输出该行最大值、该行元素的和</strong>，
@@ -10297,7 +10297,7 @@ for _ in range(3):
 <strong>随机对拍 300 组 0 不一致</strong>（数值域 <code>[0, 99]</code>，期望值用独立口径
 <code>"".join("%4d" % v …)</code> 另算一份）。</p>
 
-<h3 id="review-79">4-28 矩阵转置 <span class="tag">一次通过</span></h3>
+<h3 id="review-78">4-28 矩阵转置 <span class="tag">一次通过</span></h3>
 
 <p><strong>要求</strong>：把一个 <strong>3×3 矩阵转置</strong>（行和列互换）。
 一行输入 <strong>9 个小于 100 的整数</strong>（空格分隔）；
