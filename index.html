@@ -8320,9 +8320,12 @@ for b in range(9):       # 实际给的是 0~8    ❌ 也取不到 9</code></pre
 <table>
 <tr><th>浪费</th><th>后果</th><th>实测</th></tr>
 <tr><td><strong>不管 N 是几都把 5 层循环跑满</strong></td>
-<td>N=3 时 d、e 两层完全没用 → 白跑 100 倍</td>
-<td>N=3：判断在内 61.5 ms → 挪到循环外 0.61 ms（<strong>快 100.5 倍</strong>）<br>
-N=4：84.8 ms → 8.20 ms（<strong>快 10.3 倍</strong>）</td></tr>
+<td>N=3 时 d、e 两层完全没用 → 白跑 100 倍；<br>N=4 时 e 层没用 → 白跑 10 倍；<br><strong>N=5 时本来就该跑 5 层 → 没有可省的</strong></td>
+<td><strong>圈数</strong>（不受计时噪声影响）：N=3 从 90,000 降到 <strong>900</strong>；
+N=4 从 90,000 降到 <strong>9,000</strong>；N=5 不变（都是 90,000）<br>
+<strong>耗时</strong>（9 轮取中位数）：N=3 43.5 ms → <strong>0.4 ms（快 101.7 倍）</strong>；
+N=4 83.8 ms → <strong>8.3 ms（快 10.1 倍）</strong>；
+N=5 110.7 ms → 108.3 ms（<strong>相当，1.0 倍</strong>）</td></tr>
 <tr><td><strong>幂运算在循环里重复算</strong></td>
 <td><code>a**3</code> 这种被算了 9 万次，而数字只有 10 种</td>
 <td>见下面的"查表法"</td></tr>
