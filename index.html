@@ -266,6 +266,7 @@
       <li><a onclick="return go('review-65')">4-17 水仙花数</a></li>
       <li><a onclick="return go('review-66')">补充：list.pop() —— 取出并删除（有返回值）</a></li>
       <li><a onclick="return go('review-67')">4-18 猴子选大王（约瑟夫环）</a></li>
+      <li><a onclick="return go('review-68')">补充：递推公式是怎么"推"出来的（以约瑟夫环为例）</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -8618,6 +8619,131 @@ print(qm[0])</code></pre>
 题面样例 <code>N=11</code> → <code>7</code> <strong>与题面一致</strong>；
 N 取 1 / 2 / 3 / 4 / 5 / 6 / 7 / 10 / 11 / 20 / 100 / 1000 逐个核对无误；
 数学递推 <code>N=1000</code> 耗时 <strong>0.023 ms</strong>（限制 400 ms，余量极大）。</p>
+
+<h3 id="review-68">补充：递推公式是怎么"推"出来的（以约瑟夫环为例）</h3>
+
+<div class="box warn">
+<strong>先纠正一个常见误解：递推公式不是"看数列看出来的"</strong><br>
+把答案列成 <code>f(1)=1, f(2)=2, f(3)=2, f(4)=1, f(5)=4, f(6)=1, f(7)=4…</code>
+<strong>看不出规律</strong> —— 这种数列靠"猜"是推不出严格公式的。<br>
+<strong>正确做法：找到"缩小规模"的办法，再把坐标换算回去。</strong>
+</div>
+
+<div class="box ok">
+<strong>第 1 步：发现"出局一个人之后，问题变成了同样形状、但规模小 1 的问题"</strong>
+<pre><code>n=11，圈里是 [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+
+第 1 轮：1 号报 1、2 号报 2、3 号报 3 → 【3 号出局】
+剩下 10 个人
+
+★ 此刻的处境 = "10 个人围一圈，从 4 号开始报数"
+  —— 这和原问题（11 人、从 1 号开始报数）【形状完全一样】</code></pre>
+<strong>所以：只要知道"10 人的答案"，就能算出"11 人的答案"。</strong> 这就是递推的立足点。
+</div>
+
+<div class="box ok">
+<strong>第 2 步（最关键）：把剩下的人【按报数顺序】重新编号</strong><br>
+注意<strong>不是按原编号顺序</strong> —— 出局者的<strong>下一位</strong>才是新圈的开头：
+<pre><code>剩下的 10 人，按报数顺序（从 4 号开始）：
+   [4, 5, 6, 7, 8, 9, 10, 11, 1, 2]      ← 4 号在最前面
+
+重新编号成 0 ~ 9 之后：
+   新 0 号 ← 原 4 号      新 5 号 ← 原 9 号
+   新 1 号 ← 原 5 号      新 6 号 ← 原 10 号
+   新 2 号 ← 原 6 号      新 7 号 ← 原 11 号
+   新 3 号 ← 原 7 号      新 8 号 ← 原 1 号
+   新 4 号 ← 原 8 号      新 9 号 ← 原 2 号</code></pre>
+<strong>重新编号之后，这个新圈和原问题一模一样了</strong>（都是从"第 0 号"开始报数），
+所以它的答案就是 <code>f(10)</code>。
+</div>
+
+<div class="box ok">
+<strong>第 3 步：找出"新编号 → 旧编号"的换算（这一步是核心）</strong>
+<table>
+<tr><th>新下标</th><th>原编号</th><th>原下标</th></tr>
+<tr><td>0</td><td>4</td><td><strong>3</strong></td></tr>
+<tr><td>1</td><td>5</td><td><strong>4</strong></td></tr>
+<tr><td>2</td><td>6</td><td><strong>5</strong></td></tr>
+<tr><td>8</td><td>1</td><td><strong>0</strong> ← 绕回来了</td></tr>
+<tr><td>9</td><td>2</td><td><strong>1</strong></td></tr>
+</table>
+<strong>规律：<code>原下标 = (新下标 + 3) % 11</code></strong><br>
+为什么是 <code>+3</code>？因为<strong>出局者（3 号）的下一位是 4 号</strong> ——
+新圈的第 0 号对应旧圈下标 3。<br>
+为什么 <code>% 11</code>？因为<strong>圈是圆的</strong>：新下标 8 时 <code>8+3=11</code> 超出范围，
+<code>11 % 11 = 0</code> 就绕回开头了。
+</div>
+
+<div class="box ok">
+<strong>第 4 步：写出公式（统一用"从 0 数"的下标，最干净）</strong>
+<pre><code>设 f(i) = i 个人、从下标 0 开始报数时，猴王的下标
+
+① 基础情况：f(1) = 0            只剩自己，下标就是 0
+
+② 递推：
+   报数到 k 的人【下标是 k-1】出局
+   → 出局后剩 i-1 人，从【下标 k】开始报数
+   → 重新编号后：新下标 j  ↔  旧下标 (k + j) % i
+   → 而"剩 i-1 人"这个问题的答案就是 f(i-1)
+   → 所以猴王在旧圈的下标 = (k + f(i-1)) % i
+
+   ★  f(i) = (f(i-1) + k) % i
+
+③ 最后：f(n) 是【下标】（从 0 数），题面要【编号】（从 1 数）
+   → 答案 = f(n) + 1</code></pre>
+<strong>一句话记法：上一步的答案，往后挪 k 位（<code>+k</code>），再绕圈（<code>% i</code>）。</strong>
+</div>
+
+<div class="box ok">
+<strong>第 5 步：用 n=11 走完整链条验证</strong>
+<pre><code>① 3 号出局 → 剩 10 人，从 4 号开始
+② 这 10 人的答案 = f(10)，递推算得 f(10) = 3（这是【新圈】的下标）
+③ 换回旧圈下标：(3 + 3) % 11 = 6  →  旧圈下标 6 = 编号 7
+④ 真实验证：出局顺序 [3, 6, 9, 1, 5, 10, 4, 11, 8, 2]，猴王 = 7  ✅</code></pre>
+<strong>每一步递推都和真实模拟对得上</strong>（实测）：
+<table>
+<tr><th>i</th><th>递推 f(i)</th><th>真实模拟（下标）</th><th></th></tr>
+<tr><td>1</td><td>0</td><td>0</td><td>✅</td></tr>
+<tr><td>2</td><td>1</td><td>1</td><td>✅</td></tr>
+<tr><td>3</td><td>1</td><td>1</td><td>✅</td></tr>
+<tr><td>4</td><td>0</td><td>0</td><td>✅</td></tr>
+<tr><td>5</td><td>3</td><td>3</td><td>✅</td></tr>
+<tr><td>8</td><td>6</td><td>6</td><td>✅</td></tr>
+<tr><td>10</td><td>3</td><td>3</td><td>✅</td></tr>
+<tr><td><strong>11</strong></td><td><strong>6</strong></td><td><strong>6</strong></td><td>✅</td></tr>
+<tr><td>12</td><td>9</td><td>9</td><td>✅</td></tr>
+</table>
+</div>
+
+<div class="box ok">
+<strong>第 6 步：找一个"已知的独立结论"来对照（更强的验证）</strong><br>
+报数到 2 出局（k=2）时，有已知的闭式公式
+<code>2 × (n − 2^⌊log₂n⌋) + 1</code>。实测我们的递推和它完全一致：
+<table>
+<tr><th>n</th><th>递推结果</th><th>理论公式</th><th></th></tr>
+<tr><td>1</td><td>1</td><td>1</td><td>✅</td></tr>
+<tr><td>5</td><td>3</td><td>3</td><td>✅</td></tr>
+<tr><td>100</td><td>73</td><td>73</td><td>✅</td></tr>
+<tr><td>1000</td><td>977</td><td>977</td><td>✅</td></tr>
+</table>
+<strong>两条完全不同的路线得出同一个数</strong> —— 这才叫"真的对"。
+</div>
+
+<div class="box warn">
+<strong>这套推导套路是通用的（遇到别的递推题可以直接套）</strong>
+<table>
+<tr><th>步骤</th><th>要做什么</th></tr>
+<tr><td>①</td><td>找一个<strong>操作</strong>，做完之后问题变成<strong>同样形状、规模小 1</strong></td></tr>
+<tr><td>②</td><td>把新问题<strong>重新编号</strong>，让它长得和原问题一模一样</td></tr>
+<tr><td>③</td><td>找出<strong>"新编号 → 旧编号"的换算</strong>（核心；通常是加法 + 取模）</td></tr>
+<tr><td>④</td><td>写出 <code>f(i) = 换算(f(i-1))</code>，加上基础情况 <code>f(1)</code></td></tr>
+<tr><td>⑤</td><td><strong>用暴力模拟逐步验证</strong>（每一步都对才算推对）</td></tr>
+<tr><td>⑥</td><td>有条件就<strong>找个已知理论结果对照</strong></td></tr>
+</table>
+<strong>⚠️ 最容易卡住的是第 ③ 步</strong> —— "新编号换回旧编号"这一步要想清楚
+<strong>新圈的第 0 号是谁</strong>（这里是"出局者的下一位"），
+换算里的那个"偏移量"就是从这个位置来的。
+</div>
 
 <h2 id="quick">七、速查总表</h2>
 
