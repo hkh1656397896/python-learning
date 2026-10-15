@@ -104,7 +104,7 @@
 -->
 
 <h1>Python 自学笔记</h1>
-<p class="meta">hkh ｜ 更新 2026-10-15 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">22</span> 题 + 第4章 <span id="c4">26</span> 题（浙大版《Python 程序设计》题目集）</p>
+<p class="meta">hkh ｜ 更新 2026-10-15 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">22</span> 题 + 第4章 <span id="c4">27</span> 题（浙大版《Python 程序设计》题目集）</p>
 
 <nav id="toc">
   <div class="toc-head">目录　<span class="toc-hint">点标题展开 · 点条目直接跳</span></div>
@@ -201,7 +201,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>六、真题回顾 <span class="toc-n" id="cr">65</span></summary>
+    <summary>六、真题回顾 <span class="toc-n" id="cr">66</span></summary>
     <ol>
       <li><a onclick="return go('review-1')">1-1 从键盘输入两个数求和</a></li>
       <li><a onclick="return go('review-2')">1-2 按公式输出 b²−4ac</a></li>
@@ -280,6 +280,7 @@
       <li><a onclick="return go('review-75')">4-24 打印九九口诀表</a></li>
       <li><a onclick="return go('review-76')">4-25 输出三角形字符阵列</a></li>
       <li><a onclick="return go('review-77')">4-26 求 1!+3!+5!+……+n!</a></li>
+      <li><a onclick="return go('review-78')">4-27 二维数组中每行最大值和每行和</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -4816,7 +4817,7 @@ if m!=v[17]:                      # ② 索引</code></pre>
 ② 两边同时改，很容易出现"本地一份、提交另一份"，而且极难发现
 </div>
 
-<h2 id="review">六、真题回顾（<span id="cr2">65</span> 题）</h2>
+<h2 id="review">六、真题回顾（<span id="cr2">66</span> 题）</h2>
 
 <div class="box warn">
 <strong>说明：</strong>下面的题目要求是<strong>我按自己的理解概括写的</strong>，不是 PTA 原文。<br>
@@ -10208,6 +10209,92 @@ print(f"n={n},s={t}")                # 只有这一处输出</code></pre>
 样例 <code>n=5</code> → <code>n=5,s=127</code> 逐字节一致；<code>n=11</code> → <code>40284847</code>；
 递推过程<strong>逐轮核对了 <code>term</code> 与 <code>t</code></strong>（六轮全部与阶乘定义吻合）；
 "不分支"那种写法也跑了 <code>n=1..12</code>，输出与本版<strong>逐字节相同</strong>。</p>
+
+<h3 id="review-78">4-27 二维数组中每行最大值和每行和 <span class="tag">一次通过</span></h3>
+
+<p><strong>要求</strong>：一行输入 <strong>9 个小于 100 的整数</strong>（空格分隔），
+输出 3 行 3 列；<strong>每行后面再输出该行最大值、该行元素的和</strong>，
+<strong>每个数据占 4 列</strong>。
+样例 <code>3 6 5 9 8 2 1 4 5</code> →
+<code>'   3   6   5   6  14'</code> / <code>'   9   8   2   9  19'</code> / <code>'   1   4   5   5  10'</code>。</p>
+
+<p><strong>我的代码（一次通过）</strong></p>
+<pre><code>m=list(map(int,input().split()))                  # 把一行 9 个数读成一个【扁平列表】（先不分行）
+i=0                                               # 每一行的起点下标
+for _ in range(3):                                # 固定 3 行
+    L=m[i:i+3]                                    # 切出这一行的 3 个元素
+    i+=3                                          # 起点往后推 3 格
+    x="".join(f"{c:4}" for c in L)                # 三个元素各占 4 列（右对齐），拼成一段
+    print(f"{x}{max(L):4}{sum(L):4}")             # 接上「最大值占 4 列」+「和占 4 列」</code></pre>
+
+<div class="box ok">
+<strong>★ 这题把「输入只有一行」和「输出要分 3 行」拆开了</strong><br>
+题面输入是<strong>一行 9 个数</strong>，输出的却是<strong>3 行 × 5 列</strong>。
+我<strong>没有</strong>去写"三次 <code>input()</code>"，而是一次读成扁平列表、再<strong>自己切</strong>：
+<pre><code>m = [3, 6, 5, 9, 8, 2, 1, 4, 5]
+第 1 轮  L = m[0:3]  = [3, 6, 5]    i: 0 -> 3
+第 2 轮  L = m[3:6]  = [9, 8, 2]    i: 3 -> 6
+第 3 轮  L = m[6:9]  = [1, 4, 5]    i: 6 -> 9</code></pre>
+<strong>这是"输入的形状和输出的形状可以不一样"的一个好例子</strong> ——
+读进来是扁的、用的时候再按 3 个一组还原成二维（和 4-19~4-21 那种"一行一行读矩阵"是两种读法，
+哪种好用取决于输入怎么给）。
+</div>
+
+<div class="box ok">
+<strong>★ "每个数据占 4 列" = 用 <code>:4</code> 拼字符串，不要用 <code>join(" ")</code> 加分隔符</strong><br>
+题面只要求"占 4 列"，<strong>没有</strong>要求"之间加空格" —— 所以正确写法是<strong>直接拼</strong>：
+<pre><code>"".join(f"{c:4}" for c in L)     # '   3   6   5'   ← 每个占 4 列，正好也就是"看起来有空格"
+" ".join(f"{c:4}" for c in L)     # '   3    6    5' ← ❌ 每格变 5 列（4 + 一个空格）
+</code></pre>
+实测两行都是 20 个字符（5 个数据 × 4 列）：
+<table>
+<tr><th>行</th><th>实际输出</th><th>字符数</th><th>行尾空格</th></tr>
+<tr><td>1</td><td><code>'   3   6   5   6  14'</code></td><td>20</td><td>0</td></tr>
+<tr><td>2</td><td><code>'   9   8   2   9  19'</code></td><td>20</td><td>0</td></tr>
+<tr><td>3</td><td><code>'   1   4   5   5  10'</code></td><td>20</td><td>0</td></tr>
+</table>
+<strong>用 <code>:4</code> 还有个好处：行尾自然没有多余空格</strong>（最后一位是数字）——
+省掉了 4-25 那种"行尾到底该不该有空格"的争论。
+</div>
+
+<p><strong>优化用法</strong></p>
+
+<div class="box ok">
+<strong>① 用 <code>itertools.islice</code> 迭代器切片：连 <code>i</code> 都不用管</strong>
+<pre><code>from itertools import islice
+it=iter(m)
+for _ in range(3):
+    L=list(islice(it, 3))             # 每次从迭代器里取 3 个，取过就没了
+    ...</code></pre>
+<code>islice</code> 取过的元素<strong>不会</strong>再出现，所以不需要"起点下标 + 手动前进"，
+代码里也就没有那个容易算错的 <code>i+=3</code>。
+（这一招在 ㉑ 讲迭代器时提过：<strong><code>next()</code> 是"取下一个"，<code>islice</code> 是"取下一批"</strong>。）
+</div>
+
+<div class="box ok">
+<strong>② 切法可以写成"每 3 个一组"的通用形式</strong>
+<pre><code>for r in range(0, 9, 3):              # 0, 3, 6
+    L=m[r:r+3]</code></pre>
+这样连 <code>i</code> 这个变量都不用维护 —— <strong><code>range</code> 的起点本身就是"第几行 × 3"</strong>。
+和第 3 章常写的 <code>for i in range(0, len(s), 2)</code>（隔一个取一个）是同一个套路。
+</div>
+
+<div class="box ok">
+<strong>③ 参数名 <code>i</code> 容易和"行号"混，叫 <code>start</code> 更清楚</strong>
+<pre><code>start=0
+for _ in range(3):
+    L=m[start:start+3]
+    start+=3</code></pre>
+纯可读性问题。<strong>但值得改</strong>：这题里 <code>i</code> 是"元素下标"不是"行号"，
+后面万一要同时用行号（比如输出行号）就会打架。
+</div>
+
+<p><strong>要点与实测证据</strong>：<code>py_compile</code> 通过；
+<strong>题面样例逐字节一致</strong>（三行全部 <code>'   3   6   5   6  14'</code> 这种形状）；
+<strong>每行 20 字符、行尾 0 个空格</strong>（逐行量过）；
+<strong>5 组边界全对</strong>（全相同 / 全 0 / 含 <code>99</code> / 0 与 9 交替 / 首位是 0 → 占 4 列时正是 <code>'   0'</code>）；
+<strong>随机对拍 300 组 0 不一致</strong>（数值域 <code>[0, 99]</code>，期望值用独立口径
+<code>"".join("%4d" % v …)</code> 另算一份）。</p>
 
 <h2 id="quick">七、速查总表</h2>
 
