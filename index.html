@@ -5617,7 +5617,7 @@ print(a[::-1])                                  # 步长 -1 = 从右往左取，
 实测这<strong>四种</strong>写法对 10 组输入（含空串）的输出<strong>逐字节相同</strong>。</p>
 
 <div class="box warn">
-<strong>本题唯一的分歧点：该不该动用户的空格。</strong><br>
+<strong>本题唯一的分歧点：该不该动那些空格。</strong><br>
 这题只给了<strong>一行</strong>字符串，要求的是「把一整行倒过来」——包括<strong>空格的位置</strong>。
 所以正确做法是<strong>直接对整行切片</strong>，<code>split()</code> 在这题是有害的：
 <ul>
@@ -7215,7 +7215,7 @@ print(f"count = {count}")              输出及格人数</code></pre>
 
 <div class="box warn">
 <strong>⚠️ 这一版在 <code>N=0</code> 时仍会崩，但 PTA 判过了</strong><br>
-用户确认 PTA 通过（46/89）。本机实测的完整现象是：
+PTA 判过（46/89）。本机实测的完整现象是：
 <code>N=0</code> 时会<strong>先输出正确的两行</strong>（<code>average = 0.0</code> / <code>count = 0</code>），
 <strong>紧接着</strong>执行 <code>else</code> 外面的那句 <code>print</code>，触发
 <code>NameError: name 'average' is not defined</code>（<code>N&gt;0</code> 的全部用例正常）。<br>
@@ -7298,7 +7298,7 @@ print(f"{total:.2f}")   输出保留小数点后两位</code></pre>
 <h3 id="review-48">4-9 查询水果价格 <span class="tag">通过</span></h3>
 <p><strong>要求：</strong>四种水果单价 —— apple <code>3.00</code>、pear <code>2.50</code>、
 orange <code>4.10</code>、grape <code>10.20</code>（元/公斤）。<strong>先在屏幕上显示菜单</strong>
-（<code>[1] apple</code> … <code>[0] exit</code>），然后对用户的每个输入按
+（<code>[1] apple</code> … <code>[0] exit</code>），然后对每个输入按
 <code>price = 价格</code> 输出（<strong>保留两位小数</strong>）。规则三条：
 <strong>① 连续查询次数超过 5 次 → 自动退出；② 不到 5 次而输入 0 → 退出；③ 输入其他编号 → 显示价格为 0</strong>。<br>
 <strong>样例1：</strong><code>3 -1 0 2</code> → <code>4.10</code>、<code>0.00</code>（<code>-1</code> 是"其他编号"）、
