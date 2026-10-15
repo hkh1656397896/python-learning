@@ -104,7 +104,7 @@
 -->
 
 <h1>Python 自学笔记</h1>
-<p class="meta">hkh ｜ 更新 2026-10-15 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">22</span> 题 + 第4章 <span id="c4">24</span> 题（浙大版《Python 程序设计》题目集）</p>
+<p class="meta">hkh ｜ 更新 2026-10-15 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">22</span> 题 + 第4章 <span id="c4">25</span> 题（浙大版《Python 程序设计》题目集）</p>
 
 <nav id="toc">
   <div class="toc-head">目录　<span class="toc-hint">点标题展开 · 点条目直接跳</span></div>
@@ -201,7 +201,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>六、真题回顾 <span class="toc-n" id="cr">63</span></summary>
+    <summary>六、真题回顾 <span class="toc-n" id="cr">64</span></summary>
     <ol>
       <li><a onclick="return go('review-1')">1-1 从键盘输入两个数求和</a></li>
       <li><a onclick="return go('review-2')">1-2 按公式输出 b²−4ac</a></li>
@@ -278,6 +278,7 @@
       <li><a onclick="return go('review-73')">4-22 找鞍点</a></li>
       <li><a onclick="return go('review-74')">4-23 求矩阵的局部极大值</a></li>
       <li><a onclick="return go('review-75')">4-24 打印九九口诀表</a></li>
+      <li><a onclick="return go('review-76')">4-25 输出三角形字符阵列</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -4414,6 +4415,21 @@ print(out == out.rstrip())   # False  ← 更好的自检：直接问"有没有�
 <tr><td>去掉行尾空白再比较</td><td><code>out.rstrip()</code></td></tr>
 </table>
 
+<div class="box ok">
+<strong>④ 实战补充：<code>end=" \n"</code> —— 让<strong>每行末尾也带一个空格</strong></strong><br>
+题面写「每个字母后面都有一个空格」时，<code>sep=" "</code> <strong>做不到</strong>
+（它只管"值之间"，末尾没有下一个值就不补）。实测（4-25，<code>n=4</code>）：
+<table>
+<tr><th>写法</th><th>输出</th><th>行尾空格</th></tr>
+<tr><td><code>print(*row, sep=" ")</code></td><td><code>'A B C D'</code></td><td>0 ❌</td></tr>
+<tr><td><code>print(*row, sep=" ", end=" \n")</code></td><td><code>'A B C D '</code></td><td>1 ✅</td></tr>
+<tr><td><code>print(" ".join(row) + " ")</code></td><td><code>'A B C D '</code></td><td>1 ✅</td></tr>
+</table>
+<strong>把换行写进 <code>end</code> 时，别忘了自己把 <code>\n</code> 带上</strong>
+（默认那个换行已经被替换掉了）—— 这是最容易漏的一步。
+<code>end=" "</code> 也是合法写法，但要再补一个空 <code>print()</code> 才有换行。
+</div>
+
 <p>相关小节：<strong>㉗</strong> 竖向输出、<strong>㉒</strong> 字符串拼接（<code>join</code> vs <code>+=</code>）、
 <strong>③ 格式化与输出参数</strong>（速查总表）、真题 <strong>2-14</strong> / <strong>3-1</strong>（末尾那个空格是对的）、
 <strong>4-6</strong>（末行不足 5 个也要换行）、<strong>4-24</strong>（左对齐 vs 右对齐）。</p>
@@ -4762,7 +4778,7 @@ if m!=v[17]:                      # ② 索引</code></pre>
 ② 两边同时改，很容易出现"本地一份、提交另一份"，而且极难发现
 </div>
 
-<h2 id="review">六、真题回顾（<span id="cr2">63</span> 题）</h2>
+<h2 id="review">六、真题回顾（<span id="cr2">64</span> 题）</h2>
 
 <div class="box warn">
 <strong>说明：</strong>下面的题目要求是<strong>我按自己的理解概括写的</strong>，不是 PTA 原文。<br>
@@ -6548,7 +6564,8 @@ print(b)         输出这个整数</code></pre>
 · 边界：<code>100→1</code>｜<code>110→11</code>｜<code>101→101</code>｜<code>900→9</code>｜
 <code>990→99</code>｜<code>999→999</code>｜前后带空格的 <code>' 123 '</code> → <code>321</code><br>
 · <code>py_compile</code> 通过 ｜ PTA <strong>通过</strong>（进度 37/89）<br>
-· 源文件是 <strong>CRLF、末尾没有换行</strong>（35 B = 34 + 1 个 <code></code>）；
+· 源文件是 <strong>CRLF、末尾没有换行</strong>（35 B = 34 + 1 个 <code>
+</code>）；
 仓库里 <code>.gitattributes</code> 转 LF，所以<strong>本地字节数 ≠ 远端字节数</strong>是正常的。
 </div>
 
@@ -9959,6 +9976,119 @@ for j in range(1,n+1):                            # 外层：第 j 行（行号�
 <strong>整个输入域 <code>N=1..9</code> 全对</strong>（9 组，与按题面规则程序化算出的期望逐字节比）；
 <strong>9 种不同写法的 N=1..9 输出两两逐字节相同</strong>（<code>N=9</code> 总输出 369 字节）；
 每种写法的"行尾空格数"也逐个核对过（左对齐版每行 2~3 个，与规则算出来的一致）。</p>
+
+<h3 id="review-76">4-25 输出三角形字符阵列 <span class="tag">一次通过</span></h3>
+
+<p><strong>要求</strong>：输入一个正整数 <code>n</code>（<code>1 ≤ n &lt; 7</code>），
+输出 <code>n</code> 行由大写字母 <code>A</code> 开始构成的<strong>三角形字符阵列</strong>：
+第一行 <code>n</code> 个字母，每行比上一行少一个；
+<strong>每个字母后面都有一个空格</strong>（含每行<strong>最后一个</strong>）。
+样例 <code>n=4</code> → <code>A B C D </code> / <code>E F G </code> / <code>H I </code> / <code>J </code>。</p>
+
+<p><strong>我的代码（一次通过；把 <code>end</code> 补上之后的版本）</strong></p>
+<pre><code>import string                                     # 借 ascii_uppercase 拿 26 个大写字母
+n=int(input())                                    # 输入 n
+i=0                                               # 计数器（后面那句 while 用到，其实是死代码）
+a,b=0,n                                           # 切片起点 a、终点 b：第一行取 L[0:n]
+L=string.ascii_uppercase                          # 'ABC…XYZ'
+for _ in range(n):                                # 一共 n 行
+    print(*L[a:b],sep=" ",end=" \n")              # 摊开这一行、之间放空格、末尾【补一个空格再换行】
+    a,b=b,b+n-1                                   # 下一行的切片：从 b 开始，长度是 n-1
+    n-=1                                          # 行长度每轮减一（注意 n 被改了，range 仍用原值）
+    i+=1                                          # 计数（死代码的配套）</code></pre>
+
+<div class="box warn">
+<strong>⚠️ 我卡住的地方：<code>sep</code> 只补"之间"，不补"之后"</strong><br>
+原来写的是 <code>print(*L[a:b], sep=" ")</code>，输出 <code>'A B C D'</code> ——
+<strong>最后一个字母后面什么都没有</strong>，因为 <code>sep</code> 是"值<strong>与值之间</strong>"的分隔符，
+末尾没有"下一个值"，自然也不会补。<br>
+实测（<code>n=4</code>，<code>repr</code> 逐行对照）：
+<table>
+<tr><th>写法</th><th>第 1 行输出</th><th>行尾空格</th></tr>
+<tr><td><code>print(*row, sep=" ")</code></td><td><code>'A B C D'</code></td><td><strong>0</strong> ❌</td></tr>
+<tr><td><code>print(*row, sep=" ", end=" \n")</code></td><td><code>'A B C D '</code></td><td><strong>1</strong> ✅</td></tr>
+</table>
+<strong>差别只有一个字符</strong>，而且屏幕上完全看不见 ——
+这正是 ㊳ 里讲的那件事：<strong>「每个字母后面都有空格」要靠 <code>end</code> 管，不是 <code>sep</code></strong>。
+</div>
+
+<div class="box ok">
+<strong>★ 我的字母序列其实一开始就是对的（所以只错格式）</strong><br>
+诊断结果（<code>n=1..6</code> 全输入域）：
+<table>
+<tr><th>检查项</th><th>结果</th></tr>
+<tr><td>行数</td><td>n=1..6 全对 ✅</td></tr>
+<tr><td>字母序列（<strong>去掉所有空格</strong>后比）</td><td>n=1..6 全对 ✅</td></tr>
+<tr><td>逐字节</td><td>n=1..6 <strong>6 个全错</strong> ❌</td></tr>
+<tr><td>每行行尾缺的空格</td><td><strong>每行都缺 1 个</strong></td></tr>
+</table>
+<strong>「去掉空格后对」+「逐字节错」= 纯格式问题</strong>，改动量通常是 1~2 个字符。
+这条诊断顺序值得记：先确认<strong>内容</strong>（序列/行数）对不对，再盯<strong>空白</strong>。
+</div>
+
+<div class="box ok">
+<strong>★ 切片往后推：<code>a,b = b, b+n-1</code> 这个递推</strong><br>
+每行取 <code>L[a:b]</code>，下一行<strong>接着上一行的终点</strong>往下取，长度减一：
+<table>
+<tr><th>轮次</th><th><code>a,b</code></th><th>取到</th></tr>
+<tr><td>1</td><td><code>0,4</code></td><td><code>ABCD</code></td></tr>
+<tr><td>2</td><td><code>4,7</code></td><td><code>EFG</code></td></tr>
+<tr><td>3</td><td><code>7,9</code></td><td><code>HI</code></td></tr>
+<tr><td>4</td><td><code>9,10</code></td><td><code>J</code></td></tr>
+</table>
+<strong>这个写法的好处是"不用回头数第几行"</strong>：字母一路往后走，天然接得上。
+⚠️ 但要注意 <code>n</code> <strong>既当"总行数"又当"当前行长"用</strong> ——
+<code>range(n)</code> 在进入循环时就把 <code>n</code> 的值定下来了（<code>range</code> 拿到的是当时那个数），
+所以循环里改 <code>n</code> <strong>不会影响循环次数</strong>，但会改变下一行的长度。
+<strong>能用，但读的人要停一下</strong>；更清楚的做法是另起一个 <code>width</code> 变量专门记行长。
+</div>
+
+<div class="box bad">
+<strong>顺手记两个可以丢掉的零件（不影响判题）</strong>
+<pre><code>i=0            # ❌ 只为了给最后那句 while 用
+    i+=1       # ❌ 同上
+while i==n:break   # ❌ 死代码：循环结束时 i 已经等于 n，而模块级的 while 本来也不会执行</code></pre>
+<code>while i==n:break</code> 写在<strong>模块顶层</strong>，永远执行不到 —— 而且就算执行，
+<code>i</code> 已经等于 <code>n</code> 了，<code>break</code> 在循环外也用不了。
+<strong>删掉这三行，输出一个字节都不会变</strong>（实测：删前删后 n=1..6 逐字节相同）。
+</div>
+
+<p><strong>优化用法</strong></p>
+
+<div class="box ok">
+<strong>① 想让空格"看得见"，用 <code>" ".join(...) + " "</code>（不必记 <code>end</code>）</strong>
+<pre><code>print(" ".join(L[a:b]) + " ")      # 拼成 'A B C D'，再补一个空格</code></pre>
+和 <code>end=" \n"</code> 版<strong>输出逐字节相同</strong>（实测 n=1..6 全对）。
+好处：<strong>那个空格在字符串里，读代码时就看得见</strong>；
+坏处：要多写一个 <code>" ".join</code>。
+</div>
+
+<div class="box ok">
+<strong>② 每个字母自己带空格：<code>"".join(c + " " for c in row)</code></strong>
+<pre><code>print("".join(c + " " for c in L[a:b]))        # 每个字母后面直接跟一个空格</code></pre>
+这个写法和题面「<strong>每个字母后面都有一个空格</strong>」<strong>逐字对应</strong> ——
+要是题目变成"每行末尾<strong>不要</strong>空格"，只要把 <code>+ " "</code> 去掉即可，改一处就够。
+</div>
+
+<div class="box ok">
+<strong>③ 不用切片：一个计数器一路往后走</strong>
+<pre><code>L=string.ascii_uppercase
+k=0
+for j in range(n,0,-1):                # 行长从 n 递减到 1
+    row="".join(L[k+t] + " " for t in range(j))
+    k+=j                               # 字母位置往后推 j 个
+    print(row)</code></pre>
+比"切片的起点终点一起动"<strong>少一个变量</strong>，代价是内层多一个 <code>range(j)</code>。
+两种写法 <code>n=1..6</code> 输出<strong>逐字节相同</strong>。
+</div>
+
+<p><strong>要点与实测证据</strong>：<code>py_compile</code> 通过；
+四个写法（<code>end=" \n"</code> / <code>" ".join(…)+" "</code> / <code>end=" "</code>+空 <code>print()</code> /
+<code>end=""</code>+<code>print(" ")</code>）在 <code>n=1..6</code> 上<strong>全部逐字节一致</strong>；
+<strong>题面样例 <code>n=4</code> 逐字节一致</strong>（<code>'A B C D \n'</code> / <code>'E F G \n'</code> /
+<code>'H I \n'</code> / <code>'J \n'</code>）；
+<strong>整个输入域 <code>n=1..6</code> 全对</strong>，每行<strong>恰好 1 个行尾空格</strong>（逐行量过）；
+把 <code>while</code>/<code>i</code> 三行删掉后输出<strong>不变</strong>（也是实测）。</p>
 
 <h2 id="quick">七、速查总表</h2>
 
