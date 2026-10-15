@@ -104,7 +104,7 @@
 -->
 
 <h1>Python 自学笔记</h1>
-<p class="meta">hkh ｜ 更新 2026-10-15 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">22</span> 题 + 第4章 <span id="c4">21</span> 题（浙大版《Python 程序设计》题目集）</p>
+<p class="meta">hkh ｜ 更新 2026-10-15 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">22</span> 题 + 第4章 <span id="c4">22</span> 题（浙大版《Python 程序设计》题目集）</p>
 
 <nav id="toc">
   <div class="toc-head">目录　<span class="toc-hint">点标题展开 · 点条目直接跳</span></div>
@@ -200,7 +200,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>六、真题回顾 <span class="toc-n" id="cr">60</span></summary>
+    <summary>六、真题回顾 <span class="toc-n" id="cr">61</span></summary>
     <ol>
       <li><a onclick="return go('review-1')">1-1 从键盘输入两个数求和</a></li>
       <li><a onclick="return go('review-2')">1-2 按公式输出 b²−4ac</a></li>
@@ -274,6 +274,7 @@
       <li><a onclick="return go('review-70')">4-19 矩阵运算</a></li>
       <li><a onclick="return go('review-71')">4-20 求矩阵各行元素之和</a></li>
       <li><a onclick="return go('review-72')">4-21 判断上三角矩阵</a></li>
+      <li><a onclick="return go('review-73')">4-22 找鞍点</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -4654,7 +4655,7 @@ if m!=v[17]:                      # ② 索引</code></pre>
 ② 两边同时改，很容易出现"本地一份、提交另一份"，而且极难发现
 </div>
 
-<h2 id="review">六、真题回顾（<span id="cr2">60</span> 题）</h2>
+<h2 id="review">六、真题回顾（<span id="cr2">61</span> 题）</h2>
 
 <div class="box warn">
 <strong>说明：</strong>下面的题目要求是<strong>我按自己的理解概括写的</strong>，不是 PTA 原文。<br>
@@ -9501,6 +9502,147 @@ for _ in range(T):
 <strong>全域随机对拍 300 组（共 870 个矩阵，<code>n=1..10</code>、三种数据分布）与独立口径 0 组不一致</strong>；
 流式写法另做 300 组 × 3 种数据（2711 个矩阵）0 组不一致、6 组手算边界全对；
 真实文件跑样例<strong>中位数 24.0 ms</strong>（7 次 23.8~28.2 ms，含进程启动，限制 400 ms）。</p>
+
+<h3 id="review-73">4-22 找鞍点 <span class="tag">一次通过</span></h3>
+
+<p><strong>要求</strong>：输入第一行给出正整数 <code>n</code>（<code>1 ≤ n ≤ 6</code>），
+随后 <code>n</code> 行每行 <code>n</code> 个整数。
+<strong>鞍点 ＝ 该位置上的元素「在它那一行里最大」且「在它那一列里最小」</strong>；
+按 <code>行下标 列下标</code>（从 0 开始）输出鞍点位置，不存在则输出 <code>NONE</code>。
+题面另有一句关键的<strong>保证</strong>：<strong>给出的矩阵至多存在一个鞍点</strong>。
+样例1 <code>n=4</code> → <code>2 1</code>；样例2 <code>n=2</code>（<code>1 7 / 4 1</code>）→ <code>NONE</code>。</p>
+
+<p><strong>我的代码（一次通过）</strong></p>
+<pre><code>n=int(input())                                    # 第一行：方阵阶数 n
+cnt=0                                             # 找到的鞍点个数（0 表示没找到）
+L=[list(map(int,input().split())) for _ in range(n)]   # 读 n 行，每行转成整数列表
+for i in range(n):                                # 逐行
+    for j in range(n):                            # 逐列
+        if L[i][j]&gt;=max(L[i]) and L[i][j]&lt;=min([row[j] for row in L]):   # 本行最大 且 本列最小
+            cnt+=1                                # 记一个
+            print(i,j)                            # 直接输出「行 列」
+if cnt==0:                                        # 一个都没有
+    print("NONE")                                 # 打 NONE</code></pre>
+
+<div class="box ok">
+<strong>★ 本题的开关：<code>map(int, …)</code>（少了它样例2 就错）</strong><br>
+<code>max()</code> 比的是<strong>传进去的元素本身</strong> —— 传进去的是数字就比数值，
+传进去的是文本就<strong>按码点逐位比</strong>。矩阵如果不转整数，
+<code>max(['1','7'])</code> 得到的是字符串 <code>'7'</code>，判断还能"看着对"，
+但一旦出现位数不同的数立刻翻车（实测，Python 3.9）：
+<table>
+<tr><th>写法</th><th>结果</th><th>说明</th></tr>
+<tr><td><code>max([1, 6, 1, 2])</code></td><td><code>6</code></td><td>数值最大，正确 ✅</td></tr>
+<tr><td><code>max(['1','6','1','2'])</code></td><td><code>'6'</code></td><td>本题样例里<strong>碰巧也对</strong>（全是单位数）❌</td></tr>
+<tr><td><code>max([10, 9])</code></td><td><code>10</code></td><td>数值最大 ✅</td></tr>
+<tr><td><code>max(['10', '9'])</code></td><td><code>'9'</code></td><td><strong>文本按码点比，'9' &gt; '10'</strong> ❌</td></tr>
+</table>
+⚠️ <strong>少了 <code>map(int, …)</code> 时<u>不会崩溃</u>，而是<u>静默给错答案</u></strong> ——
+这是最难发现的一类错。拿样例2 <code>1 7 / 4 1</code> 实测（Python 3.9）：
+<table>
+<tr><th>写法</th><th>第 0 行最大值</th><th>它在第几列</th><th>那列最小值</th><th>判据结果</th><th>输出</th></tr>
+<tr><td><code>map(int, …)</code> ✅</td><td><code>7</code>（数字）</td><td>1</td>
+<td><code>1</code></td><td><code>7 &lt;= 1</code> → False</td><td><code>NONE</code> ✅</td></tr>
+<tr><td>不转整数 ❌</td><td><code>'7'</code>（字符串）</td><td>1</td>
+<td><code>'1'</code></td><td><code>'7' &lt;= '1'</code> → False</td><td><code>NONE</code> —— <strong>本题碰巧也"对"</strong></td></tr>
+</table>
+两头都是 <code>False</code>，<strong>本题样例区分不出这两种写法</strong>；真正会翻车的是
+位数不同的数据：<code>'10' &lt; '9'</code> 为真（逐字符比），<code>10 &lt; 9</code> 为假。
+<strong>所以这行 <code>map(int, …)</code> 不能靠"样例过了"来确认</strong> ——
+它是靠 <code>max</code>/<code>min</code>/<code>&lt;=</code> 全都在处理数字才成立的。
+</div>
+
+<div class="box ok">
+<strong>★ 为什么用 <code>&gt;=</code> / <code>&lt;=</code> 而不是 <code>==</code>（并列时的保险）</strong><br>
+<code>L[i][j]</code> 既然不小于本行最大值、又不超过本列最小值，
+数学上它就<strong>等于</strong>这两个极值 —— 所以 <code>&gt;=</code>/<code>&lt;=</code> 与
+<code>==</code> 在这里<strong>恒等价</strong>，不会多报也不会漏报。<br>
+但并列（一行里最大值出现两次、一列里最小值出现两次）时，<code>&gt;=</code>/<code>&lt;=</code>
+天然把<strong>每一个</strong>这样的格子都放进来；
+而 <strong>㊲ 那个 ⚠️ 里的写法会漏</strong> ——
+<pre><code>j = L[i].index(max(L[i]))        # index 只给【第一个】位置
+                       # L[i] = [1, 1] 时只给 j=0，j=1 那个格子就漏了</code></pre>
+这题两份代码都对，差别是<strong>本题数据最多只有一个鞍点</strong>，
+所以"漏不漏"看不出来；但把判据写成<strong>逐格验</strong>（本题写法）就不依赖这个保证。
+</div>
+
+<div class="box warn">
+<strong>⚠️ <code>print(i,j)</code> 会把满足的格子<u>全部</u>打出来（多行，不是只打一个）</strong><br>
+题面是「<strong>输出在一行中</strong>……输出<strong>鞍点的位置</strong>」，
+再加上「<strong>至多存在一个鞍点</strong>」这句保证 —— 真数据上永远只有一行，所以本写法判过。
+但这条保证<strong>不是代码保证的</strong>，全 0 矩阵实测会打出 <code>n²</code> 行：
+<pre><code>n=3 全 0 矩阵  →  9 行（每个格子都"行最大 且 列最小"）
+n=2 全 2 矩阵  →  4 行</code></pre>
+<strong>两种收口的写法</strong>（哪个都行，看想不想依赖那句保证）：
+<pre><code>n=int(input())
+pos=None                                  # 循环外先定义，找到就换成 (i,j)
+L=[list(map(int,input().split())) for _ in range(n)]
+for i in range(n):
+    for j in range(n):
+        if L[i][j]&gt;=max(L[i]) and L[i][j]&lt;=min([row[j] for row in L]):
+            pos=(i,j)                     # 只记下来，不在这里 print
+print("%d %d"%pos if pos else "NONE")     # 循环结束后统一输出一次</code></pre>
+</div>
+
+<p><strong>优化用法</strong></p>
+
+<div class="box ok">
+<strong>① 条件里的 <code>max</code> / <code>min</code> 可以搬到循环外面（行最大值只跟 <code>i</code> 有关）</strong><br>
+<pre><code>cmins=[min(row[j] for row in L) for j in range(n)]   # 先把 n 个列最小值算好
+for i in range(n):
+    rmax=max(L[i])                                   # 行最大值每行只算一次
+    for j in range(n):
+        if L[i][j]==rmax and L[i][j]==cmins[j]:
+            print(i,j)</code></pre>
+原写法把 <code>max(L[i])</code> 放在 <code>j</code> 循环里，<strong>同一行算了 n 遍</strong>；
+<code>min([row[j] for row in L])</code> 更重 —— 每个格子都把整列重建一次。
+<code>n≤6</code> 时总共才 36 格，<strong>纯粹是习惯问题</strong>；
+但"<strong>和 j 无关的量别放在 j 循环里</strong>"这个直觉，到后面数据一大就值钱了
+（4-19~4-21 立的那条「同一个运算别算第二遍」）。
+</div>
+
+<div class="box ok">
+<strong>② 列最小值直接用转置：<code>zip(*L)</code>（㊲ 的实战）</strong><br>
+<pre><code>T=list(zip(*L))                   # T[j] 就是第 j 列，一个元组
+cmins=[min(col) for col in T]
+...   L[i][j]==cmins[j]</code></pre>
+比 <code>min([row[j] for row in L])</code> 更好读：<strong>「第 j 列的最小值」写成了"取第 j 列再 min"</strong>，
+不再有"<code>j</code> 出现在两个地方"的绕。转置一次 <code>O(n²)</code>，
+之后每次按列取都是 <code>O(1)</code>（㊲ 实测：反复按列取，转置后 0.05 ms vs 每次重算 458.39 ms）。
+</div>
+
+<div class="box ok">
+<strong>③ 想「找到就停」：套一层函数用 <code>return</code>（<code>break</code> 只能跳一层）</strong><br>
+<pre><code>def find(L, n):
+    cmins=[min(col) for col in zip(*L)]
+    for i in range(n):
+        rmax=max(L[i])
+        for j in range(n):
+            if L[i][j]==rmax and L[i][j]==cmins[j]:
+                return (i, j)         # 直接结束【两层】循环
+    return None
+
+n=int(input())
+L=[list(map(int,input().split())) for _ in range(n)]
+p=find(L, n)
+print("%d %d"%p if p else "NONE")</code></pre>
+<code>break</code> 一次只能跳出一层 <code>for</code>，要跳出两层得靠标志位 ——
+<strong>包成函数后一个 <code>return</code> 就够了</strong>，顺便把"找"和"打印"分开。
+⚠️ 本机实测：<code>return</code> 提前退出在本题<b>不影响正确性</b>（题面保证至多一个鞍点），
+但如果哪天数据破了这个保证，提前退出<strong>只会少打、不会多打</strong>。
+</div>
+
+<p><strong>要点与实测证据</strong>：<code>py_compile</code> 通过；
+<strong>两个题面样例逐字节一致</strong>（样例1 <code>2 1</code>、样例2 <code>NONE</code>，
+<code>repr</code> 实测 <code>'2 1\r\n'</code> / <code>'NONE\r\n'</code>，无多余空格）；
+<strong>8 组边界全对</strong>（<code>n=1</code> 单格、<code>n=1</code> 负数、
+<code>n=6</code> 题面上限、<code>n=6</code> 递增无鞍点、负数矩阵、全 0 矩阵探并列）；
+<strong>随机对拍 3000 组 0 不一致</strong>（<code>n∈{1,2,3,4,5,6,10}</code>，
+值域故意取小以制造大量并列：<code>(0,0)</code>/<code>(0,1)</code>/<code>(-2,2)</code>/
+<code>(0,9)</code>/<code>(-5,5)</code>）；
+<strong>穷举 <code>n=2,3</code> × 值域 <code>{0,1,2}</code> 全空间 19764 组 0 不一致</strong>；
+<strong>第三种机制</strong>（行最大值集合 ∩ 列最小值集合）对拍 3000 组也 0 不一致 ——
+三种口径互证。</p>
 
 <h2 id="quick">七、速查总表</h2>
 
