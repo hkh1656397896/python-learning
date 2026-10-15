@@ -104,7 +104,7 @@
 -->
 
 <h1>Python 自学笔记</h1>
-<p class="meta">hkh ｜ 更新 2026-10-15 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">22</span> 题 + 第4章 <span id="c4">23</span> 题（浙大版《Python 程序设计》题目集）</p>
+<p class="meta">hkh ｜ 更新 2026-10-15 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">22</span> 题 + 第4章 <span id="c4">24</span> 题（浙大版《Python 程序设计》题目集）</p>
 
 <nav id="toc">
   <div class="toc-head">目录　<span class="toc-hint">点标题展开 · 点条目直接跳</span></div>
@@ -201,7 +201,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>六、真题回顾 <span class="toc-n" id="cr">62</span></summary>
+    <summary>六、真题回顾 <span class="toc-n" id="cr">63</span></summary>
     <ol>
       <li><a onclick="return go('review-1')">1-1 从键盘输入两个数求和</a></li>
       <li><a onclick="return go('review-2')">1-2 按公式输出 b²−4ac</a></li>
@@ -277,6 +277,7 @@
       <li><a onclick="return go('review-72')">4-21 判断上三角矩阵</a></li>
       <li><a onclick="return go('review-73')">4-22 找鞍点</a></li>
       <li><a onclick="return go('review-74')">4-23 求矩阵的局部极大值</a></li>
+      <li><a onclick="return go('review-75')">4-24 打印九九口诀表</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -4761,7 +4762,7 @@ if m!=v[17]:                      # ② 索引</code></pre>
 ② 两边同时改，很容易出现"本地一份、提交另一份"，而且极难发现
 </div>
 
-<h2 id="review">六、真题回顾（<span id="cr2">62</span> 题）</h2>
+<h2 id="review">六、真题回顾（<span id="cr2">63</span> 题）</h2>
 
 <div class="box warn">
 <strong>说明：</strong>下面的题目要求是<strong>我按自己的理解概括写的</strong>，不是 PTA 原文。<br>
@@ -9866,6 +9867,98 @@ if col[i]&gt;col[i-1] and col[i]&gt;col[i+1]:   # 上下邻居 = 这一列的相
 <strong>单点突起 36 组 0 不一致</strong>（穷举每个非边界位置）；
 <strong>对照实现机制不同</strong>（把 4 个邻居拼成列表用 <code>all()</code>，
 输出顺序靠 <code>sort(key=(行,列))</code> 显式保证，不依赖循环顺序）—— 四种口径互证。</p>
+
+<h3 id="review-75">4-24 打印九九口诀表 <span class="tag">一次通过</span></h3>
+
+<p><strong>要求</strong>：输入一个正整数 <code>N</code>（<code>1 ≤ N ≤ 9</code>），
+输出<strong>下三角</strong>的 <code>N*N</code> 部分口诀表（第 j 行放 <code>1*1</code> 到 <code>j*j</code>），
+<strong>等号右边数字占 4 位、左对齐</strong>，输入保证输出最后有换行。
+样例 <code>N=4</code> → 四行，第一行 <code>1*1=1</code>，第四行到 <code>4*4=16</code>。</p>
+
+<p><strong>我的代码（一次通过；下面这版是把两个坑都修掉之后的）</strong></p>
+<pre><code>n=int(input())                                    # 输入 N
+for j in range(1,n+1):                            # 外层：第 j 行（行号就是右边的因数）
+    for i in range(1,j+1):                        # 内层：这一行放 1..j（左边的因数）
+        t=i*j                                     # 乘积
+        if i==j:                                  # 最后一个式子 → 该收尾换行了
+            print(f"{i}*{j}={t:&lt;4}",end="")       # 先打完这一项，不换行
+            print()                               # 再单独补一个换行
+        else:print(f"{i}*{j}={t:&lt;4}",end="")       # 不是最后一项：接着打，不换行</code></pre>
+
+<div class="box bad">
+<strong>我最初那版的两个坑（都实测过，而且它们会互相掩盖）</strong><br>
+<strong>坑 1：<code>print(...)</code> 每调一次就换行</strong> —— 内层每打完一个式子就换行，
+结果 <code>N=4</code> 打出 <strong>10 行</strong>（期望 4 行），看着"竖着输出"就是这么来的。
+<table>
+<tr><th>N</th><th>实际行数（未修）</th><th>期望行数</th></tr>
+<tr><td>1</td><td>1</td><td>1</td></tr>
+<tr><td>2</td><td>3</td><td>2</td></tr>
+<tr><td>4</td><td>10</td><td>4</td></tr>
+<tr><td>9</td><td><strong>45</strong></td><td>9</td></tr>
+</table>
+行数正好是 <code>1+2+…+N</code> —— 也就是"<strong>每个式子各占一行</strong>"。<br>
+<strong>修法是 <code>end</code> 参数</strong>（下一节 ㊳ 专门讲）：<code>end=""</code> 让这一句<strong>不换行</strong>，
+位置留到该换行的那一项再补。
+</div>
+
+<div class="box warn">
+<strong>⚠️ 坑 2：对齐符 <code>&lt;</code> / <code>&gt;</code> 与题面的"左对齐"</strong><br>
+题面文字写「乘积占 4 位、<strong>左对齐</strong>」，所以最终用的是 <code>{t:&lt;4}</code>
+（空格补在数字<strong>后面</strong>）。<br>
+但要注意：<strong>这样每行末尾会留下 2~3 个空格</strong>（最后一格补出来的）：
+<pre><code>N=4 第 4 行实测 → '1*4=4   2*4=8   3*4=12  4*4=16  '   ← 末尾 2 个空格</code></pre>
+屏幕上<strong>看不见</strong>行尾空格，所以"看着对"；本机 <code>repr</code> 一比就露馅。<br>
+本题 PTA <strong>判过</strong>，说明它<strong>忽略行尾空白</strong> —— 这类"判题宽松掩盖的差异"
+和 4-6（末行换行）、4-7（<code>N=0</code>）是同一族，<strong>记着就行，别指望它永远宽松</strong>。
+</div>
+
+<p><strong>优化用法</strong></p>
+
+<div class="box ok">
+<strong>① 换行条件用 <code>i==j</code>，<strong>绝不能用</strong> <code>i==n</code>（这题最毒的坑）</strong>
+<pre><code>for j in range(1,n+1):
+    for i in range(1,j+1):
+        print(..., end="")
+        if i==n:          # ❌ i 只跑到 j，只有最后一行才可能等于 n
+            print()       #    → 中间那些行永远不换行，全挤成一行</code></pre>
+<code>i</code> 的范围是 <code>1..j</code>，不是 <code>1..n</code> ——
+所以"该换行了"要跟<strong>这一行的终点 <code>j</code></strong> 比，而不是跟全局的 <code>n</code> 比。
+这和 4-6「每 5 个换行」是同一类判断：<strong>换行点要跟"这一行的容量"比，别跟总数比</strong>。
+</div>
+
+<div class="box ok">
+<strong>② 另一种更干净的形状：内层全 <code>end=""</code>，<strong>内层循环结束后</strong>补一个 <code>print()</code></strong>
+<pre><code>for j in range(1,n+1):
+    for i in range(1,j+1):
+        print(f"{i}*{j}={i*j:&lt;4}", end="")     # 每一项都不换行
+    print()                                    # 这一行打完了，统一换行（缩进在【内层 for 之外】）</code></pre>
+比"<code>if i==j</code> 里再分一支"少一层分支，也就不用把 <code>print</code> 写两遍。<br>
+⚠️ 这个 <code>print()</code> 的<strong>缩进位置是全部要害</strong>：
+放在内层 <code>for</code> 里 = 每个式子后都换行（回到坑 1）；放在内层之外、外层之内 = 每行一个换行（正确）。
+这正是 <strong>❌15「缩进＝从属关系」</strong>的又一个实例。
+</div>
+
+<div class="box ok">
+<strong>③ 换行的三种等价写法（实测输出逐字节相同）</strong>
+<table>
+<tr><th>写法</th><th>关键代码</th><th>N=9 重复 2 万次</th></tr>
+<tr><td>内层结束后补 <code>print()</code></td><td><code>for i…: print(…, end="")</code><br>循环外 <code>print()</code></td>
+<td><strong>251.5 ms</strong>（最快）</td></tr>
+<tr><td>整行攒成字符串</td><td><code>s += …</code> → <code>print(s)</code></td><td>259.2 ms</td></tr>
+<tr><td><code>if i==j</code> 里补换行</td><td>就是我这版</td><td>274.1 ms</td></tr>
+<tr><td><code>join</code> 拼整行</td><td><code>"".join(…)</code></td><td>296.8 ms</td></tr>
+<tr><td>计数器攒够 j 个换行</td><td><code>cnt==j</code> → <code>print()</code></td><td>467.2 ms</td></tr>
+</table>
+<strong>九种写法（含列表推导、自己补空格对齐、<code>zip</code> 转置等）输出两两逐字节相同</strong>，
+最快的比最慢的只快 <strong>2.17 倍</strong>，而 <code>N≤9</code> 时全是微秒级 ——
+<strong>速度在这题完全不是理由，挑读得懂的</strong>。
+</div>
+
+<p><strong>要点与实测证据</strong>：<code>py_compile</code> 通过；
+<strong>题面样例 <code>N=4</code> 逐字节一致</strong>（含行尾那 2 个空格，与题面"左对齐"文字口径一致）；
+<strong>整个输入域 <code>N=1..9</code> 全对</strong>（9 组，与按题面规则程序化算出的期望逐字节比）；
+<strong>9 种不同写法的 N=1..9 输出两两逐字节相同</strong>（<code>N=9</code> 总输出 369 字节）；
+每种写法的"行尾空格数"也逐个核对过（左对齐版每行 2~3 个，与规则算出来的一致）。</p>
 
 <h2 id="quick">七、速查总表</h2>
 
