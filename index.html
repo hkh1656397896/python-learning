@@ -9989,8 +9989,10 @@ for j in range(1,n+1):                            # 外层：第 j 行（行号�
 <td>全部题；❌12 的括号坑</td></tr>
 
 <tr><td><code>print()</code></td><td>输出；多个参数默认空格隔开</td>
-<td><code>print(i, m[i])</code>　<code>print(x, end=" ")</code>　<code>print(*nums, sep="->")</code></td>
-<td>全部题；③ 格式化、⑨ 一行几个</td></tr>
+<td><code>print(i, m[i])</code>　<code>print(x, end=" ")</code>　<code>print(*nums, sep="->")</code><br>
+⚠️ <code>sep</code> 只在「一次打多个值」时生效；<code>end</code> 默认 <code>\n</code>，
+改成 <code>end=""</code> 就不换行（<strong>㊳</strong> 专讲这一节）</td>
+<td>全部题；③ 格式化、⑨ 一行几个、<strong>㊳</strong>、4-24</td></tr>
 
 <tr><td><code>int()</code> / <code>float()</code></td><td>转整数 / 转小数</td>
 <td><code>int("45")</code> <code>45</code>｜<code>int("1010", 2)</code> <code>10</code>｜<code>float("3.5")</code> <code>3.5</code></td>
@@ -10193,7 +10195,8 @@ for j in range(1,n+1):                            # 外层：第 j 行（行号�
 
 <tr><td><strong>怎么控制输出格式</strong></td>
 <td>③ 格式化输出｜⑨ 一行固定输出几个｜<strong>㉗ 竖向输出</strong>（每行一个：for / <code>sep="\\n"</code> /
-<code>join</code>，以及三者的区别）｜⑦ 排序后输出｜<strong>本表 ③ 格式化与输出参数</strong></td></tr>
+<code>join</code>，以及三者的区别）｜<strong>㊳ 输出的格式控制</strong>（<code>end</code> / <code>sep</code> /
+行尾空白，「每行 N 个」的四种写法）｜⑦ 排序后输出｜<strong>本表 ③ 格式化与输出参数</strong></td></tr>
 
 <tr><td><strong>怎么处理字符串</strong></td>
 <td>④ 字符串↔数字↔进制｜⑰ 切片 vs range｜⑱ strip 清理｜⑳ enumerate 找位置｜<strong>本表 ② 字符串方法</strong></td></tr>
