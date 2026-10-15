@@ -104,7 +104,7 @@
 -->
 
 <h1>Python 自学笔记</h1>
-<p class="meta">hkh ｜ 更新 2026-10-15 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">22</span> 题 + 第4章 <span id="c4">27</span> 题（浙大版《Python 程序设计》题目集）</p>
+<p class="meta">hkh ｜ 更新 2026-10-15 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">22</span> 题 + 第4章 <span id="c4">28</span> 题（浙大版《Python 程序设计》题目集）</p>
 
 <nav id="toc">
   <div class="toc-head">目录　<span class="toc-hint">点标题展开 · 点条目直接跳</span></div>
@@ -201,7 +201,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>六、真题回顾 <span class="toc-n" id="cr">66</span></summary>
+    <summary>六、真题回顾 <span class="toc-n" id="cr">67</span></summary>
     <ol>
       <li><a onclick="return go('review-1')">1-1 从键盘输入两个数求和</a></li>
       <li><a onclick="return go('review-2')">1-2 按公式输出 b²−4ac</a></li>
@@ -281,6 +281,7 @@
       <li><a onclick="return go('review-76')">4-25 输出三角形字符阵列</a></li>
       <li><a onclick="return go('review-77')">4-26 求 1!+3!+5!+……+n!</a></li>
       <li><a onclick="return go('review-78')">4-27 二维数组中每行最大值和每行和</a></li>
+      <li><a onclick="return go('review-79')">4-28 矩阵转置</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -4817,7 +4818,7 @@ if m!=v[17]:                      # ② 索引</code></pre>
 ② 两边同时改，很容易出现"本地一份、提交另一份"，而且极难发现
 </div>
 
-<h2 id="review">六、真题回顾（<span id="cr2">66</span> 题）</h2>
+<h2 id="review">六、真题回顾（<span id="cr2">67</span> 题）</h2>
 
 <div class="box warn">
 <strong>说明：</strong>下面的题目要求是<strong>我按自己的理解概括写的</strong>，不是 PTA 原文。<br>
@@ -10295,6 +10296,110 @@ for _ in range(3):
 <strong>5 组边界全对</strong>（全相同 / 全 0 / 含 <code>99</code> / 0 与 9 交替 / 首位是 0 → 占 4 列时正是 <code>'   0'</code>）；
 <strong>随机对拍 300 组 0 不一致</strong>（数值域 <code>[0, 99]</code>，期望值用独立口径
 <code>"".join("%4d" % v …)</code> 另算一份）。</p>
+
+<h3 id="review-79">4-28 矩阵转置 <span class="tag">一次通过</span></h3>
+
+<p><strong>要求</strong>：把一个 <strong>3×3 矩阵转置</strong>（行和列互换）。
+一行输入 <strong>9 个小于 100 的整数</strong>（空格分隔）；
+输出 3 行 3 列，<strong>每个数据占 4 列</strong>。
+样例 <code>1 2 3 4 5 6 7 8 9</code> →
+<code>'   1   4   7'</code> / <code>'   2   5   8'</code> / <code>'   3   6   9'</code>。</p>
+
+<p><strong>我的代码（一次通过）</strong></p>
+<pre><code>m=input().split()                     # 把一行 9 个数读成一个【文本】列表（没有转 int）
+i=0                                   # 转置后每一行的起点 = 原矩阵的【列号】
+for _ in range(3):                    # 转置后还是 3 行
+    L=[m[i],m[i+3],m[i+6]]            # 隔 3 格取一列 —— 这就是「取第 i 列」
+    i+=1                              # 起点往后推 1，下一轮就取下一列
+    x="".join(f"{c:&gt;4}" for c in L)   # 三个元素各占 4 列（右对齐），直接拼、不加分隔符
+    print(x)                          # 每行一次 print，自带换行</code></pre>
+
+<div class="box ok">
+<strong>★ 转置的实质：同一张扁平表，切法从"连着取"改成"隔着取"</strong><br>
+输入是<strong>一行 9 个数</strong>，扁平存着，所以<strong>下标 = 行 × 3 + 列</strong>（4-27 刚用过这个公式）。
+反过来，"取第 c 列"就是把下标每次加 3：
+<pre><code>m = ['1','2','3','4','5','6','7','8','9']
+第 1 轮  i=0  L = m[0], m[3], m[6] = ['1','4','7']   ← 原矩阵第 1 列 → 转置后的第 1 行
+第 2 轮  i=1  L = m[1], m[4], m[7] = ['2','5','8']   ← 原矩阵第 2 列
+第 3 轮  i=2  L = m[2], m[5], m[8] = ['3','6','9']   ← 原矩阵第 3 列</code></pre>
+对照 4-27 那道题，两题在扁平表上的动作正好是一对镜像：
+<table>
+<tr><th>题</th><th>取法</th><th>取到的是</th><th>下标</th></tr>
+<tr><td>4-27</td><td><code>m[i:i+3]</code>（连着 3 个）</td><td>一<strong>行</strong></td><td><code>0,1,2</code> / <code>3,4,5</code> / <code>6,7,8</code></td></tr>
+<tr><td>4-28</td><td><code>m[i],m[i+3],m[i+6]</code>（隔 3 个）</td><td>一<strong>列</strong></td><td><code>0,3,6</code> / <code>1,4,7</code> / <code>2,5,8</code></td></tr>
+</table>
+<strong>行和列只差一个"步长 1 还是步长 3"，转置就是把步长换掉。</strong>
+</div>
+
+<div class="box warn">
+<strong>★ 这题的"开关"：<code>c</code> 是【文本】，所以 <code>&gt;</code> 必须写</strong><br>
+<code>m</code> 是 <code>split()</code> 出来的<strong>字符串</strong>列表，而<strong>字符串不写符号时默认【左】对齐</strong>、
+数字不写符号才默认右对齐 —— 这两个默认值在这里刚好相反：
+<pre><code>f"{c:&gt;4}"    # c 是文本 '1'  → '   1'   ✅ 本题用的（写了 &gt;）
+f"{c:4}"     # c 是文本 '1'  → '1   '   ❌ 少了 &gt; 就左对齐，样例立刻对不上
+f"{1:4}"     # c 是数字 1    → '   1'   ✅ 数字默认右对齐，可以不写符号</code></pre>
+实测（字符串版 <code>f"{c:&gt;4}"</code> vs 先 <code>int()</code> 再 <code>"%4d"</code>）：
+<table>
+<tr><th>情形</th><th>文本版 <code>f"{c:&gt;4}"</code></th><th>数字版 <code>"%4d"</code></th><th>结果</th></tr>
+<tr><td>1 位 / 2 位（<strong>本题全部取值</strong>）</td><td><code>'   1'</code> / <code>'  99'</code></td><td><code>'   1'</code> / <code>'  99'</code></td><td>相同</td></tr>
+<tr><td>前导 0：文本 <code>'05'</code></td><td><code>'  05'</code></td><td><code>'   5'</code></td><td>不同</td></tr>
+<tr><td>带正号：文本 <code>'+5'</code></td><td><code>'  +5'</code></td><td><code>'   5'</code></td><td>不同</td></tr>
+<tr><td>负数：文本 <code>'-1'</code></td><td><code>'  -1'</code></td><td><code>'  -1'</code></td><td>相同</td></tr>
+<tr><td>超过 4 位：文本 <code>'12345'</code></td><td><code>'12345'</code></td><td><code>'12345'</code></td><td>相同</td></tr>
+<tr><td>小数文本 <code>'1.5'</code></td><td><code>' 1.5'</code></td><td><code>int()</code> 直接 <code>ValueError</code></td><td>不同</td></tr>
+</table>
+题面保证是"小于 100 的整数"，所以 <code>0</code>~<code>99</code> 共 <strong>100 个值实测两种写法逐字符全同</strong> ——
+这题<strong>转不转 int 都对</strong>。<strong>但 <code>&gt;</code> 一个都不能省。</strong>
+（这跟 4-22「少了 <code>map(int, …)</code> 不崩、只静默给错答案」是同一族：
+<strong>写法能成立是有前提的，前提一变就翻车。</strong>）
+</div>
+
+<p><strong>优化用法</strong></p>
+
+<div class="box ok">
+<strong>① 把 <code>i</code> 交给 <code>range</code>，省掉 <code>i+=1</code></strong>
+<pre><code>for i in range(3):                    # i 本身就是列号（0/1/2），不用手工 +1
+    L=[m[i],m[i+3],m[i+6]]
+    print("".join(f"{c:&gt;4}" for c in L))</code></pre>
+原来的 <code>i=0</code> + <code>i+=1</code> 是<strong>手工维护的状态</strong>：
+多一个变量、多一处可能算错的地方。<code>range(3)</code> 直接把 <code>i</code> 给出来。
+</div>
+
+<div class="box ok">
+<strong>② 先还原成 3 行，再让 <code>zip(*行)</code> 去转置（㊲ 的实战第一例）</strong>
+<pre><code>rows=[m[0:3], m[3:6], m[6:9]]         # 先把扁平表切成 3 行
+for col in zip(*rows):                # zip(*rows) 把"每一行摊开、按位置重新捆" → 得到一列
+    print("".join(f"{c:&gt;4}" for c in col))</code></pre>
+这一版<strong>语义最直白</strong>：转置就是行列互换，而 <code>zip(*rows)</code> 干的事正是"把列当行取出来"。
+代价是先把数据切成二维（多一层结构），本题数据小、无所谓；
+<strong>但这套写法在"矩阵要反复按列取"时是标准解</strong>（㊲ 里量过：反复按列取，先转置再取是 0.05 ms，
+每次现算一列是 458.39 ms）。
+</div>
+
+<div class="box ok">
+<strong>③ 两个小变体：写出下标公式 / 先转成整数</strong>
+<pre><code># 变体一：把"行×3+列"这个公式直接写进列表推导（㊱）
+for c in range(3):
+    print("".join(f"{m[c+3*r]:&gt;4}" for r in range(3)))
+
+# 变体二：先转 int，宽度就能写数字版（连 &gt; 都能省）
+m=list(map(int,input().split()))
+for i in range(3):
+    print("".join(f"{v:4d}" for v in (m[i],m[i+3],m[i+6])))</code></pre>
+变体一的好处是<strong>把公式摆明了</strong>：<code>c+3*r</code> 就是"第 r 行第 c 列"在扁平表里的位置。
+变体二要注意 <code>m</code> 的<strong>类型变了</strong>（文本 → 数字）：本题只做输出，转不转都行；
+真正<strong>需要</strong>数字的是 4-27 那种要 <code>max</code>/<code>sum</code> 的题（那里不转就静默算错）。
+</div>
+
+<p><strong>要点与实测证据</strong>：<code>py_compile</code> 通过；
+<strong>题面样例逐字节一致</strong>（三行都是 <code>'   1   4   7'</code> 这种形状）；
+<strong>每行 12 字符、行尾 0 个空格、共 3 行</strong>（逐行量过）；
+<strong>8 组边界全对</strong>（全相同（对称矩阵）/ 全 0 → 每格正是 <code>'   0'</code> / 全是两位数 <code>99..91</code>（宽度最紧）/
+首位是 0 / 非对称矩阵 / 重复值多 / 输入带多余空格）；
+<strong>随机对拍 120 组 0 不一致</strong>（值域 <code>[0, 99]</code>，期望值用独立口径
+<code>"".join("%4d" % …)</code> 另算一份）。
+另记一笔：源文件里 <code>for _ in range(3): </code> 行尾留了一个空格，
+<strong>Python 忽略行尾空白</strong>，无影响（4-24 那题的 <code>end=" ")</code> 行尾空格是另一回事，那是输出的一部分）。</p>
 
 <h2 id="quick">七、速查总表</h2>
 
