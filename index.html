@@ -104,7 +104,7 @@
 -->
 
 <h1>Python 自学笔记</h1>
-<p class="meta">hkh ｜ 更新 2026-10-15 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">22</span> 题 + 第4章 <span id="c4">25</span> 题（浙大版《Python 程序设计》题目集）</p>
+<p class="meta">hkh ｜ 更新 2026-10-15 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">22</span> 题 + 第4章 <span id="c4">26</span> 题（浙大版《Python 程序设计》题目集）</p>
 
 <nav id="toc">
   <div class="toc-head">目录　<span class="toc-hint">点标题展开 · 点条目直接跳</span></div>
@@ -201,7 +201,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>六、真题回顾 <span class="toc-n" id="cr">64</span></summary>
+    <summary>六、真题回顾 <span class="toc-n" id="cr">65</span></summary>
     <ol>
       <li><a onclick="return go('review-1')">1-1 从键盘输入两个数求和</a></li>
       <li><a onclick="return go('review-2')">1-2 按公式输出 b²−4ac</a></li>
@@ -279,6 +279,7 @@
       <li><a onclick="return go('review-74')">4-23 求矩阵的局部极大值</a></li>
       <li><a onclick="return go('review-75')">4-24 打印九九口诀表</a></li>
       <li><a onclick="return go('review-76')">4-25 输出三角形字符阵列</a></li>
+      <li><a onclick="return go('review-77')">4-26 求 1!+3!+5!+……+n!</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -4778,7 +4779,7 @@ if m!=v[17]:                      # ② 索引</code></pre>
 ② 两边同时改，很容易出现"本地一份、提交另一份"，而且极难发现
 </div>
 
-<h2 id="review">六、真题回顾（<span id="cr2">64</span> 题）</h2>
+<h2 id="review">六、真题回顾（<span id="cr2">65</span> 题）</h2>
 
 <div class="box warn">
 <strong>说明：</strong>下面的题目要求是<strong>我按自己的理解概括写的</strong>，不是 PTA 原文。<br>
@@ -10089,6 +10090,87 @@ for j in range(n,0,-1):                # 行长从 n 递减到 1
 <code>'H I \n'</code> / <code>'J \n'</code>）；
 <strong>整个输入域 <code>n=1..6</code> 全对</strong>，每行<strong>恰好 1 个行尾空格</strong>（逐行量过）；
 把 <code>while</code>/<code>i</code> 三行删掉后输出<strong>不变</strong>（也是实测）。</p>
+
+<h3 id="review-77">4-26 求 <code>1!+3!+5!+……+n!</code> <span class="tag">改了两次才对</span></h3>
+
+<p><strong>要求</strong>：输入一个不超过 12 的正整数 <code>n</code>，
+按格式 <code>n=n值,s=阶乘和</code> 输出 <code>1!+3!+5!+…+n!</code> 的和
+（<code>n</code> 是奇数；题面还写了「要求用循环嵌套设计」）。
+样例 <code>n=5</code> → <code>n=5,s=127</code>（<code>1+6+120</code>）。</p>
+
+<p><strong>我的代码（最终版，两次修正之后）</strong></p>
+<pre><code>n=int(input())                                    # 输入 n（不超过 12 的正整数）
+x=2                                               # 递推要乘的那个偶数因子，从 2 开始
+term=1                                            # 当前奇数阶乘，初值 1 = 1!
+t=1                                               # 累计和，初值就是 1!（见下面 box）
+if n==1:                                          # n=1 时循环一次都不跑，单独打
+    print("n=1,s=1")
+else:
+    for i in range(3,n+1,2):                      # i 取 3,5,7,…, n 这些【奇数】
+        term*=(x*i)                               # 上一个奇数阶乘 × 两个中间因子 = 这一个奇数阶乘
+        x+=2                                      # 偶数因子往后走：2→4→6→…
+        t+=term                                   # 累加
+    print(f"n={n},s={t}")                         # ← 这一行必须在 else 里！（见下面 box）</code></pre>
+
+<div class="box bad">
+<strong>我改了两版才把 <code>n=1</code> 修对 —— 两次都错在"哪一行属于哪个分支"</strong><br>
+<strong>第 1 版</strong>：<code>if n==1: print("n=1,s=1")</code> 后面<strong>直接跟 <code>for</code></strong>，
+最后的 <code>print(f"n={n},s={t}")</code> 在<strong>最外层</strong>（缩进 0 格）：
+<table>
+<tr><th>n</th><th>输出</th><th>问题</th></tr>
+<tr><td><code>1</code></td><td><code>'n=1,s=1\nn=1,s=1\n'</code></td>
+<td><strong>两行</strong> ❌ —— 第 5 行打完，第 10 行又打了一遍（<code>t</code> 本来就是 1）</td></tr>
+<tr><td>2~12</td><td>全对</td><td>✅</td></tr>
+</table>
+<strong>第 2 版</strong>：我以为"把 <code>for</code> 挪进 <code>else</code>"就好了 —— **还是两行** ❌。<br>
+因为 <code>else</code> 只包住了 <code>for</code>，那句 <code>print</code> <strong>仍然在 if/else 外面</strong>，
+<code>n=1</code> 时照样执行。<br>
+<strong>第 3 版（最终）</strong>：把那句 <code>print</code> <strong>也缩进进 <code>else</code></strong>（和 <code>for</code> 同层）→
+<code>n=1</code> 只打一行 ✅。<br>
+<strong>一句话：<code>else</code> 不会"管住"它后面的语句 —— 缩进才对从属关系说话。</strong>
+这和 <strong>❌15（缩进 = 从属关系）</strong>是同一个病，
+而且和 4-7 那次（`N=0` 先打对两行再 `NameError`）几乎一模一样。
+</div>
+
+<div class="box ok">
+<strong>这题的开关是"递推"，不是"每项重新算阶乘"</strong><br>
+相邻两个奇数阶乘之间**只差两个因子**，所以可以从上一个推出来：
+<table>
+<tr><th>要算</th><th><code>term</code> 怎么来</th><th>算式</th><th><code>term</code></th><th>累计 <code>t</code></th></tr>
+<tr><td><code>1!</code></td><td>初值</td><td><code>1</code></td><td><code>1</code></td><td><code>1</code></td></tr>
+<tr><td><code>3!</code></td><td><code>1! × (2×3)</code></td><td><code>1×6</code></td><td><code>6</code></td><td><code>7</code></td></tr>
+<tr><td><code>5!</code></td><td><code>3! × (4×5)</code></td><td><code>6×20</code></td><td><code>120</code></td><td><code>127</code></td></tr>
+<tr><td><code>7!</code></td><td><code>5! × (6×7)</code></td><td><code>120×42</code></td><td><code>5040</code></td><td><code>5167</code></td></tr>
+<tr><td><code>9!</code></td><td><code>7! × (8×9)</code></td><td><code>5040×72</code></td><td><code>362880</code></td><td><code>368047</code></td></tr>
+<tr><td><code>11!</code></td><td><code>9! × (10×11)</code></td><td><code>362880×110</code></td><td><code>39916800</code></td><td><code>40284847</code></td></tr>
+</table>
+<code>x</code> 就是那个"偶数因子"，每轮 <code>x += 2</code>：
+<strong><code>x</code> 和 <code>i = n-2</code> 合起来正好补齐上一个奇数阶乘到这一个之间缺的两个因子</strong>。
+上面每一行的乘积我都逐轮核对过，与 <code>math.factorial</code> 独立算的一致。<br>
+对比一下：如果每项都重新 <code>math.factorial(i)</code> 或者内层再跑一个 <code>for</code> 累乘，
+<code>n=11</code> 也只是几微秒——**这题小到看不出速度差**，
+但"<strong>能用上一轮的结果就别重算</strong>"是通用习惯（㉛ 递推、㉜ 辗转相除都是这条）。
+</div>
+
+<div class="box warn">
+<strong>⚠️ 另一种更短的写法：不分支，靠初值兜住 <code>n=1</code></strong>
+<pre><code>t=1                                  # 初值就是 1!，所以 n=1 时什么都不用做
+for i in range(3,n+1,2):             # n=1 时 range(3,2,2) 是空的 → 循环不跑
+    term*=(x*i); x+=2; t+=term
+print(f"n={n},s={t}")                # 只有这一处输出</code></pre>
+<strong>少 3 行、只有一处 <code>print</code>，也就不存在"哪个 print 属于哪个分支"的问题</strong>
+（实测 <code>n=1..12</code> 与本版输出逐字节相同）。<br>
+这条思路叫「<strong>让初值把边界情况吃掉</strong>」：
+把 <code>1!</code> 直接写进 <code>t</code> 的初值，<code>n=1</code> 就退化成"循环一次都不跑"的自然特例，
+不需要特判。题面那句"要求用循环嵌套设计"也更贴这种写法。
+</div>
+
+<p><strong>要点与实测证据</strong>：<code>py_compile</code> 通过；
+<strong>整个输入域 <code>n=1..12</code> 逐字节一致</strong>（12 组，期望值用 <code>math.factorial</code> 独立算）；
+<strong><code>n=1</code> 单独逐字符核对</strong>过（改前 <code>'n=1,s=1\nn=1,s=1\n'</code> 两行 → 改后 <code>'n=1,s=1\n'</code> 一行）；
+样例 <code>n=5</code> → <code>n=5,s=127</code> 逐字节一致；<code>n=11</code> → <code>40284847</code>；
+递推过程<strong>逐轮核对了 <code>term</code> 与 <code>t</code></strong>（六轮全部与阶乘定义吻合）；
+"不分支"那种写法也跑了 <code>n=1..12</code>，输出与本版<strong>逐字节相同</strong>。</p>
 
 <h2 id="quick">七、速查总表</h2>
 
