@@ -104,7 +104,7 @@
 -->
 
 <h1>Python 自学笔记</h1>
-<p class="meta">hkh ｜ 更新 2026-10-15 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">22</span> 题 + 第4章 <span id="c4">29</span> 题（浙大版《Python 程序设计》题目集）</p>
+<p class="meta">hkh ｜ 更新 2026-10-15 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">22</span> 题 + 第4章 <span id="c4">30</span> 题（浙大版《Python 程序设计》题目集）</p>
 
 <nav id="toc">
   <div class="toc-head">目录　<span class="toc-hint">点标题展开 · 点条目直接跳</span></div>
@@ -132,7 +132,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>二、常用代码与拓展 <span class="toc-n" id="cs">38</span></summary>
+    <summary>二、常用代码与拓展 <span class="toc-n" id="cs">39</span></summary>
     <ol>
       <li><a onclick="return go('s1-1')">① 读一行数字</a></li>
       <li><a onclick="return go('s1-2')">② range()：生成数字序列</a></li>
@@ -172,6 +172,7 @@
       <li><a onclick="return go('s1-39')">㊱ 列表推导（list comprehension）</a></li>
       <li><a onclick="return go('s1-40')">㊲ 矩阵：取一行 / 取一列（L[i] 能表示什么）</a></li>
       <li><a onclick="return go('s1-41')">㊳ 输出的格式控制：end / sep / 行尾空白</a></li>
+      <li><a onclick="return go('s1-42')">㊴ 因子的三种求法：试到 √n（成对补）· 筛法 · isqrt</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -202,7 +203,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>六、真题回顾 <span class="toc-n" id="cr">68</span></summary>
+    <summary>六、真题回顾 <span class="toc-n" id="cr">70</span></summary>
     <ol>
       <li><a onclick="return go('review-1')">1-1 从键盘输入两个数求和</a></li>
       <li><a onclick="return go('review-2')">1-2 按公式输出 b²−4ac</a></li>
@@ -283,6 +284,8 @@
       <li><a onclick="return go('review-77')">4-27 二维数组中每行最大值和每行和</a></li>
       <li><a onclick="return go('review-78')">4-28 矩阵转置</a></li>
       <li><a onclick="return go('review-79')">4-29 找出不是两个数组共有的元素</a></li>
+      <li><a onclick="return go('review-80')">4-30 找完数</a></li>
+      <li><a onclick="return go('review-81')">5-1 输出星期名缩写</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -1304,6 +1307,47 @@ print(a)                     # 第 1、2 项都是 1；第 10 项 55；第 30 �
 <p><strong>写之前先定三个口径</strong>（题面看不全就从样例反推）：前两项是 <code>1, 1</code> 还是 <code>0, 1</code>
 （有的题从 <code>F(0) = 0</code> 数起）；输出<strong>前 n 项</strong>还是<strong>只要第 n 项</strong>；
 一行怎么排（每行一个 / 一行空格隔开 / 每 5 个换行 —— 后者见 ⑨）。</p>
+
+<div class="box ok">
+<strong>★ 累加时想把「每一步」也留下来：<code>cnt += x</code> 本身做不到，得<strong>并列一个列表</strong></strong><br>
+<code>cnt += x</code> 每次都用新值<strong>覆盖</strong>旧的，所以循环结束后只剩<strong>最后一个总数</strong>；
+想留历史就<strong>另开一个容器</strong>，和累加并排放：
+<table>
+<tr><th>想要什么</th><th>写法</th><th>实测（对 <code>[3, 5, 7]</code>）</th></tr>
+<tr><td>只要总数</td><td>只写 <code>cnt += x</code></td><td><code>cnt = 15</code>（3、8、12 全看不见了）</td></tr>
+<tr><td><strong>留下每一个值</strong></td><td><code>vals.append(x)</code> 与 <code>cnt += x</code> 并排</td><td><code>vals = [3, 5, 7]</code></td></tr>
+<tr><td><strong>留下每一步的累计值</strong></td><td>循环里再补一句 <code>hist.append(cnt)</code></td><td><code>hist = [3, 8, 15]</code></td></tr>
+<tr><td>值和累计值都要</td><td><code>pairs.append((x, cnt))</code></td><td><code>[(3, 3), (5, 8), (7, 15)]</code></td></tr>
+</table>
+<strong><code>append</code> 放在 <code>cnt += x</code> 的前面还是后面，结果不一样</strong>：
+后面 → 记的是"加完之后的累计值"（上面那张表就是这个口径）；前面 → 记的是"加之前的"。
+<strong>这一处最容易含糊，写之前先想清楚要哪个。</strong>
+</div>
+
+<div class="box ok">
+<strong><code>itertools.accumulate</code>：所有累计值一次给全（不用自己写循环）</strong>
+<pre><code>from itertools import accumulate
+list(accumulate([3, 5, 7]))              # [3, 8, 15]     ← 每一步的累计值
+list(accumulate([3, 5, 7], initial=0))   # [0, 3, 8, 15]  ← 多打一个起点
+list(accumulate([3, 5, 7], max))         # [3, 5, 7]      ← 第二个参数能换成别的二元函数</code></pre>
+⚠️ <strong>它返回的是迭代器（惰性的）</strong>：<code>it = accumulate([1, 2])</code> 之后
+<code>list(it)</code> 得 <code>[1, 3]</code>，<strong>同一个 <code>it</code> 再 <code>list()</code> 一次就是 <code>[]</code></strong>
+—— 用完即空，性质和 ㊱ 里那条生成器一样。<strong>要留就当场 <code>list()</code> 存下来。</strong>
+</div>
+
+<div class="box warn">
+<strong>⚠️ 不需要历史就别硬留：<code>sum()</code> 更短也更快</strong>
+<table>
+<tr><th>写法（n = 200000）</th><th>用时</th><th>结果</th></tr>
+<tr><td><code>for i in …: s += i</code></td><td><code>0.0073 s</code></td><td>19999900000</td></tr>
+<tr><td><code>sum(range(n))</code></td><td><code>0.0024 s</code>（<strong>快 3.0 倍</strong>）</td><td>同一个数</td></tr>
+<tr><td><code>list(accumulate(range(n)))[-1]</code></td><td><code>0.0080 s</code>（最慢，还多存一份）</td><td>同一个数</td></tr>
+</table>
+<strong>判据</strong>：只要总数 → <code>sum(可迭代)</code>；要"每一步" → 循环 + 并列列表，或者 <code>accumulate</code>。<br>
+<strong>另记一条同名不同命的：列表的 <code>+=</code> 是"就地 extend"，数字的 <code>+=</code> 是重新绑定</strong> ——
+实测 <code>a += [2]</code> 之后别名 <code>b</code> 也跟着变（<code>a is b</code> 为 <code>True</code>），
+而 <code>a = a + [2]</code> 只改自己（<code>False</code>）；这就是 ㉛ 里那条「列表 <code>+=</code> 别名陷阱」。
+</div>
 
 <hr>
 
@@ -4576,9 +4620,162 @@ f"{L}"     # → "['A', 'BB', 'CCC', 'D']"   ← 不带格式符就没事</code>
 <code>end=" "</code> 也是合法写法，但要再补一个空 <code>print()</code> 才有换行。
 </div>
 
+<div class="box ok">
+<strong>⑤ 把列表拼成「<code>1 + 2 + 3</code>」这种带符号的一行（＝「拆开列表」的两条路）</strong><br>
+题面要「数字之间用 <code>+</code> 分隔」（比如 <code>6 = 1 + 2 + 3</code> 这种分解式输出）时，
+两条路都行，实测输出<strong>逐字节相同</strong>：
+<table>
+<tr><th>写法</th><th>实测输出</th><th>说明</th></tr>
+<tr><td><code>print(*L, sep=" + ")</code></td><td><code>'1 + 2 + 3\n'</code></td><td><strong>先拆开</strong>：<code>*</code> 把列表摊成多个参数，再由 <code>sep</code> 插符号</td></tr>
+<tr><td><code>print(" + ".join(map(str, L)))</code></td><td><code>'1 + 2 + 3\n'</code></td><td><strong>先拼好</strong>：<code>join</code> 直接产出一个字符串</td></tr>
+<tr><td><code>print(" + ".join(L))</code></td><td><code>TypeError</code></td><td>❌ <code>join</code> <strong>只吃字符串</strong>，数字要先 <code>map(str, …)</code></td></tr>
+<tr><td><code>print(L, sep=" + ")</code></td><td><code>'[1, 2, 3]\n'</code></td><td>❌ <code>sep</code> 对"一个参数"无效（就是上面那条坑）</td></tr>
+<tr><td><code>for x in L: print(x, end=" + ")</code></td><td><code>'1 + 2 + 3 + \n'</code></td><td>❌ 末尾多一截 —— <code>end</code> 是"每一项后面都补"</td></tr>
+</table>
+<strong>带前缀的写法</strong>（题面常见 <code>N = p + q</code> / <code>6 = 1 + 2 + 3</code> 这种形状）：
+<pre><code>print(n, "=", " + ".join(map(str, fs)))       # '6 = 1 + 2 + 3'  ← = 两边的空格是【默认 sep=" "】补的
+print(f"{n} = " + " + ".join(map(str, fs)))   # '6 = 1 + 2 + 3'  ← 拼在字符串里，输出一模一样</code></pre>
+<strong>怎么选</strong>：只是打到屏幕上 → 两种都行，<code>sep</code> 那版更短；
+但结果要<strong>存进变量 / 拼进别的字符串 / 写文件</strong>时，<strong>只有 <code>join</code> 能产出那个字符串</strong>
+（<code>sep</code> 只往 stdout 打，拿不回来）。<br>
+<strong>空列表的区别</strong>：<code>print(*[], sep=" + ")</code> 打一个<strong>空行</strong>；
+<code>" + ".join([])</code> 得到<strong>空串</strong> <code>''</code>（不报错，可用 <code>or "无"</code> 兜底）。
+</div>
+
 <p>相关小节：<strong>㉗</strong> 竖向输出、<strong>㉒</strong> 字符串拼接（<code>join</code> vs <code>+=</code>）、
 <strong>③ 格式化与输出参数</strong>（速查总表）、真题 <strong>2-14</strong> / <strong>3-1</strong>（末尾那个空格是对的）、
 <strong>4-6</strong>（末行不足 5 个也要换行）、<strong>4-24</strong>（左对齐 vs 右对齐）。</p>
+
+<h3 id="s1-42">㊴ 因子的三种求法：试到 √n（成对补）· 筛法 · <code>isqrt</code></h3>
+
+<p><strong>一句话</strong>：求「一个数的所有因子」有三种写法，代价能差<strong>两个数量级</strong>；
+选哪种取决于<strong>要对多少个数求</strong> —— 只求一个数、和"对一整段区间里每个数都求"，答案完全不一样。</p>
+
+<div class="box ok">
+<strong>先把两个词定清楚：真因子 / 完数</strong><br>
+<strong>真因子</strong> = 除自己以外的因子（<strong>含 1</strong>）：<code>6</code> 的真因子是 <code>1, 2, 3</code>。<br>
+<strong>完数</strong> = 因子和恰好等于自己：<code>1 + 2 + 3 = 6</code> ✅、<code>1 + 2 + 4 + 7 + 14 = 28</code> ✅。<br>
+实测：<strong>[2, 10000] 里的完数只有 4 个</strong> —— <code>6 / 28 / 496 / 8128</code>
+（第 5 个是 <code>33550336</code>，早就出界了）。所以题面要「因子按递增输出」时，
+<strong>收集顺序不递增就得 <code>sorted()</code> 一次</strong>（见下面坑 2）。
+</div>
+
+<div class="box ok">
+<strong>★ 三种求法对照（对 2..10000 每个数都求，同一进程纯计算，实测）</strong>
+<table>
+<tr><th>写法</th><th>内层运算次数</th><th>用时</th><th>相对朴素</th></tr>
+<tr><td>朴素：每个数都试 <code>1 … i//2</code></td><td><code>25,000,000</code> 次取模</td><td><code>513 ms</code></td><td>1×</td></tr>
+<tr><td><strong>√i 成对补</strong>：试到 <code>isqrt(i)</code></td><td><code>651,750</code> 次取模</td><td><code>15 ms</code></td><td><strong>38.4 倍</strong></td></tr>
+<tr><td><strong>筛法</strong>：每个因子去认领它的倍数</td><td><code>83,668</code> 次<strong>加法</strong></td><td><code>3 ms</code></td><td><strong>298.8 倍</strong></td></tr>
+</table>
+三种写法的输出<strong>逐字节相同</strong>（完数都是 <code>[6, 28, 496, 8128]</code>，因子列表也一致）。<br>
+⚠️ 表里的 <code>513 ms</code> 是<strong>包在函数里</strong>量的；同一个算法<strong>写在模块顶层要 <code>788 ms</code></strong>
+（三次 788 / 795 / 836）—— 原因见下面第 ④ 条，<strong>这条本身就是免费的 1.5 倍</strong>。
+</div>
+
+<div class="box warn">
+<strong>① 用 <code>√i</code> 求因子：一次收两个，但有三个坑</strong><br>
+原理：<strong>因子成对出现</strong> —— 若 <code>d</code> 能整除 <code>i</code>，那 <code>i//d</code> 也是因子，
+所以只要试到 <code>√i</code>，一对就都拿到了。骨架：
+<pre><code>s, fs = 1, [1]                       # 坑 3：i≥2 时 1 一定是真因子，先放进初值
+for d in range(2, isqrt(i) + 1):     # 只试到 √i
+    if i % d == 0:
+        q = i // d                   # 成对的那个因子
+        if q != d:                   # 坑 1：完全平方数时 q == d
+            s += d + q
+            fs += [d, q]
+        else:
+            s += d
+            fs.append(d)
+fs.sort()                            # 坑 2：成对补进来的大因子在后，要排一次</code></pre>
+<table>
+<tr><th>坑</th><th>实测（拿它自查）</th></tr>
+<tr><td><strong>坑 1 完全平方数</strong></td>
+<td><code>i=36</code>、<code>√36=6</code> 时 <code>d == i//d</code>：<br>
+带 <code>q != d</code> 判断 → 因子和 <code>55</code>、因子 <code>[1, 2, 3, 4, 6, 9, 12, 18]</code> ✅<br>
+不带 → 因子和 <code>61</code>、因子 <code>[1, 2, 3, 4, 6, 6, 9, 12, 18]</code>（<strong>6 被加了两遍</strong>）❌</td></tr>
+<tr><td><strong>坑 2 顺序</strong></td>
+<td><code>i=28</code> 的原始收集顺序是 <code>[1, 2, 14, 4, 7]</code>（大因子先到）→
+<code>sorted()</code> 之后才是 <code>[1, 2, 4, 7, 14]</code></td></tr>
+<tr><td><strong>坑 3 别忘 1</strong></td>
+<td><code>i≥2</code> 时 1 一定是真因子。循环从 2 开始 → 初值就写 <code>s=1, fs=[1]</code>，
+漏了它所有和都会少 1</td></tr>
+</table>
+自查用哪个数：<strong>28（5 个因子）或 496（9 个因子：1 2 4 8 16 31 62 124 248）</strong>。
+</div>
+
+<div class="box warn">
+<strong>② 上界用 <code>math.isqrt(i)</code>，<strong>别</strong>用 <code>int(i**0.5)</code></strong><br>
+<code>from math import isqrt</code>（Python 3.8+）—— <code>isqrt(n)</code> 是<strong>向下取整的整数平方根</strong>，
+正好是「试除上界」要的那个：<code>isqrt(10)=3</code>、<code>isqrt(15)=3</code>、<code>isqrt(16)=4</code>。<br>
+<code>i**0.5</code> 走的是<strong>浮点</strong>，会舍入；最容易翻车的形状是 <strong><code>k²-1</code>（"刚好差 1"）</strong>。
+实测反例：
+<table>
+<tr><th>n</th><th><code>int(n**0.5)</code></th><th><code>isqrt(n)</code></th></tr>
+<tr><td><code>9999999999999999</code>（<code>10**16-1</code>）</td><td><code>100000000</code> ❌ 大 1</td><td><code>99999999</code> ✅</td></tr>
+<tr><td><code>999999999999999999</code>（<code>10**18-1</code>）</td><td><code>1000000000</code> ❌ 大 1</td><td><code>999999999</code> ✅</td></tr>
+<tr><td><code>9999999800000000</code></td><td><code>99999999</code> ❌ 大 1</td><td><code>99999998</code> ✅</td></tr>
+</table>
+扫描 <code>k²-1</code>（k 取 <code>10**12</code> / <code>10**15</code> / <code>10**16</code> 各 6 万个）：
+<strong>180,000 个里 165,029 个算错（91.7%）</strong>。<br>
+⚠️ 小数字上两者结果一样（这就是为什么它平时不咬人）——
+<strong>但只要写 <code>isqrt</code>，就一次到位</strong>（4-4 那道题是 20 亿级别，正好在浮点还安全的地带，
+所以当年是靠「取模右边必须是整数」那条抓出来的，见 review-43）。
+</div>
+
+<div class="box ok">
+<strong>③ 筛法：不要「每个数去找因子」，改成「每个因子去认领它的倍数」</strong><br>
+思路：开一个长度 <code>n+1</code> 的<strong>因子和</strong>数组，让 <code>d</code> 从 1 走到 <code>n//2</code>，
+把 <code>d</code> 加到 <code>2d、3d、4d…</code> 上；扫完一遍，谁的因子和等于自己就是完数。
+<pre><code>ds = [0] * (n + 1)                       # ds[i] 存 i 的「真因子之和」
+for d in range(1, n // 2 + 1):           # d 只到 n//2（再大就不是别人的真因子了）
+    for mult in range(d * 2, n + 1, d):  # 2d, 3d, 4d, …   ← 步长是 d
+        ds[mult] += d
+# 之后判断完数就是一次查表：if ds[i] == i</code></pre>
+2..10000 实测<strong>只有 83,668 次加法</strong>（对比朴素 2500 万次取模）→ <code>3 ms</code>。<br>
+<strong>因子列表不用跟着一起筛</strong>：完数全区间只有 4 个，对这几个再用上面的 √i 试除单独收因子就行。<br>
+代价是<strong>多一个长度 n+1 的数组</strong>（n=10000 → 一万个 int，64 MB 限制下毫无压力）——
+这就是 <strong>⑮ 查表法（空间换时间）</strong>的思路，和 4-4 拿<strong>埃氏筛</strong>当对照口径是同一族。
+</div>
+
+<div class="box ok">
+<strong>④ 顺手白捡的 1.5 倍：把主循环包进函数</strong><br>
+同一份朴素逻辑、只改「写在哪儿」，三次实测：
+<table>
+<tr><th>写法</th><th>三次用时</th><th>最好</th></tr>
+<tr><td>写在<strong>模块顶层</strong>（脚本里直接铺开）</td><td><code>788 / 795 / 836 ms</code></td><td><code>788 ms</code></td></tr>
+<tr><td><strong>包进函数</strong>（<code>def solve(): …</code> 再调用）</td><td><code>509 / 506 / 509 ms</code></td><td><code>506 ms</code></td></tr>
+</table>
+<strong>快了 1.56 倍，代码一个字没改逻辑</strong>。原因：CPython 里<strong>局部变量</strong>用 <code>LOAD_FAST</code>，
+<strong>全局变量</strong>要走 <code>LOAD_NAME / LOAD_GLOBAL</code>（要先查字典）——
+循环体里每读一次 <code>cnt</code>、<code>i</code>、<code>x</code> 都差这一点，几千万次就攒成了 0.3 秒。<br>
+<strong>时间预算（本机实测，接 review-43 那条「400 ms ≈ 1.3e7 圈」）</strong>：
+<code>for i in range(5_000_000): s += i % 7</code> 用 <code>0.221 s</code> → 约 <strong>2263 万次/秒</strong>；
+纯加法约 <strong>2591 万次/秒</strong> → 反推 <strong>400 ms ≈ 905 万次「取模 + 分支」</strong>
+（两次量的循环体不一样重，数字略有差别，量级一致）。<br>
+于是不用跑就知道：2500 万次取模 ≈ 1.1 s（实测墙钟 824 ms）→ <strong>必超</strong>；
+65 万次取模 → 十几毫秒 → <strong>稳过</strong>。<strong>先估圈数、再决定要不要优化。</strong>
+</div>
+
+<div class="box warn">
+<strong>⑤ 自查：累加和留存必须「同缩进」—— 只有因子才进得了门</strong><br>
+<code>if i % x == 0:</code> 就是那道门；<code>cnt += x</code> 和 <code>k.append(x)</code>
+要<strong>站同一层</strong>（都在门里），存下来的才只有因子：
+<pre><code>    for x in range(1, i//2+1):     # 4 格
+        if i % x == 0:             # 8 格  ← 门
+            cnt += x               # 12 格 ← 门里
+            k.append(x)            # 12 格 ← 跟它对齐就对了 ✅
+        k.append(x)                # 8 格  ← 掉到 for 体那一层就全存进去 ❌</code></pre>
+实测 <code>i=28</code>：同缩进存 <code>[1, 2, 4, 7, 14]</code>（5 个）；掉一层存 <code>[1..14]</code>（14 个）。<br>
+⚠️ <strong><code>6</code> 会骗人</strong>：<code>i=6</code> 时 <code>range(1, i//2+1)</code> 恰好是 <code>1,2,3</code>，
+<strong>全是因子，两种缩进结果一模一样</strong> —— 要到 <strong>28</strong> 才暴露。
+这就是 ❌15「缩进 = 从属关系」的又一族（自查请用 28 或 496）。
+</div>
+
+<p>相关小节：<strong>⑮</strong> 查表法（空间换时间）、<strong>㉜</strong> gcd（辗转相除，因子家族的另一条路）、
+<strong>㉔</strong> 字典（用键查值 —— 筛法算完之后的"查表"就是它）、
+<strong>review-43</strong>（4-4 的 <code>√x</code> 上界与浮点坑）、<strong>❌17</strong> 手算循环上界、
+<strong>㊳</strong> 输出格式（因子列表拼成 <code>1 + 2 + 3</code>）。</p>
 
 <h2 id="star">三、符号速查：* 和 []</h2>
 
@@ -4924,7 +5121,7 @@ if m!=v[17]:                      # ② 索引</code></pre>
 ② 两边同时改，很容易出现"本地一份、提交另一份"，而且极难发现
 </div>
 
-<h2 id="review">六、真题回顾（<span id="cr2">68</span> 题）</h2>
+<h2 id="review">六、真题回顾（<span id="cr2">70</span> 题）</h2>
 
 <div class="box warn">
 <strong>说明：</strong>下面的题目要求是<strong>我按自己的理解概括写的</strong>，不是 PTA 原文。<br>
@@ -10502,6 +10699,157 @@ int('05')==int('5')  → True    ← 转成整数就相等</code></pre>
 第一轮 N∈1..20、值域 <code>0..20</code>；第二轮值域 <code>-3..3</code>（几乎必然重叠+重复），
 两个口径是「集合求交 + 按 <code>A+B</code> 原序过滤」与「<code>dict.fromkeys</code> 保序去重」。
 另实测三种正确写法（本题的列表 <code>in</code> / 集合+推导 / 双重 <code>not in</code>）输出<strong>逐字节相同</strong>。</p>
+
+<h3 id="review-80">4-30 找完数 <span class="tag">两版才对（第二版超时）</span></h3>
+
+<p><strong>要求</strong>：给出 <code>m</code> 和 <code>n</code>（<code>1 &lt; m ≤ n ≤ 10000</code>），
+找出区间内<strong>所有完数</strong>（因子和 = 自己），每个占一行、格式
+<code>完数 = 因子1 + 因子2 + … + 因子k</code>，<strong>完数和因子都按递增顺序</strong>；
+区间里一个都没有时输出 <code>None</code>。
+样例 <code>2 30</code> → <code>6 = 1 + 2 + 3</code> / <code>28 = 1 + 2 + 4 + 7 + 14</code>。</p>
+
+<p><strong>我的代码（最终版：试到 √i、成对补因子）</strong></p>
+<pre><code>m,n=map(int,input().split())               # 读入区间两端 m、n
+l=0                                        # 记录「找到几个完数」，用来判断要不要打 None
+for i in range(m,n+1):                     # 逐个检查区间里的每个数 i
+    cnt=1                                  # 坑 3：i≥2 时 1 一定是真因子，所以初值就是 1
+    k=[1]                                  # 坑 3：同理，1 先收进因子表
+    for x in range(2,int(i**0.5)+1):       # 坑：上界试到 √i 就够（因子成对出现）—— 用 isqrt 更稳，见 ㊴
+        if i%x==0:                         # 找到一个因子
+            cnt+=x                         # 把它加进因子和
+            k.append(x)                    # 也收进因子表
+            q=i//x                         # 成对的另一个因子（i//x 一定也是因子）
+            if q!=x:                       # 坑 1：完全平方数时 q == x，那个因子只能算一次
+                cnt+=q                     # 所以 q 与 x 不同时才补进来
+                k.append(q)                # 补进因子和
+            if  q==x:continue              # 补进因子表
+    if i==cnt:                             # （这行是死代码：q==x 时上面本就没做事，continue 后面也没有语句，删掉一样）
+        l+=1                               # 因子和等于自己 → 就是完数
+        y=" + ".join(map(str,sorted(k)))   # 完数计数 +1（区间里一个都没有时下面要打 None）
+        print(f"{i} = {y}")                # 坑 2：成对补进来的大因子在后面，拼串前排一次序（只对完数排，最省）
+if l==0:                                   # 按题面格式输出
+    print("None")                          # 区间里一个完数都没有 → None</code></pre>
+
+<div class="box bad">
+<strong>第一版：逻辑错了 4 处（实测输出 29 行、<code>6 = 3</code>）</strong><br>
+第一版把「累加」和「留存」写散了 —— 因子只在<strong>循环累加</strong>，存因子的那句站错了位置：
+<pre><code>for x in range(1,i//2+1):
+    if i%x==0:
+        cnt+=x            # ← 只累加，因子 x 用完就丢
+if i==cnt:
+    if i%x==0:
+        k.append(x)       # ← 站在 for 外面：x 已是循环残留值（i//2），不是因子
+y=" + ".join(map(str,k))
+print(f"{i} = {y}")       # ← 又在 if 外面：每个数都打一行</code></pre>
+实测（输入 <code>2 30</code>，期望 2 行）：
+<table>
+<tr><th>实际输出</th><th>期望</th><th>错在哪</th></tr>
+<tr><td><code>6 = 3</code></td><td><code>6 = 1 + 2 + 3</code></td><td>存下来的是 <code>i//2 = 3</code>，不是因子</td></tr>
+<tr><td><code>7 = 3</code></td><td>（不该有这行）</td><td><code>k</code> 定义在外层循环外、从不清空 → <code>3</code> 一直带着</td></tr>
+<tr><td><code>28 = 3 + 14</code></td><td><code>28 = 1 + 2 + 4 + 7 + 14</code></td><td>上一轮的 <code>3</code> 攒到了这一轮</td></tr>
+<tr><td>共 29 行</td><td>2 行</td><td><code>print</code> 掉在 <code>if i==cnt</code> 外面</td></tr>
+</table>
+另有 <code>2 5</code> 该打 <code>None</code>、当时打的是 <code>2 = </code> 这种 4 行垃圾。
+<strong>四个错其实是同一件事：缩进决定从属关系</strong>（❌15 的又一族）。
+</div>
+
+<div class="box warn">
+<strong>第二版：逻辑全对，但<strong>超时</strong>（880 ms vs 限 400 ms）</strong><br>
+改对之后每个数都要试到 <code>i//2</code>：2..10000 一共 <strong>25,000,000 次取模</strong> → 实测 <strong>880 ms</strong>。
+<strong>问题不在循环写得丑，在"每个数都从头试一遍"这件事本身。</strong>
+改法只有一句：<strong>试到 <code>√i</code> 就够</strong>（因子成对出现，一次收两个）→
+次数 2500 万 → <strong>65 万</strong>，满区间墙钟 <strong>64 ms</strong>（三次 65/64/64，约 6 倍余量）。
+原理与三个坑（完全平方数只能算一次 / 成对补进来的大因子要排序 / 别忘了 1）都在 <strong>㊴</strong>。
+</div>
+
+<p><strong>优化用法</strong></p>
+
+<div class="box ok">
+<strong>① 上界用 <code>isqrt(i)</code>，不要用 <code>int(i**0.5)</code></strong><br>
+这版用的是 <code>int(i**0.5)+1</code> —— <strong>在本题侥幸安全</strong>：实测
+<code>1..10000</code> 里 <code>int(i**0.5) != isqrt(i)</code> 的个数是 <strong>0</strong>。
+但㊴ 里有反例：<code>10**16-1</code> 时浮点给 <code>100000000</code>、正确是 <code>99999999</code>
+（<code>k²-1</code> 形状扫 18 万个错 91.7%）。<strong>换个范围就会咬人，写成 <code>isqrt</code> 一次到位。</strong>
+</div>
+
+<div class="box ok">
+<strong>② 第 14 行 <code>if q==x:continue</code> 是死代码</strong><br>
+它跟在 <code>if q!=x</code> 后面：<code>q==x</code> 时上面那段本来就没做事，
+而 <code>continue</code> 后面<strong>也没有别的语句</strong>可跳过 —— 删掉输出完全一样。
+（真正起作用的"平方数只算一次"是 <code>if q!=x</code> 这个判断。）
+</div>
+
+<div class="box ok">
+<strong>③ 两条更省的路（本题用不上，但值得知道）</strong><br>
+· <strong>包进函数</strong>：同一份朴素逻辑从模块顶层 788 ms → 506 ms（<strong>1.56 倍</strong>，㊴ 实测），
+  本题已经降到 64 ms 就没必要；<br>
+· <strong>筛法</strong>：让每个因子去认领它的倍数，2..10000 只要 <strong>83,668 次加法 → 3 ms</strong>；
+  <code>n</code> 上到 10 万、100 万时，这是唯一跑得动的写法（㊴ 有机制与实测）。
+</div>
+
+<p><strong>要点与实测证据</strong>：<code>py_compile</code> 通过；
+<strong>12 组边界全对</strong>（题面样例 / <code>2 5</code> → <code>None</code> / 单点 <code>6</code>、
+<code>7</code>、<code>28</code>、<code>496</code>、<code>8128</code> / 满区间 / 边界窗口
+<code>490 500</code>、<code>8120 8130</code>、<code>9990 10000</code>）；
+<strong>随机区间对拍 120 组与两个独立口径 0 不一致</strong>
+（口径①√i 成对补、口径②筛法算因子和）；
+<strong>满区间 <code>2 10000</code> 墙钟 64 ms</strong>（限 400 ms）；
+<code>[2,10000]</code> 的完数实测只有 <code>6 / 28 / 496 / 8128</code>，
+其中 8128 有 13 个因子。<strong>因子排序只对 4 个完数执行</strong>（写在 <code>if i==cnt</code> 里），是最省的位置。</p>
+
+<h3 id="review-81">5-1 输出星期名缩写 <span class="tag">一次通过</span></h3>
+
+<p><strong>要求</strong>：输入 <code>1~7</code>，输出对应的星期名缩写
+（<code>1 Mon / 2 Tue / 3 Wed / 4 Thu / 5 Fri / 6 Sat / 7 Sun</code>）。</p>
+
+<p><strong>我的代码（一次通过）</strong></p>
+<pre><code>m=int(input())                                  # 读入数字（int() 会顺手去掉首尾空白）
+L=["Mon","Tue","Wed","Thu","Fri","Sat","Sun"]   # 7 个缩写按顺序放好，下标 0~6 对应 1~7
+print(f"{L[m-1]}")                              # 取第 m-1 个（输入的 1 对应下标 0）</code></pre>
+
+<div class="box ok">
+<strong>★ 这题的开关：输入是 1~7，列表下标是 0~6 —— 差一个，所以要 <code>m-1</code></strong><br>
+把「人的编号」和「机器的下标」分清，是这一类的核心：
+<pre><code>L=["Mon","Tue","Wed","Thu","Fri","Sat","Sun"]
+L[m-1]      # ✅ 输入 1 → L[0] = "Mon"
+L[m]        # ❌ 输入 7 → IndexError: list index out of range
+</code></pre>
+⚠️ <strong>输入 <code>0</code> 是最阴的</strong>：<code>L[0-1] = L[-1] = "Sun"</code> ——
+<strong>不报错，但答案是错的</strong>（负下标会从末尾数回来）。本题题面保证 1~7 所以碰不到，
+但「负数下标悄悄给错答案」这条要记住（❸ 里有负下标自检）。
+</div>
+
+<p><strong>优化用法</strong></p>
+
+<div class="box ok">
+<strong>① 不建列表也能做：把 7 个缩写按空格切成列表</strong>
+<pre><code>print("Mon Tue Wed Thu Fri Sat Sun".split()[int(input())-1])   # 一行，不用三行</code></pre>
+<code>split()</code> 不带参数按空白切开，正好得到和 <code>L</code> 一样的 7 个元素。
+</div>
+
+<div class="box ok">
+<strong>② 用字典：把「编号 → 名字」直接写成映射</strong>
+<pre><code>D={1:"Mon",2:"Tue",3:"Wed",4:"Thu",5:"Fri",6:"Sat",7:"Sun"}
+print(D[int(input())])          # 下标不用 -1，编号本身就是键</code></pre>
+<code>L[m-1]</code> 要"减一"，字典不用 —— <strong>因为键就是输入本身</strong>。
+这类"一一对应"的题，字典比列表更不容易错（㉔）。
+</div>
+
+<div class="box warn">
+<strong>③ 小尾巴：<code>print(f"{L[m-1]}")</code> 里的 f-string 是多余的</strong>
+<pre><code>print(f"{L[m-1]}")     # 花括号里就是一个现成的字符串
+print(L[m-1])          # 等价，更短</code></pre>
+f-string 的用处是<strong>往字符串里塞东西</strong>；这里什么都没塞，套一层只是白写。
+（同类毛病：3-11 <code>map(str, …)</code>、3-13 <code>list(input().split())</code> 里那个 <code>list()</code>，
+都属于「套了一层不发生任何变化」。）
+</div>
+
+<p><strong>要点与实测证据</strong>：<code>py_compile</code> 通过；
+<strong>输入 1~7 全部输出正确</strong>（<code>Mon</code> / <code>Tue</code> / <code>Wed</code> / <code>Thu</code> /
+<code>Fri</code> / <code>Sat</code> / <code>Sun</code>，逐个逐字节核对）；
+输入带空格 <code>'  3  '</code> 也正确（<code>int()</code> 会去掉首尾空白）；
+题面外实测：输入 <code>0</code> → <code>Sun</code>（<strong>负下标，不报错但是错的</strong>）、
+输入 <code>8</code> → <code>IndexError</code>。</p>
 
 <h2 id="quick">七、速查总表</h2>
 
