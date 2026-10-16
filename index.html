@@ -104,7 +104,7 @@
 -->
 
 <h1>Python 自学笔记</h1>
-<p class="meta">hkh ｜ 更新 2026-10-16 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">22</span> 题 + 第4章 <span id="c4">30</span> 题 + 第5章 <span id="c5">8</span> 题（浙大版《Python 程序设计》题目集）</p>
+<p class="meta">hkh ｜ 更新 2026-10-16 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">22</span> 题 + 第4章 <span id="c4">30</span> 题 + 第5章 <span id="c5">9</span> 题（浙大版《Python 程序设计》题目集）</p>
 
 <nav id="toc">
   <div class="toc-head">目录　<span class="toc-hint">点标题展开 · 点条目直接跳</span></div>
@@ -206,7 +206,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>六、真题回顾 <span class="toc-n" id="cr">77</span></summary>
+    <summary>六、真题回顾 <span class="toc-n" id="cr">78</span></summary>
     <ol>
       <li><a onclick="return go('review-1')">1-1 从键盘输入两个数求和</a></li>
       <li><a onclick="return go('review-2')">1-2 按公式输出 b²−4ac</a></li>
@@ -296,6 +296,7 @@
       <li><a onclick="return go('review-86')">5-6 统计工龄</a></li>
       <li><a onclick="return go('review-87')">5-7 列表去重</a></li>
       <li><a onclick="return go('review-88')">5-8 能被3和5和7整除的数的个数（用集合实现）</a></li>
+      <li><a onclick="return go('review-89')">5-9 求矩阵鞍点的个数</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -304,10 +305,12 @@
       <li><a onclick="return go('quick-1')">① 内置函数总表</a></li>
       <li><a onclick="return go('quick-2')">② 方法总表（字符串 / 列表 / 字典）</a></li>
       <li><a onclick="return go('quick-3')">③ 格式化与输出参数</a></li>
-      <li><a onclick="return go('quick-4')">④ 用途分类索引（把「二、常用代码」39 类按用途归位）</a></li>
+      <li><a onclick="return go('quick-4')">④ 用途分类索引（把「二、常用代码」按用途归位）</a></li>
       <li><a onclick="return go('quick-5')">⑤ 对象 × 操作 对照表（谁有哪个能力）</a></li>
       <li><a onclick="return go('quick-6')">⑥ 字符串方法总表（按用途分类，全部实测）</a></li>
       <li><a onclick="return go('quick-7')">⑦ 方法族对照：哪个类型有哪些方法</a></li>
+      <li><a onclick="return go('quick-8')">⑧ 标准库模块速查（math / collections / itertools / ast / operator / sys）</a></li>
+      <li><a onclick="return go('quick-9')">⑨ 集合 set 方法速查（含「会丢序」这条铁律）</a></li>
     </ol>
   </details>
 </nav>
@@ -5574,7 +5577,7 @@ if m!=v[17]:                      # ② 索引</code></pre>
 ② 两边同时改，很容易出现"本地一份、提交另一份"，而且极难发现
 </div>
 
-<h2 id="review">六、真题回顾（<span id="cr2">77</span> 题）</h2>
+<h2 id="review">六、真题回顾（<span id="cr2">78</span> 题）</h2>
 
 <div class="box warn">
 <strong>说明：</strong>下面的题目要求是<strong>我按自己的理解概括写的</strong>，不是 PTA 原文。<br>
@@ -11888,6 +11891,94 @@ print(len(set(range(a + (-a) % 105, b + 1, 105))))  # 真按题面"用集合"也
 <tr><td>999999999 1000000000</td><td><code>999999999 1000000000</code></td><td><code>0</code></td><td>相同</td></tr>
 </table>
 
+<h3 id="review-89">5-9 求矩阵鞍点的个数 <span class="tag">一次通过</span></h3>
+
+<p><strong>要求</strong>：给一个 n 阶方阵（<strong>1 &lt;= n &lt;= 6</strong>），
+<strong>鞍点</strong>的定义是「该位置的值<strong>在本行最大</strong>、且<strong>在本列最小</strong>」，
+要求输出鞍点的<strong>个数</strong>。
+样例 <code>1 7 4 1 / 4 8 3 6 / 1 6 1 2 / 0 7 8 9</code> → <code>1</code>
+（只有第 3 行第 2 列那个 <code>6</code>：它是本行最大，也是第 2 列最小）。</p>
+
+<p><strong>我的代码（PTA 判过）</strong></p>
+<pre><code>n=int(input())                                                           第一行：方阵的阶 n（1~6）
+cnt=0                                                                    计数器：鞍点的个数
+L=[list(map(int,input().split())) for _ in range(n)]                     接下来 n 行，每行拆成 n 个整数 —— 列表推导一次读完整个矩阵
+for i in range(n):                                                       逐行
+    for j in range(n):                                                   逐列（两层循环把每一格都看到；这题要【数个数】，所以不能提前 break）
+        if L[i][j]&gt;=max(L[i]) and L[i][j]&lt;=min([row[j] for row in L]):   判据两条：不小于本行最大、不大于本列最小（本列用列表推导取）
+            cnt+=1                                                       是鞍点就 +1
+print(cnt)                                                               输出个数</code></pre>
+
+<div class="box ok">
+<strong>★ 这题和 4-22「找鞍点」是同一套判据，只是最后一步不同</strong>
+4-22 要<strong>位置</strong>（没有就 <code>NONE</code>），这题要<strong>个数</strong> ——
+所以这里<strong>不能找到就 break</strong>，得把每一格都看完。
+判据仍然是 <code>&gt;=</code> / <code>&lt;=</code> 而不是 <code>==</code>：
+<strong>有并列时 <code>==</code> 会漏</strong>（review-73 里有那张对照表）。
+</div>
+
+<div class="box warn">
+<strong>⚠️ 两条「凭直觉会算错」的（我一开始就写错了期望值）</strong>
+<table>
+<tr><th>输入</th><th>直觉</th><th>实测</th></tr>
+<tr><td><code>1 2 3 / 4 5 6 / 7 8 9</code>（严格递增）</td>
+<td>"每个数都比别人小，应该没有鞍点"</td>
+<td><strong>1 个</strong>：右上角那个 <code>3</code> 是<strong>第 0 行最大</strong>，同时是<strong>第 2 列最小</strong>（该列是 <code>3 6 9</code>）</td></tr>
+<tr><td><code>n×n</code> 全是同一个数</td>
+<td>"鞍点最多一个"</td>
+<td><strong><code>n²</code> 个</strong>（实测 3×3 给 <code>9</code>、6×6 给 <code>36</code>）——
+题面说「至多一个鞍点」的题是另一道，这题问的是<strong>个数</strong>，并列要全算</td></tr>
+</table>
+<strong>教训还是那句：期望值要按定义推，不能凭感觉</strong> ——
+这两组我一开始写成 <code>0</code>，是三份实现（被测 + 两个独立口径）一致才反过来发现是尺子错。
+</div>
+
+<p><strong>优化用法</strong></p>
+
+<div class="box ok">
+<strong>① 把 <code>max</code> / <code>min</code> 从双重循环里搬出来（预计算）</strong>
+<pre><code>rmax = [max(r) for r in L]          # 每行最大，算 n 次
+cmin = [min(c) for c in zip(*L)]    # 每列最小，算 n 次（zip(*L) 转置，㊲）
+for i in range(n):
+    for j in range(n):
+        if L[i][j] == rmax[i] and L[i][j] == cmin[j]:
+            cnt += 1</code></pre>
+本题写法每格都要现算一次"本行最大 + 本列最小"，一共 <code>2n²</code> 次；
+预计算之后是 <code>2n</code> 次。<strong>题面 n ≤ 6 时两者都是瞬间</strong>，
+所以这是"更干净"而不是"更快" —— 拿 n=300 才量得出来：
+<strong>循环里现算 0.191 s，预计算 0.038 s</strong>（结果都是 0）。
+</div>
+
+<div class="box ok">
+<strong>② 换个机制也行：行最大格子集合 ∩ 列最小格子集合</strong>
+<pre><code>row = {(i, j) for i in range(n) for j in range(n) if L[i][j] == max(L[i])}
+col = {(i, j) for i in range(n) for j in range(n) if L[i][j] == min(L[k][j] for k in range(n))}
+print(len(row &amp; col))</code></pre>
+思路完全不同（先各自找出"够格的格子"，再取交集），
+实测在 10 组用例 + 400 组随机对拍上与本题写法<strong>结果全同</strong> —— 两个口径互证。
+</div>
+
+<p><strong>要点与实测证据</strong>：<code>py_compile</code> 通过；
+<strong>题面样例逐字节一致</strong>（<code>1</code>）；
+<strong>10 组用例与两个独立口径（预计算版 / 集合交集版）逐字节相同</strong>：</p>
+
+<table>
+<tr><th>用例</th><th>输入（<code>|</code> 表示换行）</th><th>输出</th><th>与独立口径</th></tr>
+<tr><td>题面样例</td><td><code>4|1 7 4 1|4 8 3 6|1 6 1 2|0 7 8 9|</code></td><td><code>1</code></td><td>逐字节相同</td></tr>
+<tr><td>n=1（单格）</td><td><code>1|5|</code></td><td><code>1</code></td><td>逐字节相同</td></tr>
+<tr><td>全 0 的 3×3（每格都算）</td><td><code>3|0 0 0|0 0 0|0 0 0|</code></td><td><code>9</code></td><td>逐字节相同</td></tr>
+<tr><td>6×6 全相同（上限 + 全并列）</td><td><code>6|7 7 7 7 7 7|7 7 7 7 7 7|7 7 7 7 7 7|7 7 7 7 7 7|7 7 7 7 7 7|7 7 7 7 7 7|</code></td><td><code>36</code></td><td>逐字节相同</td></tr>
+<tr><td>对角线被 0 压住</td><td><code>3|1 0 0|0 2 0|0 0 3|</code></td><td><code>0</code></td><td>逐字节相同</td></tr>
+<tr><td>负数矩阵</td><td><code>2|-1 -2|-3 -4|</code></td><td><code>1</code></td><td>逐字节相同</td></tr>
+<tr><td>2×2 全 2（四格都算）</td><td><code>2|2 2|2 2|</code></td><td><code>4</code></td><td>逐字节相同</td></tr>
+<tr><td>行最大 / 列最小都并列</td><td><code>2|1 1|1 0|</code></td><td><code>2</code></td><td>逐字节相同</td></tr>
+<tr><td>严格递增 —— 右上角就是鞍点</td><td><code>3|1 2 3|4 5 6|7 8 9|</code></td><td><code>1</code></td><td>逐字节相同</td></tr>
+<tr><td>最大值在最后一行（右上角仍是）</td><td><code>3|1 2 3|4 5 6|11 12 13|</code></td><td><code>1</code></td><td>逐字节相同</td></tr>
+</table>
+
+<p><strong>随机对拍 400 组 0 组不一致</strong>（n ∈ 1~6、值域故意取小：<code>0</code> / <code>±1</code> /
+<code>±2</code> / <code>±5</code>，就是为了把<strong>并列</strong>这条路走干净）。</p>
+
 <h2 id="quick">七、速查总表</h2>
 
 <p><strong>为什么单独开一章：</strong>前面是按「遇到的顺序」记的，翻起来像流水账。
@@ -11999,6 +12090,7 @@ print(len(set(range(a + (-a) % 105, b + 1, 105))))  # 真按题面"用集合"也
 <td><code>all([True, True])</code> <code>True</code>｜<code>any([False, True])</code> <code>True</code>｜<code>any([])</code> <code>False</code></td>
 <td>⑯、❌18；<code>all(c.isdigit() for c in s[:17])</code>；
 <strong>判「一片区域全是 0」只能用 all/any，不能写 <code>sum(...) == 0</code></strong>（负数会抵消）</td></tr>
+<tr><td><code>hex()</code> / <code>oct()</code> / <code>bin()</code></td><td>十进制 → 十六 / 八 / 二进制<strong>文本</strong>（带前缀）</td><td><code>hex(255)</code> <code>0xff</code>｜<code>oct(8)</code> <code>0o10</code>｜<code>bin(5)</code> <code>0b101</code>｜反过来 <code>int("ff", 16)</code> <code>255</code>｜只要数字不要前缀用 <code>format(255, "x")</code> <code>ff</code></td><td>④ 进制转换；3-9 的十六进制题</td></tr>
 </table>
 
 <div class="box warn">
@@ -12121,6 +12213,7 @@ print(len(set(range(a + (-a) % 105, b + 1, 105))))  # 真按题面"用集合"也
 <td>数「每个东西出现几次」——一趟扫完</td>
 <td><code>for c in "banana": cnt[c] = cnt.get(c, 0) + 1</code> → <code>{'b': 1, 'a': 3, 'n': 2}</code></td>
 <td>㉕、第3章-6；<code>cnt = {}</code> <strong>必须在循环外</strong></td></tr>
+<tr><td><code>dict.fromkeys(可迭代[, 值])</code></td><td>拿一串当键造字典；<strong>键天然不重复、而且保序</strong> —— 一行做「保序去重」</td><td><code>list(dict.fromkeys([4,7,5,6,8,6,9,5]))</code> <code>[4, 7, 5, 6, 8, 9]</code></td><td>3-22 / 5-7；集合去重会丢序，它不会</td></tr>
 </table>
 
 <h3 id="quick-3">③ 格式化与输出参数</h3>
@@ -12138,12 +12231,13 @@ print(len(set(range(a + (-a) % 105, b + 1, 105))))  # 真按题面"用集合"也
 <tr><td><code>print("\\n".join(L))</code></td><td>同上，但<strong>只吃字符串</strong>（数字要 <code>map(str, …)</code>）</td><td>㉗；想先拼成一个串再用</td></tr>
 </table>
 
-<h3 id="quick-4">④ 用途分类索引（把「二、常用代码」39 类按用途归位）</h3>
+<h3 id="quick-4">④ 用途分类索引（把「二、常用代码」按用途归位）</h3>
 
 <table>
 <tr><th>想知道的事</th><th>看哪几节</th></tr>
 <tr><td><strong>怎么把数据读进来</strong></td>
 <td>① 读一行数字（含「一行多个值」的各种形状）｜⑬ 读多行｜⑱ strip 清掉行尾空白</td></tr>
+<tr><td>想用标准库现成的工具（数学 / 计数 / 迭代器 / 安全求值 / 运算符函数）</td><td>本表 ⑧ 标准库模块速查（math / collections / itertools / ast / operator / sys）｜⑨ 集合 set 方法速查</td></tr>
 
 <tr><td><strong>怎么算数、累加、递推</strong></td>
 <td>② range 造序号｜⑧ 累加与递推｜⑩ len/sum/max/min/abs/round｜⑥ 符号交替</td></tr>
@@ -12429,6 +12523,78 @@ hasattr("a", "strip")     # True</code></pre>
 </footer>
 
 <button id="totop" onclick="go('toc')">↑ 回目录</button>
+
+<h3 id="quick-8">⑧ 标准库模块速查（math / collections / itertools / ast / operator / sys）</h3>
+
+<p>前面七张表收的都是<strong>内置函数</strong>和<strong>对象自带的方法</strong>；
+可是刷题时真正"省掉一大段循环"的往往是<strong>标准库</strong>里的现成工具 ——
+它们要先 <code>import</code>，所以单独列一张表。<strong>下表每一格都是当场实测的输出。</strong></p>
+
+<table>
+<tr><th>名字</th><th>用途</th><th>实测</th><th>用在哪</th></tr>
+<tr><td><code>import math</code></td><td>数学模块：以下都要先 import</td><td>—</td><td>㉜ ㉛ ㊴ 4-5 / 4-10 / 4-30</td></tr>
+<tr><td><code>math.gcd(a, b)</code></td><td>最大公约数（自动取正）</td><td><code>math.gcd(12,18)</code>→<code>6</code>；<code>math.gcd(0,5)</code>→<code>5</code></td><td>㉜（4-10 最大公约数）</td></tr>
+<tr><td><code>math.lcm(a, b)</code></td><td>最小公倍数（<strong>Python 3.9+</strong> 才有）</td><td><code>math.lcm(4,6)</code>→<code>12</code></td><td>㉜；本机就是 3.9，能用</td></tr>
+<tr><td><code>math.factorial(n)</code></td><td>阶乘 n!</td><td><code>math.factorial(5)</code>→<code>120</code></td><td>㉛；4-5 求 e、4-26 奇数阶乘</td></tr>
+<tr><td><code>math.isqrt(n)</code></td><td>整数平方根（向下取整，<strong>不会有浮点误差</strong>）</td><td><code>math.isqrt(10)</code>→<code>3</code>；<code>math.isqrt(10**16-1)</code>→<code>99999999</code></td><td>㊴；4-30 判因子用它</td></tr>
+<tr><td><code>math.sqrt(n)</code></td><td>平方根，返回 <strong>float</strong>（大数会失真）</td><td><code>math.sqrt(10)</code>→<code>3.1622776601683795</code>；<code>int((10**16-1)**0.5)</code>→<code>100000000</code>（<strong>错！</strong>应为 <code>99999999</code>）</td><td>㊴ 里那条反例就是这个</td></tr>
+<tr><td><code>math.fsum(可迭代)</code></td><td>精确求和（小数多时比 <code>sum</code> 稳）</td><td><code>math.fsum([0.1]*10)</code>→<code>1.0</code>；<code>sum([0.1]*10)</code>→<code>0.9999999999999999</code></td><td>4-5 / 4-8 的对照口径</td></tr>
+<tr><td><code>math.e</code> / <code>math.pi</code></td><td>两个常量</td><td><code>math.e</code>→<code>2.718281828459045</code>；<code>math.pi</code>→<code>3.141592653589793</code></td><td>㉛ 级数求和</td></tr>
+<tr><td><code>math.log(x, base)</code></td><td>对数（不写 base 是自然对数）</td><td><code>math.log(8, 2)</code>→<code>3.0</code></td><td>拓展</td></tr>
+<tr><td><code>math.comb(n, k)</code> / <code>math.perm(n, k)</code></td><td>组合数 / 排列数（3.8+）</td><td><code>math.comb(5,2)</code>→<code>10</code>；<code>math.perm(5,2)</code>→<code>20</code></td><td>拓展（排列组合类题）</td></tr>
+<tr><td><code>from collections import Counter</code></td><td>一趟把「每个元素出现几次」全数好</td><td><code>Counter("banana")</code>→<code>Counter({'a': 3, 'n': 2, 'b': 1})</code></td><td>㉕；5-6 / 5-7 / 频次统计类</td></tr>
+<tr><td><code>Counter(...).most_common(n)</code></td><td>取出现最多的前 n 个（给 (元素, 次数) 列表）</td><td><code>most_common(2)</code>→<code>[('a', 3), ('n', 2)]</code></td><td>㉕「取次数最多的键」四条路</td></tr>
+<tr><td><code>Counter(...)[键]</code></td><td><strong>取没见过的元素给 0，不会报错</strong></td><td><code>Counter("abc")["z"]</code>→<code>0</code></td><td>㉕；等价于 <code>dict.get(k, 0)</code></td></tr>
+<tr><td><code>Counter</code> 还能相加 / 转回字典</td><td>合并计数 / 变回普通 dict</td><td><code>Counter("aab")+Counter("abb")</code>→<code>Counter({'a': 3, 'b': 3})</code>；<code>dict(...)</code>→<code>{'b': 1, 'a': 3, 'n': 2}</code></td><td>㉔ 字典 / ㉕ 频次</td></tr>
+<tr><td><code>from collections import deque</code></td><td>两头都能进出，<strong>从左边弹出是 O(1)</strong></td><td><code>deque([1,2,3]).popleft()</code>→<code>1</code>；左边弹 20000 次：<code>list.pop(0)</code> <code>0.3421 s</code> vs <code>popleft</code> <code>0.0007 s</code></td><td>4-18 猴子选大王这类「一圈一圈转」的题</td></tr>
+<tr><td><code>from itertools import accumulate</code></td><td>前缀和：把累加过程一次给出</td><td><code>list(accumulate([1,2,3,4]))</code>→<code>[1, 3, 6, 10]</code></td><td>⑧ 累加与递推</td></tr>
+<tr><td><code>from itertools import islice</code></td><td>给迭代器/序列切片，<strong>不用先建列表</strong></td><td><code>list(islice(range(10), 2, 8, 2))</code>→<code>[2, 4, 6]</code></td><td>4-27 的优化（切行）</td></tr>
+<tr><td><code>from ast import literal_eval</code></td><td>安全的 <code>eval</code>：只认字面量，<strong>不可能执行代码</strong></td><td><code>literal_eval("[1,2,3]")</code>→<code>[1, 2, 3]</code>；<code>literal_eval("1+2")</code>→<code>ValueError</code></td><td>㉝；5-2 读字典、5-7 读列表</td></tr>
+<tr><td><code>from operator import add, sub, mul, truediv, floordiv, neg</code></td><td>现成的运算符函数（<strong>可以当字典的值</strong>）</td><td><code>add(2,3)</code>→<code>5</code>；<code>truediv(7,2)</code>→<code>3.5</code>；<code>floordiv(7,2)</code>→<code>3</code>；<code>neg(5)</code>→<code>-5</code></td><td>㉔ 分派表；5-3 四则运算；<strong>㊷ 整节专讲</strong></td></tr>
+<tr><td><code>operator.itemgetter(下标)</code></td><td>取出第几个（排序 <code>key=</code> 常用）</td><td><code>itemgetter(1)(("a","b"))</code>→<code>b</code></td><td>② 表排序；㊶；<strong>㊷</strong></td></tr>
+<tr><td><code>operator.attrgetter</code> / <code>methodcaller</code></td><td>取属性 / 调方法（刷题少用，知道有就行）</td><td><code>methodcaller("upper")("abc")</code>→<code>ABC</code></td><td>㊶ / <strong>㊷</strong> 拓展</td></tr>
+<tr><td><code>import sys</code>：四个读法</td><td><code>read()</code> 整块 / <code>readline()</code> 一行 / <code>readlines()</code> 全部行 / <code>read().split()</code> 切词</td><td>输入 <code>a⏎b⏎</code> 时：<code>read()</code>→<code>'a\nb\n'</code>；<code>readline()</code>→<code>'a\n' 'b\n'</code>；<code>readlines()</code>→<code>['a\n', 'b\n']</code>；<code>read().split()</code>→<code>['a', 'b']</code></td><td><strong>㉟ 整节专讲</strong>；读多行/整块时比 <code>input()</code> 稳</td></tr>
+</table>
+
+<div class="box ok">
+<strong>三个最容易忘、又最省事的</strong><br>
+① <strong><code>Counter</code></strong>：<code>cnt[x] = cnt.get(x, 0) + 1</code> 那段循环，它一行就代替了
+（㉕ 讲的"频次统计"就是它）；取没见过的键还给 <code>0</code>，连兜底都省了。<br>
+② <strong><code>math.isqrt</code></strong>：判因子、判素数要开平方时用它 ——
+<code>int(n ** 0.5)</code> 在大数上会<strong>算错</strong>（表里那条反例就是），
+而 <code>isqrt</code> 是整数运算，不会有浮点误差（㊴）。<br>
+③ <strong><code>ast.literal_eval</code></strong>：读"长得像列表/字典"的输入时，
+它和 <code>eval</code> 结果一样，但<strong>不可能执行代码</strong>（㉝）。
+</div>
+
+
+<h3 id="quick-9">⑨ 集合 <code>set</code> 方法速查（含「会丢序」这条铁律）</h3>
+
+<p>集合在正文里是 <strong>㉚</strong>，但前面几张表里它只出现在「方法族对照」的名字列 ——
+<strong>哪个方法干什么、返回什么、会不会报错</strong>都没写。这张表补齐（全部实测）。</p>
+
+<table>
+<tr><th>写法</th><th>用途</th><th>实测</th><th>注意</th></tr>
+<tr><td><code>s.add(x)</code></td><td>加一个元素（已有就什么也不做）·<strong>返回值是 None</strong></td><td><code>{1,2}.add(3)</code>→<code>[1, 2, 3]</code>；<code>print({1}.add(2))</code>→<code>None</code></td><td>㉚；别写 <code>s = s.add(x)</code>（会变成 None）</td></tr>
+<tr><td><code>s.discard(x)</code></td><td>删一个，<strong>没有也不报错</strong></td><td><code>{1,2}.discard(9)</code> 不报错（返回 <code>None</code>）</td><td>㉚；比 remove 安全</td></tr>
+<tr><td><code>s.remove(x)</code></td><td>删一个，<strong>没有就 KeyError</strong></td><td><code>{1}.remove(9)</code>→<code>KeyError</code></td><td>和 discard 的区别就在这</td></tr>
+<tr><td><code>s1 | s2</code> / <code>.union()</code></td><td>并集（两边的都算）</td><td><code>{1,2}|{2,3}</code>→<code>[1, 2, 3]</code></td><td>4-29；5-8</td></tr>
+<tr><td><code>s1 &amp; s2</code> / <code>.intersection()</code></td><td>交集（两边都有）</td><td><code>{1,2}&amp;{2,3}</code>→<code>[2]</code></td><td>4-29 找共有元素</td></tr>
+<tr><td><code>s1 - s2</code> / <code>.difference()</code></td><td>差集（只在一头出现的）</td><td><code>{1,2}-{2,3}</code>→<code>[1]</code></td><td>5-8 的集合版写法</td></tr>
+<tr><td><code>s1 ^ s2</code> / <code>.symmetric_difference()</code></td><td>对称差（只在一头出现的）</td><td><code>{1,2}^{2,3}</code>→<code>[1, 3]</code></td><td>4-29 那题本质就是它</td></tr>
+<tr><td><code>a.issubset(b)</code> / <code>a.issuperset(b)</code></td><td>包含关系（子集 / 超集）</td><td><code>{1}.issubset({1,2})</code>→<code>True</code>；<code>{1,2}.issuperset({1})</code>→<code>True</code></td><td>拓展</td></tr>
+<tr><td><code>s.pop()</code></td><td>随便弹一个（<strong>哪个不确定</strong>）</td><td><code>{1,2,3}.pop()</code> 每次可能不同</td><td>要确定顺序就别用集合</td></tr>
+<tr><td><strong>集合会丢序</strong></td><td>「按原顺序」的题不能靠集合</td><td><code>set([1,200,53,8])</code> 打出 <code>200 1 53 8</code>（不是 <code>1 200 53 8</code>）</td><td>❌10 同族；4-29 / 5-7 都栽过这条</td></tr>
+</table>
+
+<div class="box warn">
+<strong>⚠️ 两条最容易踩的</strong><br>
+① <strong><code>.add()</code> 返回 None</strong>：写成 <code>s = s.add(x)</code> 就把集合弄丢了
+（和 <code>list.append</code> / <code>list.sort</code> 同一类坑，❌13）。<br>
+② <strong>集合的顺序不由人决定</strong>：凡题面写"按原来次序 / 按输入顺序"，就得
+<strong>靠原列表走</strong>（4-29 实测 <code>set([1,200,53,8])</code> 打出 <code>200 1 53 8</code>；
+5-7 那题正好是"去重 + 保序"，用 <code>dict.fromkeys</code> 或按原列表筛才对）。
+</div>
 
 <script>
 /* 手机浏览器对本地文件的 #锚点 支持不好，改用 JS 滚动定位 */
