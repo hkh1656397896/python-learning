@@ -132,7 +132,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>二、常用代码与拓展 <span class="toc-n" id="cs">41</span></summary>
+    <summary>二、常用代码与拓展 <span class="toc-n" id="cs">42</span></summary>
     <ol>
       <li><a onclick="return go('s1-1')">① 读一行数字</a></li>
       <li><a onclick="return go('s1-2')">② range()：生成数字序列</a></li>
@@ -175,6 +175,7 @@
       <li><a onclick="return go('s1-42')">㊴ 因子的三种求法：试到 √n（成对补）· 筛法 · isqrt</a></li>
       <li><a onclick="return go('s1-43')">㊵ 函数 def 入门：把一段逻辑起个名字</a></li>
       <li><a onclick="return go('s1-44')">㊶ lambda 匿名函数：没有名字的一行函数</a></li>
+      <li><a onclick="return go('s1-45')">㊷ operator 模块：把「运算符」变成能传来传去的函数</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -5129,6 +5130,101 @@ gs = [lambda i=i: i for i in range(3)]
 <p>相关小节：<strong>㉝</strong> <code>map</code>（<code>lambda</code> 最常见的搭档）、
 <strong>㉔</strong> 字典（值放函数 = 分派表）、<strong>⑦ 方法族对照</strong>（速查总表）、
 <strong>⑧</strong> 累加与递推（另一类"把函数当值"的场合）。</p>
+
+<h3 id="s1-45">㊷ <code>operator</code> 模块：把「运算符」变成能传来传去的函数</h3>
+
+<p><strong>一句话</strong>：<code>operator</code> 里装的都是<strong>把运算符写成了函数</strong>的东西 ——
+<code>a + b</code> 和 <code>add(a, b)</code> 是同一件事，但后者是个<strong>函数对象</strong>，
+可以当参数传、<strong>可以放进字典</strong>（5-3 四则运算的分派表就是这么干的）。
+<strong>它解决的是「<code>+</code> 不能当值用」这个问题。</strong></p>
+
+<div class="box ok">
+<strong>① 算术运算符的函数版（全部实测）</strong>
+<table>
+<tr><th>函数</th><th>等于</th><th>实测</th></tr>
+<tr><td><code>add(a, b)</code></td><td><code>a + b</code></td><td><code>add(7, 3)</code> → <code>10</code></td></tr>
+<tr><td><code>sub(a, b)</code></td><td><code>a - b</code></td><td><code>4</code></td></tr>
+<tr><td><code>mul(a, b)</code></td><td><code>a * b</code></td><td><code>21</code></td></tr>
+<tr><td><code>truediv(a, b)</code></td><td><code>a / b</code></td><td><code>2.3333333333333335</code>（<strong>真除法，得 float</strong>）</td></tr>
+<tr><td><code>floordiv(a, b)</code></td><td><code>a // b</code></td><td><code>2</code>（整除）</td></tr>
+<tr><td><code>mod(a, b)</code></td><td><code>a % b</code></td><td><code>1</code></td></tr>
+<tr><td><code>pow(a, b)</code></td><td><code>a ** b</code></td><td><code>343</code></td></tr>
+<tr><td><code>neg(a)</code></td><td><code>-a</code></td><td><code>neg(5)</code> → <code>-5</code></td></tr>
+</table>
+<pre><code>from operator import add, sub, mul, truediv
+d = {'+': add, '-': sub, '*': mul, '/': truediv}   # 5-3 的分派表：一张表顶一串 if/elif
+d['+'](2, 3)     # 5</code></pre>
+⚠️ 名字容易记混：<strong><code>truediv</code> 是 <code>/</code>、<code>floordiv</code> 是 <code>//</code></strong> ——
+实测 <code>truediv(7,2)</code> 给 <code>3.5</code>，<code>floordiv(7,2)</code> 给 <code>3</code>。
+</div>
+
+<div class="box ok">
+<strong>★ ② <code>itemgetter</code>：把「取第几项」变成函数（最常用的一个）</strong>
+<pre><code>from operator import itemgetter
+
+itemgetter(1)              # 这本身是个【对象】：operator.itemgetter(1)
+itemgetter(1)(['a','b','c'])         # 'b'         ← 加一对括号才算「取」
+itemgetter(0, 2)(['a','b','c'])      # ('a', 'c')  ← 给多个下标 → 返回【元组】
+itemgetter(-1)([10, 20, 30])         # 30          ← 支持负下标
+itemgetter('b')({'a':1, 'b':2})      # 2           ← 字典上取【键】
+itemgetter('a', 'b')({'a':1, 'b':2}) # (1, 2)
+itemgetter(1)('abc')                 # 'b'         ← 字符串也能取</code></pre>
+<strong>最常用的三个场合</strong>（实测输出）：
+<pre><code>L = [('s', 8), ('p', 11), ('c', 15), ('d', 2)]
+
+sorted(L, key=itemgetter(1))    # [('d',2), ('s',8), ('p',11), ('c',15)]  ← 按「第 2 项」排
+max(L, key=itemgetter(1))       # ('c', 15)                                ← 取第 2 项最大的
+sorted(D.items(), key=itemgetter(1))   # 字典按【值】排序 → [('b',1), ('c',2), ('a',3)]
+list(map(itemgetter(0), rows))  # [1, 2, 3]     ← 批量取「第 1 列」，比 lambda 更短</code></pre>
+<strong>它和 <code>lambda kv: kv[1]</code> 完全等价</strong>，但（实测，排 20 万 ×3 次）
+<strong><code>itemgetter</code> <code>0.033 s</code> ／ <code>lambda</code> <code>0.036 s</code> ／ <code>def</code> 具名 <code>0.040 s</code></strong> ——
+原因是<strong>它是 C 实现的，取项时不进入 Python 层</strong>，少一层函数调用开销。
+</div>
+
+<div class="box warn">
+<strong>⚠️ ③ <code>itemgetter</code> 的踩坑（实测）</strong>
+<table>
+<tr><th>写法</th><th>结果</th></tr>
+<tr><td><code>itemgetter(1)(5)</code>（对数字用）</td><td><code>TypeError: 'int' object is not subscriptable</code></td></tr>
+<tr><td><code>itemgetter(5)([1,2])</code>（下标越界）</td><td><code>IndexError: list index out of range</code></td></tr>
+<tr><td><code>itemgetter('z')({'a':1})</code>（没这个键）</td><td><code>KeyError: 'z'</code></td></tr>
+<tr><td><code>sorted(…, key=itemgetter)</code>（<strong>忘了括号</strong>）</td>
+<td>1 个元素时<strong>居然能跑</strong>（不需要比较）；<strong>2 个元素就炸</strong>：
+<code>TypeError: '&lt;' not supported between instances of 'operator.itemgetter' and 'operator.itemgetter'</code></td></tr>
+</table>
+<strong>最后一条正是「样例骗人」的典型</strong>：<code>key=</code> 拿到的是<strong>函数本身</strong>而不是取项结果，
+只有一个元素时不会触发比较，所以看不出问题 —— <strong>和自己写 <code>key=</code> 函数时「忘写括号 / 忘 return」是同一族</strong>。
+</div>
+
+<div class="box ok">
+<strong>④ 两个亲戚（知道有这么回事就行）</strong>
+<pre><code>from operator import attrgetter, methodcaller
+
+# attrgetter：取【属性】（对"对象"用，不是下标）
+sorted(ps, key=attrgetter('age'))        # 按年龄排
+attrgetter('name', 'age')(ps[0])         # ('tom', 20)   多个属性 → 元组
+
+# methodcaller：替调用某个方法
+list(map(methodcaller('upper'), ['a', 'b']))               # ['A', 'B']
+list(map(methodcaller('replace', 'a', 'X'), ['cat','bat'])) # ['cXt', 'bXt']</code></pre>
+这三个（<code>itemgetter</code> / <code>attrgetter</code> / <code>methodcaller</code>）
+合起来就是「<strong>把"取什么"和"做什么"也变成函数</strong>」，配合 <code>key=</code>、<code>map</code>、字典分派表一起用。
+</div>
+
+<div class="box ok">
+<strong>⑤ 三个怎么选</strong>
+<table>
+<tr><th>场合</th><th>用谁</th></tr>
+<tr><td>只是「取第几项 / 第几个键」</td><td><strong><code>itemgetter(1)</code></strong>（最快、最短、不容易写错）</td></tr>
+<tr><td>要算点别的：<code>key=lambda kv: -kv[1]</code>、<code>key=lambda s: len(s)**2</code></td>
+<td><code>lambda</code>（㊶）</td></tr>
+<tr><td>逻辑超过一行、要复用</td><td><code>def</code>（㊵）</td></tr>
+</table>
+</div>
+
+<p>相关小节：<strong>㊵</strong> 函数 <code>def</code> 入门、<strong>㊶</strong> <code>lambda</code>、
+<strong>㉔</strong> 字典（分派表）、<strong>㉝</strong> <code>map</code>、
+<strong>⑤ 对象 × 操作对照表</strong> 与 <strong>⑦ 方法族对照</strong>（都在速查总表）。</p>
 
 <h2 id="star">三、符号速查：* 和 []</h2>
 
@@ -11991,10 +12087,36 @@ print(len(set(range(a + (-a) % 105, b + 1, 105))))  # 真按题面"用集合"也
 <td><code>L.insert(0, 9)</code>｜<code>L.pop()</code> 返回被弹掉的值｜<code>L.remove(2)</code>｜<code>L.index(4)</code> <code>3</code></td>
 <td>⑮ 查表的另一种写法</td></tr>
 
-<tr><td><code>d.get()</code> <code>d.items()</code> <code>d.keys()</code> <code>d.update()</code> <code>d.setdefault()</code></td>
-<td>取值（找不到给默认值）/ 取「键值对」/ 取键 / 合并 / 有则取无则设</td>
-<td><code>{"a":1}.get("b", 0)</code> <code>0</code>｜<code>d["b"]=2</code> 新增、<code>d["a"]=9</code> 覆盖｜<code>for k,v in d.items()</code></td>
-<td>⑮、㉔；<strong><code>for x in d</code> 拿到的是键，不是值</strong></td></tr>
+<tr><td><code>d.get(键[, 默认])</code></td>
+<td>取值；<strong>键不在就给默认值</strong>（不会崩）—— 字典最常用的方法</td>
+<td><code>{"a":1}.get("a")</code> <code>1</code>｜<code>{"a":1}.get("z", 0)</code> <code>0</code>｜
+<code>{"a":1}["z"]</code> → <code>KeyError</code></td>
+<td>㉔、⑤；<code>cnt[x] = cnt.get(x, 0) + 1</code> 这个计数套路就是它</td></tr>
+
+<tr><td><strong><code>d.items()</code></strong></td>
+<td>取「<strong>键值对</strong>」：每轮给一个 <code>(键, 值)</code> 二元组 —— <strong>键和值都要用时靠它</strong></td>
+<td><code>list({"a":1}.items())</code> <code>[('a', 1)]</code>｜
+<code>for k, v in d.items():</code> <strong>拆成两个变量</strong>｜
+<code>sorted(D.items(), key=itemgetter(1))</code> 按<strong>值</strong>排</td>
+<td>㉔（元组解包那节）、㊷；5-2 图的字典表示、5-5 统计字符、统计类题目都用它</td></tr>
+
+<tr><td><code>d.keys()</code> / <code>d.values()</code></td>
+<td>只要<strong>键</strong> / 只要<strong>值</strong></td>
+<td><code>list({"a":1}.keys())</code> <code>['a']</code>｜
+<code>sum({"a":1,"b":2}.values())</code> <code>3</code></td>
+<td>㉔；<code>for x in d</code> 与 <code>d.keys()</code> 等价（都给键）</td></tr>
+
+<tr><td><code>d[k] = v</code> / <code>d.update(另一个字典)</code></td>
+<td>新增或覆盖（<strong>同一个写法</strong>）/ 批量合并：有则改、无则加</td>
+<td><code>d["b"]=2</code> 新增｜<code>d["a"]=9</code> 覆盖｜
+<code>d.update({"c":3,"a":9})</code></td>
+<td>㉔、㊷</td></tr>
+
+<tr><td><code>d.setdefault(键, 默认)</code></td>
+<td>键不在<strong>才</strong>补上（在就原样返回、不改）</td>
+<td><code>{"a":1}.setdefault("a",100)</code> <code>1</code>（不改）｜
+<code>{"a":1}.setdefault("b",100)</code> <code>100</code>（补上）</td>
+<td>㉔；分类归组时常用</td></tr>
 <tr><td><strong>计数套路</strong> <code>cnt[x] = cnt.get(x, 0) + 1</code></td>
 <td>数「每个东西出现几次」——一趟扫完</td>
 <td><code>for c in "banana": cnt[c] = cnt.get(c, 0) + 1</code> → <code>{'b': 1, 'a': 3, 'n': 2}</code></td>
@@ -12097,6 +12219,8 @@ print(len(set(range(a + (-a) % 105, b + 1, 105))))  # 真按题面"用集合"也
 <tr><td><code>x.sort()</code></td><td>❌ 没有</td><td>✅ 原地排</td><td>❌ 没有</td><td>❌ 没有</td><td>❌</td></tr>
 <tr><td><code>x.strip()</code></td><td>✅ 去首尾空白</td><td>❌ 没有</td><td>❌ 没有</td><td>❌ 没有</td><td>❌</td></tr>
 <tr><td><code>x.get(键)</code></td><td>❌ 没有</td><td>❌ 没有</td><td>❌ 没有</td><td>✅ 取不到给默认值</td><td>❌</td></tr>
+<tr><td><code>x.items()</code></td><td>❌ 没有</td><td>❌ 没有</td><td>❌ 没有</td><td>✅ 给「<code>(键, 值)</code> 对」，遍历时拆成 <code>k, v</code></td><td>❌</td></tr>
+<tr><td><code>x.keys()</code> / <code>x.values()</code></td><td>❌ 没有</td><td>❌ 没有</td><td>❌ 没有</td><td>✅ 只要键 / 只要值</td><td>❌</td></tr>
 <tr><td><strong>能改吗</strong></td><td>❌ <strong>不可变</strong>（方法都返回新串）</td><td>✅ 可改（<code>append</code>/<code>sort</code> 原地改）</td>
 <td>❌ <strong>不可变</strong></td><td>✅ 可增删键</td><td>❌ 不可变</td></tr>
 </table>
