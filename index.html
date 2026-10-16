@@ -104,7 +104,7 @@
 -->
 
 <h1>Python 自学笔记</h1>
-<p class="meta">hkh ｜ 更新 2026-10-16 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">22</span> 题 + 第4章 <span id="c4">30</span> 题 + 第5章 <span id="c5">4</span> 题（浙大版《Python 程序设计》题目集）</p>
+<p class="meta">hkh ｜ 更新 2026-10-16 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">22</span> 题 + 第4章 <span id="c4">30</span> 题 + 第5章 <span id="c5">5</span> 题（浙大版《Python 程序设计》题目集）</p>
 
 <nav id="toc">
   <div class="toc-head">目录　<span class="toc-hint">点标题展开 · 点条目直接跳</span></div>
@@ -205,7 +205,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>六、真题回顾 <span class="toc-n" id="cr">73</span></summary>
+    <summary>六、真题回顾 <span class="toc-n" id="cr">74</span></summary>
     <ol>
       <li><a onclick="return go('review-1')">1-1 从键盘输入两个数求和</a></li>
       <li><a onclick="return go('review-2')">1-2 按公式输出 b²−4ac</a></li>
@@ -291,6 +291,7 @@
       <li><a onclick="return go('review-82')">5-2 图的字典表示</a></li>
       <li><a onclick="return go('review-83')">5-3 四则运算（用字典实现）</a></li>
       <li><a onclick="return go('review-84')">5-4 分析活动投票情况</a></li>
+      <li><a onclick="return go('review-85')">5-5 统计字符出现次数</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -5470,7 +5471,7 @@ if m!=v[17]:                      # ② 索引</code></pre>
 ② 两边同时改，很容易出现"本地一份、提交另一份"，而且极难发现
 </div>
 
-<h2 id="review">六、真题回顾（<span id="cr2">73</span> 题）</h2>
+<h2 id="review">六、真题回顾（<span id="cr2">74</span> 题）</h2>
 
 <div class="box warn">
 <strong>说明：</strong>下面的题目要求是<strong>我按自己的理解概括写的</strong>，不是 PTA 原文。<br>
@@ -11455,6 +11456,78 @@ L = [x for x in team2 if x not in voted]     # 缺谁</code></pre>
 <p>题面外探底：若第二小队五人<strong>全得过票</strong>（输入 <code>6,7,8,9,10</code>），本写法
 <strong>一个字节都不输出</strong>（连换行都没有），对照写法会打一个空行 ——
 题面只问「没有得票的队员」，这种情况大概率不在 PTA 数据里，记一笔备查。</p>
+
+<h3 id="review-85">5-5 统计字符出现次数 <span class="tag">一次通过</span></h3>
+
+<p><strong>要求</strong>：第一行给一个以回车结束的字符串（<strong>少于 80 个字符</strong>），第二行给<strong>一个字符</strong>；
+输出这个字符在字符串里<strong>出现了几次</strong>。
+样例 <code>programming is More fun!</code> + <code>m</code> → <code>2</code>。</p>
+
+<p><strong>我的代码（PTA 判过）</strong></p>
+<pre><code>m=list(input())      第一行：把字符串拆成一个个字符装进列表
+n=input()            第二行：要数的那个字符
+print(m.count(n))    列表自带的 count：数「和 n 完全相同的元素」有几个</code></pre>
+
+<div class="box warn">
+<strong>⚠️ 这题唯一的坑是「大小写敏感」—— 数的是字符本身，不是字母</strong>
+样例那句里 <code>programming</code> 有两个小写 <code>m</code>，<code>More</code> 里还有一个<strong>大写
+<code>M</code></strong>；答案是 <code>2</code> 不是 3 —— 实测：数 <code>m</code> 给 <code>2</code>、
+数 <code>M</code> 给 <code>1</code>。想"顺手"统一大小写（<code>s.lower()</code>）这题就错了。
+另外它数的是<strong>字符</strong>不是单词，所以 <code>is</code> / <code>fun</code> 这些跟答案没关系。
+</div>
+
+<p><strong>优化用法</strong></p>
+
+<div class="box ok">
+<strong>① <code>list()</code> 可以省，直接对字符串 <code>count</code></strong>
+<pre><code>print(input().count(n))          # 字符串自己就有 count
+print(input().count(input()))    # 连变量都不要：两行写成一行链式</code></pre>
+实测这两种写法的样例输出与本题写法<strong>都是 <code>2</code></strong>，逐字节相同。
+<strong>但两者有一处真的不一样，值得记</strong>：如果第二行给的是<strong>空行</strong>（题面外输入），
+<code>list</code> 版给 <code>0</code>，而 <code>str.count('')</code> 会给 <strong><code>4</code></strong>
+—— 因为「空串在每个位置之间都算出现一次」，长度 n 的字符串会得到 n+1（实测 <code>'abc'</code> → 4）。
+本题第二行一定有字符，所以两种都行；<strong><code>list</code> 版对这种越界输入反而更稳</strong>。
+</div>
+
+<div class="box warn">
+<strong>② 大小写不敏感怎么写（题面没要求，而且这题<strong>不能</strong>这么做）</strong>
+<pre><code>print(input().lower().count(input().lower()))   # 两边一起转小写再数</code></pre>
+实测<strong>同一个样例</strong>：数 <code>m</code> 给 <strong><code>3</code></strong>、数 <code>M</code> 也给
+<code>3</code> —— 因为那句里的 <code>More</code> 被转成 <code>more</code>，把那个大写 <code>M</code>
+也算进去了。本题答案要 <code>2</code>，所以<strong>这题恰恰不能统一大小写</strong>；
+这条写在这里是为了记住「不敏感」是一种<strong>换了问题的问法</strong>，不是"更宽松的同一个问题"。
+</div>
+
+<div class="box ok">
+<strong>③ <code>collections.Counter</code>：一次统计所有字符</strong>
+<pre><code>from collections import Counter
+c = Counter(s)          # 一趟就把每个字符的次数都数好
+print(c[n])             # 要用哪个取哪个</code></pre>
+实测样例同样给 <code>2</code>；<strong>取没出现过的字符给 <code>0</code> 而不是报错</strong>
+（实测 <code>Counter('abc')['z']</code> → <code>0</code>，<code>['a']</code> → <code>1</code>）——
+这就是 ㉔ 讲的 <code>d.get(k, 0)</code> 的"自动兜底"版本。只要一个字符的次数时它反而重，多字符统计才划算。
+</div>
+
+<p><strong>要点与实测证据</strong>：<code>py_compile</code> 通过；
+<strong>题面样例逐字节一致</strong>（<code>'2'</code>）；
+<strong>10 组边界全部与被测代码之外的独立口径逐字节相同</strong>（对照实现用 <code>readline</code> 读两行 + 逐个字符比较）：</p>
+
+<table>
+<tr><th>用例</th><th>输入（<code>|</code> 表示换行）</th><th>输出</th><th>与独立口径</th></tr>
+<tr><td>题面样例</td><td><code>programming is More fun!|m|</code></td><td><code>2</code></td><td>逐字节相同</td></tr>
+<tr><td>数大写 M（大小写敏感）</td><td><code>programming is More fun!|M|</code></td><td><code>1</code></td><td>逐字节相同</td></tr>
+<tr><td>字符不在串里</td><td><code>abc|z|</code></td><td><code>0</code></td><td>逐字节相同</td></tr>
+<tr><td>全是同一个字符</td><td><code>aaaa|a|</code></td><td><code>4</code></td><td>逐字节相同</td></tr>
+<tr><td>目标字符是空格</td><td><code>a b c| |</code></td><td><code>2</code></td><td>逐字节相同</td></tr>
+<tr><td>目标字符是标点</td><td><code>a,b,c,d|,|</code></td><td><code>3</code></td><td>逐字节相同</td></tr>
+<tr><td>79 个字符（题面上限）</td><td><code>abababababababababababababababababababababababababababababababababababababababa|a|</code></td><td><code>40</code></td><td>逐字节相同</td></tr>
+<tr><td>空串（题面外探底）</td><td><code>|a|</code></td><td><code>0</code></td><td>逐字节相同</td></tr>
+<tr><td>中文</td><td><code>好好学习天天向上|好|</code></td><td><code>2</code></td><td>逐字节相同</td></tr>
+<tr><td>tab 作为目标字符</td><td><code>a	b	c|	|</code></td><td><code>2</code></td><td>逐字节相同</td></tr>
+</table>
+
+<p>题面外探底两条：<strong>字符串是空行</strong> → <code>0</code>（不崩）；
+<strong>第二行给空行</strong> → <code>list</code> 版 <code>0</code>、字符串版 <code>4</code>（见上面①）。</p>
 
 <h2 id="quick">七、速查总表</h2>
 
