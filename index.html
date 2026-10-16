@@ -104,7 +104,7 @@
 -->
 
 <h1>Python 自学笔记</h1>
-<p class="meta">hkh ｜ 更新 2026-10-16 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">22</span> 题 + 第4章 <span id="c4">30</span> 题 + 第5章 <span id="c5">3</span> 题（浙大版《Python 程序设计》题目集）</p>
+<p class="meta">hkh ｜ 更新 2026-10-16 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">22</span> 题 + 第4章 <span id="c4">30</span> 题 + 第5章 <span id="c5">4</span> 题（浙大版《Python 程序设计》题目集）</p>
 
 <nav id="toc">
   <div class="toc-head">目录　<span class="toc-hint">点标题展开 · 点条目直接跳</span></div>
@@ -205,7 +205,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>六、真题回顾 <span class="toc-n" id="cr">72</span></summary>
+    <summary>六、真题回顾 <span class="toc-n" id="cr">73</span></summary>
     <ol>
       <li><a onclick="return go('review-1')">1-1 从键盘输入两个数求和</a></li>
       <li><a onclick="return go('review-2')">1-2 按公式输出 b²−4ac</a></li>
@@ -290,6 +290,7 @@
       <li><a onclick="return go('review-81')">5-1 输出星期名缩写</a></li>
       <li><a onclick="return go('review-82')">5-2 图的字典表示</a></li>
       <li><a onclick="return go('review-83')">5-3 四则运算（用字典实现）</a></li>
+      <li><a onclick="return go('review-84')">5-4 分析活动投票情况</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -5469,7 +5470,7 @@ if m!=v[17]:                      # ② 索引</code></pre>
 ② 两边同时改，很容易出现"本地一份、提交另一份"，而且极难发现
 </div>
 
-<h2 id="review">六、真题回顾（<span id="cr2">72</span> 题）</h2>
+<h2 id="review">六、真题回顾（<span id="cr2">73</span> 题）</h2>
 
 <div class="box warn">
 <strong>说明：</strong>下面的题目要求是<strong>我按自己的理解概括写的</strong>，不是 PTA 原文。<br>
@@ -11370,6 +11371,90 @@ d.get(op, print)  # 也可以给一个"默认动作"（这里是把键打出来�
 <strong>其余各组输出一个字节都不变</strong>。运算符那行补一句 <code>.strip()</code> 同理。
 <strong>这两条不是"写错了"，是"输入范围没被题面钉死"</strong>；代价是 rc=1，也就是那个测试点 0 分。
 </div>
+
+<h3 id="review-84">5-4 分析活动投票情况 <span class="tag">一次通过</span></h3>
+
+<p><strong>要求</strong>：第一小队队员序号 1~5、第二小队 6~10（题面点名「<strong>利用集合</strong>分析活动投票情况」）。
+输入一行得票的队员序号（<strong>用逗号隔开</strong>），输出<strong>第二小队没有得票</strong>的队员序号（一行）。
+样例输入 <code>1,5,9,3,9,1,1,7,5,7,7,3,3,1,5,7,4,4,5,4,9,5,10,9</code> → 样例输出 <code>6 8</code>
+（第二小队里 7 / 9 / 10 得过票，缺的是 6 和 8）。</p>
+
+<p><strong>我的代码（PTA 判过）</strong></p>
+<pre><code>m=set(map(int,input().split(',')))   一行读入 → 按逗号切开 → 全转 int → 塞进集合（重复的自动没了）
+team2=[6,7,8,9,10]                   第二小队的五个人
+L=[]                                 准备装「没得票的人」
+for x in team2:                      按第二小队的原序挨个查（顺序由这个列表决定，不由集合决定）
+    if x not in m:                   不在得票集合里 = 没得票
+        L.append(x)                  记下来
+print(*L)                            一次打印：print(*L) 天然用空格分隔、且【不带行尾空格】</code></pre>
+
+<div class="box warn">
+<strong>⚠️ 第一版卡在「输出要不要占固定宽度」—— 结论：不用，就是一个空格</strong>
+第一版最后一行是 <code>print(x, end=" ")</code>，实测输出 <code>'6 8␣'</code>（<code>␣</code> = 行尾多出来的那个空格）。
+去查题面样例的原文（两家公开题解抄录的）都是 <code>6 8</code>，中间<strong>只有一个空格</strong>：
+<strong>题面没写、也不需要宽度</strong> —— 对比 4-27 / 4-28 那种题面明写「每个数据占 4 列」的题，
+那才需要 <code>{c:4}</code> / <code>{c:&gt;4}</code>。样例框看着宽，是 PTA 页面左边那列<strong>行号槽</strong>
+加等宽字体的间距造成的错觉（同页输入样例里 <code>1</code> 和后面的内容之间也隔着那么宽）。
+行尾空格按已有经验 PTA 会忽略（4-24 左对齐、4-25 的 <code>end=" \n"</code>、4-27 的 <code>{c:4}</code> 都判过），
+但换成 <code>print(*L)</code> 就<strong>彻底没有这道争议</strong> —— 最终版用的就是它。
+<table>
+<tr><th>写法</th><th>样例输出（<code>repr</code>，看得见行尾）</th></tr>
+<tr><td>第一版 <code>print(x, end=" ")</code></td><td><code>'6 8␣'</code> ← 行尾那个空格用 <code>␣</code> 标出来</td></tr>
+<tr><td>最终版 <code>print(*L)</code></td><td><code>'6 8'</code></td></tr>
+<tr><td>对照口径 <code>" ".join(...)</code></td><td><code>'6 8'</code> 逐字节相同</td></tr>
+</table>
+</div>
+
+<p><strong>优化用法</strong></p>
+
+<div class="box ok">
+<strong>① 收集那四行（<code>L=[]</code> + <code>for</code> + <code>if</code> + <code>append</code>）能并成一行</strong>
+<pre><code>L = [x for x in team2 if x not in m]      # 列表推导（㊱）：一行顶掉四行
+print(*[x for x in team2 if x not in m])  # 连 L 都不需要，实测与本题写法逐字节相同</code></pre>
+</div>
+
+<div class="box warn">
+<strong>⚠️ ② 想用「集合差」一行版的话：<strong>必须 <code>sorted</code></strong></strong>
+<pre><code>print(*set(range(6, 11)) - m)          # ❌ 顺序随哈希走，样例这一组实测打出 '8 6'
+print(*sorted(set(range(6, 11)) - m))  # ✅ '6 8'</code></pre>
+<table>
+<tr><th>缺的人</th><th>直接迭代集合</th><th><code>sorted</code> 之后</th></tr>
+<tr><td><code>缺 6 8</code></td><td><code>8 6</code> ← 直接迭代集合，顺序随哈希走</td><td><code>6 8</code></td></tr>
+<tr><td><code>缺 6</code></td><td><code>6</code> ← 直接迭代集合，顺序随哈希走</td><td><code>6</code></td></tr>
+<tr><td><code>缺 7 9 10</code></td><td><code>9 10 7</code> ← 直接迭代集合，顺序随哈希走</td><td><code>7 9 10</code></td></tr>
+<tr><td><code>缺 6 7 8 9</code></td><td><code>8 9 6 7</code> ← 直接迭代集合，顺序随哈希走</td><td><code>6 7 8 9</code></td></tr>
+</table>
+<strong>本题写法为什么天然是对的</strong>：它是<strong>按 <code>team2</code> 这个列表的原序</strong>挨个查
+<code>not in</code>，顺序从来没交给集合 —— 这正是 4-29 那条结论的落地：
+<strong>集合只管「在不在」，顺序要靠原列表走</strong>（㉚ 也讲过 <code>set</code> 会丢序）。
+</div>
+
+<div class="box ok">
+<strong>③ 变量名：<code>m</code> 改成 <code>voted</code> 更好读</strong>
+<pre><code>voted = set(map(int, input().split(',')))    # 得票集合（m 太短，看不出是什么）
+team2 = [6, 7, 8, 9, 10]                     # 第二小队全部成员
+L = [x for x in team2 if x not in voted]     # 缺谁</code></pre>
+</div>
+
+<p><strong>要点与实测证据</strong>：<code>py_compile</code> 通过；
+<strong>题面样例逐字节一致</strong>（<code>'6 8\n'</code>，与两个独立口径都相同）；
+8 组题面口径边界<strong>全部符合</strong>（期望值由两个独立实现各算一份）：</p>
+
+<table>
+<tr><th>用例</th><th>输入</th><th>输出</th><th>与独立口径</th></tr>
+<tr><td>题面样例</td><td><code>1,5,9,3,9,1,1,7,5,7,7,3,3,1,5,7,4,4,5,4,9,5,10,9</code></td><td><code>6 8</code></td><td>逐字节相同</td></tr>
+<tr><td>只有 6 得票</td><td><code>6</code></td><td><code>7 8 9 10</code></td><td>逐字节相同</td></tr>
+<tr><td>只有 10 得票</td><td><code>10</code></td><td><code>6 7 8 9</code></td><td>逐字节相同</td></tr>
+<tr><td>6 和 8 得票</td><td><code>6,8</code></td><td><code>7 9 10</code></td><td>逐字节相同</td></tr>
+<tr><td>全投过（探底）</td><td><code>6,7,8,9,10</code></td><td><code>（什么都不打）</code></td><td>逐字节相同</td></tr>
+<tr><td>第一小队全投（干扰数据）</td><td><code>1,2,3,4,5</code></td><td><code>6 7 8 9 10</code></td><td>逐字节相同</td></tr>
+<tr><td>输入里带空格</td><td><code>1, 5, 9, 7, 10</code></td><td><code>6 8</code></td><td>逐字节相同</td></tr>
+<tr><td>大量重复 + 乱序</td><td><code>9,9,9,7,7,10,10,5,4</code></td><td><code>6 8</code></td><td>逐字节相同</td></tr>
+</table>
+
+<p>题面外探底：若第二小队五人<strong>全得过票</strong>（输入 <code>6,7,8,9,10</code>），本写法
+<strong>一个字节都不输出</strong>（连换行都没有），对照写法会打一个空行 ——
+题面只问「没有得票的队员」，这种情况大概率不在 PTA 数据里，记一笔备查。</p>
 
 <h2 id="quick">七、速查总表</h2>
 
