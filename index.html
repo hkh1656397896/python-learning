@@ -104,7 +104,7 @@
 -->
 
 <h1>Python 自学笔记</h1>
-<p class="meta">hkh ｜ 更新 2026-10-15 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">22</span> 题 + 第4章 <span id="c4">30</span> 题（浙大版《Python 程序设计》题目集）</p>
+<p class="meta">hkh ｜ 更新 2026-10-16 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">22</span> 题 + 第4章 <span id="c4">30</span> 题 + 第5章 <span id="c5">3</span> 题（浙大版《Python 程序设计》题目集）</p>
 
 <nav id="toc">
   <div class="toc-head">目录　<span class="toc-hint">点标题展开 · 点条目直接跳</span></div>
@@ -132,7 +132,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>二、常用代码与拓展 <span class="toc-n" id="cs">39</span></summary>
+    <summary>二、常用代码与拓展 <span class="toc-n" id="cs">41</span></summary>
     <ol>
       <li><a onclick="return go('s1-1')">① 读一行数字</a></li>
       <li><a onclick="return go('s1-2')">② range()：生成数字序列</a></li>
@@ -173,6 +173,8 @@
       <li><a onclick="return go('s1-40')">㊲ 矩阵：取一行 / 取一列（L[i] 能表示什么）</a></li>
       <li><a onclick="return go('s1-41')">㊳ 输出的格式控制：end / sep / 行尾空白</a></li>
       <li><a onclick="return go('s1-42')">㊴ 因子的三种求法：试到 √n（成对补）· 筛法 · isqrt</a></li>
+      <li><a onclick="return go('s1-43')">㊵ 函数 def 入门：把一段逻辑起个名字</a></li>
+      <li><a onclick="return go('s1-44')">㊶ lambda 匿名函数：没有名字的一行函数</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -203,7 +205,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>六、真题回顾 <span class="toc-n" id="cr">71</span></summary>
+    <summary>六、真题回顾 <span class="toc-n" id="cr">72</span></summary>
     <ol>
       <li><a onclick="return go('review-1')">1-1 从键盘输入两个数求和</a></li>
       <li><a onclick="return go('review-2')">1-2 按公式输出 b²−4ac</a></li>
@@ -287,6 +289,7 @@
       <li><a onclick="return go('review-80')">4-30 找完数</a></li>
       <li><a onclick="return go('review-81')">5-1 输出星期名缩写</a></li>
       <li><a onclick="return go('review-82')">5-2 图的字典表示</a></li>
+      <li><a onclick="return go('review-83')">5-3 四则运算（用字典实现）</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -295,9 +298,10 @@
       <li><a onclick="return go('quick-1')">① 内置函数总表</a></li>
       <li><a onclick="return go('quick-2')">② 方法总表（字符串 / 列表 / 字典）</a></li>
       <li><a onclick="return go('quick-3')">③ 格式化与输出参数</a></li>
-      <li><a onclick="return go('quick-4')">④ 用途分类索引（把「二、常用代码」37 节按用途归位）</a></li>
+      <li><a onclick="return go('quick-4')">④ 用途分类索引（把「二、常用代码」39 类按用途归位）</a></li>
       <li><a onclick="return go('quick-5')">⑤ 对象 × 操作 对照表（谁有哪个能力）</a></li>
       <li><a onclick="return go('quick-6')">⑥ 字符串方法总表（按用途分类，全部实测）</a></li>
+      <li><a onclick="return go('quick-7')">⑦ 方法族对照：哪个类型有哪些方法</a></li>
     </ol>
   </details>
 </nav>
@@ -2909,6 +2913,29 @@ len(nbrs)                        # 只数条数：这一层有几条边</code></
 （和上面「字典的坑 ①」是同一条）。
 </div>
 
+<div class="box ok">
+<strong>★ 字典的值还可以是【函数】—— 这就是「分派表」（Python 版的 switch）</strong><br>
+值不限于数字 / 字符串 / 字典，<strong>函数本身也是值</strong>。把「符号 → 怎么做」写成一张表，用的时候<strong>查表再调用</strong>：
+<pre><code>d = {'+': lambda x, y: x + y,
+     '-': lambda x, y: x - y,
+     '*': lambda x, y: x * y,
+     '/': lambda x, y: x / y if y != 0 else "divided by zero"}
+
+d['+'](2, 3)      # 5                    ← 先查表拿到函数，再加一对括号【调用】它
+d['/'](10, 0)     # 'divided by zero'
+d['%'](10, 3)     # KeyError: '%'        ← 表里没有这个键</code></pre>
+⚠️ <strong><code>d['+']</code> 拿到的是「函数本身」，不是结果</strong>（打印出来是
+<code>&lt;function &lt;lambda&gt; at 0x…&gt;</code>）—— 必须再补一对括号并传参才算。<br>
+<strong>和「值 = 算好的结果」对比（实测）</strong>：<code>d = {'/': a/b}</code> 在<strong>造字典那一刻</strong>
+就把四个运算<strong>全算了一遍</strong> —— <code>b=0</code> 时直接 <code>ZeroDivisionError</code>（实测 rc=1），
+所以那种写法必须给 <code>/</code> 补一个 <code>if b != 0</code>；<strong>值 = 函数只在被选中时才执行</strong>，
+没被选中的运算完全不参与，以后加运算符也只是加一行表项。<br>
+标准库还有现成的：<code>from operator import add, sub, mul, truediv</code> →
+<code>{'+': add, '-': sub, '*': mul, '/': truediv}</code>，不用自己写 lambda。<br>
+<strong>这就是「用字典代替 C 语言 switch」的含义</strong>：<code>d[op](a, b)</code> 一行，
+顶一整串 <code>if op == '+': … elif op == '-': …</code>；而且<strong>表可以改、逻辑不用动</strong>。
+</div>
+
 <h3 id="s1-25">㉕ 频次统计：怎么数「谁出现得最多」</h3>
 
 <div class="box ok">
@@ -4850,6 +4877,254 @@ for d in range(1, n // 2 + 1):           # d 只到 n//2（再大就不是别人
 <strong>review-43</strong>（4-4 的 <code>√x</code> 上界与浮点坑）、<strong>❌17</strong> 手算循环上界、
 <strong>㊳</strong> 输出格式（因子列表拼成 <code>1 + 2 + 3</code>）。</p>
 
+<h3 id="s1-43">㊵ 函数 <code>def</code> 入门：把一段逻辑起个名字</h3>
+
+<p><strong>一句话</strong>：<code>def 名字(参数):</code> 后面跟<strong>缩进的若干行</strong>，
+就把「一段会被反复用的逻辑」装进了一个名字里；用的时候写 <code>名字(实参)</code> 就是<strong>调用</strong>它。
+（<strong>㊶ 的 <code>lambda</code> 只是它的简化写法</strong> —— 先把这一节看明白，那一节就是小菜。）</p>
+
+<div class="box ok">
+<strong>★ 为什么要有函数：同一段判断写三遍 vs 写一次调用三次</strong>
+<pre><code># 不用函数：逻辑复制三遍
+a = 3
+print('素数' if a > 1 and all(a % i for i in range(2, a)) else '不是素数')
+b = 10
+print('素数' if b > 1 and all(b % i for i in range(2, b)) else '不是素数')
+c = 17
+print('素数' if c > 1 and all(c % i for i in range(2, c)) else '不是素数')
+
+# 用函数：逻辑只写一次
+def is_prime(n):
+    return n > 1 and all(n % i for i in range(2, n))
+
+for x in (3, 10, 17):
+    print('素数' if is_prime(x) else '不是素数')</code></pre>
+两者输出<strong>完全一样</strong>（<code>素数 / 不是素数 / 素数</code>）。函数买来三样东西：<br>
+① <strong>改一次就全改</strong>（不用在三处同步改）；② <strong>名字就是注释</strong>（<code>is_prime(x)</code> 比一长串表达式好读）；
+③ <strong>能复用</strong>（三个月后、别的题里都能直接调）。
+</div>
+
+<div class="box ok">
+<strong>① <code>def</code> 的两件事：定义（写下来）和调用（让它跑）</strong>
+<pre><code>def greet():              # 【定义】：只是把这段逻辑记下来，不会执行
+    print('你好')
+
+greet()                   # 【调用】：写名字 + 一对括号 —— 这时候才真的执行
+greet()                   # 再调用一次，又执行一遍</code></pre>
+实测：如果只写 <code>def greet():</code> 而不写调用的那两行，程序<strong>一行都不会打</strong> ——
+<strong>定义 ≠ 执行</strong>，这是第一个要过的坎。
+</div>
+
+<div class="box ok">
+<strong>② 参数（形参 / 实参）和 <code>return</code></strong>
+<table>
+<tr><th>概念</th><th>写在哪</th><th>例子</th></tr>
+<tr><td><strong>形参</strong></td><td><code>def</code> 的圆括号里</td><td><code>def add(x, y):</code> 里的 <code>x</code>、<code>y</code></td></tr>
+<tr><td><strong>实参</strong></td><td>调用时的圆括号里</td><td><code>add(2, 3)</code> 里的 <code>2</code>、<code>3</code>（<strong>按位置</strong>对上）</td></tr>
+<tr><td><strong><code>return</code></strong></td><td>函数体里</td><td><code>return x + y</code> —— <strong>把结果交回给调用处</strong></td></tr>
+<tr><td>不写 <code>return</code></td><td>——</td><td>交回 <code>None</code></td></tr>
+</table>
+<pre><code>def add(x, y):
+    return x + y          # 交回结果
+def show(x, y):
+    print(x + y)          # 只打印，不交回东西
+
+r = add(2, 3)             # r = 5，还能接着算
+r * 10                    # 50
+s = show(2, 3)            # 屏幕上出现 5，但 s = None</code></pre>
+⚠️ <strong><code>print</code> 是"打到屏幕上"，<code>return</code> 是"把值交回去"</strong> ——
+初学最容易混的一对。实测把两者弄混的后果：
+<pre><code>def f(x):
+    print(x * 2)          # 只打印，没 return
+print(f(3) + 1)           # 先打出 6，然后 TypeError: unsupported operand type(s) for +: 'NoneType' and 'int'</code></pre>
+<strong><code>None</code> 不能参与加法</strong> —— 这就是"以为函数交回了值"的典型翻车。
+</div>
+
+<div class="box ok">
+<strong>③ 默认值 / 关键字传参 / 多个返回值</strong>
+<pre><code>def power(base, exp=2):        # exp 有默认值：不写就用 2
+    return base ** exp
+
+power(5)                # 25    用默认的 exp=2
+power(5, 3)             # 125   按位置给
+power(exp=3, base=5)    # 125   按【名字】给（关键字传参，顺序随便）</code></pre>
+<pre><code>def min_max(L):
+    return min(L), max(L)      # 看着像返回两个值，其实是返回【一个元组】
+
+lo, hi = min_max([3, 1, 4, 1, 5])     # 用两个变量接，就"拆开"了
+type(min_max([1]))                    # &lt;class 'tuple'&gt;</code></pre>
+</div>
+
+<div class="box ok">
+<strong>④ 函数里能写循环和分支 —— 这正是它和 <code>lambda</code> 最大的区别</strong>
+<pre><code>def grade(score):
+    if score >= 90:
+        return 'A'
+    elif score >= 60:
+        return 'B'          # 有分支
+    return 'C'
+
+def total(n):
+    s = 0
+    for i in range(1, n + 1):     # 有循环
+        s += i
+    return s
+
+grade(95), grade(70), grade(30)   # ('A', 'B', 'C')
+total(100)                        # 5050</code></pre>
+<strong><code>lambda</code> 只能写一个表达式，上面这两种都写不了</strong> ——
+所以"复杂逻辑用 <code>def</code>，一行临时函数才用 <code>lambda</code>"（㊶）。
+</div>
+
+<div class="box warn">
+<strong>⚠️ 变量的「地盘」：函数里定义的，外面看不见</strong>
+<pre><code>x = '外面的'
+def f():
+    x = '函数里的'        # 这是另一个 x，只活在函数内部
+    print('函数里看到:', x)
+f()                       # 函数里看到: 函数里的
+print('外面看到:', x)      # 外面看到: 外面的     ← 没被改</code></pre>
+<pre><code>def f():
+    y = 1
+f()                       # 函数跑完了
+print(y)                  # NameError: name 'y' is not defined</code></pre>
+<strong>所以想让外面拿到结果，只能靠 <code>return</code></strong> ——
+不能指望"函数里算出来的变量名"到外面还能用。
+</div>
+
+<div class="box bad">
+<strong>⚠️ 五种常见错法（全部实测）</strong>
+<table>
+<tr><th>写法</th><th>结果</th></tr>
+<tr><td><code>print(f)</code>（<strong>忘写括号</strong>）</td><td><code>&lt;function f at 0x…&gt;</code> —— 拿到的是<strong>函数本身</strong>，不是结果</td></tr>
+<tr><td><code>f()</code> 少给参数</td><td><code>TypeError: f() missing 1 required positional argument: 'x'</code></td></tr>
+<tr><td><code>f(1, 2)</code> 多给参数</td><td><code>TypeError: f() takes 1 positional argument but 2 were given</code></td></tr>
+<tr><td>调用写在 <code>def</code> 之前</td><td><code>NameError: name 'f' is not defined</code>（<strong>先定义后调用</strong>）</td></tr>
+<tr><td><code>print(f(3) + 1)</code> 而函数里是 <code>print</code> 不是 <code>return</code></td><td>先打出 <code>6</code>，然后 <code>TypeError: … 'NoneType' and 'int'</code></td></tr>
+</table>
+另外 <code>return</code> 后面的代码<strong>永远不会执行</strong>（<code>return</code> 一执行，函数立刻结束）—— 实测
+<code>def f(): return 1; print('我永远不会执行')</code> 打出来的只有 <code>1</code>。
+</div>
+
+<div class="box ok">
+<strong>⑤ 回到 <code>lambda</code>：它就是把上面这套压成一行</strong>
+<pre><code>def add(x, y):                # 三行
+    return x + y
+
+add = lambda x, y: x + y      # 一行：省掉 def 和 return，也没有名字</code></pre>
+<strong>调用方式完全一样</strong>（<code>add(2, 3)</code> → <code>5</code>）；
+区别只在"能不能写复杂逻辑"和"有没有名字" —— 细节见 ㊶。
+</div>
+
+<div class="box ok">
+<strong>⑥ 实战：把 4-30 那道题的判断抽成函数（实测输出）</strong>
+<pre><code>def is_perfect(n):
+    s = 0
+    for i in range(1, n // 2 + 1):
+        if n % i == 0:
+            s += i
+    return s == n
+
+for n in (6, 10, 28, 496):
+    print(n, '是完数吗:', is_perfect(n))
+
+# 6 是完数吗: True      10 是完数吗: False
+# 28 是完数吗: True     496 是完数吗: True</code></pre>
+<strong>同一段逻辑写进函数以后，主循环只剩两行</strong> —— 这就是"抽出来"的价值。
+</div>
+
+<p>相关小节：<strong>㊶</strong> <code>lambda</code>（本节的简化写法）、<strong>㉝</strong> <code>map</code>（把函数当参数传给别的函数）、
+<strong>㉔</strong> 字典（值放函数 = 分派表）、<strong>㊴</strong> 因子的三种求法（里面的 <code>isqrt</code> 判素数写法就来自函数化）。</p>
+
+<h3 id="s1-44">㊶ <code>lambda</code> 匿名函数：没有名字的一行函数</h3>
+
+<p><strong>一句话</strong>：<code>lambda</code> = <strong>没有名字的、只写一行的函数</strong>。
+它和 <code>def</code> 的「参数 + 返回值」两件事一一对应 —— <strong><code>lambda 参数: 表达式</code></strong>，
+<strong>表达式的值就是返回值，所以不用写 <code>return</code></strong>。</p>
+
+<p class="meta">⚠️ 这一节<strong>假设已经会用 <code>def</code> 定义函数</strong> ——
+如果还没学过函数，先看上一节 <strong>㊵ 函数 <code>def</code> 入门</strong>（那是这一节的前提）。</p>
+
+<div class="box ok">
+<strong>★ 和 <code>def</code> 完全等价（实测）</strong>
+<pre><code>def add_def(x, y):                    # 具名函数
+    return x + y
+
+add_lambda = lambda x, y: x + y       # 匿名函数，调用效果一模一样</code></pre>
+<table>
+<tr><th>比什么</th><th><code>def</code> 版</th><th><code>lambda</code> 版</th></tr>
+<tr><td>调用结果</td><td><code>add_def(2, 3)</code> → <code>5</code></td><td><code>add_lambda(2, 3)</code> → <code>5</code></td></tr>
+<tr><td><code>__name__</code>（名字）</td><td><code>'add_def'</code></td><td><code>'&lt;lambda&gt;'</code></td></tr>
+<tr><td>类型</td><td><code>function</code></td><td><code>function</code>（<strong>同样是普通函数对象</strong>）</td></tr>
+</table>
+<strong>正因为它是普通函数对象，才能当"值"用</strong>：传给 <code>key=</code>、传给 <code>map</code>、
+<strong>放进字典</strong>（5-3 四则运算的分派表就是它，见 ㉔ 最后一节）。
+</div>
+
+<div class="box ok">
+<strong>参数部分照抄 <code>def</code> 的写法：九种形态实测</strong>
+<table>
+<tr><th>形态</th><th>写法</th><th>调用</th><th>结果</th></tr>
+<tr><td>没有参数</td><td><code>f = lambda: 42</code></td><td><code>f()</code></td><td><code>42</code></td></tr>
+<tr><td>一个参数</td><td><code>f = lambda x: x*2</code></td><td><code>f(5)</code></td><td><code>10</code></td></tr>
+<tr><td>两个参数</td><td><code>f = lambda x, y: x+y</code></td><td><code>f(2, 3)</code></td><td><code>5</code></td></tr>
+<tr><td>默认值</td><td><code>f = lambda x, y=10: x+y</code></td><td><code>f(2)</code></td><td><code>12</code></td></tr>
+<tr><td><code>*</code> 收拢</td><td><code>f = lambda *a: len(a)</code></td><td><code>f(1, 2, 3)</code></td><td><code>3</code></td></tr>
+<tr><td>条件表达式（三目）</td><td><code>f = lambda x: 'odd' if x%2 else 'even'</code></td><td><code>f(3)</code></td><td><code>'odd'</code></td></tr>
+<tr><td>返回元组</td><td><code>f = lambda x: (x, x*x)</code></td><td><code>f(4)</code></td><td><code>(4, 16)</code></td></tr>
+<tr><td>调用别的函数</td><td><code>f = lambda x: abs(x)</code></td><td><code>f(-7)</code></td><td><code>7</code></td></tr>
+<tr><td>返回另一个函数</td><td><code>f = lambda n: (lambda x: x+n)</code></td><td><code>f(10)(5)</code></td><td><code>15</code></td></tr>
+</table>
+（最后一种是「闭包」：外面的 <code>n</code> 被里面的函数记住了，所以 <code>f(10)</code> 给出一个"加 10"的函数。）
+</div>
+
+<div class="box bad">
+<strong>⚠️ 不能做什么：<code>lambda</code> 体内只能有<strong>一个「表达式」</strong>，语句一律不行</strong>
+<table>
+<tr><th>写法</th><th>实测报错</th></tr>
+<tr><td><code>lambda x: y = 1</code>（赋值是语句）</td><td><code>SyntaxError: cannot assign to lambda</code></td></tr>
+<tr><td><code>lambda x: return x</code>（不用写 return）</td><td><code>SyntaxError: invalid syntax</code></td></tr>
+<tr><td><code>lambda x: if x: 1</code>（<code>if</code> <em>语句</em>不行）</td><td><code>SyntaxError: invalid syntax</code></td></tr>
+<tr><td><code>lambda x: for i in range(x): pass</code></td><td><code>SyntaxError: invalid syntax</code></td></tr>
+<tr><td><code>lambda x: print(x); x</code></td><td><code>NameError</code>（分号把两条语句切开了，后面那条在函数外）</td></tr>
+</table>
+⚠️ 但 <strong>「函数调用」是表达式</strong>：<code>lambda x: print(x)</code> 合法 ——
+它会打印 <code>x</code> 并返回 <code>None</code>；<strong>条件表达式（三目）也是表达式</strong>，
+所以上面表里那种 <code>'odd' if x%2 else 'even'</code> 可以写，只是 <code>if</code> <em>语句</em>不行。
+</div>
+
+<div class="box warn">
+<strong>⚠️ 最大的坑：<code>lambda</code> 在循环里捕获变量，全都指向「最后一个值」</strong>
+<pre><code>fs = [lambda: i for i in range(3)]
+[f() for f in fs]            # [2, 2, 2]     ← 三个都是 2，不是 0 1 2
+
+gs = [lambda i=i: i for i in range(3)]
+[g() for g in gs]            # [0, 1, 2]     ← 用默认参数把当前值【固定】下来</code></pre>
+<strong>原因</strong>：<code>lambda</code> 体里的 <code>i</code> 是<strong>调用时</strong>才去外层找的，
+而那时循环早就跑完了 —— 三个函数看到的是<strong>同一个 <code>i</code></strong>（最后是 2）。
+这和「函数体里的自由变量在调用时才求值」是同一条规则（闭包）。
+</div>
+
+<div class="box ok">
+<strong>什么时候用 / 什么时候别用（附速度实测）</strong><br>
+✅ <strong>只用一次、只写一行的临时函数</strong>：<code>sorted(L, key=lambda kv: kv[1])</code>、
+<code>map(lambda x: x*x, L)</code>、<strong>字典分派表</strong>（㉔）；<br>
+❌ 逻辑超过一行、要复用、要名字 → 老实写 <code>def</code>；
+<strong>PEP 8 明确不建议 <code>f = lambda x: x*2</code></strong> —— 既然起了名字，为什么不用 <code>def</code>。
+<table>
+<tr><th>当 <code>key=</code> 用（排 20 万 ×3 次）</th><th>用时</th></tr>
+<tr><td><code>def</code> 具名函数</td><td><code>0.043 s</code></td></tr>
+<tr><td><code>lambda</code></td><td><code>0.038 s</code></td></tr>
+<tr><td><code>operator.itemgetter(1)</code></td><td><code>0.029 s</code>（<strong>最快</strong>）</td></tr>
+</table>
+<strong>三者一个量级</strong>：换成 <code>lambda</code> 不会变慢，别为了"性能"硬写 <code>def</code>；
+真要更快，用 <code>operator.itemgetter</code>（它取的是第几项，正好对应 <code>kv[1]</code> 这种写法）。
+</div>
+
+<p>相关小节：<strong>㉝</strong> <code>map</code>（<code>lambda</code> 最常见的搭档）、
+<strong>㉔</strong> 字典（值放函数 = 分派表）、<strong>⑦ 方法族对照</strong>（速查总表）、
+<strong>⑧</strong> 累加与递推（另一类"把函数当值"的场合）。</p>
+
 <h2 id="star">三、符号速查：* 和 []</h2>
 
 <h3 id="star-1">——— 第一部分：星号 <code>*</code> ———</h3>
@@ -5194,7 +5469,7 @@ if m!=v[17]:                      # ② 索引</code></pre>
 ② 两边同时改，很容易出现"本地一份、提交另一份"，而且极难发现
 </div>
 
-<h2 id="review">六、真题回顾（<span id="cr2">71</span> 题）</h2>
+<h2 id="review">六、真题回顾（<span id="cr2">72</span> 题）</h2>
 
 <div class="box warn">
 <strong>说明：</strong>下面的题目要求是<strong>我按自己的理解概括写的</strong>，不是 PTA 原文。<br>
@@ -11005,10 +11280,102 @@ x=literal_eval(input())      # 只认字面量，不可能执行代码</code></p
 <strong>随机 100 组按题面口径生成的图与两个独立口径 0 组不一致</strong>；
 样例墙钟 22 ms（限 400 ms）。</p>
 
+<h3 id="review-83">5-3 四则运算（用字典实现） <span class="tag">一次通过</span></h3>
+
+<p><strong>要求</strong>：三行输入 —— 第一行一个数字、第二行一个四则运算符（<code>+</code> <code>-</code> <code>*</code> <code>/</code>）、
+第三行一个数字；输出运算结果，<strong>小数保留 2 位</strong>；<strong>除数为 0 时输出 <code>divided by zero</code></strong>。
+题面自己点了题「<strong>比较 C 语言的 switch 语句</strong>」—— 考的就是<strong>用字典做分派表</strong>
+（㉔ 最后一节那张表 + ㊶ 的 <code>lambda</code>）。
+样例1 <code>7 / 3</code> → <code>2.33</code>；样例2 <code>10 / 0</code> → <code>divided by zero</code>。</p>
+
+<p><strong>我的代码（PTA 判过）</strong></p>
+<pre><code>x=int(input())                                                                                                     第 1 行：第一个数字
+f=input()                                                                                                          第 2 行：运算符（一个字符）
+y=int(input())                                                                                                     第 3 行：第二个数字
+d={'+':lambda x,y:x+y,'-':lambda x,y:x-y,'*':lambda x,y:x*y,'/':lambda x,y:x/y if y != 0 else "divided by zero"}   建分派表：符号 → 算法；值放【函数】不是【结果】（㉔ 分派表 / ㊶ lambda）
+r=d[f](x,y)                                                                                                        查表拿到函数，再补一对括号调用它：d[f] 是函数本身，不是结果
+if f=='/' and y==0:                                                                                                除零单独一支：这里要的是那句话，不是数字
+    print("divided by zero")                                                                                       打题面指定的文字
+else:                                                                                                              其余情况（含所有非除法）走这里
+    print(f"{r:.2f}")                                                                                              保留 2 位小数（f-string 的 .2f；round() 给的是数，10.0 会打成 '10.0'）</code></pre>
+
+<p><strong>优化用法</strong></p>
+
+<div class="box ok">
+<strong>① <code>lambda</code> 整张表都能换成标准库 <code>operator</code></strong>
+<pre><code>from operator import add, sub, mul, truediv
+d = {'+': add, '-': sub, '*': mul, '/': truediv}
+print(f"{d[op](a, b):.2f}")</code></pre>
+这四个名字<strong>本身就是函数</strong>，可以直接当字典的值（㉔ 那条「函数也是值」），一行 <code>lambda</code> 都不用写。
+<strong>但有一处必须跟着改</strong>：<code>truediv(10, 0)</code> 会直接抛 <code>ZeroDivisionError</code>（实测 rc=1），
+所以<strong>除零检查要挪到调用之前</strong>：
+<pre><code>if op == '/' and b == 0:          # 先用 if 拦掉
+    print("divided by zero")      # 走这条就不会去调用除法
+else:
+    print(f"{d[op](a, b):.2f}")   # 到这一步才敢调用</code></pre>
+实测这种 <code>operator</code> 版与原版在 9 组输入上<strong>逐字节相同</strong>。
+</div>
+
+<div class="box warn">
+<strong>⚠️ 这题有【两道闸门】，其实留一道就够（两种留法都实测过）</strong>
+<table>
+<tr><th>闸门摆在哪</th><th>怎么写</th><th>实测</th></tr>
+<tr><td><strong>只留表里</strong>（<code>/</code> 的 <code>lambda</code> 返回那句话）</td>
+<td>外面用 <code>isinstance(r, str)</code> 分流</td><td>与原版 9 组逐字节相同</td></tr>
+<tr><td><strong>只留外面</strong>（表里写普通的 <code>x / y</code>）</td>
+<td><strong>判断必须写在调用之前</strong>，否则 <code>ZeroDivisionError</code></td>
+<td>与原版 9 组逐字节相同</td></tr>
+<tr><td>两道都留（本题写法）</td><td>表里兜一层 + 外面再判一次</td>
+<td>结果一样，只是有一道永远用不上</td></tr>
+</table>
+<strong>为什么"字符串结果"不能硬套格式符</strong>：实测 <code>f"{r:.2f}"</code> 里的 <code>r</code> 是那句话时报
+<code>ValueError: Unknown format code 'f' for object of type 'str'</code>（rc=1）——
+所以「只留表里」那种写法必须用 <code>isinstance</code> 分流，不能直接打。
+</div>
+
+<div class="box ok">
+<strong>② 表里没有的符号：<code>KeyError</code> 的报错里就带着那个键</strong>
+<pre><code>d['%']            # KeyError: '%' —— 报错直接把"表里没有这个键"说了出来
+d.get(op)         # 不想崩：查不到给 None，不会抛异常
+d.get(op, print)  # 也可以给一个"默认动作"（这里是把键打出来）</code></pre>
+本题题面保证只有那四个符号，所以不写也行 —— 但换到"运算符可能有别的"的题，这一行就是保险。
+</div>
+
+<p><strong>要点与实测证据</strong>：<code>py_compile</code> 通过；
+<strong>两个题面样例逐字节一致</strong>（<code>'2.33'</code> / <code>'divided by zero'</code>）；
+题面内的 8 组输入<strong>全部与被测代码之外的独立口径逐字节相同</strong>（对照实现用 <code>operator</code> 模块另算一份）：</p>
+
+<table>
+<tr><th>用例</th><th>输入（<code>|</code> 表示换行）</th><th>输出</th><th>与独立口径</th></tr>
+<tr><td>样例1</td><td><code>7|/|3|</code></td><td><code>2.33</code></td><td>逐字节相同</td></tr>
+<tr><td>样例2</td><td><code>10|/|0|</code></td><td><code>divided by zero</code></td><td>逐字节相同</td></tr>
+<tr><td>加法 3+2</td><td><code>3|+|2|</code></td><td><code>5.00</code></td><td>逐字节相同</td></tr>
+<tr><td>减法 3-2</td><td><code>3|-|2|</code></td><td><code>1.00</code></td><td>逐字节相同</td></tr>
+<tr><td>乘法 3*2</td><td><code>3|*|2|</code></td><td><code>6.00</code></td><td>逐字节相同</td></tr>
+<tr><td>负数 -7/2</td><td><code>-7|/|2|</code></td><td><code>-3.50</code></td><td>逐字节相同</td></tr>
+<tr><td>0 作被除数 0/5</td><td><code>0|/|5|</code></td><td><code>0.00</code></td><td>逐字节相同</td></tr>
+<tr><td>1/3 除不尽</td><td><code>1|/|3|</code></td><td><code>0.33</code></td><td>逐字节相同</td></tr>
+</table>
+
+<div class="box warn">
+<strong>⚠️ 两个「题面没覆盖到」的边界（记下来，因为题面的用词留了余地）</strong>
+<table>
+<tr><th>用例</th><th>输入（<code>|</code> 表示换行）</th><th>结果</th><th>报错类型</th></tr>
+<tr><td>小数操作数 1.5+2.5</td><td><code>1.5|+|2.5|</code></td><td><code>rc=1</code></td><td>ValueError</td></tr>
+<tr><td>运算符行带空格 ' /'</td><td><code>7| /|3|</code></td><td><code>rc=1</code></td><td>KeyError</td></tr>
+</table>
+第一行读成 <code>int()</code> 只在"操作数一定是整数"时才成立，而题面写的是「<strong>一个数字</strong>」；
+改成 <code>float()</code> 之后再实测：这一组给 <code>4.00</code>，
+而 <code>float('7')</code> → <code>7.0</code>、<code>f"{7.0:.2f}"</code> 仍是 <code>'7.00'</code> ——
+<strong>其余各组输出一个字节都不变</strong>。运算符那行补一句 <code>.strip()</code> 同理。
+<strong>这两条不是"写错了"，是"输入范围没被题面钉死"</strong>；代价是 rc=1，也就是那个测试点 0 分。
+</div>
+
 <h2 id="quick">七、速查总表</h2>
 
 <p><strong>为什么单独开一章：</strong>前面是按「遇到的顺序」记的，翻起来像流水账。
-这一章是三张<strong>按用途分类</strong>的总表 —— 想不起某个功能叫什么、该用哪个，从这儿往回找。
+这一章是<strong>按用途分类</strong>的一叠总表（<strong>表数不进正文、免得过期</strong>）——
+想不起某个功能叫什么、该用哪个，从这儿往回找。
 <strong>表里的输出全部实测过（Python 3.9.0）。</strong></p>
 
 <div class="box warn">
@@ -11228,7 +11595,7 @@ x=literal_eval(input())      # 只认字面量，不可能执行代码</code></p
 <tr><td><code>print("\\n".join(L))</code></td><td>同上，但<strong>只吃字符串</strong>（数字要 <code>map(str, …)</code>）</td><td>㉗；想先拼成一个串再用</td></tr>
 </table>
 
-<h3 id="quick-4">④ 用途分类索引（把「二、常用代码」37 节按用途归位）</h3>
+<h3 id="quick-4">④ 用途分类索引（把「二、常用代码」39 类按用途归位）</h3>
 
 <table>
 <tr><th>想知道的事</th><th>看哪几节</th></tr>
@@ -11473,6 +11840,45 @@ hasattr("a", "strip")     # True</code></pre>
 <code>.isupper()</code>、<code>.islower()</code>。
 </div>
 
+<h3 id="quick-7">⑦ 方法族对照：哪个类型有哪些方法</h3>
+
+<p><strong>为什么需要这张表</strong>：方法写成 <code>谁.方法()</code> —— <strong>点号前面是谁，决定后面能写什么</strong>。
+记不住某个方法属于谁时，回来查这张表（<strong>全部实测</strong>：只数不带下划线的方法）。</p>
+
+<table>
+<tr><th>方法</th><th><code>dict</code></th><th><code>list</code></th><th><code>str</code></th><th><code>set</code></th><th><code>tuple</code></th></tr>
+<tr><td><code>.items()</code> <code>.keys()</code> <code>.values()</code></td><td>✅</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+<tr><td><code>.get()</code> <code>.setdefault()</code> <code>.fromkeys()</code> <code>.popitem()</code></td><td>✅</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+<tr><td><code>.append()</code> <code>.extend()</code> <code>.insert()</code> <code>.sort()</code> <code>.reverse()</code></td><td>—</td><td>✅</td><td>—</td><td>—</td><td>—</td></tr>
+<tr><td><code>.split()</code> <code>.strip()</code> <code>.replace()</code> <code>.join()</code> <code>.upper()</code> <code>.startswith()</code> <code>.format()</code></td><td>—</td><td>—</td><td>✅</td><td>—</td><td>—</td></tr>
+<tr><td><code>.add()</code> <code>.discard()</code> <code>.union()</code> <code>.intersection()</code> <code>.difference()</code> <code>.issubset()</code></td><td>—</td><td>—</td><td>—</td><td>✅</td><td>—</td></tr>
+<tr><td><code>.count()</code> <code>.index()</code>（<strong>三家共有</strong>）</td><td>—</td><td>✅</td><td>✅</td><td>—</td><td>✅</td></tr>
+<tr><td><code>.update()</code>（<strong>两家都有，但含义不同</strong>：字典＝合并键值、集合＝并集赋值）</td><td>✅</td><td>—</td><td>—</td><td>✅</td><td>—</td></tr>
+<tr><td><code>.remove()</code>（列表＝按值删、集合＝删元素，<strong>元素不在时报 KeyError</strong>）</td><td>—</td><td>✅</td><td>—</td><td>✅</td><td>—</td></tr>
+<tr><td><code>.pop()</code> <code>.clear()</code> <code>.copy()</code>（<strong>可变的三家才有</strong>）</td><td>✅</td><td>✅</td><td>—</td><td>✅</td><td>—</td></tr>
+</table>
+
+<div class="box warn">
+<strong>两列「—」是有原因的：<code>str</code> 和 <code>tuple</code> 是【不可变】的</strong> ——
+所以它们没有 <code>append</code> / <code>sort</code> / <code>pop</code> / <code>clear</code> 这一整族
+（能"改"的方法一律不存在），<strong>想改就只能重新拼一个</strong>（<code>"".join(...)</code>，㉒）。
+元组更极端：<strong>全套方法只有两个</strong>（<code>count</code> / <code>index</code>）。
+</div>
+
+<div class="box ok">
+<strong>各类型的方法总数（实测，不含下划线开头）</strong>：
+<code>str</code> <strong>47</strong> 个、<code>set</code> <strong>17</strong> 个、
+<code>dict</code> <strong>11</strong> 个、<code>list</code> <strong>11</strong> 个、<code>tuple</code> <strong>2</strong> 个。<br>
+<strong>同一个名字在不同类型上可能完全不是一回事</strong>：
+<code>pop</code>（字典要键、列表给下标）、<code>update</code>（字典合并 / 集合并集）、
+<code>remove</code>（列表按值删 / 集合删元素）、<code>index</code>（列表找位置 / 字符串找子串位置）。<br>
+<strong>用错类型的报错长这样</strong>（实测）：
+<code>AttributeError: 'list' object has no attribute 'items'</code> ——
+<strong>报错里直接写着那个对象的真实类型，这就是最好的调试线索</strong>。<br>
+<strong>拿不准就自查三件套</strong>：<code>type(x)</code> → <code>list</code>；
+<code>hasattr(x, "items")</code> → <code>False</code>；<code>dir(x)</code> → 把这个类型的方法全列出来。
+</div>
+
 <footer>
 整理自 2026-10 的实战记录 ｜ 每一条都来自真实踩过的坑
 </footer>
@@ -11519,6 +11925,7 @@ function fillCounts(){
   put('ce', errs);  put('cs', secs);
   put('cr', total); put('cr2', total);
   put('c1', ch['1'] || 0);  put('c2', ch['2'] || 0);  put('c3', ch['3'] || 0);  put('c4', ch['4'] || 0);
+  put('c5', ch['5'] || 0);
 }
 fillCounts();
 markWideCells();
