@@ -104,7 +104,7 @@
 -->
 
 <h1>Python 自学笔记</h1>
-<p class="meta">hkh ｜ 更新 2026-10-16 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">22</span> 题 + 第4章 <span id="c4">30</span> 题 + 第5章 <span id="c5">6</span> 题（浙大版《Python 程序设计》题目集）</p>
+<p class="meta">hkh ｜ 更新 2026-10-16 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">22</span> 题 + 第4章 <span id="c4">30</span> 题 + 第5章 <span id="c5">8</span> 题（浙大版《Python 程序设计》题目集）</p>
 
 <nav id="toc">
   <div class="toc-head">目录　<span class="toc-hint">点标题展开 · 点条目直接跳</span></div>
@@ -205,7 +205,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>六、真题回顾 <span class="toc-n" id="cr">75</span></summary>
+    <summary>六、真题回顾 <span class="toc-n" id="cr">77</span></summary>
     <ol>
       <li><a onclick="return go('review-1')">1-1 从键盘输入两个数求和</a></li>
       <li><a onclick="return go('review-2')">1-2 按公式输出 b²−4ac</a></li>
@@ -293,6 +293,8 @@
       <li><a onclick="return go('review-84')">5-4 分析活动投票情况</a></li>
       <li><a onclick="return go('review-85')">5-5 统计字符出现次数</a></li>
       <li><a onclick="return go('review-86')">5-6 统计工龄</a></li>
+      <li><a onclick="return go('review-87')">5-7 列表去重</a></li>
+      <li><a onclick="return go('review-88')">5-8 能被3和5和7整除的数的个数（用集合实现）</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -5193,7 +5195,11 @@ info(name="黄", age=18)      # {'name': '黄', 'age': 18}
 <table>
 <tr><th>写在哪</th><th>例子</th><th>含义</th></tr>
 <tr><td>两个值中间</td><td><code>a * b</code></td><td>乘法 / 序列重复</td></tr>
-<tr><td><strong>函数调用里</strong></td><td><strong><code>f(*seq)</code></strong></td><td><strong>摊开成多个参数</strong></td></tr>
+<tr><td><strong>函数调用里（最常用的一个）</strong></td><td><strong><code>print(*L)</code></strong></td>
+<td><strong>把列表「摊开」成一个个元素打印</strong> —— 默认空格分隔、行末不留空格；
+<code>print(*L, sep="\\n")</code> 就变成一行一个（5-4 / 5-6 用过，5-7 也要用它）</td></tr>
+<tr><td>函数调用里</td><td><strong><code>f(*seq)</code></strong></td><td><strong>摊开成多个参数</strong></td></tr>
+<tr><td>列表字面量里</td><td><code>[*A, *B]</code></td><td>把两个列表摊开拼成一个新列表（<code>[*A]</code> 还是浅复制）</td></tr>
 <tr><td>函数定义里</td><td><code>def f(*args)</code></td><td>收拢成元组</td></tr>
 <tr><td>赋值左边</td><td><code>a, *rest = seq</code></td><td>收拢成列表</td></tr>
 <tr><td>两个值中间</td><td><code>a ** b</code></td><td>幂</td></tr>
@@ -5472,7 +5478,7 @@ if m!=v[17]:                      # ② 索引</code></pre>
 ② 两边同时改，很容易出现"本地一份、提交另一份"，而且极难发现
 </div>
 
-<h2 id="review">六、真题回顾（<span id="cr2">75</span> 题）</h2>
+<h2 id="review">六、真题回顾（<span id="cr2">77</span> 题）</h2>
 
 <div class="box warn">
 <strong>说明：</strong>下面的题目要求是<strong>我按自己的理解概括写的</strong>，不是 PTA 原文。<br>
@@ -11618,6 +11624,173 @@ n = int(d[0]); a = list(map(int, d[1:1 + n]))</code></pre>
 
 <p>大数据：<strong>n=10<sup>5</sup></strong>（随机工龄）跑出 51 行、与独立口径逐字节相同、行尾无多余空格，
 用时 <strong>0.065 s</strong>（限制 400 ms）—— 这题的时间瓶颈不在这儿，值域小反而帮了大忙。</p>
+
+<h3 id="review-87">5-7 列表去重 <span class="tag">一次通过</span></h3>
+
+<p><strong>要求</strong>：在一行中输入一个<strong>列表</strong>，去掉列表中重复的数字，
+<strong>按原来次序</strong>输出（一行，元素之间空格分隔）。
+样例 <code>[4,7,5,6,8,6,9,5]</code> → <code>4 7 5 6 8 9</code>。</p>
+
+<p><strong>我的代码（PTA 判过）</strong></p>
+<pre><code>L=eval(input())       把这一行文本当【表达式】求值 —— 它本身就是个列表字面量，所以结果是 list（㉝）
+l=[]                  新列表：装「第一次见到」的元素
+for i in L:           按【原列表的顺序】挨个看（顺序从这里来，不从集合来）
+    if i not in l:    以前没见过才要（`in` 在列表上是逐个比，见下面计时的讨论）
+        l.append(i)   收进结果
+print(*l)             摊开打印：空格分隔、行尾不留空格</code></pre>
+
+<div class="box ok">
+<strong>★ 为什么「按原来次序」这条能满足</strong>
+顺序<strong>完全由 <code>for i in L</code> 决定</strong> —— 它按原列表从头到尾走，
+遇到没见过的就往结果里放。所以<strong>顺序天然是"第一次出现的顺序"</strong>，
+不需要额外排序，也<strong>没有把顺序交给集合</strong>（这正是 4-29 那题的教训：
+<code>set</code> 只管"在不在"，它的迭代顺序不由人决定）。
+</div>
+
+<p><strong>优化用法</strong></p>
+
+<div class="box ok">
+<strong>① 一行版：<code>dict.fromkeys()</code>（字典的键天然不重复、而且<strong>保序</strong>）</strong>
+<pre><code>print(*dict.fromkeys(L))       # 用现成工具做「保序去重」</code></pre>
+实测 9 组用例输出与本题写法<strong>逐字节相同</strong>（含空列表、字符串元素、小数）。
+<strong>小数据上三种写法差别都在 0.02~0.03 s 量级</strong>（其中大半还是解释器启动的时间），
+真正的差别在<strong>增长率</strong> —— 见下面那张计时表的第三、四列。
+</div>
+
+<div class="box warn">
+<strong>⚠️ ② <code>if i not in l</code> 是 O(n²)：数据一大就翻车（实测计时）</strong>
+<code>in</code> 在<strong>列表</strong>上是"逐个比"，所以最坏情况（元素全不重复）要比较 <code>1+2+…+n</code> 次。
+实测（同一台机、含约 0.02 s 解释器启动）：
+<table>
+<tr><th>规模</th><th>本题写法（列表 in）</th><th><code>set</code> 记见过</th><th><code>dict.fromkeys</code></th></tr>
+<tr><td><code>n=1000</code>（全不重复）</td><td><code>0.026 s</code></td><td><code>0.023 s</code></td><td><code>0.023 s</code></td></tr>
+<tr><td><code>n=2000</code>（全不重复）</td><td><code>0.034 s</code></td><td><code>0.024 s</code></td><td><code>0.024 s</code></td></tr>
+<tr><td><code>n=4000</code>（全不重复）</td><td><code>0.066 s</code></td><td><code>0.027 s</code></td><td><code>0.026 s</code></td></tr>
+<tr><td><code>n=10000</code>（全不重复）</td><td><code>0.295 s</code></td><td><code>0.037 s</code></td><td><code>0.035 s</code></td></tr>
+</table>
+<strong>看第二列的增长</strong>：n 从 1000 涨到 10000（10 倍规模），
+本题写法 <code>0.026 s → 0.295 s</code>（约 <strong>11 倍</strong>，
+这是 O(n²) 的指纹），而 <code>set</code> 版几乎不动
+（<code>0.023 s → 0.037 s</code>）。
+<strong>怎么改</strong>：把"见过没"交给集合，输出顺序仍然靠列表 ——
+<pre><code>out, seen = [], set()
+for x in L:
+    if x not in seen:          # 集合里查是 O(1)
+        seen.add(x)
+        out.append(x)
+print(*out)</code></pre>
+实测 n=1000/2000/4000/10000 四档与本题写法输出<strong>完全一致</strong>，而耗时几乎不随 n 变（见上表第三列）。
+<strong>本题数据很小，所以原写法判过了</strong>；但"列表里查重复"这个写法值得换掉。
+</div>
+
+<div class="box ok">
+<strong>③ 读进来的那行是文本，别用 <code>eval</code> 也行</strong>
+<pre><code>from ast import literal_eval
+L = literal_eval(input())      # 只认字面量，不可能执行代码（㉝）</code></pre>
+本题两种结果一字不差；<code>eval</code> 会把文本当代码执行（㉝ 有实测）。
+</div>
+
+<p><strong>要点与实测证据</strong>：<code>py_compile</code> 通过；
+<strong>题面样例逐字节一致</strong>（<code>'4 7 5 6 8 9\n'</code>）；
+<strong>9 组边界与两个独立口径（<code>dict.fromkeys</code> / <code>set</code> 记见过）逐字节相同</strong>：</p>
+
+<table>
+<tr><th>用例</th><th>输入</th><th>输出</th><th>与独立口径</th></tr>
+<tr><td>题面样例</td><td><code>[4,7,5,6,8,6,9,5]</code></td><td><code>'4 7 5 6 8 9'</code></td><td>逐字节相同</td></tr>
+<tr><td>单个元素</td><td><code>[7]</code></td><td><code>'7'</code></td><td>逐字节相同</td></tr>
+<tr><td>全是同一个</td><td><code>[3,3,3,3]</code></td><td><code>'3'</code></td><td>逐字节相同</td></tr>
+<tr><td>本来就没重复</td><td><code>[1,2,3]</code></td><td><code>'1 2 3'</code></td><td>逐字节相同</td></tr>
+<tr><td>含 0 和负数</td><td><code>[0,-1,-1,5,0]</code></td><td><code>'0 -1 5'</code></td><td>逐字节相同</td></tr>
+<tr><td>小数元素</td><td><code>[1.5,2.5,1.5]</code></td><td><code>'1.5 2.5'</code></td><td>逐字节相同</td></tr>
+<tr><td>字符串元素</td><td><code>['a','b','a']</code></td><td><code>'a b'</code></td><td>逐字节相同</td></tr>
+<tr><td>输入带空格</td><td><code>[4, 7, 5, 7]</code></td><td><code>'4 7 5'</code></td><td>逐字节相同</td></tr>
+<tr><td>空列表（探底）</td><td><code>[]</code></td><td><code>''</code></td><td>逐字节相同</td></tr>
+</table>
+
+
+<h3 id="review-88">5-8 能被3和5和7整除的数的个数（用集合实现） <span class="tag">一次通过</span></h3>
+
+<p><strong>要求</strong>：一行输入两个正整数 <code>a</code>、<code>b</code>
+（<strong>1 &lt;= a &lt;= b &lt;= 10<sup>9</sup></strong>，空格隔开），
+输出<strong>大于等于 a 且小于等于 b</strong> 的、<strong>能被 3、5、7 同时整除</strong>的数的个数。
+样例 <code>10 100</code> → <code>0</code>（100 以内最小的是 105）。</p>
+
+<p><strong>我的代码（PTA 判过）</strong></p>
+<pre><code>a,b=map(int,input().split())           一行读入两个整数 a b（题面：1 &lt;= a &lt;= b &lt;= 10^9）
+total=set()                            收集「符合条件的数」（题面点名用集合）
+for i in range(a,b+1):                 从 a 试到 b —— ⚠️ 这一步的圈数就是 b-a+1，范围一大就完蛋
+    if i%3==0 and i%5==0 and i%7==0:   三个条件同时成立 ⇔ 能被 105 整除（105 = 3×5×7 的最小公倍数）
+        total.add(i)                   记下来（其实这题只要计数，用集合是照题面）
+print(len(total))                      个数</code></pre>
+
+<div class="box warn">
+<strong>⚠️ ★ 本题最要紧的一点：题面范围到 10<sup>9</sup>，而这份代码是 O(b-a)</strong>
+<code>for i in range(a, b+1)</code> 的<strong>圈数就是 <code>b-a+1</code></strong>。
+实测（含约 0.02 s 解释器启动）：
+<table>
+<tr><th>输入</th><th>本题写法耗时</th><th>结果</th></tr>
+<tr><td><code>1 100000</code></td><td><code>0.026 s</code></td><td>952</td></tr>
+<tr><td><code>1 1000000</code></td><td><code>0.063 s</code></td><td>9523</td></tr>
+<tr><td><code>1 10000000</code></td><td><code>0.394 s</code></td><td>95238</td></tr>
+</table>
+<strong>10<sup>7</sup> 已经 0.405 s</strong>（题面时限 400 ms 就在这一步被压线），
+<strong>而 <code>1 1000000000</code> 实测 3 秒都没跑完</strong>（超时探底，<strong>没有整跑</strong>）——
+按 10<sup>7</sup> 的斜率外推，满范围大约要<strong>几十秒</strong>。
+PTA 的数据小（样例只有 <code>10 100</code>），所以这么写判过了；
+<strong>但这是"数据恰好没踩到"，不是代码对</strong>（属于 4-6 / 4-7 那类"判题宽松"的又一个例子）。
+</div>
+
+<p><strong>优化用法</strong></p>
+
+<div class="box ok">
+<strong>① 一眼就能看出关键：三个条件 = 一个条件</strong>
+能被 3、5、7 <strong>同时</strong>整除 ⇔ 能被 <code>3×5×7 = 105</code> 整除
+（3 / 5 / 7 两两互质，所以它们的最小公倍数就是乘积）。
+所以 <code>i%3==0 and i%5==0 and i%7==0</code> 可以直接写成 <code>i%105==0</code>。
+</div>
+
+<div class="box ok">
+<strong>② 别数，直接算：105 的倍数个数（O(1)）</strong>
+<pre><code>print(b // 105 - (a - 1) // 105)</code></pre>
+读法：<strong>「≤ b 的 105 的倍数个数」减去「≤ a-1 的个数」</strong>，剩下的正好落在 [a, b] 里。
+实测 8 组用例（含 <code>a=b=105</code>、<code>104 104</code>、<code>999999999 1000000000</code>）
+与本题写法<strong>逐字节相同</strong>，而 <code>1 1000000000</code> <strong>一瞬间出答案</strong>
+（<code>9523809</code>，本题写法要几十秒）。
+</div>
+
+<div class="box ok">
+<strong>③ 想保留「用集合」这个题意：用<strong>步长</strong>，别用逐个试</strong>
+<pre><code># 找到第一个 ≥ a 的 105 的倍数，然后每一步跨 105
+print(len(range(a + (-a) % 105, b + 1, 105)))       # 不建集合，直接数长度
+print(len(set(range(a + (-a) % 105, b + 1, 105))))  # 真按题面"用集合"也行</code></pre>
+<code>range(起点, 终点, 步长)</code> 的第三个参数是<strong>步长</strong>（㉑ 的 <code>range</code> 用法），
+<code>105</code> 一跨就跳过所有不可能的数。实测与公式版结果相同，
+10<sup>5</sup>/10<sup>6</sup>/10<sup>7</sup> 三档都是<strong>毫秒级</strong>（见上面那张表的后两列）。
+</div>
+
+<div class="box ok">
+<strong>④ 集合在这题其实是多余的</strong>
+<code>total.add(i)</code> 只是为了最后 <code>len()</code> —— 直接计数（<code>cnt += 1</code>）
+或者用 ③ 的 <code>len(range(...))</code> 更省。题面说"用集合实现"，
+按题面写没有问题；<strong>知道"它不是为了答案正确，只是题目要求的形式"就够了</strong>。
+</div>
+
+<p><strong>要点与实测证据</strong>：<code>py_compile</code> 通过；
+<strong>8 组用例与 O(1) 口径（105 的倍数个数）逐字节相同</strong>
+（含 <code>a=b</code> 两端、<code>1 104</code>/<code>1 105</code> 卡边界、<code>1 210</code>、
+<code>999999999 1000000000</code>）：</p>
+
+<table>
+<tr><th>用例</th><th>输入</th><th>输出</th><th>与 O(1) 口径</th></tr>
+<tr><td>题面样例 10 100</td><td><code>10 100</code></td><td><code>0</code></td><td>相同</td></tr>
+<tr><td>a=b=105</td><td><code>105 105</code></td><td><code>1</code></td><td>相同</td></tr>
+<tr><td>a=b=104</td><td><code>104 104</code></td><td><code>0</code></td><td>相同</td></tr>
+<tr><td>1 104</td><td><code>1 104</code></td><td><code>0</code></td><td>相同</td></tr>
+<tr><td>1 105</td><td><code>1 105</code></td><td><code>1</code></td><td>相同</td></tr>
+<tr><td>1 210</td><td><code>1 210</code></td><td><code>2</code></td><td>相同</td></tr>
+<tr><td>100 1000</td><td><code>100 1000</code></td><td><code>9</code></td><td>相同</td></tr>
+<tr><td>999999999 1000000000</td><td><code>999999999 1000000000</code></td><td><code>0</code></td><td>相同</td></tr>
+</table>
 
 <h2 id="quick">七、速查总表</h2>
 
