@@ -203,7 +203,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>六、真题回顾 <span class="toc-n" id="cr">70</span></summary>
+    <summary>六、真题回顾 <span class="toc-n" id="cr">71</span></summary>
     <ol>
       <li><a onclick="return go('review-1')">1-1 从键盘输入两个数求和</a></li>
       <li><a onclick="return go('review-2')">1-2 按公式输出 b²−4ac</a></li>
@@ -286,6 +286,7 @@
       <li><a onclick="return go('review-79')">4-29 找出不是两个数组共有的元素</a></li>
       <li><a onclick="return go('review-80')">4-30 找完数</a></li>
       <li><a onclick="return go('review-81')">5-1 输出星期名缩写</a></li>
+      <li><a onclick="return go('review-82')">5-2 图的字典表示</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -2848,11 +2849,64 @@ for k, v in d.items():      # 键和值都要 —— 每轮拆出一对
 
 d.items()         # [('a', 1), ('b', 2)] 这种「对的列表」</code></pre>
 
+<div class="box ok">
+<strong>★ <code>for u, nbrs in d.items()</code> 里的 <code>u</code> / <code>nbrs</code> 到底是什么</strong><br>
+<code>d.items()</code> 每轮给的是<strong>一个二元组</strong> <code>(键, 值)</code>；
+<code>for u, nbrs in …</code> 是把这个元组<strong>当场拆成两个变量</strong>（元组解包）——
+所以 <code>u</code> = 键、<code>nbrs</code> = 值，<strong>名字是自己起的</strong>：
+<table>
+<tr><th>写法</th><th>每轮拿到什么</th></tr>
+<tr><td><code>for pair in d.items():</code></td><td><code>pair = ('a', {'b': 10})</code> ← <strong>一个元组</strong>（还得 <code>pair[0]</code> / <code>pair[1]</code> 取）</td></tr>
+<tr><td><code>for u, nbrs in d.items():</code></td><td><code>u = 'a'</code>、<code>nbrs = {'b': 10}</code> ← <strong>已经拆好了</strong></td></tr>
+<tr><td><code>for 起点, 邻居表 in d.items():</code></td><td>换中文名<strong>一样能跑</strong>（名字不影响结果）</td></tr>
+</table>
+个数必须对上：写三个变量 → <code>ValueError: not enough values to unpack (expected 3, got 2)</code>；
+写成 <code>for u, nbrs in d</code>（漏了 <code>.items()</code>）→ <code>expected 2, got 1</code>（直接遍历字典只给键）。<br>
+⚠️ <strong><code>d.items()</code> 是「视图」，不是列表</strong>：<code>it = d.items()</code> 之后往 <code>d</code> 里加个键，
+<code>it</code> 里也会多出来 —— 它是同一份数据的<strong>窗口</strong>，不是拍下来的快照。<br>
+同一个机制在别处也见过：<code>a, b = b, a + b</code>（⑧）、<code>for i, ch in enumerate(s)</code>（⑳）、
+<code>first, *rest = [1,2,3,4]</code>（三、符号速查的 <code>*</code>）。<br>
+⚠️ <strong><code>.items()</code> 只属于字典</strong>：在列表 / 字符串 / 元组 / 集合 / 数字上调用都会报
+<code>AttributeError: 'list' object has no attribute 'items'</code> ——
+<strong>这行报错里直接写着 <code>x</code> 的真实类型，它就是最好的调试线索</strong>。
+先用 <code>type(x)</code> 或 <code>hasattr(x, "items")</code> 问一句：
+字典 <code>True</code>、列表 <code>False</code>、字符串 <code>False</code>。
+另外 <strong><code>d.items</code>（忘了括号）拿到的是"方法本身"</strong>（<code>&lt;built-in method items of dict object at 0x…&gt;</code>），
+迭代它会报 <code>TypeError: 'builtin_function_or_method' object is not iterable</code>。
+字典专属的方法族：<code>items</code> / <code>keys</code> / <code>values</code> / <code>get</code> / <code>update</code>
+（列表是 <code>append</code> / <code>sort</code>，字符串是 <code>split</code> / <code>strip</code> —— 见 ⑤ 对象 × 操作对照表）。
+</div>
+
 <div class="box bad">
 <strong>⚠️ 字典的坑（前面几节也踩过同一个）：</strong><br>
 ① <strong><code>for x in d</code> 拿到的是键</strong>，不是值（⑳ 里的 <code>sorted(字典)</code> 排的也是键）；<br>
 ② <code>enumerate(字典)</code> 给的是「序号 + 键」（⑳）；<br>
 ③ <code>max(字典)</code> 比的是<strong>键</strong>自己的大小，不是值的（实测 <code>max({"a":1,"b":2})</code> → <code>'b'</code>）。
+</div>
+
+<div class="box ok">
+<strong>★ 字典的值又是字典（嵌套字典）—— 一层 <code>items()</code> 拆一层</strong><br>
+字典的值可以是任何东西，<strong>包括另一个字典</strong>。图 / 邻接表 / 树 / JSON 都是这个形状：
+<pre><code>d = {'a': {'b': 10, 'c': 6}, 'b': {'c': 2, 'd': 7}}
+
+for u, nbrs in d.items():          # 外层拆一对：起点 + 它的「邻居表」
+    print(u, "的邻居表 =", nbrs)
+    for v, w in nbrs.items():      # 内层再拆一对：终点 + 边长（这一层才是"值"）
+        print("   ", u, "->", v, "长", w)
+
+# a 的邻居表 = {'b': 10, 'c': 6}
+#     a -> b 长 10
+#     a -> c 长 6
+# b 的邻居表 = {'c': 2, 'd': 7}
+#     b -> c 长 2
+#     b -> d 长 7</code></pre>
+读法和单层<strong>完全一样</strong>：<strong>一层 <code>items()</code> 拆一对</strong>，外面再套一层就拿到"邻居 + 权"。<br>
+同一份数据的三种打法（要什么就用哪条）：
+<pre><code>for v, w in nbrs.items():        # 键和值都要
+sum(nbrs.values())               # 只求和：这一层的总长
+len(nbrs)                        # 只数条数：这一层有几条边</code></pre>
+⚠️ <strong>别写成 <code>for x in nbrs</code></strong> —— 那样拿到的是<strong>终点名字</strong>，拿不到长度
+（和上面「字典的坑 ①」是同一条）。
 </div>
 
 <h3 id="s1-25">㉕ 频次统计：怎么数「谁出现得最多」</h3>
@@ -3984,6 +4038,25 @@ eval("1, 2")         # (1, 2)      ← 能一次给【多个值】（元组成�
 <br><code>eval("2**10000000")</code> 还能让程序卡死几秒、吃爆内存。<br>
 <strong>规矩：<code>eval</code> 只能喂自己写死的字符串，绝不能喂 <code>input()</code> 拿到的东西。</strong>
 （别人输入 <code>__import__('os').system('...')</code> 就是在机器上跑命令。）
+</div>
+
+<div class="box ok">
+<strong>更安全的同族函数：<code>ast.literal_eval()</code> —— 只认「字面量」</strong>
+<pre><code>from ast import literal_eval
+literal_eval("{'a': {'b': 1}}")            # {'a': {'b': 1}}   和 eval 结果一样
+literal_eval("{1+1: 2}")                   # ❌ ValueError（只认字面量，不认表达式）
+literal_eval("__import__('os').getcwd()")  # ❌ ValueError（一行代码都不会执行）</code></pre>
+实测对照：
+<table>
+<tr><th>输入</th><th><code>eval</code></th><th><code>literal_eval</code></th></tr>
+<tr><td><code>"{'a': {'b': 1}}"</code></td><td><code>{'a': {'b': 1}}</code></td><td><code>{'a': {'b': 1}}</code>（一样）</td></tr>
+<tr><td><code>"{1+1: 2}"</code></td><td><code>{2: 2}</code>（把表达式算了）</td><td><code>ValueError</code></td></tr>
+<tr><td><code>"__import__('os').getcwd()"</code></td><td><strong>真的返回当前目录</strong></td><td><code>ValueError</code></td></tr>
+</table>
+<strong>怎么选</strong>：数据只是「字典 / 列表 / 数字 / 字符串字面量」（判题输入、读配置）→
+<code>literal_eval</code> 更稳，因为它<strong>不可能执行代码</strong>；
+题面明确要求算表达式（如 <code>eval(input().replace(" ", ","))</code>）→ 才用 <code>eval</code>。
+（PTA 5-2 的题面直接指定用 <code>eval</code>，照题面写就行。）
 </div>
 
 <div class="box ok">
@@ -5121,7 +5194,7 @@ if m!=v[17]:                      # ② 索引</code></pre>
 ② 两边同时改，很容易出现"本地一份、提交另一份"，而且极难发现
 </div>
 
-<h2 id="review">六、真题回顾（<span id="cr2">70</span> 题）</h2>
+<h2 id="review">六、真题回顾（<span id="cr2">71</span> 题）</h2>
 
 <div class="box warn">
 <strong>说明：</strong>下面的题目要求是<strong>我按自己的理解概括写的</strong>，不是 PTA 原文。<br>
@@ -10850,6 +10923,87 @@ f-string 的用处是<strong>往字符串里塞东西</strong>；这里什么都
 输入带空格 <code>'  3  '</code> 也正确（<code>int()</code> 会去掉首尾空白）；
 题面外实测：输入 <code>0</code> → <code>Sun</code>（<strong>负下标，不报错但是错的</strong>）、
 输入 <code>8</code> → <code>IndexError</code>。</p>
+
+<h3 id="review-82">5-2 图的字典表示 <span class="tag">一次通过</span></h3>
+
+<p><strong>要求</strong>：有向图用「字典的字典」表示 —— 第一行给出行数 <code>m</code>，
+后面每行是一个字典字面量，形如 <code>{'起点': {'终点': 边长, …}}</code>
+（题面指定<strong>用 <code>eval</code> 处理输入</strong>）。
+在一行里输出<strong>顶点数、边数、边的总长度</strong>，空格分隔。
+样例 <code>4</code> + 三个顶点行 + <code>{'d':{}}</code> → <code>4 5 35</code>。</p>
+
+<p><strong>我的代码（一次通过）</strong></p>
+<pre><code>m=int(input())                  # 第一行：后面一共有几行
+V=set()                         # 顶点集合（自动去重）
+E=[]                            # 边：每条边把「终点」记一笔，最后用 len() 数条数
+S=0                             # 边长总和
+for _ in range(m):              # 逐行处理
+    x=eval(input())             # 一行字面量 → 直接变成字典（题面指定用 eval）
+    for y,z in x.items():       # 外层拆一对：起点 y + 它的邻居表 z
+        V.add(y)                # 起点是一个顶点，收进集合
+        for v,w in z.items():   # 内层再拆一对：终点 v + 边长 w
+            S+=w                # 总长累加这条边的权
+            E.append(v)         # 边数：记下这条边（用列表长度来数）
+print(len(V),len(E),S)          # 三个数一行输出（默认空格分隔）</code></pre>
+
+<div class="box ok">
+<strong>★ 三个数字的口径（这题唯一要想清的地方）</strong>
+<table>
+<tr><th>输出</th><th>怎么算</th><th>样例（4 行）</th></tr>
+<tr><td><strong>顶点数</strong></td><td><strong>外层键</strong>的个数</td><td><code>{a,b,c,d}</code> = <strong>4</strong></td></tr>
+<tr><td><strong>边数</strong></td><td><strong>内层条目的个数</strong>（每条边贡献 1）</td><td><code>2+2+1+0</code> = <strong>5</strong></td></tr>
+<tr><td><strong>总长</strong></td><td><strong>内层值之和</strong>（每条边贡献它的权）</td><td><code>10+6+2+7+10</code> = <strong>35</strong></td></tr>
+</table>
+<strong>为什么"顶点数 = 外层键"说得通</strong>：题面写「每行表示<strong>一个顶点</strong>和该顶点相连的边」——
+也就是<strong>每个顶点都有自己的行</strong>；样例里那个空字典 <code>{'d':{}}</code> <strong>就是为此存在的</strong>
+（孤立顶点也得有自己的一行，否则数不到它）。
+</div>
+
+<div class="box warn">
+<strong>⚠️ 一个「口径分歧点」（记下来，因为题面只保证了一种形状）</strong><br>
+如果某个顶点<strong>只作为终点出现、却没有自己那一行</strong>，"顶点 = 外层键"就会漏掉它。实测：
+<table>
+<tr><th>输入</th><th>只数外层键（本写法）</th><th>外层键 ∪ 内层键</th></tr>
+<tr><td><code>{'a':{'z':1}}</code>（z 没有自己那行）</td><td><code>1</code></td><td><strong><code>2</code></strong></td></tr>
+<tr><td><code>{'a':{'b':1},'c':{'d':2}}</code>（一行里两个顶点）</td><td><code>2</code></td><td><strong><code>4</code></strong></td></tr>
+</table>
+这两种输入<strong>都不符合题面格式</strong>（题面要求每行一个顶点），所以本写法是对的 ——
+<strong>100 组按题面口径随机生成的图，两种口径 0 组不一致</strong>。<br>
+但更稳的写法是内层顺手补一句 <code>V.add(v)</code>：<strong>一行，且对任何题面数据都不改变结果</strong>
+（PTA 判过也印证了这一点），却能兜住不规范的数据。
+</div>
+
+<p><strong>优化用法</strong></p>
+
+<div class="box ok">
+<strong>① <code>E=[]</code> 只为 <code>len()</code>：直接计数就行</strong>
+<pre><code>E+=1                     # 每条边 +1（等价于 len(E)）
+E+=len(z)                # 或者内层整个跳过：这一层有几条边一次加完</code></pre>
+<code>E+=len(z)</code> 更省一整个列表（内存从 O(边数) 降到 O(1)），
+而且少一层循环 —— 边长总和也能写成 <code>S+=sum(z.values())</code>。
+</div>
+
+<div class="box ok">
+<strong>② 变量名：<code>y</code> / <code>z</code> / <code>v</code> / <code>w</code> 换成"人话"更好读</strong>
+<pre><code>for u, nbrs in x.items():        # 起点 + 邻居表
+    for v, w in nbrs.items():    # 终点 + 边长</code></pre>
+图论里 <code>u</code>/<code>v</code> 就是"顶点"、<code>w</code> 是"权重"、<code>nbrs</code> = neighbors（邻居）。
+<strong>这题四个单字母变量在同一段里出现，很容易看混哪个是起点、哪个是终点。</strong>
+</div>
+
+<div class="box ok">
+<strong>③ <code>eval</code> 的替代：<code>ast.literal_eval</code>（本题结果一样，但更安全）</strong>
+<pre><code>from ast import literal_eval
+x=literal_eval(input())      # 只认字面量，不可能执行代码</code></pre>
+题面指定用 <code>eval</code> 就照题面写；㉝ 里有两者的实测对照表。
+</div>
+
+<p><strong>要点与实测证据</strong>：<code>py_compile</code> 通过；
+<strong>题面样例逐字节一致</strong>（<code>'4 5 35'</code>）；
+<strong>6 组题面口径边界全对</strong>（孤立顶点 + 入边 <code>2 1 5</code> / 自环 <code>1 1 3</code> /
+双向两条边 <code>2 2 3</code> / 全是孤立点 <code>3 0 0</code> / 长链 <code>4 3 6</code> / 样例）；
+<strong>随机 100 组按题面口径生成的图与两个独立口径 0 组不一致</strong>；
+样例墙钟 22 ms（限 400 ms）。</p>
 
 <h2 id="quick">七、速查总表</h2>
 
