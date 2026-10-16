@@ -104,7 +104,7 @@
 -->
 
 <h1>Python 自学笔记</h1>
-<p class="meta">hkh ｜ 更新 2026-10-16 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">22</span> 题 + 第4章 <span id="c4">30</span> 题 + 第5章 <span id="c5">5</span> 题（浙大版《Python 程序设计》题目集）</p>
+<p class="meta">hkh ｜ 更新 2026-10-16 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">22</span> 题 + 第4章 <span id="c4">30</span> 题 + 第5章 <span id="c5">6</span> 题（浙大版《Python 程序设计》题目集）</p>
 
 <nav id="toc">
   <div class="toc-head">目录　<span class="toc-hint">点标题展开 · 点条目直接跳</span></div>
@@ -205,7 +205,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>六、真题回顾 <span class="toc-n" id="cr">74</span></summary>
+    <summary>六、真题回顾 <span class="toc-n" id="cr">75</span></summary>
     <ol>
       <li><a onclick="return go('review-1')">1-1 从键盘输入两个数求和</a></li>
       <li><a onclick="return go('review-2')">1-2 按公式输出 b²−4ac</a></li>
@@ -292,6 +292,7 @@
       <li><a onclick="return go('review-83')">5-3 四则运算（用字典实现）</a></li>
       <li><a onclick="return go('review-84')">5-4 分析活动投票情况</a></li>
       <li><a onclick="return go('review-85')">5-5 统计字符出现次数</a></li>
+      <li><a onclick="return go('review-86')">5-6 统计工龄</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -5471,7 +5472,7 @@ if m!=v[17]:                      # ② 索引</code></pre>
 ② 两边同时改，很容易出现"本地一份、提交另一份"，而且极难发现
 </div>
 
-<h2 id="review">六、真题回顾（<span id="cr2">74</span> 题）</h2>
+<h2 id="review">六、真题回顾（<span id="cr2">75</span> 题）</h2>
 
 <div class="box warn">
 <strong>说明：</strong>下面的题目要求是<strong>我按自己的理解概括写的</strong>，不是 PTA 原文。<br>
@@ -11528,6 +11529,95 @@ print(c[n])             # 要用哪个取哪个</code></pre>
 
 <p>题面外探底两条：<strong>字符串是空行</strong> → <code>0</code>（不崩）；
 <strong>第二行给空行</strong> → <code>list</code> 版 <code>0</code>、字符串版 <code>4</code>（见上面①）。</p>
+
+<h3 id="review-86">5-6 统计工龄 <span class="tag">一次通过</span></h3>
+
+<p><strong>要求</strong>：第一行给员工总数 <code>n</code>（<strong>不超过 10<sup>5</sup></strong>），
+随后给出 n 个整数（每个员工的工龄，<strong>范围 [0, 50]</strong>）；
+按工龄<strong>递增顺序</strong>输出每个工龄段有多少人，格式 <code>工龄:人数</code>、<strong>每项占一行</strong>，
+<strong>人数为 0 的项不输出</strong>。
+样例 <code>8</code> + <code>10 2 0 5 7 2 5 2</code> → <code>0:1</code> / <code>2:3</code> / <code>5:2</code> /
+<code>7:1</code> / <code>10:1</code>。</p>
+
+<p><strong>我的代码（PTA 判过）</strong></p>
+<pre><code>n=int(input())                       第一行：员工总人数 n
+m=list(map(int,input().split()))     第二行：把 n 个工龄读成列表
+L=sorted(m)                          排好序 —— 后面按这个顺序走，输出天然就是「工龄递增」
+total=set()                          集合 total：记「这个工龄已经打过了」（集合只管在不在，正好当记号）
+for i in L:                          按升序逐个看
+    if i not in total:               第一次遇到这个工龄
+        total.add(i)                 打个记号，免得同一个工龄重复打印
+        print(f"{i}:{m.count(i)}")   数它有几个（m.count 数的是整个列表里等于 i 的个数）
+    else:continue                    见过了就跳过（这句其实是废话，删掉输出也一模一样 —— 见 ②）</code></pre>
+
+<div class="box ok">
+<strong>★ 这题的顺序为什么天然是对的</strong>
+<code>sorted(m)</code> 之后<strong>按升序扫一遍</strong>，再用一个集合 <code>total</code> 记"这个工龄打过了没" ——
+<strong>第一次</strong>遇到就打印。于是：输出天然递增、天然去重、人数为 0 的工龄<strong>根本不会出现</strong>
+（列表里没有的值当然扫不到）。三条要求一次满足，一行多余的判断都不用写。
+</div>
+
+<p><strong>优化用法</strong></p>
+
+<div class="box ok">
+<strong>① 那句 <code>else: continue</code> 是废话（实测删掉输出一模一样）</strong>
+<pre><code>for i in L:
+    if i not in total:
+        total.add(i)
+        print(f"{i}:{m.count(i)}")   # 见过的情况本来就什么都不做
+</code></pre>
+<code>if</code> 不成立时什么都不干，<code>else: continue</code> 只是把"继续下一圈"又写了一遍。
+</div>
+
+<div class="box ok">
+<strong>② 数个数别一遍遍扫列表：<code>Counter</code> 或 51 格计数表</strong>
+<pre><code>from collections import Counter
+c = Counter(map(int, d[1:1 + n]))                  # 一趟数完所有工龄
+for k in sorted(c):
+    print(f"{k}:{c[k]}")                           # 想按什么顺序输出就怎么排
+# 或者用「值域只有 51 个」这个条件（题面给了 [0,50]）：
+cnt = [0] * 51
+for x in a:
+    cnt[x] += 1                                    # 一条填表指令，没有查找
+print("\n".join(f"{i}:{cnt[i]}" for i in range(51) if cnt[i]))</code></pre>
+<strong>为什么值域小就该用计数表</strong>：工龄只有 51 种可能，那"数一数"就是<strong>一次遍历 + 51 格数组</strong>，
+不用排序、不用集合、不用逐个 <code>count</code>；而且下标本身就把顺序排好了。<br>
+实测 n=10<sup>5</sup>（含解释器启动约 0.02 s）：本题写法 <strong>0.065 s</strong>、
+<code>Counter</code> 版 <strong>0.039 s</strong>，两者输出逐字节相同 —— 都远在 400 ms 之内，
+所以这里换写法是"更干净"而不是"更快"。
+</div>
+
+<div class="box warn">
+<strong>⚠️ ③ 这题真正该留意的是「读输入读了几行」（❌16 的老毛病）</strong>
+本题代码是 <code>m=list(map(int,input().split()))</code> —— <strong>只读了第二行</strong>。
+题面写的是「<strong>随后给出 n 个整数</strong>」，<strong>并没有保证它们全在一行里</strong>。
+实测把样例那 8 个数<strong>拆成两行</strong>（<code>10 2 0 5 7 2</code> 换行 <code>5 2</code>）：
+本题代码打出 <code>0:1 2:2 5:1 7:1 10:1</code>，正确是 <code>0:1 2:3 5:2 7:1 10:1</code> ——
+<strong>少算了第二行</strong>，而且不报错（静默错）。
+PTA 的数据是一行，所以判过；换个数据集就会翻车。更稳的读法：
+<pre><code>import sys
+d = sys.stdin.read().split()          # 一次读进所有 token，不关心怎么换行
+n = int(d[0]); a = list(map(int, d[1:1 + n]))</code></pre>
+（读多行 / 整块输入的四种写法在 <strong>㉟</strong> 里；这条和 4-13 那次是同一个家族。）
+</div>
+
+<p><strong>要点与实测证据</strong>：<code>py_compile</code> 通过；
+<strong>题面样例逐字节一致</strong>；<strong>7 组题面口径用例全部与两个独立口径逐字节相同</strong>
+（对照实现一份用 51 格计数表、一份用 <code>sorted(set())</code> + <code>count</code>）：</p>
+
+<table>
+<tr><th>用例</th><th>输入（<code>|</code> 表示换行）</th><th>输出</th><th>与独立口径</th></tr>
+<tr><td>题面样例</td><td><code>8|10 2 0 5 7 2 5 2|</code></td><td>5 行</td><td>逐字节相同</td></tr>
+<tr><td>n=1，工龄 0（下限）</td><td><code>1|0|</code></td><td>1 行</td><td>逐字节相同</td></tr>
+<tr><td>全是同一个工龄 50（上限）</td><td><code>4|50 50 50 50|</code></td><td>1 行</td><td>逐字节相同</td></tr>
+<tr><td>两端都占（0 和 50）</td><td><code>2|0 50|</code></td><td>2 行</td><td>逐字节相同</td></tr>
+<tr><td>乱序 + 重复</td><td><code>5|3 3 1 1 1|</code></td><td>2 行</td><td>逐字节相同</td></tr>
+<tr><td>0~20 各一个（21 行）</td><td><code>21|0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20|</code></td><td>21 行</td><td>逐字节相同</td></tr>
+<tr><td>21 个值各两遍（42 个数）</td><td><code>42|0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 |</code></td><td>21 行</td><td>逐字节相同</td></tr>
+</table>
+
+<p>大数据：<strong>n=10<sup>5</sup></strong>（随机工龄）跑出 51 行、与独立口径逐字节相同、行尾无多余空格，
+用时 <strong>0.065 s</strong>（限制 400 ms）—— 这题的时间瓶颈不在这儿，值域小反而帮了大忙。</p>
 
 <h2 id="quick">七、速查总表</h2>
 
