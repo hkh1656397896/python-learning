@@ -5368,6 +5368,41 @@ list(map(methodcaller('replace', 'a', 'X'), ['cat','bat'])) # ['cXt', 'bXt']</co
 一句话：<strong>数据结构自己套自己 → 递归；否则 → 循环。</strong>
 </div>
 
+<div class="box ok">
+<strong>★ 递归里怎么「记住现在是第几层」—— 不用记，用<strong>传</strong></strong><br>
+先破除一个误会：不需要一个变量去「记住」层号，只要把它当<strong>参数</strong>一路传下去就行 ——
+<code>def f(x, k)</code> 里的 <code>k</code> 就是"我现在在第几层"，往里进的时候写 <code>f(e, k+1)</code>。
+以 <code>[1,2,[3,4,[5,6],7],8]</code> 为例，四种做法的实测对照：
+<table>
+<tr><th>做法</th><th>代码形状</th><th>实测打出的层号</th><th>结论</th></tr>
+<tr><td><strong>参数传</strong>（推荐）</td>
+<td><code>def f(x, k)</code> → <code>f(e, k+1)</code>，最初调 <code>f(数据, 0)</code></td>
+<td><code>1 1 2 2 3 3 2 1</code></td><td>✅ 每层各有一份，还能往下带</td></tr>
+<tr><td>外面变量 + <strong>进 +1 / 出 −1</strong></td>
+<td><code>global k</code>；进容器 <code>k+=1</code>，离开时 <code>k-=1</code></td>
+<td><code>1 1 2 2 3 3 2 1</code></td><td>✅ 能对，<strong>但必须成对</strong></td></tr>
+<tr><td>外面变量<strong>只进不减</strong>（漏一句）</td><td>少了 <code>k-=1</code></td>
+<td><code>1 1 2 2 3 3 3 3</code>（最后两个错）</td>
+<td>❌ 后两个数被算成第 3 层；拿它算加权和会得 <strong>95</strong>，正确是 <strong>72</strong></td></tr>
+<tr><td>函数里 <code>k=0</code> 再 <code>k+=1</code></td><td>每次进来都新建一个 <code>k</code></td>
+<td>全是 <strong><code>0</code></strong></td><td>❌ 函数一返回就没了，也看不到上层</td></tr>
+</table>
+<strong>为什么「放外面」和「放里面」都不对</strong>：
+<table>
+<tr><th>放哪</th><th>一共几份</th><th>会怎样</th></tr>
+<tr><td>函数外面（全局 / 局部）</td><td><strong>整个程序只有一份</strong></td>
+<td>所有层共用同一个数 → 必须靠「进去 +1、出来 −1」把状态还原，漏一句就漂（见第 3 行）</td></tr>
+<tr><td>函数里面</td><td>每次调用都<strong>新建一份</strong></td>
+<td>函数一返回就销毁；而且它<strong>不知道上层在哪一层</strong>，永远从初值开始（见第 4 行）</td></tr>
+<tr><td><strong>函数的参数</strong></td><td><strong>每次调用各有一份</strong></td>
+<td>既能带着本层的值，又能 <code>+1</code> 之后传给下一层 —— <strong>这才是"层层深入"的正确载体</strong></td></tr>
+</table>
+<strong>口径</strong>：<code>k</code> 从 <strong>0</strong> 起、往里进时 <code>k+1</code>，那么最外层列表里的元素就落在<strong>第 1 层</strong>
+（与「第一层每个元素 ×1」这种题面口径一致）。实测 <code>[1,2,[3,4,[5,6],7],8]</code> 的层号分布正好是
+<code>1 1 2 2 3 3 2 1</code>，对应的加权和是 <code>72</code>（<code>1*1+2*1+3*2+4*2+5*3+6*3+7*2+8*1</code> 同样给 72）。<br>
+一句话记法：<strong>递归的参数就是"信封"</strong> —— 每进一层就在信封上写个数字传下去，不是在墙上挂块黑板记账。
+</div>
+
 <h3 id="s1-47">㊹ 判断类型：<code>type()</code> / <code>isinstance()</code>（「是数字」和「看着像数字」不是一回事）</h3>
 
 <div class="box ok">
