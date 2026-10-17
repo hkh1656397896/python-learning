@@ -104,7 +104,7 @@
 -->
 
 <h1>Python 自学笔记</h1>
-<p class="meta">hkh ｜ 更新 2026-10-17 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">22</span> 题 + 第4章 <span id="c4">30</span> 题 + 第5章 <span id="c5">11</span> 题 + 第6章 <span id="c6">1</span> 题（浙大版《Python 程序设计》题目集）</p>
+<p class="meta">hkh ｜ 更新 2026-10-17 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">22</span> 题 + 第4章 <span id="c4">30</span> 题 + 第5章 <span id="c5">11</span> 题 + 第6章 <span id="c6">2</span> 题（浙大版《Python 程序设计》题目集）</p>
 
 <nav id="toc">
   <div class="toc-head">目录　<span class="toc-hint">点标题展开 · 点条目直接跳</span></div>
@@ -206,7 +206,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>六、真题回顾 <span class="toc-n" id="cr">81</span></summary>
+    <summary>六、真题回顾 <span class="toc-n" id="cr">82</span></summary>
     <ol>
       <li><a onclick="return go('review-1')">1-1 从键盘输入两个数求和</a></li>
       <li><a onclick="return go('review-2')">1-2 按公式输出 b²−4ac</a></li>
@@ -300,6 +300,7 @@
       <li><a onclick="return go('review-90')">5-10 两数之和</a></li>
       <li><a onclick="return go('review-91')">5-11 字典合并</a></li>
       <li><a onclick="return go('review-92')">6-1 输入列表求列表元素和</a></li>
+      <li><a onclick="return go('review-93')">6-2 一帮一</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -5644,7 +5645,7 @@ if m!=v[17]:                      # ② 索引</code></pre>
 ② 两边同时改，很容易出现"本地一份、提交另一份"，而且极难发现
 </div>
 
-<h2 id="review">六、真题回顾（<span id="cr2">81</span> 题）</h2>
+<h2 id="review">六、真题回顾（<span id="cr2">82</span> 题）</h2>
 
 <div class="box warn">
 <strong>说明：</strong>下面的题目要求是<strong>我按自己的理解概括写的</strong>，不是 PTA 原文。<br>
@@ -12376,6 +12377,129 @@ print(sum(t))                                     加起来</code></pre>
 <tr><td>全是负数</td><td><code>[-1,-2,-3]</code></td><td><code>-6</code></td><td>逐字符相同</td></tr>
 <tr><td>只有一个元素</td><td><code>[10]</code></td><td><code>10</code></td><td>逐字符相同</td></tr>
 </table>
+<h3 id="review-93">6-2 一帮一 <span class="tag">第二版才对</span></h3>
+
+<p><strong>要求</strong>：第一行给正偶数 N（≤50），随后 N 行按<strong>名次从高到低</strong>给出
+「性别 姓名」（<strong>0 = 女生、1 = 男生</strong>，姓名不超过 8 个英文字母，其间一个空格）；
+在<strong>尚未分组</strong>的学生里，把名次最靠前的学生与名次最靠后的<strong>异性</strong>学生分成一组
+（题面保证男女各占一半、没有并列名次）。<br>
+输出 N/2 行、每行两个名字：<strong>名次高的在前</strong>；<strong>组的顺序按「前面那个人」的名次从高到低</strong>。
+样例 8 人 → <code>Amy Jack</code> / <code>Tom Linda</code> / <code>Bill Maya</code> / <code>Cindy John</code>。</p>
+
+<p><strong>我的代码（PTA 判过 —— 第一版一个字都没输出，见下面那个盒子）</strong></p>
+<pre><code>N=int(input())                                第一行：班级人数（正的偶数，题面保证男女各占一半）
+L=[input().split() for _ in range(N)]         接着 N 行，每行拆成 [性别, 姓名] —— 列表推导读 N 行（⑬ 读多行的标准骨架 / ㊱）
+l=[]                                          账本：记「下半区哪些下标已经被配走了」
+for i in range(N//2):                         外层只走上半区：名次最靠前的那批人（最多 N/2 个）
+    for j in range(N-1,N//2-1,-1):            内层从最后一名往前扫到下半区开头；⚠️ 每一轮都从 N-1 重新开始，不是 N-i-1
+        if L[i][0]!=L[j][0] and j not in l:   性别不同（0 女 / 1 男）【并且】这个人还没被配走（j not in l）
+            print(L[i][1],L[j][1])            名次高的 i 在前、名次低的 j 在后 —— 两个下标都是 j，不用再排序
+            l.append(j)                       把 j 记进账本，后面几轮不再用它
+            break                             找到就停：退出内层 j 循环，换下一个 i</code></pre>
+
+<div class="box ok">
+<strong>★ 这题的三个动作</strong>
+<table>
+<tr><th>要做的事</th><th>代码里在哪</th><th>为什么这样做</th></tr>
+<tr><td>名次靠前的人一个个来</td><td>外层 <code>for i in range(N//2)</code></td>
+<td>一共 N/2 组，所以上半区最多 N/2 个人；<code>i</code> 从小到大，组的顺序天然就是题面要的顺序，<strong>不用再排序</strong></td></tr>
+<tr><td>给他找一个<strong>异性</strong></td><td>内层 <code>j</code> 从 <code>N-1</code> 往前扫</td>
+<td>「名次最靠后」= 下标最大；性别相同就继续往前退（<code>range</code> 的步长 <code>-1</code> 一行办到）</td></tr>
+<tr><td>配过的人不能再用</td><td><code>l</code> 账本 + <code>j not in l</code></td>
+<td>这是第一版缺的那一块：<strong>不记账本，同一个人会被配两次</strong>（下面有实测）</td></tr>
+</table>
+</div>
+
+<div class="box bad">
+<strong>⚠️ 第一版为什么【一个字都不输出】—— 实测退出码 0、标准输出 0 字节</strong>
+<pre><code>for i in range(N//2):                # 外层 i 走上半区 —— 这一行本身没错
+    j=N-i-1                          # ❌ 坑1：j 被定死成「从两端对称的那一个」，全程只比这一个
+    if L[i][0]!=L[j][0]:             # ❌ 坑3：判断用 L[j]，打印却用 L[N-i-1]（现在碰巧相等，j 真被挪过就错）
+        print(L[i][1],L[N-i-1][1])   # 打印
+    else:j-=1                        # ❌ 坑2：死代码 —— 减完这一轮再没人用 j，下一轮开头又算回 N-i-1</code></pre>
+<strong>坑4：整段没有「已配过」的账本</strong> —— 被配走的人下一轮还会被配一次。<br>
+<strong>为什么恰好 0 行</strong>：<code>j=N-i-1</code> 让每一轮只比「从两端对称的那一对」，
+而样例这 4 对<strong>性别全部相同</strong>：
+<table>
+<tr><th>i</th><th>j</th><th>比的是哪两人</th><th>性别</th><th>这一轮的结果</th></tr>
+<tr><td>0</td><td>7</td><td><code>Amy</code> vs <code>Linda</code></td><td>同（都是 0 女）</td><td>走 <code>else</code>，不打印</td></tr>
+<tr><td>1</td><td>6</td><td><code>Tom</code> vs <code>Jack</code></td><td>同（都是 1 男）</td><td>走 <code>else</code>，不打印</td></tr>
+<tr><td>2</td><td>5</td><td><code>Bill</code> vs <code>John</code></td><td>同（都是 1 男）</td><td>走 <code>else</code>，不打印</td></tr>
+<tr><td>3</td><td>4</td><td><code>Cindy</code> vs <code>Maya</code></td><td>同（都是 0 女）</td><td>走 <code>else</code>，不打印</td></tr>
+</table>
+4 轮 4 对全同 → 输出 <strong>0 行</strong>。<br>
+⚠️ <strong>「程序跑了但没输出」和「代码没跑」是两件事</strong>：先看退出码（这里 0），再数输出字节（这里 0），
+然后<strong>把每一轮比了谁打出来</strong>——一看就明白。这个诊断顺序比盯着代码猜快得多。
+</div>
+
+<div class="box warn">
+<strong>⚠️ 只把 <code>j-=1</code> 换成「往前退」，还是不够</strong>
+<pre><code>for i in range(N//2):                 # 只补了「往前退」，起点还是对称位
+    j=N-i-1                           # 起点仍然是对称位
+    while j>i and L[i][0]==L[j][0]:   # 性别相同就继续往前退
+        j-=1                          # 退一格
+    if j>i:                           # 退到 i 还没找到就静默跳过 —— 少打一行
+        print(L[i][1],L[j][1])        # 打印的是退到的那个人</code></pre>
+实测样例打出 <strong>3 行</strong>：<code>Amy Jack</code> / <code>Tom Maya</code> / <code>Bill Maya</code> ——
+<code>Maya</code> 被配了两次，<code>Linda</code> 和 <code>John</code> 一个都没出现。<br>
+根因：<code>Cindy</code> 那一轮从末尾往前找男同学，<strong>第一个撞到的是 <code>Jack</code></strong>，
+而他早被 <code>Amy</code> 配走了 —— 没有账本就跳不过他，于是打出题面不要的
+<code>Cindy Jack</code>（题面要的是 <code>Cindy John</code>）。<br>
+<strong>所以「往前退」和「记账本」是两件独立的事，缺一件都不行。</strong>
+</div>
+
+<p><strong>优化用法</strong></p>
+
+<div class="box ok">
+<strong>① 为什么「只记 <code>j</code>」就够了（<code>i</code> 不用标记）</strong><br>
+本写法里两个区间<strong>天然不重叠</strong>：<code>i</code> 只在 <code>[0, N/2)</code> 走，
+<code>j</code> 只在 <code>[N/2, N)</code> 里扫 —— 一个下标不可能既当 <code>i</code> 又当 <code>j</code>，
+所以只给 <code>j</code> 记账就够了。<br>
+实测佐证：N=2/4/6/8 的<strong>每一种「1:1 性别排列」共 98 组</strong>，
+本写法与「两侧都标记 <code>used</code> 的全扫版」<strong>输出 0 组不一致</strong>，
+且每组输出行数都恰好是 <code>N/2</code>。
+</div>
+
+<div class="box ok">
+<strong>② <code>l</code> 换成 <code>set</code>：<code>in</code> 从 O(n) 变 O(1)</strong>
+<pre><code>l=set()
+...
+            l.add(j)                其它一模一样，只是 append 换成 add</code></pre>
+<code>j not in l</code> 在列表上是<strong>从头扫一遍</strong>（O(n)），在集合上是<strong>算哈希直接查</strong>（O(1)，㉚）。
+本题 N≤50，两者都一瞬间；实测 99 组用例（样例 + 98 组性别排列）<strong>输出逐字节相同</strong>。
+值不值得换看场景：<strong>账本一大就该用集合</strong>，这里只是养成习惯。
+</div>
+
+<div class="box ok">
+<strong>③ 另一种思路：把配走的人「从名单里删掉」</strong>
+<pre><code>for i in range(N//2):
+    for j in range(len(L)-1,i,-1):      从当前名单的最后往前扫（len(L) 每轮都在变小）
+        if L[i][0]!=L[j][0]:
+            print(L[i][1],L[j][1])
+            L.pop(j)                    把 j 这个人从名单里删掉，后面自然扫不到他
+            break</code></pre>
+实测 99 组用例<strong>输出与原写法逐字节相同</strong>。好处是不用额外的账本；
+<strong>风险是 <code>pop</code> 之后后面所有元素的下标都往前挪一位</strong> ——
+所以外层 <code>i</code> 的区间要跟着变小（这里靠 <code>len(L)</code> 兜住），
+真用的话要盯着「删过之后 i 指的是谁」。
+</div>
+
+<p><strong>要点与实测证据</strong>：<code>py_compile</code> 通过；
+<strong>题面样例 4 行逐字符一致</strong>；
+<strong>N=2/4/6/8 的每一种「1:1 性别排列」共 98 组与独立口径（两侧都标记的全扫版）0 组不一致</strong>，
+且 <strong>98/98 组的输出行数都恰好等于 N/2</strong>：</p>
+
+<table>
+<tr><th>用例</th><th>输入规模</th><th>输出</th><th>与独立口径</th></tr>
+<tr><td>题面样例</td><td>N=8</td><td>4 行（<code>Amy Jack</code> 起）</td><td>逐字符相同</td></tr>
+<tr><td>最小规模（一男一女）</td><td>N=2</td><td>1 行</td><td>逐字符相同</td></tr>
+<tr><td>N 上限：女前 25 + 男后 25</td><td>N=50</td><td>25 行</td><td>逐字符相同</td></tr>
+<tr><td>N 上限：男女交替</td><td>N=50</td><td>25 行</td><td>逐字符相同</td></tr>
+<tr><td>性别全倒（男前女后）</td><td>N=4</td><td>2 行</td><td>逐字符相同</td></tr>
+<tr><td>姓名 8 字符上限</td><td>N=4</td><td>2 行</td><td>逐字符相同</td></tr>
+<tr><td><strong>全部 1:1 性别排列</strong></td><td>N=2/4/6/8</td><td><strong>98 组</strong></td><td><strong>0 组不一致</strong></td></tr>
+</table>
+
 <h2 id="quick">七、速查总表</h2>
 
 <p><strong>为什么单独开一章：</strong>前面是按「遇到的顺序」记的，翻起来像流水账。
