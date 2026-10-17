@@ -4413,6 +4413,23 @@ n = s.count("\n")</code></pre>
 <strong>一句话：<code>input()</code> = 一行；要读多行就循环它，或换成 <code>sys.stdin</code>。</strong>
 </div>
 
+<div class="box bad">
+<strong>⚠️ <code>sys.stdin.read()</code> 在本地手敲时会「没反应」—— 它在等 <code>EOF</code></strong><br>
+<code>read()</code> 的规则是<strong>一直读到输入结束（EOF）为止</strong>：
+<table>
+<tr><th>场景</th><th>实测</th></tr>
+<tr><td>输入是<strong>管道 / 重定向文件</strong>（读完即关闭）</td><td>立刻返回，拿到全部内容 ✅</td></tr>
+<tr><td><strong>在终端里手敲</strong>（键盘一直开着）</td><td><strong>一直等</strong> —— 写了一行、2.5 秒后程序还在跑，光标不动</td></tr>
+<tr><td>PTA 上提交</td><td>✅ 没问题：判题程序会把 stdin 关掉</td></tr>
+</table>
+<strong>本地测试的两种正确姿势</strong>：<br>
+① 把输入写进文件，重定向：<code>python 脚本.py &lt; input.txt</code>（文件读完 = EOF，<code>read()</code> 立刻返回）<br>
+② 手敲完手动给 EOF：<strong>Windows 按 <code>Ctrl+Z</code> 再回车</strong>，Linux / Mac 按 <code>Ctrl+D</code><br>
+⚠️ 一个细节：<code>read()</code> 会把结尾的 <code>#</code> 也读进来（题面常写「以 <code>#</code> 结尾」）——
+但 <code>#</code> 不是单词字符（<code>'#'.isalnum()</code> 是 <code>False</code>），
+它天然就是分隔符，<strong>不用特意去掉</strong>。
+</div>
+
 <h3 id="s1-39">㊱ 列表推导（list comprehension）</h3>
 
 <p class="meta">编号说明：圈数字编号<strong>全篇连续</strong> —— 这一节前面是
