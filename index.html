@@ -104,7 +104,7 @@
 -->
 
 <h1>Python 自学笔记</h1>
-<p class="meta">hkh ｜ 更新 2026-10-16 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">22</span> 题 + 第4章 <span id="c4">30</span> 题 + 第5章 <span id="c5">9</span> 题（浙大版《Python 程序设计》题目集）</p>
+<p class="meta">hkh ｜ 更新 2026-10-16 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">22</span> 题 + 第4章 <span id="c4">30</span> 题 + 第5章 <span id="c5">10</span> 题（浙大版《Python 程序设计》题目集）</p>
 
 <nav id="toc">
   <div class="toc-head">目录　<span class="toc-hint">点标题展开 · 点条目直接跳</span></div>
@@ -206,7 +206,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>六、真题回顾 <span class="toc-n" id="cr">78</span></summary>
+    <summary>六、真题回顾 <span class="toc-n" id="cr">79</span></summary>
     <ol>
       <li><a onclick="return go('review-1')">1-1 从键盘输入两个数求和</a></li>
       <li><a onclick="return go('review-2')">1-2 按公式输出 b²−4ac</a></li>
@@ -297,6 +297,7 @@
       <li><a onclick="return go('review-87')">5-7 列表去重</a></li>
       <li><a onclick="return go('review-88')">5-8 能被3和5和7整除的数的个数（用集合实现）</a></li>
       <li><a onclick="return go('review-89')">5-9 求矩阵鞍点的个数</a></li>
+      <li><a onclick="return go('review-90')">5-10 两数之和</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -5045,6 +5046,70 @@ for n in (6, 10, 28, 496):
 <p>相关小节：<strong>㊶</strong> <code>lambda</code>（本节的简化写法）、<strong>㉝</strong> <code>map</code>（把函数当参数传给别的函数）、
 <strong>㉔</strong> 字典（值放函数 = 分派表）、<strong>㊴</strong> 因子的三种求法（里面的 <code>isqrt</code> 判素数写法就来自函数化）。</p>
 
+<div class="box ok">
+<strong>★ <code>None</code> 是什么：<code>return</code> 没写、方法"不给返回值"时，拿到的都是它</strong><br>
+<code>None</code> 是 Python 里专门表示「<strong>没有值</strong>」的那<strong>一个</strong>对象，
+类型叫 <code>NoneType</code>：
+<table>
+<tr><th>表达式</th><th>实测</th></tr>
+<tr><td><code>type(None)</code></td><td><code>&lt;class 'NoneType'&gt;</code></td></tr>
+<tr><td><code>print(None)</code></td><td><code>None</code></td></tr>
+<tr><td><code>bool(None)</code></td><td><code>False</code></td></tr>
+<tr><td><code>None == 0 / None == '' / None == False</code></td><td><code>False / False / False</code></td></tr>
+<tr><td><code>None is None</code></td><td><code>True</code></td></tr>
+<tr><td><code>L.append(9) 的返回值（L 已变 [3, 1, 2, 9]）</code></td><td><code>None</code></td></tr>
+<tr><td><code>L.sort() 的返回值（L 已变 [1, 2, 3, 9]）</code></td><td><code>None</code></td></tr>
+<tr><td><code>print('x') 的返回值</code></td><td><code>None</code></td></tr>
+</table>
+<strong>它不是 <code>0</code>、不是空串、也不是 <code>False</code></strong>（三个都实测不相等），
+只是在 <code>if</code> 里<strong>当假</strong>。
+所以「返回值是 <code>None</code>」<strong>不等于</strong>「什么都没干」——
+<code>.append()</code> / <code>.sort()</code> 都真的改了列表，只是<strong>不把结果交回来</strong>（❌13 就是栽在这）。
+</div>
+
+<div class="box warn">
+<strong>⚠️ 判「有没有拿到东西」要用 <code>is not None</code>，别用 <code>if x:</code></strong>
+<pre><code>ans = None      # 占位：先声明"还没有答案"
+...
+if ans is not None:      # 找到了
+    print(...)
+else:
+    print("no answer")</code></pre>
+两种判法在几种典型值上的差别（实测）：
+<table>
+<tr><th>变量</th><th><code>if x:</code> 判成</th><th><code>if x is not None</code> 判成</th></tr>
+<tr><td><code>ans = None</code></td><td><code>False</code></td><td><code>False</code></td></tr>
+<tr><td><code>ans = (0, 0)</code></td><td><code>True</code></td><td><code>True</code></td></tr>
+<tr><td><code>ans = 0</code></td><td><code>False</code></td><td><code>True</code></td></tr>
+<tr><td><code>ans = ''</code></td><td><code>False</code></td><td><code>True</code></td></tr>
+</table>
+<strong>关键那一行</strong>：<code>ans = 0</code> 会被 <code>if ans</code> 误判成"没有" ——
+因为 <code>0</code> 在条件里当假。<code>is</code> 比的是"是不是同一个对象"，<code>None</code> 全世界只有一份，
+所以 <code>x is not None</code> 是判断它的标准写法。
+</div>
+
+<div class="box ok">
+<strong>★ 其实「占位 + 最后判」这件事有更省事的写法：<code>for...else</code></strong>
+（4-2 那题的 <code>for...else</code>，review-41）—— 循环<strong>正常跑完</strong>就说明没找到：
+<pre><code>for i, x in enumerate(nums):
+    if 目标 - x in d:
+        print(d[目标 - x], i)
+        break                  # 找到就走人，break 会跳过 else
+    d[x] = i
+else:
+    print("no answer")         # 循环没被 break 打断 → 走到这里</code></pre>
+实测这两种写法（<code>ans = None</code> 版 / <code>for...else</code> 版）在下面几组上输出<strong>完全相同</strong>：
+<table>
+<tr><th>输入（<code>/</code> 表示换行）</th><th>输出</th><th>两种写法</th></tr>
+<tr><td><code>2,7,11,15 / 9 / </code></td><td><code>0 1</code></td><td>相同</td></tr>
+<tr><td><code>3,3 / 6 / </code></td><td><code>0 1</code></td><td>相同</td></tr>
+<tr><td><code>8,1,5,13,2,3 / 16 / </code></td><td><code>3 5</code></td><td>相同</td></tr>
+<tr><td><code>1,2,3 / 100 / </code></td><td><code>no answer</code></td><td>相同</td></tr>
+</table>
+<strong>什么时候还是得用 <code>None</code> 占位</strong>：要在循环<strong>外面</strong>拿那个结果继续算
+（比如把答案传回给别的函数）、或者循环里<strong>有多处</strong>可能给答案时。
+</div>
+
 <h3 id="s1-44">㊶ <code>lambda</code> 匿名函数：没有名字的一行函数</h3>
 
 <p><strong>一句话</strong>：<code>lambda</code> = <strong>没有名字的、只写一行的函数</strong>。
@@ -5577,7 +5642,7 @@ if m!=v[17]:                      # ② 索引</code></pre>
 ② 两边同时改，很容易出现"本地一份、提交另一份"，而且极难发现
 </div>
 
-<h2 id="review">六、真题回顾（<span id="cr2">78</span> 题）</h2>
+<h2 id="review">六、真题回顾（<span id="cr2">79</span> 题）</h2>
 
 <div class="box warn">
 <strong>说明：</strong>下面的题目要求是<strong>我按自己的理解概括写的</strong>，不是 PTA 原文。<br>
@@ -11978,6 +12043,129 @@ print(len(row &amp; col))</code></pre>
 
 <p><strong>随机对拍 400 组 0 组不一致</strong>（n ∈ 1~6、值域故意取小：<code>0</code> / <code>±1</code> /
 <code>±2</code> / <code>±5</code>，就是为了把<strong>并列</strong>这条路走干净）。</p>
+
+<h3 id="review-90">5-10 两数之和 <span class="tag">一次通过（两版都过）</span></h3>
+
+<p><strong>要求</strong>：第一行给一组整数（<strong>逗号隔开</strong>），第二行给目标数；
+从这组整数里找<strong>两个数</strong>，使它们的和等于目标数（<strong>题面保证解唯一</strong>），
+输出的两个下标<strong>按从小到大</strong>排列；找不到就输出 <code>no answer</code>。
+题面点名「<strong>用一重循环加字典实现</strong>」。
+样例 <code>2,7,11,15</code> + 目标 <code>9</code> → <code>0 1</code>。</p>
+
+<p><strong>我的代码（字典版，题面要求的形状）</strong></p>
+<pre><code>total=list(map(int,input().split(',')))   第一行：按逗号切开、全转 int —— 得到这组数（不转 int 的话 '2'+'7' 会拼成 '27'）
+m=int(input())                            第二行：目标数
+d={}                                      字典：记「值 → 它第一次出现的下标」
+for i,ch in enumerate(total):             一趟走完：i 是下标、ch 是那个数（enumerate 同时给两样，⑳）
+    n=m-ch                                还差多少才凑成目标
+    if n in d:                            这个「还差的数」以前见过没？（in 在字典上查的是【键】，而且 O(1)）
+        print(d[n],i)                     见过：d[n] 是它当初的下标（一定比 i 小），所以输出天然小在前
+        break                             找到就走人 —— break 还会【跳过下面的 else】
+    d[ch]=i                               没见过就把自己登记上：值 ch 在第 i 位（⚠️ 这一行必须在 if 之后，见下面实测）
+else:                                     这个 else 属于【for】：循环没被 break 打断才会走到这里（review-41）
+    print('no answer')                    一个都没配上 → 打题面那句（全小写、中间一个空格）</code></pre>
+
+<div class="box ok">
+<strong>★ 字典版为什么「一趟」就够</strong>
+朴素想法是两两相加（O(n²)）；中间先把 <code>d[值] = 下标</code> 记下来以后，问题就变成
+「<strong>目标 - 当前值 这个数，前面出现过没有？</strong>」—— 一次<strong>查表</strong>（O(1)）就够，
+不用再扫一遍。<strong>这就是「一重循环加字典」的全部含义</strong>：
+把「再找一遍」换成「查一本账」。<br>
+顺带解决了顺序：<code>d[n]</code> 是<strong>先前</strong>存的下标、<code>i</code> 是<strong>当前</strong>下标，
+所以<strong>恒有 <code>d[n] &lt; i</code></strong>，天然"从小到大"，不用 <code>sorted</code>。
+</div>
+
+<div class="box warn">
+<strong>⚠️ 三个实测坑（都踩过或差点踩）</strong>
+<table>
+<tr><th>坑</th><th>实测后果</th></tr>
+<tr><td><code>d[ch] = i</code> 写到了 <code>if</code> <strong>前面</strong></td>
+<td><code>3,3</code> + 6 输出 <code>0 0</code> —— 把自己配自己；正确是 <code>0 1</code></td></tr>
+<tr><td>双循环里用「两个值不同」（<code>x != y</code>）当判据</td>
+<td><code>3,3</code> + 6 输出 <code>no answer</code> —— 把 <code>3+3</code> 这种合法解挡掉了；
+<strong>判「位置不同」用 <code>a &lt; b</code> 就够</strong>，不必看值</td></tr>
+<tr><td><code>else</code> 的缩进和 <code>if</code> 齐平</td>
+<td>就变成"if 不成立就打 no answer"—— 每一轮都会打；它必须和 <code>for</code> 齐平（❌15 那族）</td></tr>
+</table>
+</div>
+
+<p><strong>另一个版本：双循环（也过了，但不是题面要求的形状）</strong></p>
+<pre><code>total=list(map(int,input().split(',')))   第一行：按逗号切开、全转 int
+m=int(input())                            第二行：目标数
+cnt=0                                     计数器 —— 这题解唯一，它其实只当「找没找到」的旗子用
+for a,x in enumerate(total):              外层：第一个数的下标 a 和值 x
+    for b,y in enumerate(total):          内层：第二个数（每轮都从 0 重新扫一遍 → 这就是 O(n²) 的来源）
+        if m==x+y and a&lt;b:                和等于目标 且【位置不同】：a&lt;b 已经保证了位置不同，不用再判「两个值不同」
+            cnt+=1                        记一次找到了
+            print(f"{a} {b}")             输出两个下标（f-string 把 a、b 插进去，中间一个空格）
+            break                         这对找完就跳出内层 —— ⚠️ 只跳出内层，外层还会继续（解唯一所以无所谓）
+if cnt==0:                                一次都没找到
+    print("no answer")                    打题面那句</code></pre>
+
+<div class="box warn">
+<strong>⚠️ 两版的复杂度差别（实测，解在最末尾 = 双循环最坏情况）</strong>
+<table>
+<tr><th>数据量</th><th>字典版（一趟）</th><th>双循环</th><th>输出</th></tr>
+<tr><td><code>n=1000</code></td><td><code>0.039 s</code></td><td><code>0.101 s</code></td><td>998 999</td></tr>
+<tr><td><code>n=2000</code></td><td><code>0.032 s</code></td><td><code>0.269 s</code></td><td>1998 1999</td></tr>
+<tr><td><code>n=4000</code></td><td><code>0.031 s</code></td><td><code>1.076 s</code></td><td>3998 3999</td></tr>
+</table>
+双循环<strong>每翻一倍涨约 4 倍</strong>（O(n²) 的指纹），数据一大就压不住 400 ms ——
+这就是题面写明「一重循环」的原因。数据小的时候两版都对、都够快，所以两版都能判过。
+</div>
+
+<p><strong>优化用法</strong></p>
+
+<div class="box warn">
+<strong>① <code>d[ch] = i</code> 是「<strong>写</strong>」：键不在就新增、在就<strong>覆盖</strong></strong>
+<pre><code>d = {}
+d['a'] = 1        # {'a': 1}        ← 新增
+d['a'] = 99       # {'a': 99}       ← 覆盖（len 不变）
+d['z']            # KeyError: 'z'   ← 只有【读】不存在的键才会崩</code></pre>
+所以这题里它等于<strong>「值 ch 出现在第 i 位」</strong>。⚠️ 覆盖意味着
+<strong>同一个数出现两次时，后一个下标会盖掉前一个</strong> —— 实测 <code>3,3,7</code> + 目标 10：
+字典版给 <code>1 2</code>、双循环给 <code>0 2</code> <strong>和</strong> <code>1 2</code>（<strong>两行</strong>，
+因为它的 <code>break</code> 只跳出内层、外层还会继续）。想要"下标最小"就把那行写成
+<code>if ch not in d: d[ch] = i</code>（或 <code>d.setdefault(ch, i)</code>），实测给 <code>0 2</code>。
+题面说解唯一，这种输入碰不到，记着就好。
+</div>
+
+<div class="box ok">
+<strong>② 「先占位、最后判」也可以用 <code>None</code> 或 <code>for...else</code></strong>
+<code>ans = None</code> + 最后 <code>if ans is not None</code> 是一种写法；
+<strong>这题用 <code>for...else</code> 更省</strong>（循环正常跑完 = 没找到）。
+两种写法在 4 组输入上输出<strong>完全相同</strong>（连 <code>ans = 0</code> 会不会被误判这件事，
+<code>None</code> 的小节里有两张实测表 —— 在 ㊵ 末尾）。
+</div>
+
+<div class="box ok">
+<strong>③ 变量名可以更"说人话"</strong>
+<pre><code>nums = list(map(int, input().split(',')))   # total 也行，但 nums 更常见
+target = int(input())                       # m 太短，看不出是"目标"
+seen = {}                                   # 记"见过什么、在第几位"
+for i, x in enumerate(nums):
+    need = target - x                       # n 容易和"个数 n"混
+    if need in seen:
+        print(seen[need], i)
+        break
+    seen[x] = i</code></pre>
+尤其 <code>ch</code> 这个名字一般用来表示"字符"，这题里其实是<strong>数字</strong>，改成 <code>x</code> 更准。
+</div>
+
+<p><strong>要点与实测证据</strong>：两版 <code>py_compile</code> 都通过；
+<strong>题面样例逐字节一致</strong>（<code>'0 1'</code>）；
+<strong>7 组用例两版输出完全相同、且都等于期望</strong>：</p>
+
+<table>
+<tr><th>用例</th><th>输入（<code>|</code> 表示换行）</th><th>输出</th><th>两版对照</th></tr>
+<tr><td>题面样例</td><td><code>2,7,11,15|9|</code></td><td><code>0 1</code></td><td>两版相同</td></tr>
+<tr><td>两个相同的值 3+3=6</td><td><code>3,3|6|</code></td><td><code>0 1</code></td><td>两版相同</td></tr>
+<tr><td>配对在末尾</td><td><code>1,2,3,4,5,6|11|</code></td><td><code>4 5</code></td><td>两版相同</td></tr>
+<tr><td>有负数</td><td><code>-3,4,3,90|0|</code></td><td><code>0 2</code></td><td>两版相同</td></tr>
+<tr><td>解唯一且配对靠后</td><td><code>8,1,5,13,2,3|16|</code></td><td><code>3 5</code></td><td>两版相同</td></tr>
+<tr><td>找不到</td><td><code>1,2,3|100|</code></td><td><code>no answer</code></td><td>两版相同</td></tr>
+<tr><td>输入带空格</td><td><code>2, 7, 11, 15|9|</code></td><td><code>0 1</code></td><td>两版相同</td></tr>
+</table>
 
 <h2 id="quick">七、速查总表</h2>
 
