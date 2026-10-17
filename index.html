@@ -3425,6 +3425,49 @@ re.findall(r"\w+", "中文 abc 123", re.ASCII)    # ['abc', '123']            �
 要「只认英文字母、数字、下划线」就写死字符类 <code>[A-Za-z0-9_]+</code>，别用 <code>\w</code>。
 </div>
 
+<div class="box ok">
+<strong>★ 正则最小语法：认得出「字符类 + 量词」就够刷题用了</strong><br>
+<strong>① 为什么写 <code>r"..."</code></strong>：<code>r</code> = raw，让反斜杠<strong>原样</strong>传给正则引擎。
+实测 <code>"\d" == r"\d"</code> 是 <code>True</code>（3.9 能跑，但有告警），
+但<strong>正规写法一律加 <code>r</code></strong>，否则哪天真踩到转义就难查。<br><br>
+<strong>② 字符类 <code>[ … ]</code>：里面任意<strong>一个</strong>字符就算匹配</strong>
+<table>
+<tr><th>写法</th><th>意思</th><th>实测</th></tr>
+<tr><td><code>[abc]</code></td><td>a / b / c 里任意一个</td><td><code>[abc]+</code> 扫 <code>'abccXab'</code> → <code>['abcc','ab']</code></td></tr>
+<tr><td><code>[a-z]</code></td><td>小写字母；<code>[A-Z]</code> 大写；<code>[0-9]</code> 数字</td>
+<td><code>[a-z]+</code> 扫 <code>'This is a test'</code> → <code>['his','is','a','test']</code>（大写 T 被排除）</td></tr>
+<tr><td><code>[A-Za-z0-9_]</code></td><td>字母 + 数字 + 下划线（<strong>可以连着写几段</strong>）</td>
+<td>扫 <code>'a_1 99bottles $中文#'</code> → <code>['a_1','99bottles']</code></td></tr>
+<tr><td><code>[^0-9]</code></td><td>方括号里的 <code>^</code> = <strong>取反</strong></td>
+<td><code>[^0-9]+</code> 扫 <code>'a1b22c'</code> → <code>['a','b','c']</code></td></tr>
+<tr><td><code>[.]</code></td><td>方括号里的点号就是<strong>字面点号</strong></td><td>扫 <code>'a.b.c'</code> → <code>['.','.']</code></td></tr>
+</table>
+<strong>③ 量词：决定「几个」</strong>
+<table>
+<tr><th>量词</th><th>意思</th><th>实测（扫 <code>'aabaaa'</code>）</th></tr>
+<tr><td><code>a</code></td><td>正好 1 个</td><td><code>['a','a','a','a','a']</code></td></tr>
+<tr><td><code>a+</code></td><td><strong>1 个或多个</strong>（刷题几乎只用这个）</td><td><code>['aa','aaa']</code></td></tr>
+<tr><td><code>a*</code></td><td>0 个或多个</td><td><code>['aa','','aaa','']</code> ⚠️ <strong>会冒出空串</strong></td></tr>
+<tr><td><code>a?</code></td><td>0 或 1 个</td><td><code>['a','a','','a','a','a','']</code></td></tr>
+<tr><td><code>a{2}</code> / <code>a{2,3}</code></td><td>正好 2 个 / 2~3 个</td><td><code>['aa','aa']</code> / <code>['aa','aaa']</code></td></tr>
+</table>
+⚠️ <strong>计数时一定要用 <code>+</code> 不能用 <code>*</code></strong>：实测 <code>re.findall(r'x*', 'abc')</code> 给
+<code>['','','','']</code>（4 个空串），而 <code>re.findall(r'x+', 'abc')</code> 给 <code>[]</code>（没匹配就是空列表）。<br><br>
+<strong>④ 三个简写：<code>\d</code> 数字、<code>\w</code> 单词字符、<code>\s</code> 空白（大写是“取反”）</strong>
+<table>
+<tr><th>写法</th><th>实测（扫 <code>'ab 12_中\tcd'</code>）</th></tr>
+<tr><td><code>\d+</code></td><td><code>['12']</code></td></tr>
+<tr><td><code>\w+</code></td><td><code>['ab','12_中','cd']</code> ⚠️ <strong>中文也算 <code>\w</code></strong></td></tr>
+<tr><td><code>\w+</code> 加 <code>re.ASCII</code></td><td><code>['ab','12_','cd']</code> ✅</td></tr>
+<tr><td><code>\s+</code> / <code>\W+</code></td><td><code>[' ','\t']</code> / <code>[' ','\t']</code></td></tr>
+<tr><td><code>\D+</code></td><td><code>['ab ','_中\tcd']</code></td></tr>
+</table>
+<strong>⑤ 两个小性质</strong>：<code>+</code> 是<strong>贪心</strong>的，会取最长的一段
+（<code>'ab_cd 12'</code> → <code>['ab_cd','12']</code>，因为 <code>_</code> 也在字符类里，不会在 <code>_</code> 处断开）；
+想让正则<strong>不分大小写</strong>就加第三个参数 <code>re.I</code>（<code>[a-z]+</code> 扫 <code>'This'</code>
+默认给 <code>['his']</code>，加 <code>re.I</code> 给 <code>['This']</code>）。
+</div>
+
 <h3 id="s1-29">㉙ <code>ord()</code> / <code>chr()</code>：字符 ↔ 编号（字母往后数几个的写法）</h3>
 
 <p><strong>每个字符在计算机里都对应一个编号。</strong>
