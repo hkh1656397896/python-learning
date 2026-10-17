@@ -104,7 +104,7 @@
 -->
 
 <h1>Python 自学笔记</h1>
-<p class="meta">hkh ｜ 更新 2026-10-17 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">22</span> 题 + 第4章 <span id="c4">30</span> 题 + 第5章 <span id="c5">11</span> 题 + 第6章 <span id="c6">6</span> 题（浙大版《Python 程序设计》题目集）</p>
+<p class="meta">hkh ｜ 更新 2026-10-17 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">22</span> 题 + 第4章 <span id="c4">30</span> 题 + 第5章 <span id="c5">11</span> 题 + 第6章 <span id="c6">7</span> 题（浙大版《Python 程序设计》题目集）</p>
 
 <nav id="toc">
   <div class="toc-head">目录　<span class="toc-hint">点标题展开 · 点条目直接跳</span></div>
@@ -209,7 +209,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>六、真题回顾 <span class="toc-n" id="cr">86</span></summary>
+    <summary>六、真题回顾 <span class="toc-n" id="cr">87</span></summary>
     <ol>
       <li><a onclick="return go('review-1')">1-1 从键盘输入两个数求和</a></li>
       <li><a onclick="return go('review-2')">1-2 按公式输出 b²−4ac</a></li>
@@ -308,6 +308,7 @@
       <li><a onclick="return go('review-95')">6-4 列表数字元素加权和(1)</a></li>
       <li><a onclick="return go('review-96')">6-5 列表元素个数的加权和(1)</a></li>
       <li><a onclick="return go('review-97')">6-6 求指定层的元素个数</a></li>
+      <li><a onclick="return go('review-98')">6-7 找出总分最高的学生</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -5904,7 +5905,7 @@ if m!=v[17]:                      # ② 索引</code></pre>
 ② 两边同时改，很容易出现"本地一份、提交另一份"，而且极难发现
 </div>
 
-<h2 id="review">六、真题回顾（<span id="cr2">86</span> 题）</h2>
+<h2 id="review">六、真题回顾（<span id="cr2">87</span> 题）</h2>
 
 <div class="box warn">
 <strong>说明：</strong>下面的题目要求是<strong>我按自己的理解概括写的</strong>，不是 PTA 原文。<br>
@@ -13278,6 +13279,103 @@ print(cnt.get(n,0))                 ⚠️ 用 get：n 超过深度时给 0，�
 <tr><td>空容器夹中间</td><td><code>[1,[],[2]]</code></td><td>1</td><td><code>1</code></td></tr>
 <tr><td>负数</td><td><code>[-1,-2]</code></td><td>1</td><td><code>2</code></td></tr>
 <tr><td>单元素</td><td><code>[7]</code></td><td>1</td><td><code>1</code></td></tr>
+</table>
+
+<h3 id="review-98">6-7 找出总分最高的学生 <span class="tag">一次通过</span></h3>
+
+<p><strong>要求</strong>：第一行 N（≤10），随后 N 行每行「<strong>学号 姓名 成绩1 成绩2 成绩3</strong>」
+（学号是 5 位数字的字符串、姓名不含空白、成绩在 [0,100]）；
+输出<strong>总分最高</strong>那个学生的「<strong>姓名 学号 总分</strong>」，空格隔开。
+<strong>题面保证这样的学生是唯一的</strong>。样例 → <code>zhangfeng 10001 258</code>；15 分。</p>
+
+<p><strong>我的代码（PTA 判过 —— 一次通过）</strong></p>
+<pre><code>@@BLOCK@@</code></pre>
+
+<div class="box ok">
+<strong>★ 这题真正的两个坑，都不在算法上</strong>
+<table>
+<tr><th>坑</th><th>说明</th><th>写错会怎样</th></tr>
+<tr><td><strong>输出顺序</strong></td>
+<td>输入是「学号 姓名 …」，输出要「<strong>姓名 学号 总分</strong>」—— <strong>反过来了</strong></td>
+<td><code>print(m[i][0], m[i][1], …)</code> → 打出 <code>10001 zhangfeng 258</code>，整行全错</td></tr>
+<tr><td><strong>学号不能转成数字</strong></td>
+<td><code>00001</code> 是 5 位<strong>字符串</strong>；转成 <code>int</code> 就成了 <code>1</code></td>
+<td>实测 <code>int('00001')</code> → <code>1</code>，前导 0 全丢，输出对不上</td></tr>
+</table>
+所以只把<strong>成绩</strong>那三位转 int（<code>m[i][2:5]</code>），学号和姓名老老实实留字符串。
+</div>
+
+<div class="box ok">
+<strong>★ 「两趟扫」不是必须的 —— 三种写法实测输出一致</strong>
+<table>
+<tr><th>写法</th><th>思路</th><th>样例</th></tr>
+<tr><td><strong>本题（两趟）</strong></td><td>先算全部总分存进 <code>L</code>，再找等于 <code>max(L)</code> 的那个</td>
+<td><code>zhangfeng 10001 258</code></td></tr>
+<tr><td><code>max(m, key=…)</code> 一行</td><td>直接让 <code>max</code> 按「三科总和」挑人</td>
+<td>相同</td></tr>
+<tr><td>单趟找最大</td><td>边走边比 <code>s &gt; bs</code>，随时更新 <code>best</code></td><td>相同</td></tr>
+</table>
+<code>max(m, key=lambda r: sum(map(int,r[2:5])))</code> 的读法：<strong>“按 <code>key</code> 算出来的分数挑最大的那个 <code>r</code>”</strong>
+—— <code>key</code> 只负责“怎么打分”，<code>max</code> 返回的是<strong>整行数据</strong>，不是分数（㉖ / ㉕）。
+</div>
+
+<div class="box warn">
+<strong>⚠️ 并列时两种写法的差别（题面保证唯一，碰不到，但值得知道）</strong>
+<table>
+<tr><th>用例（我故意造的）</th><th>本题写法（<code>if max(L)==…</code>）</th><th><code>max(key=…)</code></th></tr>
+<tr><td>3 人都是 0 分</td><td><strong>打 3 行</strong>（a / b / c 各一行）</td><td>只打 <strong>1 行</strong></td></tr>
+<tr><td>2 人都是 100 分</td><td><strong>打 2 行</strong></td><td>只打 <strong>1 行</strong></td></tr>
+</table>
+原因：<code>if max(L)==总分</code> 这个判据对<strong>每个并列的人都成立</strong>，所以会打出多行；
+<code>max(key=…)</code> 只返回<strong>第一个</strong>达到最高分的。<br>
+题面写了「保证唯一」，所以两种都对 —— 但如果哪天数据有并列，本写法要多打几行。
+</div>
+
+<p><strong>优化用法</strong></p>
+
+<div class="box ok">
+<strong>① 一个 <code>max</code> 顶掉第一趟 + 第二趟</strong>
+<pre><code>N=int(input())
+m=[input().split() for _ in range(N)]
+best=max(m, key=lambda r: sum(map(int,r[2:5])))
+print(best[1], best[0], sum(map(int,best[2:5])))</code></pre>
+实测与本题写法在样例上<strong>逐字符相同</strong>；<code>L</code> 那个列表根本不用建。
+</div>
+
+<div class="box ok">
+<strong>② 单趟就够了（不用 <code>max</code>，也不建列表）</strong>
+<pre><code>best=None; bs=-1
+for r in m:
+    s=sum(map(int,r[2:5]))
+    if s&gt;bs:                    严格大于 → 并列时只留第一个
+        bs=s; best=r
+print(best[1],best[0],bs)</code></pre>
+实测相同。<code>bs=-1</code> 的初值是“比任何可能的分数都小”（成绩 ≥ 0），所以第一个一定进来。
+</div>
+
+<div class="box ok">
+<strong>③ 先把成绩转成 int，再 <code>max</code> 里就不用重复转</strong>
+<pre><code>m=[[r[0], r[1]] + list(map(int, r[2:5])) for r in (input().split() for _ in range(N))]
+best=max(m, key=lambda r: sum(r[2:]))</code></pre>
+实测相同。好处是判断只算一次类型转换；⚠️ 前提是<strong>前面两位（学号、姓名）保持字符串</strong>——
+只对后三位转，前导 0 才丢不了。
+</div>
+
+<p><strong>要点与实测证据</strong>：<code>py_compile</code> 通过；
+<strong>题面样例逐字符一致</strong>（<code>zhangfeng 10001 258</code>）；
+<strong>9 组边界</strong>（其中 2 组是并列，题面保证不会出现，只为观察行为）：</p>
+
+<table>
+<tr><th>用例</th><th>输出</th></tr>
+<tr><td>题面样例</td><td><code>zhangfeng 10001 258</code></td></tr>
+<tr><td>N=1 最小</td><td><code>a 00001 0</code></td></tr>
+<tr><td>最高分在第一个</td><td><code>a 00001 270</code></td></tr>
+<tr><td>最高分在最后一个</td><td><code>b 00002 270</code></td></tr>
+<tr><td>N=10 上限（成绩递增）</td><td><code>s10 00010 30</code></td></tr>
+<tr><td>学号带前导 0（<code>00099</code>/<code>00100</code>）</td><td><code>yy 00100 60</code>（前导 0 保住了）</td></tr>
+<tr><td>8 字符姓名</td><td><code>abcdefgh 00001 150</code></td></tr>
+<tr><td>全 0 分（并列，题面外）</td><td>打 3 行</td></tr>
+<tr><td>两人都是 100 分（并列，题面外）</td><td>打 2 行</td></tr>
 </table>
 
 <h2 id="quick">七、速查总表</h2>
