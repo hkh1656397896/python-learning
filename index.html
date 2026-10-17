@@ -104,7 +104,7 @@
 -->
 
 <h1>Python 自学笔记</h1>
-<p class="meta">hkh ｜ 更新 2026-10-17 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">22</span> 题 + 第4章 <span id="c4">30</span> 题 + 第5章 <span id="c5">11</span> 题 + 第6章 <span id="c6">2</span> 题（浙大版《Python 程序设计》题目集）</p>
+<p class="meta">hkh ｜ 更新 2026-10-17 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">22</span> 题 + 第4章 <span id="c4">30</span> 题 + 第5章 <span id="c5">11</span> 题 + 第6章 <span id="c6">3</span> 题（浙大版《Python 程序设计》题目集）</p>
 
 <nav id="toc">
   <div class="toc-head">目录　<span class="toc-hint">点标题展开 · 点条目直接跳</span></div>
@@ -208,7 +208,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>六、真题回顾 <span class="toc-n" id="cr">82</span></summary>
+    <summary>六、真题回顾 <span class="toc-n" id="cr">83</span></summary>
     <ol>
       <li><a onclick="return go('review-1')">1-1 从键盘输入两个数求和</a></li>
       <li><a onclick="return go('review-2')">1-2 按公式输出 b²−4ac</a></li>
@@ -303,6 +303,7 @@
       <li><a onclick="return go('review-91')">5-11 字典合并</a></li>
       <li><a onclick="return go('review-92')">6-1 输入列表求列表元素和</a></li>
       <li><a onclick="return go('review-93')">6-2 一帮一</a></li>
+      <li><a onclick="return go('review-94')">6-3 列表或元组的数字元素求和</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -5318,7 +5319,7 @@ list(map(methodcaller('replace', 'a', 'X'), ['cat','bat'])) # ['cXt', 'bXt']</co
 实测：
 <table>
 <tr><th>调用</th><th>结果</th><th>怎么算出来的</th></tr>
-<tr><td><code>count_box([])</code></td><td><code>1</code></td><td>空列表<b>自己也算 1 个</b>容器，里面没东西可数</td></tr>
+<tr><td><code>count_box([])</code></td><td><code>1</code></td><td>空列表<strong>自己也算 1 个</strong>容器，里面没东西可数</td></tr>
 <tr><td><code>count_box([1, 2, 3])</code></td><td><code>1</code></td><td>只有外层一个，里面的 1/2/3 都不是容器</td></tr>
 <tr><td><code>count_box([[1], [2, [3]]])</code></td><td><code>4</code></td><td>外层 + <code>[1]</code> + <code>[2,[3]]</code> + <code>[3]</code></td></tr>
 <tr><td><code>count_box((1, (2, (3, 4))))</code></td><td><code>3</code></td><td>元组套元组，一共 3 层</td></tr>
@@ -5334,7 +5335,7 @@ list(map(methodcaller('replace', 'a', 'X'), ['cat','bat'])) # ['cXt', 'bXt']</co
 <td><code>TypeError: 'int' object is not iterable</code> —— 立刻崩，不是"卡住"</td></tr>
 <tr><td><strong>自己调自己不停</strong>（<code>def f(x): return f(x)</code>）</td>
 <td><code>RecursionError: maximum recursion depth exceeded</code>；
-<b>上限实测 <code>sys.getrecursionlimit()</code> = 1000 层</b></td></tr>
+<strong>上限实测 <code>sys.getrecursionlimit()</code> = 1000 层</strong></td></tr>
 <tr><td><strong>算完了忘了 <code>return</code></strong></td>
 <td><code>TypeError: unsupported operand type(s) for +=: 'int' and 'NoneType'</code>
 —— 内层函数没写 <code>return</code> 就返回 <code>None</code>，外面一做 <code>+=</code> 就炸（❌13 的递归版）</td></tr>
@@ -5376,7 +5377,7 @@ list(map(methodcaller('replace', 'a', 'X'), ['cat','bat'])) # ['cXt', 'bXt']</co
 <tr><td><code>type(3)</code></td><td><code>&lt;class 'int'&gt;</code></td><td>直接 print 出来就长这样（报错信息里那一串也是它）</td></tr>
 <tr><td><code>type(3).__name__</code></td><td><code>'int'</code></td><td><strong>要名字</strong>（拼报错、写日志）用这个</td></tr>
 <tr><td><code>type(None).__name__</code></td><td><code>'NoneType'</code></td><td>「忘了 <code>return</code>」时看到的就是它（❌13 / ㊸）</td></tr>
-<tr><td><code>type(True).__name__</code></td><td><code>'bool'</code></td><td>⚠️ 它<b>不</b>叫 int，但 isinstance 认它（见下）</td></tr>
+<tr><td><code>type(True).__name__</code></td><td><code>'bool'</code></td><td>⚠️ 它<strong>不</strong>叫 int，但 isinstance 认它（见下）</td></tr>
 </table>
 </div>
 
@@ -5409,8 +5410,8 @@ list(map(methodcaller('replace', 'a', 'X'), ['cat','bat'])) # ['cXt', 'bXt']</co
 </code></pre>
 什么时候会遇到：数据里混了 <code>True</code>/<code>False</code>，或者把比较结果
 （<code>x &gt; 3</code> 这种）直接塞进列表再求和 —— 3-10 那道 <code>sum(c in HEX for c in M)</code>
-<b>正是故意这么用的</b>（要的就是「True 当 1 计数」）。所以这不是「bool 不能当数字」，
-而是<b>要知道自己在用哪一种</b>。
+<strong>正是故意这么用的</strong>（要的就是「True 当 1 计数」）。所以这不是「bool 不能当数字」，
+而是<strong>要知道自己在用哪一种</strong>。
 </div>
 
 <div class="box warn">
@@ -5440,7 +5441,7 @@ list(map(methodcaller('replace', 'a', 'X'), ['cat','bat'])) # ['cXt', 'bXt']</co
 <tr><td><code>None</code></td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
 <tr><td><code>True</code></td><td><strong>✅</strong></td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
 </table>
-<strong>最后两列要分开看</strong>：<code>'3'</code> 和 <code>{3}</code> <b>可迭代</b>，但都不是
+<strong>最后两列要分开看</strong>：<code>'3'</code> 和 <code>{3}</code> <strong>可迭代</strong>，但都不是
 <code>(list, tuple)</code>。这就是 ㊸ 那个坑的来源 —— 判据写「不是数字就进去」，
 字符串会被一路拆成单个字符。所以判据只能<strong>正向</strong>写「是不是容器」。
 </div>
@@ -5808,7 +5809,7 @@ if m!=v[17]:                      # ② 索引</code></pre>
 ② 两边同时改，很容易出现"本地一份、提交另一份"，而且极难发现
 </div>
 
-<h2 id="review">六、真题回顾（<span id="cr2">82</span> 题）</h2>
+<h2 id="review">六、真题回顾（<span id="cr2">83</span> 题）</h2>
 
 <div class="box warn">
 <strong>说明：</strong>下面的题目要求是<strong>我按自己的理解概括写的</strong>，不是 PTA 原文。<br>
@@ -10677,7 +10678,7 @@ p=find(L, n)
 print("%d %d"%p if p else "NONE")</code></pre>
 <code>break</code> 一次只能跳出一层 <code>for</code>，要跳出两层得靠标志位 ——
 <strong>包成函数后一个 <code>return</code> 就够了</strong>，顺便把"找"和"打印"分开。
-⚠️ 本机实测：<code>return</code> 提前退出在本题<b>不影响正确性</b>（题面保证至多一个鞍点），
+⚠️ 本机实测：<code>return</code> 提前退出在本题<strong>不影响正确性</strong>（题面保证至多一个鞍点），
 但如果哪天数据破了这个保证，提前退出<strong>只会少打、不会多打</strong>。
 </div>
 
@@ -12661,6 +12662,155 @@ for i in range(N//2):                         外层只走上半区：名次最�
 <tr><td>性别全倒（男前女后）</td><td>N=4</td><td>2 行</td><td>逐字符相同</td></tr>
 <tr><td>姓名 8 字符上限</td><td>N=4</td><td>2 行</td><td>逐字符相同</td></tr>
 <tr><td><strong>全部 1:1 性别排列</strong></td><td>N=2/4/6/8</td><td><strong>98 组</strong></td><td><strong>0 组不一致</strong></td></tr>
+</table>
+
+<h3 id="review-94">6-3 列表或元组的数字元素求和 <span class="tag">第二版才对（第一版非零返回）</span></h3>
+
+<p><strong>要求</strong>：一行输入一个<strong>列表或元组</strong>，求里面<strong>所有数字</strong>的和。
+<strong>嵌套层次不限</strong>；<strong>字符串不算数</strong>（样例里 <code>"123"</code> 要被跳过，不是转成 123）。<br>
+样例 <code>[11,2,[3,7],(68,-1),"123",9]</code> → <code>99</code>（= 11+2+3+7+68+(−1)+9）；
+20 分。注意 <code>sum()</code> 直接扔进去是不行的（只会加一层，见下面实测）。</p>
+
+<p><strong>我的代码（PTA 判过 —— 第二版）</strong></p>
+<pre><code>m=eval(input())                        一行文本当表达式跑成 list（6-1 那套；本题也可能是元组）
+L=[]                                   收集「每个顶层元素算出来的和」
+def total(x):                          定义一个函数：给它一样东西，返回「这样东西里所有数字的和」
+    if isinstance(x,(int,float)):      ① 是数字 → 直接返回（int 和 float 都要，只写 int 会漏小数）—— 这是递归的【出口】
+        return x                       数字自己就是答案，不再往下拆
+    elif isinstance(x,(list,tuple)):   ② 是容器 → 进到里面去
+        T=0                            这一层的累加器 —— ⚠️ 每层调用各有一份 T，不是共用的（见下面那张调用图）
+        for i in x:                    只看【当前这一层】的元素
+            T+=total(i)                ★ 递归就在这一行：把元素【再交给同一个函数】，而不是交给 sum
+        return T                       这一层算完了，把结果交回上一层
+    else:return 0                      ③ 其它（字符串 "123"、None…）一律不算 —— 样例里那个 "123" 就是从这里被跳过的
+for n in m:                            顶层逐个元素（元素的元素交给 total 去管）
+    L.append(total(n))                 把每个顶层元素的结果收起来
+print(sum(L))                          加起来输出（其实这里也能直接累加，见优化用法①）</code></pre>
+
+<div class="box ok">
+<strong>★ 循环管「这一层」，递归管「下一层」—— 不是"一个内循环在反复拆括号"</strong><br>
+第 8 行的 <code>for i in x</code> 只处理<strong>当前这一层</strong>的元素；
+它能一直往下钻，是因为第 9 行 <code>total(i)</code> <strong>又调用了一次同一个函数</strong>，
+那一次调用有它<strong>自己的 <code>T</code> 和它自己的 <code>for</code></strong>。<br>
+所以运行时确实会「同时有好几个 <code>for</code> 在跑」，但它们<strong>不是一个循环套自己</strong>，
+而是每层调用各一份、都活在<strong>调用栈</strong>上。实测 <code>total([1,[2,[3,4]]])</code> 的完整过程：
+<table>
+<tr><th>调用（缩进 = 栈有多深）</th><th>这一层的 T 怎么变</th><th>返回</th></tr>
+<tr><td><code>total([1,[2,[3,4]]])</code></td><td><code>1</code> 直接返回 1 → T=1；再处理 <code>[2,[3,4]]</code></td><td><strong>10</strong></td></tr>
+<tr><td>└ <code>total([2,[3,4]])</code></td><td><code>2</code> 直接返回 2 → T=2；再处理 <code>[3,4]</code></td><td><strong>9</strong></td></tr>
+<tr><td>　└ <code>total([3,4])</code></td><td><code>3</code> → T=3；<code>4</code> → T=7</td><td><strong>7</strong></td></tr>
+</table>
+回来的时候一层层相加：<code>7</code> 交给上一层变成 <code>2+7=9</code>，再交给最外层变成 <code>1+9=10</code>。
+<strong>三层的 <code>T</code> 是三个不同的变量</strong>，这就是它不会"混在一起"的原因。<br>
+真想用「一个循环反复拆」也行 —— 那就是下面的<strong>栈版</strong>（自己维护一个待处理列表），
+<strong>不再是递归</strong>了。
+</div>
+
+<div class="box bad">
+<strong>⚠️ 第一版为什么「非零返回」—— <code>L+=sum(i)</code> 只能加一层</strong><br>
+第一版把「进到里面去」写成了 <code>sum(i)</code>。样例能过（因为样例的嵌套只有一层、且里面全是数字），
+但这两类数据必崩（实测）：
+<table>
+<tr><th>输入</th><th>退出码</th><th>实测结果</th></tr>
+<tr><td><code>[11,2,[3,7],(68,-1),"123",9]</code></td><td>0</td><td><code>99</code> ✅（只有一层、全是数字）</td></tr>
+<tr><td><code>[[1,2],[3,4]]</code></td><td>0</td><td><code>10</code> ✅</td></tr>
+<tr><td><code>[1,[2,[3,4]]]</code> ← <strong>容器里还有容器</strong></td><td><strong>1</strong></td>
+<td>❌ <code>TypeError: unsupported operand type(s) for +: 'int' and 'list'</code></td></tr>
+<tr><td><code>[(1,[2,3]),4]</code> ← 同上</td><td><strong>1</strong></td><td>❌ 同一条报错</td></tr>
+<tr><td><code>[1,[2,"3"],4]</code> ← <strong>容器里有字符串</strong></td><td><strong>1</strong></td>
+<td>❌ <code>TypeError: unsupported operand type(s) for +: 'int' and 'str'</code></td></tr>
+</table>
+<strong>PTA 那句「非零返回」就是"程序带着非 0 退出码结束"</strong>，也就是抛了未捕获的异常 ——
+所以「样例能过」和「提交能过」是两件事（这条经验在 4-6 / 4-7 / 4-30 都验过）。<br>
+⚠️ 第一版还漏了小数：判据写 <code>isinstance(i,int)</code>，<code>[1.5,2,[3.5]]</code> 实测给 <strong>5.5</strong>，正确是 <strong>7.0</strong>
+—— <strong>不崩，但少算</strong>，比崩更难发现。
+</div>
+
+<p><strong>优化用法</strong></p>
+
+<div class="box ok">
+<strong>① 不用 <code>L</code> / <code>append</code> / <code>sum</code>：直接累加，少 6 行</strong>
+<pre><code>m=eval(input())
+def total(x):
+    if isinstance(x,(list,tuple)):
+        T=0
+        for i in x:
+            T+=total(i)
+        return T
+    return x if isinstance(x,(int,float)) else 0     # 三目运算（review-38）
+print(total(m))
+</code></pre>
+实测与本题写法在 6 组输入上<strong>输出逐字符相同</strong>。
+两层 <code>for</code> 变一层，是因为最外层那个「遍历 m」其实也是"一个容器里的元素逐个处理"，交给 <code>total</code> 就行。
+</div>
+
+<div class="box ok">
+<strong>② 更短：把这一层的 <code>for</code> 换成生成器 + <code>sum</code></strong>
+<pre><code>def total(x):
+    if isinstance(x,(list,tuple)):
+        return sum(total(e) for e in x)              # ㊱ 生成器表达式（惰性、不建中间列表）
+    return x if isinstance(x,(int,float)) else 0
+</code></pre>
+实测同样 6 组输出相同。结构上就是「这一层的和 = 每个元素各自的和 再加起来」。
+</div>
+
+<div class="box ok">
+<strong>③ 不用递归：自己维护一个待处理列表（栈版）</strong>
+<pre><code>m=eval(input())
+stack=[m]                                待处理的容器，一开始只有最外层
+s=0
+while stack:                             只要还有没拆开的
+    x=stack.pop()                        弹一个出来
+    if isinstance(x,(list,tuple)):
+        stack.extend(x)                  是容器就把它里面的东西【摊进待处理列表】
+    elif isinstance(x,(int,float)):
+        s+=x                             是数字就加进总和
+print(s)
+</code></pre>
+<strong>这才是「一个循环反复拆括号」的真正样子</strong>：没有递归、没有函数，靠一个 <code>while</code> + 一个列表。实测 6 组输出相同。<br>
+<strong>两者的真差别在深度</strong>（实测，程序构造的深结构，不经 <code>eval</code>）：
+<table>
+<tr><th>嵌套深度</th><th>递归版</th><th>栈版</th></tr>
+<tr><td>900 层</td><td><code>1</code> ✅</td><td><code>1</code> ✅</td></tr>
+<tr><td>990 层</td><td><code>1</code> ✅</td><td><code>1</code> ✅</td></tr>
+<tr><td><strong>1000 层</strong></td><td>❌ <code>RecursionError</code></td><td><code>1</code> ✅</td></tr>
+<tr><td>5000 层</td><td>❌ <code>RecursionError</code></td><td><code>1</code> ✅</td></tr>
+</table>
+递归上限就是 <code>sys.getrecursionlimit()</code> = <strong>1000</strong>（㊸）；栈版没有这个限制。<br>
+⚠️ <strong>但本题不用担心这个</strong>：输入是用 <code>eval</code> 解析的，实测
+<strong><code>eval</code> 最多只认 200 层括号</strong>（201 层就 <code>SyntaxError: too many nested parentheses</code>）——
+数据再深也进不来，1000 层的上限绰绰有余。
+</div>
+
+<div class="box warn">
+<strong>三种写法的速度（10⁵ 个数 + 1000 个子列表，含 <code>eval</code> 解析的总耗时）</strong>
+<table>
+<tr><th>写法</th><th>用时</th><th>输出</th></tr>
+<tr><td>本题（两层循环 + <code>append</code>）</td><td>0.103 s</td><td><code>105000</code></td></tr>
+<tr><td>生成器版</td><td>0.095 s</td><td><code>105000</code></td></tr>
+<tr><td>栈版</td><td>0.102 s</td><td><code>105000</code></td></tr>
+</table>
+三者一个量级（差 8%），<strong>选可读性就行</strong>；本题数据小，怎么写都过。
+</div>
+
+<p><strong>要点与实测证据</strong>：<code>py_compile</code> 通过；
+<strong>13 组输入与独立口径（另一份递归实现）0 组不一致</strong>：</p>
+
+<table>
+<tr><th>用例</th><th>输入</th><th>输出</th></tr>
+<tr><td>题面样例</td><td><code>[11,2,[3,7],(68,-1),"123",9]</code></td><td><code>99</code></td></tr>
+<tr><td>空列表</td><td><code>[]</code></td><td><code>0</code></td></tr>
+<tr><td>空元组</td><td><code>()</code></td><td><code>0</code></td></tr>
+<tr><td>纯数字</td><td><code>[1,2,3]</code></td><td><code>6</code></td></tr>
+<tr><td>只有字符串</td><td><code>["123","4"]</code></td><td><code>0</code></td></tr>
+<tr><td>空容器与容器</td><td><code>[1,[],[2]]</code></td><td><code>3</code></td></tr>
+<tr><td>三层嵌套</td><td><code>[1,[2,[3,4]]]</code></td><td><code>10</code></td></tr>
+<tr><td>嵌套里带字符串</td><td><code>[1,[2,"3"],4]</code></td><td><code>7</code></td></tr>
+<tr><td>元组里套列表</td><td><code>[(1,[2,3]),4]</code></td><td><code>10</code></td></tr>
+<tr><td>顶层是元组</td><td><code>(1,2,3)</code></td><td><code>6</code></td></tr>
+<tr><td>含小数</td><td><code>[1.5,2,[3.5]]</code></td><td><code>7.0</code></td></tr>
+<tr><td>负数嵌套</td><td><code>[[-1,-2],3]</code></td><td><code>0</code></td></tr>
+<tr><td>深井 5 层</td><td><code>[[[[[1]]]]]</code></td><td><code>1</code></td></tr>
 </table>
 
 <h2 id="quick">七、速查总表</h2>
