@@ -104,7 +104,7 @@
 -->
 
 <h1>Python 自学笔记</h1>
-<p class="meta">hkh ｜ 更新 2026-10-17 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">22</span> 题 + 第4章 <span id="c4">30</span> 题 + 第5章 <span id="c5">11</span> 题 + 第6章 <span id="c6">4</span> 题（浙大版《Python 程序设计》题目集）</p>
+<p class="meta">hkh ｜ 更新 2026-10-17 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">22</span> 题 + 第4章 <span id="c4">30</span> 题 + 第5章 <span id="c5">11</span> 题 + 第6章 <span id="c6">5</span> 题（浙大版《Python 程序设计》题目集）</p>
 
 <nav id="toc">
   <div class="toc-head">目录　<span class="toc-hint">点标题展开 · 点条目直接跳</span></div>
@@ -209,7 +209,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>六、真题回顾 <span class="toc-n" id="cr">84</span></summary>
+    <summary>六、真题回顾 <span class="toc-n" id="cr">85</span></summary>
     <ol>
       <li><a onclick="return go('review-1')">1-1 从键盘输入两个数求和</a></li>
       <li><a onclick="return go('review-2')">1-2 按公式输出 b²−4ac</a></li>
@@ -306,6 +306,7 @@
       <li><a onclick="return go('review-93')">6-2 一帮一</a></li>
       <li><a onclick="return go('review-94')">6-3 列表或元组的数字元素求和</a></li>
       <li><a onclick="return go('review-95')">6-4 列表数字元素加权和(1)</a></li>
+      <li><a onclick="return go('review-96')">6-5 列表元素个数的加权和(1)</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -5902,7 +5903,7 @@ if m!=v[17]:                      # ② 索引</code></pre>
 ② 两边同时改，很容易出现"本地一份、提交另一份"，而且极难发现
 </div>
 
-<h2 id="review">六、真题回顾（<span id="cr2">84</span> 题）</h2>
+<h2 id="review">六、真题回顾（<span id="cr2">85</span> 题）</h2>
 
 <div class="box warn">
 <strong>说明：</strong>下面的题目要求是<strong>我按自己的理解概括写的</strong>，不是 PTA 原文。<br>
@@ -13038,6 +13039,118 @@ print(s)</code></pre>
 <tr><td>两层并列</td><td><code>[[1,2],[3]]</code></td><td><code>12</code></td></tr>
 <tr><td>同层三个子列表</td><td><code>[[1],[2],[3]]</code></td><td><code>12</code></td></tr>
 <tr><td>大数</td><td><code>[1000000,[2000000]]</code></td><td><code>5000000</code></td></tr>
+</table>
+
+<h3 id="review-96">6-5 列表元素个数的加权和(1) <span class="tag">一次通过</span></h3>
+
+<p><strong>要求</strong>：一行输入一个<strong>嵌套列表</strong>（嵌套层次不限），
+按层次求<strong>元素个数的加权和</strong> —— <strong>第一层每个元素算 1 个、第二层算 2 个、第三层算 3 个</strong>，以此类推。
+样例 <code>[1,2,[3,4,[5,6],7],8]</code> → <code>15</code>；40 分。</p>
+
+<p><strong>我的代码（PTA 判过 —— 一次通过）</strong></p>
+<pre><code>@@BLOCK@@</code></pre>
+
+<div class="box ok">
+<strong>★ 和 6-4 只差出口那一行</strong>
+<table>
+<tr><th></th><th>出口（数字那支）</th><th>含义</th></tr>
+<tr><td><strong>6-4 加权和</strong></td><td><code>return x*k</code></td><td>元素<strong>的值</strong> × 层号</td></tr>
+<tr><td><strong>6-5 加权个数和</strong></td><td><code>return k</code></td><td>元素<strong>算 k 个</strong> —— 跟它是 1 还是 999 无关</td></tr>
+</table>
+其余<strong>一个字都没改</strong>（同一个骨架、同一个 <code>k+1</code>、同一个本层 <code>T</code>）。
+所以这两题真正的区别只有一句话：<strong>6-4 收"值"，6-5 收"个数"。</strong>
+</div>
+
+<div class="box ok">
+<strong>★ 为什么 <code>return k</code> 就够：每个叶子贡献「它自己的层号」个</strong><br>
+第 k 层的每个元素算 k 个，所以一个叶子节点的贡献<strong>就是 k</strong> —— 和它的值毫无关系。
+实测把同一份结构的<strong>值全换掉</strong>，答案一个字节都不变：
+<table>
+<tr><th>输入</th><th>结果</th></tr>
+<tr><td><code>[1,2,[3,4,[5,6],7],8]</code></td><td><code>15</code></td></tr>
+<tr><td><code>[100,200,[300,400,[500,600],700],800]</code></td><td><code>15</code></td></tr>
+<tr><td><code>[-1,-2,[-3,-4,[-5,-6],-7],-8]</code></td><td><code>15</code></td></tr>
+<tr><td><code>[0,0,[0,0,[0,0],0],0]</code></td><td><code>15</code></td></tr>
+</table>
+<strong>这题整道题只跟「形状」有关，跟「内容」一点关系都没有。</strong>
+按层把元素个数数出来就是：<code>{第1层: 3 个, 第2层: 3 个, 第3层: 2 个}</code>
+→ <code>1×3 + 2×3 + 3×2 = 15</code>（优化用法③就是用这个思路写的）。
+</div>
+
+<div class="box bad">
+<strong>⚠️ 出口的判据只写了 <code>int</code>（题面外会出问题）</strong>
+<table>
+<tr><th>题面外输入</th><th>实测</th></tr>
+<tr><td><code>[1.5,2]</code></td><td>❌ <code>TypeError: unsupported operand type(s) for +=: 'int' and 'NoneType'</code></td></tr>
+<tr><td><code>[1,[2,"3"]]</code></td><td>❌ 同一条报错</td></tr>
+<tr><td><code>(1,[2,3])</code></td><td>打出 <code>None</code>（顶层是元组，两支都不走）</td></tr>
+</table>
+原因：<code>1.5</code> / <code>'3'</code> 既不是 <code>int</code> 也不算"没走任何一支"，
+函数返回 <code>None</code>，上一层 <code>T += None</code> 就炸。<br>
+<strong>6-5 题面只给整数列表，所以判得过</strong>；想稳一点就写
+<code>isinstance(x,(int,float))</code> 并在末尾补 <code>return 0</code>（㊹ / 6-3 那套）。
+⚠️ 但注意：一旦补了 <code>return 0</code>，<strong>字符串也会被"算"进去（算 0 个）还是跳过，要自己定口径</strong> ——
+6-5 题面没提字符串，别自己加戏。
+</div>
+
+<p><strong>优化用法</strong></p>
+
+<div class="box ok">
+<strong>① 本层的 <code>for</code> + <code>T</code> 换成生成器 + <code>sum</code></strong>
+<pre><code>def weighted(x,k):
+    if isinstance(x,list):
+        return sum(weighted(e,k+1) for e in x)
+    return k if isinstance(x,(int,float)) else 0</code></pre>
+实测 9 组输入与本题写法<strong>输出逐字符相同</strong>。
+</div>
+
+<div class="box ok">
+<strong>② 不用递归：栈里存「元素 + 层号」</strong>
+<pre><code>stack=[(m,0)]
+s=0
+while stack:
+    x,k=stack.pop()
+    if isinstance(x,list):
+        for e in x:
+            stack.append((e,k+1))
+    elif isinstance(x,(int,float)):
+        s+=k                     是元素就直接加 k（连它是什么都不用看）
+print(s)</code></pre>
+实测 9 组输出相同。这题里它比 6-4 更好写 —— 因为<strong>加的是 k、不是 x</strong>。
+</div>
+
+<div class="box ok">
+<strong>③ 换一个角度看题：先「按层数个数」，再乘层号</strong>
+<pre><code>cnt={}
+def walk(x,k):
+    if isinstance(x,list):
+        for e in x:
+            walk(e,k+1)
+    else:
+        cnt[k]=cnt.get(k,0)+1      这一层的元素个数 +1
+walk(m,0)
+print(sum(k*v for k,v in cnt.items()))    Σ 层号 × 该层元素个数</code></pre>
+实测 9 组输出相同。这条路<strong>把题目的结构直接摊开</strong>：
+样例数出来是 <code>{1: 3, 2: 3, 3: 2}</code>，于是 <code>1×3+2×3+3×2=15</code>。<br>
+好处是<strong>能顺手回答"每层各有几个"</strong>（6-6 求指定层的元素个数就是这条路）；
+代价是多一个字典、多一趟遍历。
+</div>
+
+<p><strong>要点与实测证据</strong>：<code>py_compile</code> 通过；
+<strong>10 组与独立口径（另一份递归实现）0 组不一致</strong>：</p>
+
+<table>
+<tr><th>用例</th><th>输入</th><th>输出</th></tr>
+<tr><td>题面样例</td><td><code>[1,2,[3,4,[5,6],7],8]</code></td><td><code>15</code></td></tr>
+<tr><td>单层 4 个（全算 1）</td><td><code>[1,2,3,4]</code></td><td><code>4</code></td></tr>
+<tr><td>空列表</td><td><code>[]</code></td><td><code>0</code></td></tr>
+<tr><td>空容器夹中间</td><td><code>[1,[],[2]]</code></td><td><code>3</code></td></tr>
+<tr><td>一层子列表</td><td><code>[[1,2],[3]]</code></td><td><code>6</code></td></tr>
+<tr><td>全在第二层</td><td><code>[[1],[2],[3],[4]]</code></td><td><code>8</code></td></tr>
+<tr><td>深井 6 层</td><td><code>[[[[[[1]]]]]]</code></td><td><code>6</code></td></tr>
+<tr><td>长单层 100 个</td><td><code>[1,2,…,100]</code></td><td><code>100</code></td></tr>
+<tr><td>两层各 10 个</td><td><code>[[1..10],[1..10]]</code></td><td><code>40</code></td></tr>
+<tr><td>单个数字</td><td><code>[9]</code></td><td><code>1</code></td></tr>
 </table>
 
 <h2 id="quick">七、速查总表</h2>
