@@ -3408,6 +3408,23 @@ re.sub(r"\d+", "X", "a1b22c333")      # 'aXbXcX'  连续数字当一个整体
 <code>"".join(...)</code> 上面出现好几次，就是它。
 </div>
 
+<div class="box ok">
+<strong>★ 反方向：<code>re.findall</code> —— 把符合规则的<strong>所有片段</strong>提出来</strong><br>
+<code>re.sub</code> 是「换掉」，<code>re.findall</code> 是「<strong>捞出来</strong>」：给它一个规则，
+它返回一个<strong>列表</strong>，里面是所有匹配到的片段（左到右）。
+<pre><code>import re
+re.findall(r"[A-Za-z0-9_]+", "This is a test.")   # ['This','is','a','test']   ← 一次切出所有单词
+len(re.findall(r"[A-Za-z0-9_]+", text))          # 一共多少个（配 len 直接数）</code></pre>
+<strong>⚠️ 为什么不能直接 <code>split()</code></strong>（实测）：
+<pre><code>"abc.def".split()          # ['abc.def']   ← 压根没切开（split 只按空白切）
+"This is a test.".split()  # [..., 'test.']  ← 句号粘在词尾，和 'test' 是两个词</code></pre>
+<strong>⚠️ <code>\w+</code> 在 Python 3 里【包含中文】</strong>：
+<pre><code>re.findall(r"\w+", "中文 abc 123")              # ['中文', 'abc', '123']   ← 中文也被当成单词
+re.findall(r"[A-Za-z0-9_]+", "中文 abc 123")    # ['abc', '123']            ← 只要 ASCII 用这个
+re.findall(r"\w+", "中文 abc 123", re.ASCII)    # ['abc', '123']            ← 或者加 re.ASCII</code></pre>
+要「只认英文字母、数字、下划线」就写死字符类 <code>[A-Za-z0-9_]+</code>，别用 <code>\w</code>。
+</div>
+
 <h3 id="s1-29">㉙ <code>ord()</code> / <code>chr()</code>：字符 ↔ 编号（字母往后数几个的写法）</h3>
 
 <p><strong>每个字符在计算机里都对应一个编号。</strong>
