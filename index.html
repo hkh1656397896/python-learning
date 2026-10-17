@@ -104,7 +104,7 @@
 -->
 
 <h1>Python 自学笔记</h1>
-<p class="meta">hkh ｜ 更新 2026-10-16 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">22</span> 题 + 第4章 <span id="c4">30</span> 题 + 第5章 <span id="c5">10</span> 题（浙大版《Python 程序设计》题目集）</p>
+<p class="meta">hkh ｜ 更新 2026-10-16 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">22</span> 题 + 第4章 <span id="c4">30</span> 题 + 第5章 <span id="c5">11</span> 题（浙大版《Python 程序设计》题目集）</p>
 
 <nav id="toc">
   <div class="toc-head">目录　<span class="toc-hint">点标题展开 · 点条目直接跳</span></div>
@@ -206,7 +206,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>六、真题回顾 <span class="toc-n" id="cr">79</span></summary>
+    <summary>六、真题回顾 <span class="toc-n" id="cr">80</span></summary>
     <ol>
       <li><a onclick="return go('review-1')">1-1 从键盘输入两个数求和</a></li>
       <li><a onclick="return go('review-2')">1-2 按公式输出 b²−4ac</a></li>
@@ -298,6 +298,7 @@
       <li><a onclick="return go('review-88')">5-8 能被3和5和7整除的数的个数（用集合实现）</a></li>
       <li><a onclick="return go('review-89')">5-9 求矩阵鞍点的个数</a></li>
       <li><a onclick="return go('review-90')">5-10 两数之和</a></li>
+      <li><a onclick="return go('review-91')">5-11 字典合并</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -5642,7 +5643,7 @@ if m!=v[17]:                      # ② 索引</code></pre>
 ② 两边同时改，很容易出现"本地一份、提交另一份"，而且极难发现
 </div>
 
-<h2 id="review">六、真题回顾（<span id="cr2">79</span> 题）</h2>
+<h2 id="review">六、真题回顾（<span id="cr2">80</span> 题）</h2>
 
 <div class="box warn">
 <strong>说明：</strong>下面的题目要求是<strong>我按自己的理解概括写的</strong>，不是 PTA 原文。<br>
@@ -12167,6 +12168,108 @@ for i, x in enumerate(nums):
 <tr><td>输入带空格</td><td><code>2, 7, 11, 15|9|</code></td><td><code>0 1</code></td><td>两版相同</td></tr>
 </table>
 
+<h3 id="review-91">5-11 字典合并 <span class="tag">一次通过</span></h3>
+
+<p><strong>要求</strong>：两行各给一个<strong>字典字符串</strong>；合并时<strong>同一个键的值要相加</strong>（不是覆盖）；
+输出按<strong>键排序</strong>（数字按大小、字符串按 ASCII —— 题面原话：「<code>"1"</code> 的 ASCII 码为 49，
+大于 1，排序时 1 在前」）；格式是 <code>{键:值,...}</code>：<strong>没有空格、字符串键用双引号</strong>。
+⚠️ 题面还专门提醒：<strong><code>1</code> 和 <code>'1'</code> 是两个不同的键</strong>。
+样例1 <code>{1:3,2:5}</code> + <code>{1:5,3:7}</code> → <code>{1:8,2:5,3:7}</code>；
+样例2 <code>{"1":3,1:4}</code> + <code>{"a":5,"1":6}</code> → <code>{1:4,"1":9,"a":5}</code>。</p>
+
+<p><strong>我的代码（PTA 判过 —— 第 5 章最后一题）</strong></p>
+<pre><code>x=eval(input())                             第一行：整行文本 → eval 成字典（题面给的就是字典字面量）
+y=eval(input())                             第二行：第二个字典
+L={**x,**y}                                 先用 {**x, **y} 把两个摊在一起 —— 注意这一步是【覆盖】，同键只留 y 的值
+for a,b in x.items():                       再逐个把 x 的每一对拿出来
+    for c,d in y.items():                   …和 y 的每一对配对
+        if a==c:                            键相同才相加（这才是题面要的；只靠上面那行会把 3+5 变成 5）
+            v=b+d                           把两个值加起来
+            L[a]=v                          写回合并后的字典（键相同 → 覆盖成相加的结果）
+def mixedkey(kv):                           定义排序用的换算器：把一个 (键, 值) 对换算成能比大小的数字
+    if isinstance(kv[0],int):               键是 int → 直接用它自己比
+        return kv[0]                        …原样返回
+    else:                                   否则（字符串键）→ 用它的 ASCII 码
+        return ord(kv[0])                   ord 只吃长度 1 的字符，题面「键用一个字母或数字」正好保证这一点
+K=dict(sorted(L.items(),key=mixedkey))      按换算后的数字排序，再用 dict() 把顺序固化下来
+S=str(K).replace(" ","").replace("'",'"')   str(dict) 会给 {1: 4, '1': 9}（冒号逗号后有空格、字符串用单引号）→ 去空格、换双引号
+print(S)                                    一行输出</code></pre>
+
+<div class="box ok">
+<strong>★ 这题是【三件事】拼起来的，缺一件就错</strong>
+<table>
+<tr><th>要什么</th><th>怎么做</th><th>只做一半会怎样（实测）</th></tr>
+<tr><td>① <strong>值相加</strong></td><td><code>x</code> 与 <code>y</code> 逐对配对，键相同就 <code>b+d</code> 写回</td>
+<td>只用 <code>{**x, **y}</code> → <code>{1:5, 2:5, 3:7}</code>，键 1 被覆盖成 5，<strong>题面要 8</strong></td></tr>
+<tr><td>② <strong>混合键排序</strong></td><td><code>key=</code> 里分流：int 用它自己、字符串用 <code>ord</code></td>
+<td>直接 <code>sorted(L.items())</code> → <code>TypeError</code>（int 和 str 不能比）</td></tr>
+<tr><td>③ <strong>输出格式</strong></td><td><code>str(dict)</code> 后去空格、再把单引号换成双引号</td>
+<td><code>print(dict)</code> 给 <code>{1: 4, '1': 9}</code> —— 有空格、单引号，<strong>和题面逐字符不同</strong></td></tr>
+</table>
+</div>
+
+<div class="box warn">
+<strong>⚠️ 三个实测坑</strong>
+<table>
+<tr><th>坑</th><th>实测</th></tr>
+<tr><td><code>ord()</code> 只吃<strong>长度 1</strong>的字符串</td>
+<td><code>ord("ab")</code> → <code>TypeError: ord() expected a character, but string of length 2 found</code>。
+本题安全，因为题面保证「键用<strong>一个</strong>字母或数字表示」—— 这条前提要记住</td></tr>
+<tr><td>键统一转成 str 再排</td>
+<td><code>1</code> 和 <code>'1'</code> 会变同一个键（<strong>数据都被合并</strong>），顺序也错；
+<code>key=str</code> 更阴：不报错、但 <code>1</code> 与 <code>'1'</code> 转文本后打平，顺序随插入顺序</td></tr>
+<tr><td><code>str(dict).replace(" ", "")</code> 全删空格</td>
+<td>键或值里本来有空格时会被<strong>一起删掉</strong>（<code>{'a b':1}</code> → <code>{'ab':1}</code>）。
+本题数据是单个字母/数字，所以安全；要更稳就自己拼 <code>"{" + ",".join(...) + "}"</code></td></tr>
+</table>
+</div>
+
+<p><strong>优化用法</strong></p>
+
+<div class="box ok">
+<strong>① 值相加不必双重循环：<code>get</code> 一趟就够（O(n) 而不是 O(n²)）</strong>
+<pre><code>m = dict(x)
+for k, v in y.items():
+    m[k] = m.get(k, 0) + v        # 有就加、没有就当 0 —— ㉔ 那个 get 兜底</code></pre>
+实测同样的合并结果，键数 2000 / 1000 时：<strong>双重循环 0.1174 s，get 版 0.0336 s</strong>。
+本题字典小，两种都对；但"两层 for 找同键"这种写法值得换掉。
+</div>
+
+<div class="box ok">
+<strong>② 排序的换算器可以直接写成 <code>lambda</code>（省 5 行 def）</strong>
+<pre><code>key=lambda kv: kv[0] if isinstance(kv[0], int) else ord(kv[0])</code></pre>
+读法：<code>kv</code> 是一对 <code>(键, 值)</code>，<code>kv[0]</code> 是键 ——
+是 int 就返回它自己，否则返回它的 ASCII（㊶ lambda + 三目运算；<code>isinstance</code> 见速查总表 ①）。
+</div>
+
+<div class="box ok">
+<strong>③ 输出格式：想更稳就自己拼，别依赖 <code>replace</code></strong>
+<pre><code>"{" + ",".join(fk(k) + ":" + str(v) for k, v in items) + "}"
+# 其中 fk(k) = '"%s"' % k 如果 k 是字符串，否则 str(k)</code></pre>
+实测与本写法（<code>replace</code> 那两步）在两个题面样例上<strong>输出完全相同</strong>，
+但内容里出现空格 / 单引号时它不会坏 —— 独立口径就是用这个思路验的。
+</div>
+
+<p><strong>要点与实测证据</strong>：<code>py_compile</code> 通过；
+<strong>两个题面样例逐字符相同</strong>（<code>'{1:8,2:5,3:7}'</code> / <code>'{1:4,"1":9,"a":5}'</code>，都是 1 行）；
+<strong>12 组边界与独立口径（<code>get</code> 求和 + 自拼格式化）逐字符相同</strong>：</p>
+
+<table>
+<tr><th>用例</th><th>输入（<code>|</code> 表示换行）</th><th>输出</th><th>与独立口径</th></tr>
+<tr><td>题面样例1</td><td><code>{1:3,2:5}|{1:5,3:7}|</code></td><td><code>{1:8,2:5,3:7}</code></td><td>逐字符相同</td></tr>
+<tr><td>题面样例2</td><td><code>{"1":3,1:4}|{"a":5,"1":6}|</code></td><td><code>{1:4,"1":9,"a":5}</code></td><td>逐字符相同</td></tr>
+<tr><td>两个空字典</td><td><code>{}|{}|</code></td><td><code>{}</code></td><td>逐字符相同</td></tr>
+<tr><td>只有第一个有键</td><td><code>{2:1}|{}|</code></td><td><code>{2:1}</code></td><td>逐字符相同</td></tr>
+<tr><td>只有第二个有键</td><td><code>{}|{9:2}|</code></td><td><code>{9:2}</code></td><td>逐字符相同</td></tr>
+<tr><td>同键相加变两位数</td><td><code>{1:9}|{1:9}|</code></td><td><code>{1:18}</code></td><td>逐字符相同</td></tr>
+<tr><td>负数值相加</td><td><code>{1:-3}|{1:1}|</code></td><td><code>{1:-2}</code></td><td>逐字符相同</td></tr>
+<tr><td>负数键</td><td><code>{-1:1,2:2}|{0:3}|</code></td><td><code>{-1:1,0:3,2:2}</code></td><td>逐字符相同</td></tr>
+<tr><td>多位与个位键（int 按大小）</td><td><code>{10:1,2:3}|{1:5}|</code></td><td><code>{1:5,2:3,10:1}</code></td><td>逐字符相同</td></tr>
+<tr><td>字符串键按 ASCII（大写在前）</td><td><code>{"a":1,"A":2}|{"b":3}|</code></td><td><code>{"A":2,"a":1,"b":3}</code></td><td>逐字符相同</td></tr>
+<tr><td>单字符数字键 "9" 与 int 9</td><td><code>{"9":1,9:2}|{}|</code></td><td><code>{9:2,"9":1}</code></td><td>逐字符相同</td></tr>
+<tr><td>部分键重叠</td><td><code>{1:1,2:2,3:3}|{2:20,4:40}|</code></td><td><code>{1:1,2:22,3:3,4:40}</code></td><td>逐字符相同</td></tr>
+</table>
+
 <h2 id="quick">七、速查总表</h2>
 
 <p><strong>为什么单独开一章：</strong>前面是按「遇到的顺序」记的，翻起来像流水账。
@@ -12273,6 +12376,7 @@ for i, x in enumerate(nums):
 <tr><td><code>type()</code></td><td><strong>查真相</strong>：看到底是什么类型 / 带引号的样子</td>
 <td><code>type("45")</code> <code>&lt;class 'str'&gt;</code>｜<code>repr("45")</code> <code>'45'</code></td>
 <td>❌4、❌11；<code>print</code> 看不出字符串和数字的区别</td></tr>
+<tr><td><code>isinstance(x, 类型)</code></td><td>判断「<strong>是不是</strong>这种类型」（比 <code>type(x) == …</code> 更宽松、也更推荐）</td><td><code>isinstance(1, int)</code> <code>True</code>｜<code>isinstance("1", int)</code> <code>False</code>｜<code>isinstance(True, int)</code> <strong><code>True</code></strong>（<code>bool</code> 是 <code>int</code> 的子类）｜第二个参数能给<strong>元组</strong>：<code>isinstance(x, (int, float))</code></td><td>分流/排序按类型分支时最常用：review-83 的 <code>isinstance(r, str)</code>、review-90 那个混合键的 <code>key=</code>（数字用它自己、字符串用 <code>ord</code>）</td></tr>
 
 <tr><td><code>all()</code> / <code>any()</code></td><td>全部成立 / 有一个成立</td>
 <td><code>all([True, True])</code> <code>True</code>｜<code>any([False, True])</code> <code>True</code>｜<code>any([])</code> <code>False</code></td>
