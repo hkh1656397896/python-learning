@@ -321,7 +321,7 @@
       <li><a onclick="return go('quick-5')">⑤ 对象 × 操作 对照表（谁有哪个能力）</a></li>
       <li><a onclick="return go('quick-6')">⑥ 字符串方法总表（按用途分类，全部实测）</a></li>
       <li><a onclick="return go('quick-7')">⑦ 方法族对照：哪个类型有哪些方法</a></li>
-      <li><a onclick="return go('quick-8')">⑧ 标准库模块速查（math / collections / itertools / ast / operator / sys）</a></li>
+      <li><a onclick="return go('quick-8')">⑧ 标准库模块速查（math / collections / itertools / ast / operator / random / sys）</a></li>
       <li><a onclick="return go('quick-9')">⑨ 集合 set 方法速查（含「会丢序」这条铁律）</a></li>
     </ol>
   </details>
@@ -13924,7 +13924,7 @@ hasattr("a", "strip")     # True</code></pre>
 
 <button id="totop" onclick="go('toc')">↑ 回目录</button>
 
-<h3 id="quick-8">⑧ 标准库模块速查（math / collections / itertools / ast / operator / sys）</h3>
+<h3 id="quick-8">⑧ 标准库模块速查（math / collections / itertools / ast / operator / random / sys）</h3>
 
 <p>前面七张表收的都是<strong>内置函数</strong>和<strong>对象自带的方法</strong>；
 可是刷题时真正"省掉一大段循环"的往往是<strong>标准库</strong>里的现成工具 ——
@@ -13954,6 +13954,12 @@ hasattr("a", "strip")     # True</code></pre>
 <tr><td><code>operator.itemgetter(下标)</code></td><td>取出第几个（排序 <code>key=</code> 常用）</td><td><code>itemgetter(1)(("a","b"))</code>→<code>b</code></td><td>② 表排序；㊶；<strong>㊷</strong></td></tr>
 <tr><td><code>operator.attrgetter</code> / <code>methodcaller</code></td><td>取属性 / 调方法（刷题少用，知道有就行）</td><td><code>methodcaller("upper")("abc")</code>→<code>ABC</code></td><td>㊶ / <strong>㊷</strong> 拓展</td></tr>
 <tr><td><code>import sys</code>：四个读法</td><td><code>read()</code> 整块 / <code>readline()</code> 一行 / <code>readlines()</code> 全部行 / <code>read().split()</code> 切词</td><td>输入 <code>a⏎b⏎</code> 时：<code>read()</code>→<code>'a\nb\n'</code>；<code>readline()</code>→<code>'a\n' 'b\n'</code>；<code>readlines()</code>→<code>['a\n', 'b\n']</code>；<code>read().split()</code>→<code>['a', 'b']</code></td><td><strong>㉟ 整节专讲</strong>；读多行/整块时比 <code>input()</code> 稳</td></tr>
+<tr><td><code>import random</code>：<code>random.shuffle(L)</code></td><td><strong>原地</strong>打乱列表，<strong>返回 <code>None</code></strong></td><td><code>L=list("abcd")</code>→<code>shuffle(L)</code>→<code>L</code> 变成（例如）<code>['c','b','d','a']</code>；⚠️ 字符串不行：<code>random.shuffle("abcd")</code>→<code>TypeError: 'str' object does not support item assignment</code></td><td>㉟？无；要「随机换顺序」时用</td></tr>
+<tr><td><code>random.sample(s, len(s))</code></td><td>返回<strong>新列表</strong>、顺序被打乱（<strong>字符串也能吃</strong>）</td><td><code>"".join(random.sample("abcd", 4))</code>→<code>'cbda'</code>（每次不同）</td><td>同上，且不用先 <code>list()</code></td></tr>
+<tr><td><code>random.choice(s)</code> / <code>random.choices(s, k=n)</code></td><td>随便挑一个 / 挑 n 个（<strong>可重复</strong>）</td><td><code>random.choice("abcd")</code>→<code>'a'</code>；<code>random.choices("abcd", k=4)</code>→<code>['a','a','c','c']</code></td><td>抽签类</td></tr>
+<tr><td><code>random.seed(42)</code></td><td>固定随机种子 → <strong>结果可复现</strong></td><td>同一种子两次 <code>shuffle</code> 都给 <code>cbda</code>（实测两次相同）</td><td>调试 / 对拍时必用</td></tr>
+<tr><td><code>from itertools import permutations</code></td><td><strong>全排列</strong>，<strong>天然按字典序</strong>、一个不漏</td><td><code>["".join(p) for p in permutations("123")]</code>→<code>['123','132','213','231','312','321']</code>；<code>permutations([1,2,3], 2)</code> 只取前 2 位</td><td>6-8；⚠️ 返回<strong>迭代器</strong>（<code>len()</code> 报 <code>TypeError</code>）</td></tr>
+<tr><td><code>itertools.combinations(seq, k)</code> / <code>product(seq, repeat=k)</code></td><td>组合（顺序不计）/ 可重复的笛卡尔积</td><td><code>combinations('abc',2)</code>→<code>['ab','ac','bc']</code>；<code>product('ab',repeat=2)</code>→<code>['aa','ab','ba','bb']</code></td><td>选 k 个 / 密码穷举</td></tr>
 </table>
 
 <div class="box ok">
@@ -13965,6 +13971,24 @@ hasattr("a", "strip")     # True</code></pre>
 而 <code>isqrt</code> 是整数运算，不会有浮点误差（㊴）。<br>
 ③ <strong><code>ast.literal_eval</code></strong>：读"长得像列表/字典"的输入时，
 它和 <code>eval</code> 结果一样，但<strong>不可能执行代码</strong>（㉝）。
+</div>
+
+<div class="box bad">
+<strong>⚠️ 「随机打乱」≠「全排列」—— 这俩别混</strong><br>
+随机打乱（<code>shuffle</code> / <code>sample</code>）每次只给<strong>一个</strong>顺序，
+而且<strong>会重复、会漏</strong>；要它「凑齐所有排列」得靠运气。实测（固定种子、反复 shuffle 直到
+<code>set</code> 的大小等于全排列总数）：
+<table>
+<tr><th>n</th><th>全排列总数</th><th>随机打乱要抓多少次才凑齐</th><th>浪费掉的次数</th></tr>
+<tr><td>3</td><td>6</td><td>23</td><td>17（3.8 倍）</td></tr>
+<tr><td>4</td><td>24</td><td>61</td><td>37（2.5 倍）</td></tr>
+<tr><td>5</td><td>120</td><td>546</td><td>426（4.5 倍）</td></tr>
+<tr><td>6</td><td>720</td><td>3656</td><td>2936（5.1 倍）</td></tr>
+<tr><td><strong>7</strong></td><td><strong>5040</strong></td><td><strong>40727</strong></td><td><strong>35687（8.1 倍）</strong></td></tr>
+</table>
+而且<strong>凑齐了顺序也不是字典序</strong>（实测随机得到 <code>['312','132','231','213','321','123']</code>），还得再 <code>sorted()</code> 一次。<br>
+对照组：<code>itertools.permutations</code> 生成 n=7 的全部 <strong>5040 种只要 0.000479 秒</strong>，而且<strong>天然字典序</strong>。<br>
+<strong>结论：要「所有可能顺序」用 <code>permutations</code>（或自己写递归回溯）；要「随便一种」才用 <code>random</code>。</strong>
 </div>
 
 
