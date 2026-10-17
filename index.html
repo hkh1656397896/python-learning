@@ -104,7 +104,7 @@
 -->
 
 <h1>Python 自学笔记</h1>
-<p class="meta">hkh ｜ 更新 2026-10-16 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">22</span> 题 + 第4章 <span id="c4">30</span> 题 + 第5章 <span id="c5">11</span> 题（浙大版《Python 程序设计》题目集）</p>
+<p class="meta">hkh ｜ 更新 2026-10-17 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">22</span> 题 + 第4章 <span id="c4">30</span> 题 + 第5章 <span id="c5">11</span> 题 + 第6章 <span id="c6">1</span> 题（浙大版《Python 程序设计》题目集）</p>
 
 <nav id="toc">
   <div class="toc-head">目录　<span class="toc-hint">点标题展开 · 点条目直接跳</span></div>
@@ -206,7 +206,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>六、真题回顾 <span class="toc-n" id="cr">80</span></summary>
+    <summary>六、真题回顾 <span class="toc-n" id="cr">81</span></summary>
     <ol>
       <li><a onclick="return go('review-1')">1-1 从键盘输入两个数求和</a></li>
       <li><a onclick="return go('review-2')">1-2 按公式输出 b²−4ac</a></li>
@@ -299,6 +299,7 @@
       <li><a onclick="return go('review-89')">5-9 求矩阵鞍点的个数</a></li>
       <li><a onclick="return go('review-90')">5-10 两数之和</a></li>
       <li><a onclick="return go('review-91')">5-11 字典合并</a></li>
+      <li><a onclick="return go('review-92')">6-1 输入列表求列表元素和</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -5643,7 +5644,7 @@ if m!=v[17]:                      # ② 索引</code></pre>
 ② 两边同时改，很容易出现"本地一份、提交另一份"，而且极难发现
 </div>
 
-<h2 id="review">六、真题回顾（<span id="cr2">80</span> 题）</h2>
+<h2 id="review">六、真题回顾（<span id="cr2">81</span> 题）</h2>
 
 <div class="box warn">
 <strong>说明：</strong>下面的题目要求是<strong>我按自己的理解概括写的</strong>，不是 PTA 原文。<br>
@@ -12270,6 +12271,111 @@ for k, v in y.items():
 <tr><td>部分键重叠</td><td><code>{1:1,2:2,3:3}|{2:20,4:40}|</code></td><td><code>{1:1,2:22,3:3,4:40}</code></td><td>逐字符相同</td></tr>
 </table>
 
+<h3 id="review-92">6-1 输入列表求列表元素和 <span class="tag">一次通过</span></h3>
+
+<p><strong>要求</strong>：<strong>一行</strong>里给出一个列表（形如 <code>[3,8,-5]</code>），
+在<strong>一行</strong>里输出它所有元素的和。样例 <code>[3,8,-5]</code> → <code>6</code>；
+10 分，代码长度限制 16 KB、时间限制 400 ms。<br>
+⚠️ 题名里那句「<strong>eval 输入应用</strong>」就是提示：这一行文本本身是<strong>列表字面量</strong>，
+拿 <code>eval</code> 跑一遍就直接得到列表 —— 不用自己切逗号，也不用自己补方括号。</p>
+
+<p><strong>我的代码（PTA 判过 —— 第 6 章开张）</strong></p>
+<pre><code>m=eval(input())   把这一整行文本当【表达式】跑一遍 → 得到列表 [3, 8, -5]（㉝：字符串里写什么 = 直接写了什么）
+print(sum(m))     sum 直接对列表求和 → 6（㉞：sum 吃任何可迭代对象，列表元组都行）</code></pre>
+
+<div class="box ok">
+<strong>★ 两行代码 = 两个动作</strong>
+<table>
+<tr><th>这一行</th><th>做什么</th><th>实测</th></tr>
+<tr><td><code>eval(input())</code></td><td>把这一整行文本当<strong>表达式</strong>跑一遍</td>
+<td><code>'[3,8,-5]'</code> → <code>[3, 8, -5]</code>，类型是 <strong><code>list</code></strong>（不是字符串）</td></tr>
+<tr><td><code>sum(...)</code></td><td>把列表里的元素逐个加起来</td>
+<td><code>6</code>；空列表 <code>[]</code> 给 <code>0</code>，<strong>不报错</strong></td></tr>
+</table>
+<code>input()</code> 拿到的是<strong>文本</strong>（<code>'[3,8,-5]'</code>），
+<code>eval</code> 才把它变成<strong>列表</strong>；少了 <code>eval</code>，
+<code>sum('[3,8,-5]')</code> 会直接报 <code>TypeError</code>（㉞ 那条「字符串禁令」）。
+</div>
+
+<div class="box warn">
+<strong>⚠️ 三个边界（题面没写，但都可能踩到）</strong>
+<table>
+<tr><th>情形</th><th>实测</th></tr>
+<tr><td>空列表 <code>[]</code></td>
+<td><code>0</code> —— <code>sum([])</code> 天然给 0，<strong>不用特判</strong>（㉞：<code>start</code> 默认 0）</td></tr>
+<tr><td>列表里带空格 <code>[3, 8, -5]</code></td>
+<td>照样 <code>6</code>：<code>eval</code> 自己认空格；手工 <code>split(",")</code> 反而要给每个 token 补 <code>strip()</code></td></tr>
+<tr><td>元素是小数 <code>[1.5,2.5]</code></td>
+<td><code>4.0</code> —— 输出是 <code>4.0</code> 而不是 <code>4</code>（题面只说「和」，没说取整）</td></tr>
+</table>
+</div>
+
+<div class="box bad">
+<strong>⚠️ 两种会直接崩的输入</strong>
+<table>
+<tr><th>输入</th><th>实测结果</th></tr>
+<tr><td>全角逗号 <code>[3，8]</code></td>
+<td>❌ <code>SyntaxError: invalid character '，' (U+FF0C)</code> ——
+中文标点跑进了「要被当代码执行」的那段文本里（❌3 的老毛病，这次代价是整行崩）</td></tr>
+<tr><td>元素是字符串 <code>["1","2"]</code></td>
+<td>❌ <code>TypeError: unsupported operand type(s) for +: 'int' and 'str'</code> ——
+<code>sum</code> 从 <code>0</code> 开始加，<code>0 + '1'</code> 直接炸</td></tr>
+</table>
+第二条虽然不是本题的数据，但它是 <strong>6-3「列表或元组的数字元素求和」</strong>要考的东西：
+那题要求<strong>只加数字、跳过字符串</strong>，还要处理嵌套 —— 本题只是它的平铺版。
+</div>
+
+<p><strong>优化用法</strong></p>
+
+<div class="box ok">
+<strong>① 一行版</strong>
+<pre><code>print(sum(eval(input())))   省的只是中间那个变量；实测 6 组输入与原版逐字符相同</code></pre>
+实测与原版在 6 组输入上<strong>逐字符相同</strong>。
+</div>
+
+<div class="box ok">
+<strong>② 更安全的同族：<code>ast.literal_eval</code></strong>
+<pre><code>from ast import literal_eval        只认字面量、不可能执行代码（㉝ 那张三行对照表）
+print(sum(literal_eval(input())))   结果与 eval 相同；题面点名 eval，所以交 eval，但要知道这个更安全</code></pre>
+实测本题 6 组输入两者<strong>输出逐字符相同</strong>，差别只在危险输入上 ——
+<code>literal_eval("{1+1: 2}")</code> 与 <code>literal_eval("__import__('os').getcwd()")</code>
+都报 <code>ValueError: malformed node or string</code>，
+而 <code>eval</code> 会真的把表达式算出来、把命令跑起来（㉝）。
+</div>
+
+<div class="box ok">
+<strong>③ 不用 <code>eval</code> 行不行？行，但会变脆</strong>
+<pre><code>s = input().strip()[1:-1]                         掐掉首尾那两个方括号（空列表 [] 就只剩空串）
+t = [int(x) for x in s.split(",") if x.strip()]   按逗号切开、逐个转 int —— if 那半句专门跳过空列表留下的空串
+print(sum(t))                                     加起来</code></pre>
+实测：<strong>整数列表那 5 组全部与原版相同</strong>，但小数那组直接
+<code>ValueError: invalid literal for int() with base 10: '1.5'</code> ——
+手工切法把「转成什么类型」硬编码成了 <code>int</code>。
+<code>eval</code> 之所以「宽容」，正因为它真的在跑 Python 代码（这也是它危险的原因）；
+数据里可能出现小数时，这个写法得改成 <code>float</code>。
+</div>
+
+<div class="box ok">
+<strong>第 6 章这批题：输入几乎都是「列表字面量」</strong>
+本章编程题共 8 道（6-1 ~ 6-8），开头的几道都是把列表直接当输入：
+<code>eval(input())</code> 拿到列表 → 再用 <code>sum</code> / 逐层数 / 递归去处理。
+所以 <strong>㉝（<code>eval</code> 与 <code>literal_eval</code>）和 ㉞（<code>sum</code> 吃哪些容器）</strong>
+这两节，从这一章开始会反复用到。
+</div>
+
+<p><strong>要点与实测证据</strong>：<code>py_compile</code> 通过；
+<strong>题面样例 <code>[3,8,-5]</code> → <code>6</code> 逐字符一致</strong>（1 行）；
+<strong>5 组边界与独立口径（手工解析列表文本再累加，不用 <code>eval</code> / <code>sum</code>）0 组不一致</strong>：</p>
+
+<table>
+<tr><th>用例</th><th>输入</th><th>输出</th><th>与独立口径</th></tr>
+<tr><td>题面样例</td><td><code>[3,8,-5]</code></td><td><code>6</code></td><td>逐字符相同</td></tr>
+<tr><td>空列表</td><td><code>[]</code></td><td><code>0</code></td><td>逐字符相同</td></tr>
+<tr><td>列表里带空格</td><td><code>[3, 8, -5]</code></td><td><code>6</code></td><td>逐字符相同</td></tr>
+<tr><td>元素是小数</td><td><code>[1.5,2.5]</code></td><td><code>4.0</code></td><td>逐字符相同</td></tr>
+<tr><td>全是负数</td><td><code>[-1,-2,-3]</code></td><td><code>-6</code></td><td>逐字符相同</td></tr>
+<tr><td>只有一个元素</td><td><code>[10]</code></td><td><code>10</code></td><td>逐字符相同</td></tr>
+</table>
 <h2 id="quick">七、速查总表</h2>
 
 <p><strong>为什么单独开一章：</strong>前面是按「遇到的顺序」记的，翻起来像流水账。
@@ -12929,6 +13035,7 @@ function fillCounts(){
   put('cr', total); put('cr2', total);
   put('c1', ch['1'] || 0);  put('c2', ch['2'] || 0);  put('c3', ch['3'] || 0);  put('c4', ch['4'] || 0);
   put('c5', ch['5'] || 0);
+  put('c6', ch['6'] || 0);
 }
 fillCounts();
 markWideCells();
