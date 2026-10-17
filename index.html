@@ -104,7 +104,7 @@
 -->
 
 <h1>Python 自学笔记</h1>
-<p class="meta">hkh ｜ 更新 2026-10-17 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">22</span> 题 + 第4章 <span id="c4">30</span> 题 + 第5章 <span id="c5">11</span> 题 + 第6章 <span id="c6">8</span> 题（浙大版《Python 程序设计》题目集）</p>
+<p class="meta">hkh ｜ 更新 2026-10-17 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">22</span> 题 + 第4章 <span id="c4">30</span> 题 + 第5章 <span id="c5">11</span> 题 + 第6章 <span id="c6">8</span> 题 + 第7章 <span id="c7">1</span> 题（浙大版《Python 程序设计》题目集）</p>
 
 <nav id="toc">
   <div class="toc-head">目录　<span class="toc-hint">点标题展开 · 点条目直接跳</span></div>
@@ -209,7 +209,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>六、真题回顾 <span class="toc-n" id="cr">88</span></summary>
+    <summary>六、真题回顾 <span class="toc-n" id="cr">89</span></summary>
     <ol>
       <li><a onclick="return go('review-1')">1-1 从键盘输入两个数求和</a></li>
       <li><a onclick="return go('review-2')">1-2 按公式输出 b²−4ac</a></li>
@@ -310,6 +310,7 @@
       <li><a onclick="return go('review-97')">6-6 求指定层的元素个数</a></li>
       <li><a onclick="return go('review-98')">6-7 找出总分最高的学生</a></li>
       <li><a onclick="return go('review-99')">6-8 输出全排列</a></li>
+      <li><a onclick="return go('review-100')">7-1 词频统计</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -6011,7 +6012,7 @@ if m!=v[17]:                      # ② 索引</code></pre>
 ② 两边同时改，很容易出现"本地一份、提交另一份"，而且极难发现
 </div>
 
-<h2 id="review">六、真题回顾（<span id="cr2">88</span> 题）</h2>
+<h2 id="review">六、真题回顾（<span id="cr2">89</span> 题）</h2>
 
 <div class="box warn">
 <strong>说明：</strong>下面的题目要求是<strong>我按自己的理解概括写的</strong>，不是 PTA 原文。<br>
@@ -13576,6 +13577,104 @@ go([], [str(i) for i in range(1, n+1)])</code></pre>
 另外实测：<strong>没有行尾空格</strong>（每行就是 <code>123</code> 这种），
 四种写法（本题 / 一行 <code>join</code> / <code>for</code> 循环 <code>print</code> / 递归回溯）输出<strong>完全一致</strong>。
 
+<h3 id="review-100">7-1 词频统计 <span class="tag">第二版才对 · 编程题最后一道</span></h3>
+
+<p><strong>要求</strong>：输入一段英文文本，<strong>以 <code>#</code> 结尾</strong>；<br>
+① <strong>单词</strong> = 由「大小写字母、数字、下划线」组成的连续串，<strong>长度超过 15 只保留前 15 个</strong>，
+其它字符一律是分隔符；② <strong>不区分大小写</strong>（<code>PAT</code> 和 <code>pat</code> 同一个词）；<br>
+输出：<strong>第一行是不同单词的个数</strong>；随后按<strong>词频递减</strong>、<strong>同频按递增字典序</strong>，
+以 <code>词频:单词</code> 的格式输出<strong>词频最大的前 10%</strong> 的单词。30 分，<strong>第 7 章第一题</strong>。</p>
+
+<p><strong>我的代码（PTA 判过 —— 第二版；编程题全部刷完）</strong></p>
+<pre><code>import sys                                               要读【整段】输入，得用 sys.stdin（input() 只能一行）
+import re                                                正则函数在 re 模块里（⑦ ⑧ 速查表）
+text=sys.stdin.read().split("#")[0]                      ① 整段读进来，但只保留【第一个 # 之前】的部分 —— ⚠️ 题面说"以 # 结尾"，样例里 # 后面还有一行要被忽略
+words=re.findall(r"[A-Za-z0-9_]+",text)                  ② 一把切出所有「字母/数字/下划线」的连续段（⚠️ 不能用 split()，它只按空白切）
+cnt={}                                                   字典：单词 → 出现次数（㉔）
+for w in words:                                          ③ 逐个词处理
+    w=w[:15].lower()                                        两步：先截断到 15 个字符（题面要求），再转小写（题面说不区分大小写）
+    cnt[w]=cnt.get(w,0)+1                                   ㉕ 计数套路：取旧值（没有就当 0）+ 1 再写回
+print(len(cnt))                                          ④ 第一行：不同单词的个数 —— len 数的是字典里有几个【键】
+items=sorted(cnt.items(),key=lambda kv:(-kv[1],kv[0]))   ⑤ 排序：kv 是 (单词, 次数)；-次数 = 次数降序；同频再按单词升序。⚠️ items 后面必须有括号
+k=len(cnt)//10                                           ⑥ 前 10%：整除（23 → 2）；题面样例能区分不开 round，只能看样例（23 两种都给 2）
+for w,c in items[:k]:                                    ⑦ 切片取前 k 个（k=0 时就是空，不报错）
+    print(f"{c}:{w}")                                    ⑧ 输出格式「词频:单词」，英文冒号</code></pre>
+
+<div class="box ok">
+<strong>★ 题面的 6 条口径，逐条对上代码</strong>
+<table>
+<tr><th>题面要求</th><th>代码里在哪</th></tr>
+<tr><td>合法字符 = 字母 / 数字 / 下划线，其它都是分隔符</td><td>第 4 行的字符类 <code>[A-Za-z0-9_]+</code></td></tr>
+<tr><td>长度超过 15 只保留前 15 个</td><td>第 7 行 <code>w[:15]</code></td></tr>
+<tr><td>不区分大小写</td><td>第 7 行 <code>.lower()</code></td></tr>
+<tr><td>第一行输出不同单词的个数</td><td>第 9 行 <code>print(len(cnt))</code></td></tr>
+<tr><td>词频递减、同频按递增字典序</td><td>第 10 行 <code>key=lambda kv: (-kv[1], kv[0])</code></td></tr>
+<tr><td>只输出前 10%</td><td>第 11 行 <code>k = len(cnt) // 10</code> + 第 12 行切片</td></tr>
+</table>
+</div>
+
+<div class="box bad">
+<strong>⚠️ 本题两个坑，我都踩过</strong><br>
+<strong>坑①：<code>#</code> 是终止符，不是分隔符。</strong>
+题面写「以 <code>#</code> 结尾」，但<strong>官方样例的 <code>#</code> 后面还有一行</strong>
+（<code>...and this...#</code> 然后 <code>this line should be ignored.</code>）。实测（按公开题解还原的样例）：
+<table>
+<tr><th>口径</th><th>不同单词数</th><th>this 出现次数</th></tr>
+<tr><td>整段都算（❌ 我第一版）</td><td><strong>25</strong></td><td><strong>6</strong></td></tr>
+<tr><td>截到第一个 <code>#</code> 之前 ✅</td><td><strong>23</strong></td><td><strong>5</strong></td></tr>
+</table>
+多算的正是 <code>#</code> 后面那几个词（<code>line</code>、<code>ignored</code>），而且 <code>this</code> 多算一次。<br>
+<strong>修法一行</strong>：<code>text = sys.stdin.read().split("#")[0]</code>（见 ㉟ 那个 <code>split(sep)[0]</code> 的盒子）。<br><br>
+<strong>坑②：<code>cnt.items</code> 少了一对括号。</strong>
+<code>sorted(cnt.items, …)</code> 拿到的是<strong>方法本身</strong>，报
+<code>TypeError: 'builtin_function_or_method' object is not iterable</code>
+—— 而且 <code>print(len(cnt))</code> 那行<strong>已经先打出来了</strong>，看起来像"跑到一半死"（㉔ 里写过这个坑）。
+</div>
+
+<div class="box warn">
+<strong>⚠️ 前 10% 的取整：样例区分不出来</strong>
+<table>
+<tr><th>不同单词数 n</th><th><code>n // 10</code></th><th><code>round(n*0.1)</code></th><th>一样吗</th></tr>
+<tr><td>23（题面样例）</td><td>2</td><td>2</td><td>是</td></tr>
+<tr><td>26</td><td><strong>2</strong></td><td><strong>3</strong></td><td><strong>不一样</strong></td></tr>
+</table>
+题面样例 23 两种都给 2，<strong>靠样例分辨不出</strong>。本写法用 <code>//10</code>（地板），提交后没有因为这个报错。
+</div>
+
+<p><strong>优化用法</strong></p>
+
+<div class="box ok">
+<strong>① 计数那四行可以换成 <code>Counter</code>（㉕）</strong>
+<pre><code>from collections import Counter
+cnt = Counter(w[:15].lower() for w in words)      # 一行替代 字典 + for + get</code></pre>
+<code>Counter</code> 还能直接 <code>cnt.most_common(2)</code> 拿前几名；
+⚠️ 但<strong>它不保证同频按字典序</strong>，本题要按 <code>(-次数, 单词)</code> 排，所以还是得 <code>sorted</code>。
+</div>
+
+<div class="box ok">
+<strong>② 排序 + 输出可以合成两行</strong>
+<pre><code>items = sorted(cnt.items(), key=lambda kv: (-kv[1], kv[0]))[:len(cnt)//10]
+print("\n".join(f"{c}:{w}" for w, c in items))</code></pre>
+实测输出与本题写法<strong>逐字符相同</strong>。
+</div>
+
+<p><strong>要点与实测证据</strong>：<code>py_compile</code> 通过；
+<strong>官方样例逐字符一致</strong>（<code>23</code> / <code>5:this</code> / <code>4:is</code>，用时 0.0007 s）；
+<strong>8 组边界与独立口径 0 组不一致</strong>：</p>
+
+<table>
+<tr><th>用例</th><th>验什么</th></tr>
+<tr><td>大小写合并</td><td><code>Aa aA aa</code> 算同一个词</td></tr>
+<tr><td>截断 15 后合并</td><td>16 字符词截断后与 15 字符词合并计数</td></tr>
+<tr><td>数字 + 下划线</td><td><code>a_1</code>、<code>99bottles</code> 是单词字符，不切开</td></tr>
+<tr><td>中文当分隔符</td><td>中文不进词、也不拼进相邻英文</td></tr>
+<tr><td><code>#</code> 之后放弃</td><td><code>#</code> 后面那行的词不算</td></tr>
+<tr><td>多行长文本</td><td><code>read()</code> 整段读、跨行不断词</td></tr>
+<tr><td>正好 10 个不同词</td><td><code>10 // 10 = 1</code>，只输 1 行</td></tr>
+<tr><td>末尾没有换行</td><td>最后一行没有 <code>\n</code> 也能读完</td></tr>
+</table>
+<p>另外：<strong>约 24,000 词的大输入用时 0.0012 s</strong>（限 400 ms）。</p>
+
 <h2 id="quick">七、速查总表</h2>
 
 <p><strong>为什么单独开一章：</strong>前面是按「遇到的顺序」记的，翻起来像流水账。
@@ -14299,6 +14398,7 @@ function fillCounts(){
   put('c1', ch['1'] || 0);  put('c2', ch['2'] || 0);  put('c3', ch['3'] || 0);  put('c4', ch['4'] || 0);
   put('c5', ch['5'] || 0);
   put('c6', ch['6'] || 0);
+  put('c7', ch['7'] || 0);
 }
 fillCounts();
 markWideCells();
