@@ -104,7 +104,7 @@
 -->
 
 <h1>Python 自学笔记</h1>
-<p class="meta">hkh ｜ 更新 2026-10-17 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">22</span> 题 + 第4章 <span id="c4">30</span> 题 + 第5章 <span id="c5">11</span> 题 + 第6章 <span id="c6">5</span> 题（浙大版《Python 程序设计》题目集）</p>
+<p class="meta">hkh ｜ 更新 2026-10-17 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">22</span> 题 + 第4章 <span id="c4">30</span> 题 + 第5章 <span id="c5">11</span> 题 + 第6章 <span id="c6">6</span> 题（浙大版《Python 程序设计》题目集）</p>
 
 <nav id="toc">
   <div class="toc-head">目录　<span class="toc-hint">点标题展开 · 点条目直接跳</span></div>
@@ -209,7 +209,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>六、真题回顾 <span class="toc-n" id="cr">85</span></summary>
+    <summary>六、真题回顾 <span class="toc-n" id="cr">86</span></summary>
     <ol>
       <li><a onclick="return go('review-1')">1-1 从键盘输入两个数求和</a></li>
       <li><a onclick="return go('review-2')">1-2 按公式输出 b²−4ac</a></li>
@@ -307,6 +307,7 @@
       <li><a onclick="return go('review-94')">6-3 列表或元组的数字元素求和</a></li>
       <li><a onclick="return go('review-95')">6-4 列表数字元素加权和(1)</a></li>
       <li><a onclick="return go('review-96')">6-5 列表元素个数的加权和(1)</a></li>
+      <li><a onclick="return go('review-97')">6-6 求指定层的元素个数</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -5903,7 +5904,7 @@ if m!=v[17]:                      # ② 索引</code></pre>
 ② 两边同时改，很容易出现"本地一份、提交另一份"，而且极难发现
 </div>
 
-<h2 id="review">六、真题回顾（<span id="cr2">85</span> 题）</h2>
+<h2 id="review">六、真题回顾（<span id="cr2">86</span> 题）</h2>
 
 <div class="box warn">
 <strong>说明：</strong>下面的题目要求是<strong>我按自己的理解概括写的</strong>，不是 PTA 原文。<br>
@@ -13151,6 +13152,132 @@ print(sum(k*v for k,v in cnt.items()))    Σ 层号 × 该层元素个数</code>
 <tr><td>长单层 100 个</td><td><code>[1,2,…,100]</code></td><td><code>100</code></td></tr>
 <tr><td>两层各 10 个</td><td><code>[[1..10],[1..10]]</code></td><td><code>40</code></td></tr>
 <tr><td>单个数字</td><td><code>[9]</code></td><td><code>1</code></td></tr>
+</table>
+
+<h3 id="review-97">6-6 求指定层的元素个数 <span class="tag">一次通过（第二版）</span></h3>
+
+<p><strong>要求</strong>：<strong>两行输入</strong> —— 第一行一个嵌套列表、第二行层数 n；
+输出<strong>第 n 层上「数字元素」的个数</strong>（不是任意元素，字符串不算）。<br>
+样例 <code>[1,2,[3,4,[5,6],7],8]</code> + <code>3</code> → <code>2</code>；40 分。
+⚠️ 这题的输入是<strong>两行</strong>，前几题（6-3 ~ 6-5）都只有一行。</p>
+
+<p><strong>我的代码（PTA 判过 —— 第二版）</strong></p>
+<pre><code>@@BLOCK@@</code></pre>
+
+<div class="box ok">
+<strong>★ 和 6-5 只差「出口的判断」</strong>
+<table>
+<tr><th></th><th>出口那支</th><th>含义</th></tr>
+<tr><td>6-4</td><td><code>return x*k</code></td><td>值 × 层号</td></tr>
+<tr><td>6-5</td><td><code>return k</code></td><td>算 k 个</td></tr>
+<tr><td><strong>6-6</strong></td><td><code>return 1</code>，但<strong>前提是 <code>n==k</code></strong></td>
+<td>只有正好落在第 n 层的才算</td></tr>
+</table>
+骨架、<code>k+1</code>、本层 <code>T</code> 全部一样。所谓「第 n 层」不是另算一遍，
+而是<strong>把 <code>n==k</code> 加进出入口的判断里</strong> —— 走到叶子时先问一句「现在在第几层」。
+</div>
+
+<div class="box bad">
+<strong>⚠️ 第一版：<code>T</code> 数对了，但 <code>return</code> 交出去的是 <code>0</code></strong>
+<pre><code>    elif isinstance(x,list):
+        T=0
+        for i in x:
+            T+=f(i,k+1)
+        return 0          ❌ 累加好的 T 被扔了，交了个常数出去</code></pre>
+实测追踪（样例 <code>n=3</code>）：
+<pre><code>容器 [1,2,[3,4,[5,6],7],8] 第0层 -> T=0
+  容器 [3,4,[5,6],7] 第1层 -> T=0
+    容器 [5,6] 第2层 -> T=0
+      命中：5 在第3层 -> 返回 1      T 收到 1 -> T=1
+      命中：6 在第3层 -> 返回 1      T 收到 1 -> T=2
+    容器结束：T=2，可是 return 的是 0     ← ❌
+  容器结束：T=0，可是 return 的是 0       ← ❌
+容器结束：T=0，可是 return 的是 0          ← ❌
+结果 = 0</code></pre>
+<strong>最里面那层明明数对了 2</strong>，一句 <code>return 0</code> 把整条链全清零。<br>
+⚠️ <strong>和 6-4「忘了写 <code>return</code>」是同一个家族，但这次不报错</strong>：
+<table>
+<tr><th></th><th>6-4</th><th>6-6（第一版）</th></tr>
+<tr><td>写法</td><td>忘了 <code>return</code></td><td>写了 <code>return 0</code></td></tr>
+<tr><td>后果</td><td>返回 <code>None</code> → 上层 <code>T += None</code> → <strong>当场 <code>TypeError</code></strong></td>
+<td>一路加 0 → <strong>静默输出 0</strong></td></tr>
+<tr><td>怎么发现</td><td>崩了就知道了</td><td>只能靠<strong>对比样例输出</strong></td></tr>
+</table>
+<code>return</code> 后面跟什么，决定的是<strong>「交给上一层的是不是本层算出来的东西」</strong> ——
+写成常数，这一层就等于白算。
+</div>
+
+<div class="box warn">
+<strong>⚠️ 口径差一个字，答案就不同：「数字元素」还是「任何元素」</strong>
+<table>
+<tr><th>层 n</th><th>只数<strong>数字</strong>（本题口径）</th><th>第 n 层的<strong>任何东西</strong>都算（含子列表）</th></tr>
+<tr><td>1</td><td><strong>3</strong>（1, 2, 8）</td><td>4（1, 2, <strong>[3,4,…]</strong>, 8）</td></tr>
+<tr><td>2</td><td><strong>3</strong>（3, 4, 7）</td><td>4（3, 4, <strong>[5,6]</strong>, 7）</td></tr>
+<tr><td>3</td><td><strong>2</strong>（5, 6）</td><td>2</td></tr>
+<tr><td>4</td><td><strong>0</strong></td><td>0</td></tr>
+</table>
+⚠️ <strong>样例 n=3 两种口径都给 2，看样例根本区分不出来</strong> —— 只能看题面那句「数字元素个数」。
+所以要「命中即返回 1、其它一律返回 0」：<code>isinstance(x,int)</code> 把它和字符串、子列表区分开。
+</div>
+
+<div class="box ok">
+<strong>★ 第 n 层不存在时必须给 0（这题唯一的边界）</strong>
+<table>
+<tr><th>输入</th><th>n</th><th>实测</th></tr>
+<tr><td><code>[1,2,[3,4,[5,6],7],8]</code></td><td><code>4</code>（最深只到第 3 层）</td><td><code>0</code> ✅</td></tr>
+<tr><td>同上</td><td><code>9</code></td><td><code>0</code> ✅</td></tr>
+<tr><td><code>[1,2,3]</code></td><td><code>2</code></td><td><code>0</code> ✅</td></tr>
+<tr><td><code>[[1],[2]]</code></td><td><code>1</code>（第 1 层全是列表，不是数字）</td><td><code>0</code> ✅</td></tr>
+</table>
+本写法（返回值累加）<strong>天然给 0</strong> —— 没有命中就没有 1，一路加 0。不用特判。
+</div>
+
+<div class="box ok">
+<strong>★ 另一条路：按层计数（`cnt.get(n, 0)` 就够）</strong>
+<pre><code>cnt={}
+def walk(x,k):
+    if isinstance(x,list):
+        for e in x:
+            walk(e,k+1)
+    else:
+        cnt[k]=cnt.get(k,0)+1      这一层的数字个数 +1
+walk(m,0)
+print(cnt.get(n,0))                 ⚠️ 用 get：n 超过深度时给 0，用 cnt[n] 会 KeyError</code></pre>
+这条路一遍就把<strong>每层各有几个</strong>都记下来（样例是 <code>{1: 3, 2: 3, 3: 2}</code>），
+调试时打印 <code>cnt</code> 一眼能看出层号对不对 —— 也就是 6-5 优化用法③ 那招。<br>
+<code>.get(键, 默认值)</code>：查不到给默认值、不崩，而且<strong>不会往字典里塞东西</strong>（㉔）；
+三种兜底写法实测：<code>cnt[n]</code> → <code>KeyError</code> ｜ <code>cnt.get(n,0)</code> → <code>0</code> ｜
+<code>Counter</code> 直接 <code>c[n]</code> → <code>0</code>（不报错）。
+</div>
+
+<div class="box warn">
+<strong>题面外探底（都不影响判题）</strong>
+<table>
+<tr><th>输入</th><th>n</th><th>实测</th><th>说明</th></tr>
+<tr><td><code>[1,[2,"x"]]</code></td><td>2</td><td><code>1</code></td><td>✅ 字符串不算「数字元素」，和题面口径一致</td></tr>
+<tr><td><code>[1.5,2]</code></td><td>1</td><td><code>1</code></td>
+<td>⚠️ 漏了 <code>1.5</code>（<code>isinstance(x,int)</code> 不认 float）；题面数据是整数，碰不到。
+想稳一点写 <code>(int,float)</code></td></tr>
+<tr><td><code>(1,[2,3])</code></td><td>2</td><td><code>0</code></td>
+<td>顶层是元组 → 两支都不走；题面说「列表」，碰不到</td></tr>
+</table>
+</div>
+
+<p><strong>要点与实测证据</strong>：<code>py_compile</code> 通过；
+<strong>15 组与独立口径（另一份递归实现）0 组不一致</strong>：</p>
+
+<table>
+<tr><th>用例</th><th>输入</th><th>n</th><th>输出</th></tr>
+<tr><td>题面样例</td><td><code>[1,2,[3,4,[5,6],7],8]</code></td><td>3</td><td><code>2</code></td></tr>
+<tr><td>同一数据</td><td>同上</td><td>1 / 2</td><td><code>3</code> / <code>3</code></td></tr>
+<tr><td>n 超过深度</td><td>同上</td><td>4 / 9</td><td><code>0</code> / <code>0</code></td></tr>
+<tr><td>全在一层</td><td><code>[1,2,3]</code></td><td>1 / 2</td><td><code>3</code> / <code>0</code></td></tr>
+<tr><td>全在第二层</td><td><code>[[1],[2]]</code></td><td>1 / 2</td><td><code>0</code> / <code>2</code></td></tr>
+<tr><td>深井 4 层</td><td><code>[[[[1]]]]</code></td><td>4 / 3</td><td><code>1</code> / <code>0</code></td></tr>
+<tr><td>空列表</td><td><code>[]</code></td><td>1</td><td><code>0</code></td></tr>
+<tr><td>空容器夹中间</td><td><code>[1,[],[2]]</code></td><td>1</td><td><code>1</code></td></tr>
+<tr><td>负数</td><td><code>[-1,-2]</code></td><td>1</td><td><code>2</code></td></tr>
+<tr><td>单元素</td><td><code>[7]</code></td><td>1</td><td><code>1</code></td></tr>
 </table>
 
 <h2 id="quick">七、速查总表</h2>
