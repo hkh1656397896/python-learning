@@ -132,7 +132,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>二、常用代码与拓展 <span class="toc-n" id="cs">43</span></summary>
+    <summary>二、常用代码与拓展 <span class="toc-n" id="cs">44</span></summary>
     <ol>
       <li><a onclick="return go('s1-1')">① 读一行数字</a></li>
       <li><a onclick="return go('s1-2')">② range()：生成数字序列</a></li>
@@ -177,6 +177,7 @@
       <li><a onclick="return go('s1-44')">㊶ lambda 匿名函数：没有名字的一行函数</a></li>
       <li><a onclick="return go('s1-45')">㊷ operator 模块：把「运算符」变成能传来传去的函数</a></li>
       <li><a onclick="return go('s1-46')">㊸ 递归：函数里调用自己（什么时候非用不可）</a></li>
+      <li><a onclick="return go('s1-47')">㊹ 判断类型：type() / isinstance()（「是数字」和「看着像数字」不是一回事）</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -5349,7 +5350,7 @@ list(map(methodcaller('replace', 'a', 'X'), ['cat','bat'])) # ['cXt', 'bXt']</co
 实测直接 <code>RecursionError: maximum recursion depth exceeded in __instancecheck__</code>。<br>
 <strong>正确写法</strong>：<code>isinstance(x, (list, tuple))</code> 成立才往里进；
 数字、字符串、<code>None</code> 这些<strong>直接返回/跳过</strong>。
-（<code>isinstance</code> 的用法和「<code>bool</code> 是 <code>int</code> 子类」那个坑见速查总表 ①。）
+（<code>isinstance</code> 的用法和「<code>bool</code> 是 <code>int</code> 子类」那个坑见 <strong>㊹</strong>、速查总表 ①。）
 </div>
 
 <div class="box ok">
@@ -5364,6 +5365,99 @@ list(map(methodcaller('replace', 'a', 'X'), ['cat','bat'])) # ['cXt', 'bXt']</co
 <td><strong>别递归</strong>：每次调用都要压一层栈，还有 1000 层上限（实测），循环没这些开销</td></tr>
 </table>
 一句话：<strong>数据结构自己套自己 → 递归；否则 → 循环。</strong>
+</div>
+
+<h3 id="s1-47">㊹ 判断类型：<code>type()</code> / <code>isinstance()</code>（「是数字」和「看着像数字」不是一回事）</h3>
+
+<div class="box ok">
+<strong><code>type()</code> 返回的是一个<strong>类型对象</strong>，不是名字</strong>
+<table>
+<tr><th>写法</th><th>实测</th><th>什么时候用</th></tr>
+<tr><td><code>type(3)</code></td><td><code>&lt;class 'int'&gt;</code></td><td>直接 print 出来就长这样（报错信息里那一串也是它）</td></tr>
+<tr><td><code>type(3).__name__</code></td><td><code>'int'</code></td><td><strong>要名字</strong>（拼报错、写日志）用这个</td></tr>
+<tr><td><code>type(None).__name__</code></td><td><code>'NoneType'</code></td><td>「忘了 <code>return</code>」时看到的就是它（❌13 / ㊸）</td></tr>
+<tr><td><code>type(True).__name__</code></td><td><code>'bool'</code></td><td>⚠️ 它<b>不</b>叫 int，但 isinstance 认它（见下）</td></tr>
+</table>
+</div>
+
+<div class="box ok">
+<strong>几种写法实测对照</strong>
+<table>
+<tr><th>写法</th><th>实测</th><th>说明</th></tr>
+<tr><td><code>isinstance(3, int)</code></td><td><code>True</code></td><td><strong>首选这种</strong></td></tr>
+<tr><td><code>type(3) is int</code></td><td><code>True</code></td><td>惯用写法（比 <code>==</code> 更地道）</td></tr>
+<tr><td><code>type(3) == int</code></td><td><code>True</code></td><td>也行</td></tr>
+<tr><td><code>type(3) in (int, float)</code></td><td><code>True</code></td><td>一次问「是不是这几种之一」</td></tr>
+<tr><td><code>isinstance(x, (int, float))</code></td><td>第二个参数能放<strong>元组</strong></td><td>同上，但认子类</td></tr>
+<tr><td><code>isinstance([3,7], (list, tuple))</code></td><td><code>True</code></td><td>一次问「是不是容器」</td></tr>
+<tr><td><code>isinstance(3, object)</code></td><td><code>True</code></td><td>一切都是 object —— 问了等于没问</td></tr>
+</table>
+</div>
+
+<div class="box bad">
+<strong>⚠️ <code>bool</code> 是 <code>int</code> 的子类 —— 两个函数给两个答案</strong>
+<table>
+<tr><th>写法</th><th>实测</th><th>后果</th></tr>
+<tr><td><code>isinstance(True, int)</code></td><td><strong><code>True</code></strong></td><td>「是不是整数」会把 <code>True</code> 算进去</td></tr>
+<tr><td><code>type(True) is int</code></td><td><strong><code>False</code></strong></td><td>严格比类型就不算</td></tr>
+<tr><td><code>type(1) == type(True)</code></td><td><code>False</code></td><td><code>int</code> 和 <code>bool</code> 是两个类型</td></tr>
+</table>
+静默混进来的后果（实测）：
+<pre><code>sum([True, True, 3])                                        # 5   ← True 被当 1 加进去了
+[x for x in [1, True, 2] if isinstance(x, int)]              # [1, True, 2]
+[x for x in [1, True, 2] if type(x) is int]                  # [1, 2]   ← 要排除 bool 就用这句
+</code></pre>
+什么时候会遇到：数据里混了 <code>True</code>/<code>False</code>，或者把比较结果
+（<code>x &gt; 3</code> 这种）直接塞进列表再求和 —— 3-10 那道 <code>sum(c in HEX for c in M)</code>
+<b>正是故意这么用的</b>（要的就是「True 当 1 计数」）。所以这不是「bool 不能当数字」，
+而是<b>要知道自己在用哪一种</b>。
+</div>
+
+<div class="box warn">
+<strong>⚠️ 「看着像数字」≠「是数字类型」—— <code>.isdigit()</code> 不是类型判断</strong>
+<table>
+<tr><th>值</th><th><code>isinstance(x, int)</code></th><th><code>x.isdigit()</code></th></tr>
+<tr><td><code>123</code></td><td><code>True</code></td><td><code>AttributeError: 'int' object has no attribute 'isdigit'</code>（数字没有这方法）</td></tr>
+<tr><td><code>'123'</code></td><td><code>False</code></td><td><strong><code>True</code></strong> ← 坑就在这：字符串也能通过</td></tr>
+<tr><td><code>'3.5'</code></td><td><code>False</code></td><td><code>False</code>（小数点过不去）</td></tr>
+<tr><td><code>'-1'</code></td><td><code>False</code></td><td><code>False</code>（负号过不去）</td></tr>
+<tr><td><code>' 12 '</code></td><td><code>False</code></td><td><code>False</code>（空格过不去）</td></tr>
+</table>
+<code>isdigit()</code> 问的是「这串<strong>字符</strong>是不是全是数字」，不是「这个<strong>值</strong>是不是数字」。
+题面要求「字符串跳过、数字才要」时，只能用 <code>isinstance</code>（题目数据的口径见 6-1 那个盒子和 6-3）。
+</div>
+
+<div class="box ok">
+<strong>八个常见的值 × 四种问法（全部实测）</strong>
+<table>
+<tr><th>值</th><th>int</th><th>float</th><th>str</th><th>容器<br><code>(list, tuple)</code></th><th>可迭代<br><code>hasattr(x,'__iter__')</code></th></tr>
+<tr><td><code>3</code></td><td>✅</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+<tr><td><code>3.0</code></td><td>—</td><td>✅</td><td>—</td><td>—</td><td>—</td></tr>
+<tr><td><code>'3'</code></td><td>—</td><td>—</td><td>✅</td><td>—</td><td><strong>✅</strong></td></tr>
+<tr><td><code>[3]</code></td><td>—</td><td>—</td><td>—</td><td>✅</td><td>✅</td></tr>
+<tr><td><code>(3,)</code></td><td>—</td><td>—</td><td>—</td><td>✅</td><td>✅</td></tr>
+<tr><td><code>{3}</code></td><td>—</td><td>—</td><td>—</td><td>—</td><td>✅</td></tr>
+<tr><td><code>None</code></td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+<tr><td><code>True</code></td><td><strong>✅</strong></td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+</table>
+<strong>最后两列要分开看</strong>：<code>'3'</code> 和 <code>{3}</code> <b>可迭代</b>，但都不是
+<code>(list, tuple)</code>。这就是 ㊸ 那个坑的来源 —— 判据写「不是数字就进去」，
+字符串会被一路拆成单个字符。所以判据只能<strong>正向</strong>写「是不是容器」。
+</div>
+
+<div class="box ok">
+<strong>该用哪个（结论表）</strong>
+<table>
+<tr><th>想干的事</th><th>写法</th></tr>
+<tr><td>问「是不是这种类型或它的子类」</td><td><code>isinstance(x, int)</code> ← <strong>首选</strong></td></tr>
+<tr><td>问「是不是这几种之一」</td><td><code>isinstance(x, (int, float))</code></td></tr>
+<tr><td>要排除子类（比如排除 <code>bool</code>）</td><td><code>type(x) is int</code></td></tr>
+<tr><td>要类型<strong>名字</strong>（拼报错 / 日志）</td><td><code>type(x).__name__</code></td></tr>
+<tr><td>问「有没有某个方法」</td><td><code>hasattr(x, "items")</code>（⑦ 方法族对照那节的自查三件套）</td></tr>
+<tr><td>判断「这串字符全是数字」</td><td><code>s.isdigit()</code> —— 这是<strong>字符串方法</strong>，跟类型判断无关（⑯ / ㉑）</td></tr>
+</table>
+相关小节：<strong>㊸</strong> 递归（判据要正向写）、<strong>⑦</strong> 方法族对照（<code>type</code> / <code>hasattr</code> / <code>dir</code> 三件套）、
+速查总表 <strong>①</strong> 内置函数总表。
 </div>
 
 <h2 id="star">三、符号速查：* 和 []</h2>
