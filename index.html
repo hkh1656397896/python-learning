@@ -104,7 +104,7 @@
 -->
 
 <h1>Python 自学笔记</h1>
-<p class="meta">hkh ｜ 更新 2026-10-17 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">22</span> 题 + 第4章 <span id="c4">30</span> 题 + 第5章 <span id="c5">11</span> 题 + 第6章 <span id="c6">7</span> 题（浙大版《Python 程序设计》题目集）</p>
+<p class="meta">hkh ｜ 更新 2026-10-17 ｜ 覆盖：第1章 <span id="c1">3</span> 题 + 第2章 <span id="c2">14</span> 题 + 第3章 <span id="c3">22</span> 题 + 第4章 <span id="c4">30</span> 题 + 第5章 <span id="c5">11</span> 题 + 第6章 <span id="c6">8</span> 题（浙大版《Python 程序设计》题目集）</p>
 
 <nav id="toc">
   <div class="toc-head">目录　<span class="toc-hint">点标题展开 · 点条目直接跳</span></div>
@@ -209,7 +209,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>六、真题回顾 <span class="toc-n" id="cr">87</span></summary>
+    <summary>六、真题回顾 <span class="toc-n" id="cr">88</span></summary>
     <ol>
       <li><a onclick="return go('review-1')">1-1 从键盘输入两个数求和</a></li>
       <li><a onclick="return go('review-2')">1-2 按公式输出 b²−4ac</a></li>
@@ -309,6 +309,7 @@
       <li><a onclick="return go('review-96')">6-5 列表元素个数的加权和(1)</a></li>
       <li><a onclick="return go('review-97')">6-6 求指定层的元素个数</a></li>
       <li><a onclick="return go('review-98')">6-7 找出总分最高的学生</a></li>
+      <li><a onclick="return go('review-99')">6-8 输出全排列</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -5905,7 +5906,7 @@ if m!=v[17]:                      # ② 索引</code></pre>
 ② 两边同时改，很容易出现"本地一份、提交另一份"，而且极难发现
 </div>
 
-<h2 id="review">六、真题回顾（<span id="cr2">87</span> 题）</h2>
+<h2 id="review">六、真题回顾（<span id="cr2">88</span> 题）</h2>
 
 <div class="box warn">
 <strong>说明：</strong>下面的题目要求是<strong>我按自己的理解概括写的</strong>，不是 PTA 原文。<br>
@@ -13377,6 +13378,98 @@ best=max(m, key=lambda r: sum(r[2:]))</code></pre>
 <tr><td>全 0 分（并列，题面外）</td><td>打 3 行</td></tr>
 <tr><td>两人都是 100 分（并列，题面外）</td><td>打 2 行</td></tr>
 </table>
+
+<h3 id="review-99">6-8 输出全排列 <span class="tag">一次通过 · 第 6 章整章刷完</span></h3>
+
+<p><strong>要求</strong>：一行输入正整数 n（<strong>3 ≤ n ≤ 7</strong>），按<strong>字典序</strong>输出
+<code>1,2,…,n</code> 的<strong>全排列</strong>，<strong>每种排列占一行、数字之间无空格</strong>。
+样例 n=3 → <code>123</code>/<code>132</code>/<code>213</code>/<code>231</code>/<code>312</code>/<code>321</code>；20 分。</p>
+
+<p><strong>我的代码（PTA 判过 —— 一次通过，第 6 章最后一题）</strong></p>
+<pre><code>@@BLOCK@@</code></pre>
+
+<div class="box ok">
+<strong>★ 这题就三件事：生成 → 拼串 → 竖向输出</strong>
+<table>
+<tr><th>要做的</th><th>用什么</th><th>为什么</th></tr>
+<tr><td>生成所有排列</td><td><code>itertools.permutations(t)</code></td>
+<td><strong>天然按字典序</strong>、一个不漏 —— 实测 n=6 的 720 个正好等于 <code>sorted(自己)</code>，所以<strong>不用再排序</strong></td></tr>
+<tr><td>把元组拼成 <code>123</code></td><td><code>"".join(元组)</code></td>
+<td>它给的是元组 <code>('1','2','3')</code>，<code>join</code> 正好拼成字符串（㉒）</td></tr>
+<tr><td>每行一个</td><td><code>print(*x, sep="\n")</code></td>
+<td>把列表<strong>摊开</strong>、元素之间用换行（㉗ 竖向输出 / ㊳ <code>sep</code>）</td></tr>
+</table>
+</div>
+
+<div class="box bad">
+<strong>⚠️ 关键一步：数字必须先做成「字符串列表」，否则 <code>join</code> 直接崩</strong>
+<pre><code>"".join(next(itertools.permutations(range(1, 4))))
+# ❌ TypeError: sequence item 0: expected str instance, int found
+
+"".join(next(itertools.permutations(map(str, range(1, 4)))))
+# '123'   ✅ 元素变成字符串才行</code></pre>
+<strong><code>"".join</code> 只吃字符串</strong>（㉒）。所以本题先把 <code>'1'…'9'</code> 写成字符串列表
+<code>t</code>，<code>permutations(t)</code> 的每个元素就是单字符串，直接 <code>join</code> 就完事 ——
+比每次 <code>map(str, p)</code> 更省事。<br>
+⚠️ 顺带：<code>L[0:n]</code> 依赖 <strong>n ≤ 7</strong>（题面保证），所以准备 9 个够用；
+要是 n 能到 9 以上，这种“预先写死一串字符”的写法就得改成 <code>map(str, range(1,n+1))</code>。
+</div>
+
+<div class="box warn">
+<strong>⚠️ 千万别用「随机打乱」去凑全排列</strong><br>
+随机 <code>shuffle</code> 每次只给一个顺序，还会重复、会漏。实测凑齐要：
+n=3 <strong>23 次</strong>、n=4 <strong>61 次</strong>、n=5 <strong>546 次</strong>、n=6 <strong>3656 次</strong>、
+<strong>n=7 要 40727 次</strong>（浪费 35687，8.1 倍），而且凑齐后顺序<strong>还不是字典序</strong>。<br>
+对照组：<code>permutations</code> 出 n=7 的全部 <strong>5040 种只要 0.0010 s</strong>。
+详见第七章 ⑧ 那个「随机打乱 ≠ 全排列」盒子。
+</div>
+
+<p><strong>优化用法</strong></p>
+
+<div class="box ok">
+<strong>① 连 <code>x</code> 这个列表都不用建（用生成器 + <code>join</code>）</strong>
+<pre><code>import itertools
+n=int(input())
+t=map(str, range(1, n+1))                       # 不用写死 '1'..'9'
+print("\n".join("".join(p) for p in itertools.permutations(t)))</code></pre>
+实测与本题写法<strong>输出逐字符相同</strong>，而且最快（n=7：<strong>0.0006 s</strong> vs 本题 0.0014 s）——
+少建一个 5040 元素的列表。
+</div>
+
+<div class="box ok">
+<strong>② 逐个 <code>print</code> 也行，但慢一点</strong>
+<pre><code>for p in itertools.permutations(t):
+    print("".join(p))</code></pre>
+实测输出相同（n=7：0.0012 s）。差别只在<strong>调用 print 的次数</strong>：
+本题是 1 次 print 打 5040 行，这里是 5040 次 print。
+</div>
+
+<div class="box ok">
+<strong>③ 不用标准库：自己写递归回溯（㊸ 递归的实战）</strong>
+<pre><code>def go(pre, rest):
+    if not rest:                    出口：没有可选的了，输出一个排列
+        print("".join(pre)); return
+    for k in range(len(rest)):
+        go(pre+[rest[k]], rest[:k]+rest[k+1:])   选一个、从池子里拿掉、往下走
+
+go([], [str(i) for i in range(1, n+1)])</code></pre>
+实测与本题输出<strong>逐行相同</strong>（n=7：0.0040 s，比 <code>permutations</code> 慢约 4 倍，但 n≤7 完全够）。
+「<strong>选一个 → 递归 → 撤销</strong>」是回溯的标准形状，碰到「组合 / 子集 / 棋盘」类题都用它。
+</div>
+
+<p><strong>要点与实测证据</strong>：<code>py_compile</code> 通过；
+<strong>n=3~7 与独立口径（自己写的递归回溯，不用 <code>itertools</code> 当尺子）逐行一致</strong>：</p>
+
+<table>
+<tr><th>n</th><th>行数</th><th>用时</th><th>与独立口径</th></tr>
+<tr><td>3</td><td>6</td><td>0.0002 s</td><td>逐行一致</td></tr>
+<tr><td>4</td><td>24</td><td>0.0001 s</td><td>逐行一致</td></tr>
+<tr><td>5</td><td>120</td><td>0.0001 s</td><td>逐行一致</td></tr>
+<tr><td>6</td><td>720</td><td>0.0002 s</td><td>逐行一致</td></tr>
+<tr><td><strong>7（上限）</strong></td><td><strong>5040</strong></td><td>0.0010 s（限 400 ms）</td><td>逐行一致</td></tr>
+</table>
+另外实测：<strong>没有行尾空格</strong>（每行就是 <code>123</code> 这种），
+四种写法（本题 / 一行 <code>join</code> / <code>for</code> 循环 <code>print</code> / 递归回溯）输出<strong>完全一致</strong>。
 
 <h2 id="quick">七、速查总表</h2>
 
