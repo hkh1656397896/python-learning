@@ -4490,6 +4490,34 @@ n = s.count("\n")</code></pre>
 它天然就是分隔符，<strong>不用特意去掉</strong>。
 </div>
 
+<div class="box ok">
+<strong>★ <code>s.split("#")[0]</code> —— 取「<code>#</code> 之前的那一段」（"截断到终止符"的通用写法）</strong><br>
+拆开看只有两步：<strong><code>split(分隔符)</code> 先切成一个<strong>列表</strong></strong>，
+再加 <strong><code>[0]</code> 就是普通下标</strong>（跟 <code>L[0]</code> 一模一样）。
+<pre><code>L = "a#b#c".split("#")      # ['a', 'b', 'c']
+L[0]                        # 'a'     ← 第 0 段 = 第一个 # 之前
+L[-1]                       # 'c'     ← 最后一段
+"a#b#c".split("#")[0]       # 'a'     ← 两步写在一起（最常用的形态）</code></pre>
+<strong>边界实测（一个都别记混）</strong>：
+<table>
+<tr><th><code>s</code></th><th><code>s.split("#")</code></th><th><code>[0]</code></th><th><code>[-1]</code></th></tr>
+<tr><td><code>'a#b#c'</code></td><td><code>['a','b','c']</code></td><td><code>'a'</code></td><td><code>'c'</code></td></tr>
+<tr><td><code>'abc'</code>（没有 #）</td><td><code>['abc']</code></td><td><code>'abc'</code> ← <strong>整段原文</strong></td><td><code>'abc'</code></td></tr>
+<tr><td><code>'#abc'</code>（# 在开头）</td><td><code>['','abc']</code></td><td><code>''</code></td><td><code>'abc'</code></td></tr>
+<tr><td><code>'abc#'</code>（# 在末尾）</td><td><code>['abc','']</code></td><td><code>'abc'</code></td><td><code>''</code></td></tr>
+<tr><td><code>''</code></td><td><code>['']</code></td><td><code>''</code></td><td><code>''</code></td></tr>
+</table>
+<strong>三种等价写法</strong>（想「只要分隔符之前」时随便挑）：
+<pre><code>s.split("#")[0]        # 'a'    先全切开，再取第 0 段
+s.split("#", 1)[0]     # 'a'    只切 1 次 —— split("#",1) 给 ['a', 'b#c']，剩下的不切（稍快）
+s.partition("#")[0]    # 'a'    partition 返回三元组 ('a', '#', 'b#c')，[0] 同样是前段</code></pre>
+<strong>7-1 就是靠这一句救回来的</strong>（实测）：题面样例的 <code>#</code> 后面还有一行
+「this line should be ignored.」——<strong>整段都算</strong>会得到 <strong>25 个不同单词、this 6 次</strong>；
+<strong>截到 <code>#</code> 之前</strong>才是 <strong>23 个、this 5 次</strong>（题面要的就是这个）。<br>
+一句话记法：<strong><code>s.split(sep)[0]</code> = 「只要 <code>sep</code> 之前的部分」；
+<code>[-1]</code> = 「只要最后一段」</strong> —— 处理「以某个符号结尾/终止」的输入时最省事。
+</div>
+
 <h3 id="s1-39">㊱ 列表推导（list comprehension）</h3>
 
 <p class="meta">编号说明：圈数字编号<strong>全篇连续</strong> —— 这一节前面是
