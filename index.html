@@ -132,7 +132,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>二、常用代码与拓展 <span class="toc-n" id="cs">42</span></summary>
+    <summary>二、常用代码与拓展 <span class="toc-n" id="cs">43</span></summary>
     <ol>
       <li><a onclick="return go('s1-1')">① 读一行数字</a></li>
       <li><a onclick="return go('s1-2')">② range()：生成数字序列</a></li>
@@ -176,6 +176,7 @@
       <li><a onclick="return go('s1-43')">㊵ 函数 def 入门：把一段逻辑起个名字</a></li>
       <li><a onclick="return go('s1-44')">㊶ lambda 匿名函数：没有名字的一行函数</a></li>
       <li><a onclick="return go('s1-45')">㊷ operator 模块：把「运算符」变成能传来传去的函数</a></li>
+      <li><a onclick="return go('s1-46')">㊸ 递归：函数里调用自己（什么时候非用不可）</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -5296,6 +5297,74 @@ list(map(methodcaller('replace', 'a', 'X'), ['cat','bat'])) # ['cXt', 'bXt']</co
 <p>相关小节：<strong>㊵</strong> 函数 <code>def</code> 入门、<strong>㊶</strong> <code>lambda</code>、
 <strong>㉔</strong> 字典（分派表）、<strong>㉝</strong> <code>map</code>、
 <strong>⑤ 对象 × 操作对照表</strong> 与 <strong>⑦ 方法族对照</strong>（都在速查总表）。</p>
+
+<h3 id="s1-46">㊸ 递归：函数里调用自己（什么时候非用不可）</h3>
+
+<div class="box ok">
+<strong>递归 = 在函数体里再调用这个函数本身</strong>，写的时候固定三段：
+<strong>① 出口</strong>（最小的情况直接返回，不再调用自己）→
+<strong>② 缩小</strong>（把问题拆成「小一号的同一个问题」，参数一定比原来小）→
+<strong>③ 自己调自己</strong>。<br>
+玩具例子：数一数一个嵌套结构里<strong>有几个容器</strong>（不是本题，只看形状）：
+<pre><code>def count_box(x):                          # 数一数 x 里面有几个「容器」（含它自己）
+    if not isinstance(x, (list, tuple)):   # ① 出口：已经不是容器了，到此为止
+        return 0                           #    没有这一行，就会一路拆到底（见下面实测）
+    n = 1                                  # 自己这个容器先算 1 个
+    for e in x:                            # ② 把问题拆小：逐个看里面的元素
+        n += count_box(e)                  # ③ 自己调自己 —— 每个元素再数一遍
+    return n                               # 把总数一层层交回给调用者
+</code></pre>
+实测：
+<table>
+<tr><th>调用</th><th>结果</th><th>怎么算出来的</th></tr>
+<tr><td><code>count_box([])</code></td><td><code>1</code></td><td>空列表<b>自己也算 1 个</b>容器，里面没东西可数</td></tr>
+<tr><td><code>count_box([1, 2, 3])</code></td><td><code>1</code></td><td>只有外层一个，里面的 1/2/3 都不是容器</td></tr>
+<tr><td><code>count_box([[1], [2, [3]]])</code></td><td><code>4</code></td><td>外层 + <code>[1]</code> + <code>[2,[3]]</code> + <code>[3]</code></td></tr>
+<tr><td><code>count_box((1, (2, (3, 4))))</code></td><td><code>3</code></td><td>元组套元组，一共 3 层</td></tr>
+<tr><td><code>count_box([11, 2, [3, 7], (68, -1), '123', 9])</code></td><td><code>3</code></td><td>外层 + <code>[3,7]</code> + <code>(68,-1)</code></td></tr>
+</table>
+</div>
+
+<div class="box warn">
+<strong>三种写错法的实测后果</strong>
+<table>
+<tr><th>错法</th><th>实测报错</th></tr>
+<tr><td><strong>没写出口</strong>（一路往里拆，拆到数字还想 <code>for</code> 它）</td>
+<td><code>TypeError: 'int' object is not iterable</code> —— 立刻崩，不是"卡住"</td></tr>
+<tr><td><strong>自己调自己不停</strong>（<code>def f(x): return f(x)</code>）</td>
+<td><code>RecursionError: maximum recursion depth exceeded</code>；
+<b>上限实测 <code>sys.getrecursionlimit()</code> = 1000 层</b></td></tr>
+<tr><td><strong>算完了忘了 <code>return</code></strong></td>
+<td><code>TypeError: unsupported operand type(s) for +=: 'int' and 'NoneType'</code>
+—— 内层函数没写 <code>return</code> 就返回 <code>None</code>，外面一做 <code>+=</code> 就炸（❌13 的递归版）</td></tr>
+</table>
+</div>
+
+<div class="box bad">
+<strong>⚠️ 最阴的一个坑：字符串也能被 <code>for</code> 遍历</strong>
+<pre><code>for e in "123":        # 拿到的是 '1'、'2'、'3' —— 三次，不是一次
+    print(e)</code></pre>
+所以判据<strong>只能正向写「是不是容器」</strong>，<strong>不能反向写「不是数字就进去」</strong>：
+后者会把字符串 <code>'123'</code> 当成容器一路拆成单个字符（<code>'1'</code> → 再拆 → …），
+实测直接 <code>RecursionError: maximum recursion depth exceeded in __instancecheck__</code>。<br>
+<strong>正确写法</strong>：<code>isinstance(x, (list, tuple))</code> 成立才往里进；
+数字、字符串、<code>None</code> 这些<strong>直接返回/跳过</strong>。
+（<code>isinstance</code> 的用法和「<code>bool</code> 是 <code>int</code> 子类」那个坑见速查总表 ①。）
+</div>
+
+<div class="box ok">
+<strong>什么时候非用递归不可 / 什么时候别用</strong>
+<table>
+<tr><th>场景</th><th>怎么写</th></tr>
+<tr><td><strong>数据自己嵌套自己</strong>，层数事先不知道（列表套列表、树、目录树）</td>
+<td><strong>必须递归</strong>：一层 <code>for</code> 只能处理一层，层数一变就得改代码</td></tr>
+<tr><td>层数是固定的（矩阵 3 行 4 列这种）</td>
+<td>用 <code>for</code> 套 <code>for</code> 更直观（㊲ 取一行 / 取一列就是这种）</td></tr>
+<tr><td>能用 <code>for</code> / <code>while</code> 一行说清楚</td>
+<td><strong>别递归</strong>：每次调用都要压一层栈，还有 1000 层上限（实测），循环没这些开销</td></tr>
+</table>
+一句话：<strong>数据结构自己套自己 → 递归；否则 → 循环。</strong>
+</div>
 
 <h2 id="star">三、符号速查：* 和 []</h2>
 
