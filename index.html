@@ -318,6 +318,7 @@
     <ol>
       <li><a onclick="return go('func-1')">函数 6-1 使用函数求特殊 a 串数列和</a></li>
       <li><a onclick="return go('func-2')">函数 6-2 使用函数求素数和</a></li>
+      <li><a onclick="return go('func-3')">函数 6-3 使用函数统计指定数字的个数</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -13918,6 +13919,108 @@ def PrimeSum(m,n):                              同样的入口，内部换成�
 <tr><td>3</td><td>区间是开还是闭（本题 <code>[m, n]</code> 闭区间，<code>range(m, n+1)</code>）</td></tr>
 <tr><td>4</td><td>函数里不 <code>input()</code>、不 <code>print()</code></td></tr>
 <tr><td>5</td><td>本地调用代码照抄裁判程序，提交时删掉</td></tr>
+</table>
+</div>
+
+<h3 id="func-3">函数 6-3 使用函数统计指定数字的个数 <span class="tag">一次通过 · 函数题 3/6</span></h3>
+
+<p><strong>要求</strong>：写函数 <code>CountDigit(number, digit)</code>，返回整数 <code>number</code> 中
+数字 <code>digit</code> 出现的<strong>次数</strong>。<code>number</code> 是整数（<strong>可以是负数</strong>），
+<code>digit</code> 是 [1, 9] 区间内的整数。20 分，第 6 章函数题第三道。</p>
+
+<p><strong>裁判测试程序（题面给的，不交）</strong></p>
+<pre><code>number,digit=input().split()                    一次读两个；拿到的都是字符串
+number=int(number)                              分两行各自转 int（split 不会自动转）
+digit=int(digit)
+count=CountDigit(number,digit)                  两个参数都是 int
+print("Number of digit 2 in "+str(number)+":",count)  ⚠️ 这里的 "2" 是裁判写死的，见下</code></pre>
+
+<p><strong>我的代码（PTA 判过 —— 一次通过）</strong></p>
+<pre><code>def CountDigit(number,digit):                   两个参数都是 int，题面里写清楚了
+    cnt=str(number).count(str(digit))           整体转字符串再数子串；digit 也必须转 str
+    return cnt                                  只返回次数，输出那句话由裁判负责</code></pre>
+
+<div class="box ok">
+<strong>★ 这题一行就够，因为题面把范围写死了</strong><br>
+<code>digit</code> 限定在 <strong>[1, 9]</strong>，所以两个麻烦都自动消失：
+<table>
+<tr><th>可能的麻烦</th><th>为什么不会发生</th></tr>
+<tr><td>前导零怎么算（<code>100</code> 里算几个 0）</td><td><code>digit ≥ 1</code>，根本不会数 0</td></tr>
+<tr><td>负号 <code>-</code> 会不会被数进去</td><td><code>'-'</code> 不可能等于 1~9 里任何一个字符</td></tr>
+</table>
+所以<strong>不用 <code>abs()</code>、不用特判</strong>：<code>str(-21252)</code> 是 <code>"-21252"</code>，
+直接 <code>.count("2")</code> 就是 3。
+</div>
+
+<div class="box warn">
+<strong>⚠️ <code>count</code> 的参数必须是字符串</strong><br>
+<code>"123".count(2)</code> 会报 <code>TypeError: must be str, not int</code>。
+所以 <code>digit</code> 传进来是 int，必须在函数里转一次 <code>str(digit)</code>——
+这是本题唯一需要转弯的地方。
+</div>
+
+<div class="box warn">
+<strong>⚠️ 输出里那个 "2" 是裁判写死的，和真实 digit 无关</strong><br>
+裁判程序最后一行是：
+<code>print("Number of digit 2 in "+str(number)+":",count)</code><br>
+这句话里 <code>digit 2</code> 的 <strong>2 是固定的字符串</strong>。实测输入 <code>11 1</code>：
+<table>
+<tr><th>输入</th><th>实际输出</th></tr>
+<tr><td><code>-21252 2</code></td><td><code>Number of digit 2 in -21252: 3</code></td></tr>
+<tr><td><code>11 1</code>（digit 是 1）</td><td><code>Number of digit 2 in 11: 2</code>（照样写 "digit 2"）</td></tr>
+</table>
+<strong>不是 bug，也不是该改的地方</strong>——那句话由裁判负责，函数只管<strong>返回次数</strong>。
+如果有谁在函数里自己拼这句话，就会多打一行。
+</div>
+
+<div class="box bad">
+<strong>⚠️ 想改成算术写法的话，负数是最危险的地方</strong><br>
+字符串写法天然安全，但换成「<code>%10</code> 取个位、<code>//10</code> 右移」的算术写法，
+负数会出事。根源是 <strong>Python 的负整除是向下取整</strong>（不是向零截断）：
+<table>
+<tr><th>n</th><th><code>n % 10</code></th><th><code>n // 10</code></th></tr>
+<tr><td>−1</td><td>9</td><td><strong>−1</strong></td></tr>
+<tr><td>−22</td><td>8</td><td>−3</td></tr>
+<tr><td>−2126</td><td>4</td><td>−213</td></tr>
+<tr><td>−21252</td><td>8</td><td>−2126</td></tr>
+</table>
+<strong><code>−1 // 10</code> 仍然是 <code>−1</code></strong>，所以两种写法都错，而且错法不同：
+<table>
+<tr><th>写法</th><th>对 <code>−21252</code> 的结果</th></tr>
+<tr><td><code>while number > 0:</code> + <code>%10</code></td><td>返回 <strong>0</strong>（负数一次都不进循环）</td></tr>
+<tr><td><code>while number:</code> + <code>%10</code></td><td><strong>死循环</strong>（走到 <code>−1</code> 就永远出不来）</td></tr>
+</table>
+死循环那条实测：<code>−21252 → −2126 → −213 → −22 → −3 → −1 → −1 → −1 …</code>，
+第 6 步之后每一步都是 <code>−1</code>，PTA 上表现为<strong>超时</strong>，看不出原因。
+</div>
+
+<div class="box ok">
+<strong>① 算术写法的正确版本（如果一定要不用字符串）</strong>
+<pre><code>def CountDigit(number,digit):                   纯算术版，不用字符串
+    number=abs(number)                          ⚠️ 必须先取绝对值，原因见上面那张取模表
+    if number==0:                               0 只有一个数字位
+        return 1 if digit==0 else 0             本题 digit ≥ 1，所以走 else 返回 0
+    cnt=0
+    while number>0:                             ⚠️ 写 >0，不要写 while number:
+        if number%10==digit:
+            cnt+=1
+        number//=10
+    return cnt</code></pre>
+<p><strong>实测对拍</strong>：这个算术版与字符串版在 <code>n ∈ [−2000, 2000]</code> × <code>digit ∈ [1,9]</code>
+共 <strong>36000 组</strong>上完全一致，<strong>0 处不同</strong>。</p>
+</div>
+
+<div class="box ok">
+<strong>② 验收：按裁判程序实跑 7 组</strong>
+<table>
+<tr><th>输入</th><th>实得输出</th><th>对不对</th></tr>
+<tr><td><code>-21252 2</code>（题面样例）</td><td><code>Number of digit 2 in -21252: 3</code></td><td>✅ 逐字符一致</td></tr>
+<tr><td><code>21252 2</code></td><td><code>Number of digit 2 in 21252: 3</code></td><td>✅</td></tr>
+<tr><td><code>0 5</code></td><td><code>Number of digit 2 in 0: 0</code></td><td>✅</td></tr>
+<tr><td><code>-2 2</code></td><td><code>Number of digit 2 in -2: 1</code></td><td>✅</td></tr>
+<tr><td><code>11 1</code></td><td><code>Number of digit 2 in 11: 2</code></td><td>✅</td></tr>
+<tr><td><code>100 1</code></td><td><code>Number of digit 2 in 100: 1</code></td><td>✅</td></tr>
+<tr><td><code>999 9</code></td><td><code>Number of digit 2 in 999: 3</code></td><td>✅</td></tr>
 </table>
 </div>
 
