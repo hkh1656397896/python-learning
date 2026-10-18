@@ -314,7 +314,13 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>七、速查总表</summary>
+    <summary>七、函数题回顾</summary>
+    <ol>
+      <li><a onclick="return go('func-1')">函数 6-1 使用函数求特殊 a 串数列和</a></li>
+    </ol>
+  </details>
+  <details class="toc-g">
+    <summary>八、速查总表</summary>
     <ol>
       <li><a onclick="return go('quick-1')">① 内置函数总表</a></li>
       <li><a onclick="return go('quick-2')">② 方法总表（字符串 / 列表 / 字典）</a></li>
@@ -13675,7 +13681,120 @@ print("\n".join(f"{c}:{w}" for w, c in items))</code></pre>
 </table>
 <p>另外：<strong>约 24,000 词的大输入用时 0.0012 s</strong>（限 400 ms）。</p>
 
-<h2 id="quick">七、速查总表</h2>
+<h2 id="func">七、函数题回顾</h2>
+
+<p><strong>为什么单独开一章：</strong>函数题和编程题的<strong>判题方式不一样</strong>——
+编程题交整个程序，函数题<strong>只交函数体</strong>。所以这一章的记录体例单独一套：
+「题号 + 函数签名 + 裁判程序 + 交上去的那几行」，不复用真题那一章的「数字-数字」编号。</p>
+
+<div class="box ok">
+<strong>★ 函数题的三条规矩（比题目本身更重要）</strong>
+<table>
+<tr><th>#</th><th>规矩</th><th>为什么</th></tr>
+<tr><td>1</td><td>只交 <code>def</code> 那几行，<strong>不写 <code>input()</code>、不写 <code>print()</code></strong></td>
+    <td>裁判程序里已经有了；多写就会多读一次输入、多打一行</td></tr>
+<tr><td>2</td><td><strong>参数类型看裁判程序，不看题面</strong></td>
+    <td>题面只说「a 和 n 都是用户传入的参数」，真正传什么类型只有裁判程序知道</td></tr>
+<tr><td>3</td><td>本地测试时<strong>自己写调用代码</strong>（放在函数定义之后）</td>
+    <td>PTA 网页上只报对错，不报过程；本地才能打中间值</td></tr>
+</table>
+</div>
+
+<table>
+<tr><th>对比项</th><th>编程题</th><th>函数题</th></tr>
+<tr><td>交什么</td><td>完整程序（含 <code>input()</code> / <code>print()</code>）</td><td>只有 <code>def</code> 那几行</td></tr>
+<tr><td>谁读输入</td><td>自己写</td><td>裁判程序</td></tr>
+<tr><td>谁打印结果</td><td>自己写</td><td>裁判程序</td></tr>
+<tr><td>参数类型从哪看</td><td>题面的「输入格式」</td><td>裁判程序里的调用语句</td></tr>
+<tr><td>典型死法</td><td>输出格式不对</td><td><strong>参数类型判断错 → 不报错、只给错答案</strong></td></tr>
+</table>
+
+<h3 id="func-1">函数 6-1 使用函数求特殊 a 串数列和 <span class="tag">一次通过 · 函数题 1/6</span></h3>
+
+<p><strong>要求</strong>：给定两个均不超过 9 的正整数 <code>a</code> 和 <code>n</code>，求
+<code>a + aa + aaa + … + a…a</code>（n 项）之和。<strong>写函数 <code>fn(a, n)</code>，返回这个和</strong>；
+<code>a</code> 在 [1, 9]，<code>n</code> 也是 [1, 9] 的个位数。10 分，第 6 章函数题第一道。</p>
+
+<p><strong>裁判测试程序（题面给的，不交）</strong></p>
+<pre><code>a,b=input().split()                             裁判自己读输入 —— 函数里不许再 input()
+s=fn(int(a),int(b))                             关键：a 传进来是 int，要变成 str 得在函数内部做
+print(s)                                        裁判自己打印 —— 函数里不许 print()</code></pre>
+
+<p><strong>我的代码（PTA 判过 —— 一次通过）</strong></p>
+<pre><code>def fn(x,n):                                    参数按位置传，叫 x 还是 a 都一样；返回值必须是整数和
+    T=0                                         累加器清零；写在函数里面，每个用例都是新的一份
+    for i in range(1,n+1):                      i = 1,2,…,n —— 一共 n 项，第 i 项由 i 个 a 组成
+        T+=int(str(x)*i)                        str(x)*i = 字符重复："2"*3 → "222"，再转回整数
+    return T                                    函数题要 return，不要 print —— 打印由裁判程序负责
+
+# ---- 下面三行是本地自测用的，提交时不交 ----
+a,b=input().split()                             自己造输入，模拟裁判的读法
+s=fn(int(a),int(b))                             和裁判程序一字不差：参数是 int
+print(s)                                        自己看结果对不对</code></pre>
+
+<div class="box bad">
+<strong>⚠️ 本题唯一的坑：参数是 <code>int</code>，写成 <code>int(x*i)</code> 会<u>静默错</u></strong><br>
+<code>x*i</code> 的行为完全取决于 <code>x</code> 是什么类型：
+<table>
+<tr><th>函数体里怎么写</th><th><code>x</code> 是字符串</th><th><code>x</code> 是整数（裁判的真实情况）</th></tr>
+<tr><td><code>int(x*i)</code></td><td>246 ✅</td><td><strong>12</strong> ❌（2 + 4 + 6）</td></tr>
+<tr><td><code>int(str(x)*i)</code></td><td>246 ✅</td><td><strong>246</strong> ✅</td></tr>
+<tr><td>递推 <code>term=term*10+a</code></td><td><code>TypeError</code>（int 与 str 不能相加）</td><td>246 ✅</td></tr>
+</table>
+<strong>性质</strong>：<code>int(x*i)</code> 在整数上传进来时<strong>不报任何错</strong>，只是答案变成 12。
+这和 6-6 那个 <code>return 0</code>（算对了 T 却返回 0）是同一类——<strong>静默错误</strong>，
+比 <code>TypeError</code> 难查得多，因为程序一个字都不说。
+</div>
+
+<div class="box warn">
+<strong>⚠️ 为什么会踩：本地测试和提交用的是两份不同的调用代码</strong><br>
+本地图省事写成 <code>fn(a, int(b))</code>（a 还是字符串），函数里 <code>int(x*i)</code> 正好能跑；
+但裁判写的是 <code>fn(int(a), int(b))</code>。<strong>本地通过 ≠ 提交通过</strong>，
+差别全在这一处类型上。所以本地调用代码要<strong>照着裁判程序抄</strong>，不能自己简化。
+</div>
+
+<p><strong>要点与实测证据</strong>：<code>py_compile</code> 通过；
+按 PTA 的方式把函数体拼进裁判程序实跑，7 组输入全部符合：</p>
+
+<table>
+<tr><th>输入</th><th>期望</th><th>实得</th></tr>
+<tr><td><code>2 3</code>（题面样例）</td><td>246</td><td><strong>246</strong> ✅</td></tr>
+<tr><td><code>1 1</code></td><td>1</td><td><strong>1</strong> ✅</td></tr>
+<tr><td><code>7 1</code></td><td>7</td><td><strong>7</strong> ✅</td></tr>
+<tr><td><code>5 2</code></td><td>60（5 + 55）</td><td><strong>60</strong> ✅</td></tr>
+<tr><td><code>9 2</code></td><td>108（9 + 99）</td><td><strong>108</strong> ✅</td></tr>
+<tr><td><code>1 9</code></td><td>123456789</td><td><strong>123456789</strong> ✅</td></tr>
+<tr><td><code>9 9</code></td><td>1111111101</td><td><strong>1111111101</strong> ✅</td></tr>
+</table>
+<p>限时 400 ms，最大一项只有 9 次循环，耗时不可测。</p>
+
+<div class="box ok">
+<strong>① 也可以完全不用字符串：纯整数递推</strong>
+<pre><code>def fn(a,n):                                    纯整数递推，不用字符串
+    total=0
+    term=0                                      term 就是当前那一项：0 → 2 → 22 → 222
+    for _ in range(n):
+        term=term*10+a                          每轮把当前项乘 10 再加 a
+        total+=term                             累加
+    return total</code></pre>
+<p>实测 <code>2 3</code> → 246、<code>9 9</code> → 1111111101、<code>1 9</code> → 123456789，
+与字符串版<strong>逐字符相同</strong>。前提是 <code>a</code> 必须是个位数——题面保证了 [1, 9]，
+所以 <code>term*10+a</code> 一定不会进位污染。</p>
+</div>
+
+<div class="box ok">
+<strong>② 函数题的通用检查清单（每道都过一遍）</strong>
+<table>
+<tr><th>#</th><th>检查什么</th></tr>
+<tr><td>1</td><td>先读裁判程序的<strong>调用语句</strong>，把每个参数的类型写下来</td></tr>
+<tr><td>2</td><td>函数里<strong>只做计算</strong>：不 <code>input()</code>、不 <code>print()</code></td></tr>
+<tr><td>3</td><td>题面说「须返回」的，函数结尾一定有 <code>return</code>，而不是打印</td></tr>
+<tr><td>4</td><td>本地调用代码<strong>照抄裁判程序</strong>，不自己简化参数类型</td></tr>
+<tr><td>5</td><td>提交时只复制 <code>def</code> 到 <code>return</code>，本地测试那几行<strong>删掉</strong></td></tr>
+</table>
+</div>
+
+<h2 id="quick">八、速查总表</h2>
 
 <p><strong>为什么单独开一章：</strong>前面是按「遇到的顺序」记的，翻起来像流水账。
 这一章是<strong>按用途分类</strong>的一叠总表（<strong>表数不进正文、免得过期</strong>）——
