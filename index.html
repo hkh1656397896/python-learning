@@ -317,6 +317,7 @@
     <summary>七、函数题回顾</summary>
     <ol>
       <li><a onclick="return go('func-1')">函数 6-1 使用函数求特殊 a 串数列和</a></li>
+      <li><a onclick="return go('func-2')">函数 6-2 使用函数求素数和</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -13791,6 +13792,132 @@ print(s)                                        自己看结果对不对</code><
 <tr><td>3</td><td>题面说「须返回」的，函数结尾一定有 <code>return</code>，而不是打印</td></tr>
 <tr><td>4</td><td>本地调用代码<strong>照抄裁判程序</strong>，不自己简化参数类型</td></tr>
 <tr><td>5</td><td>提交时只复制 <code>def</code> 到 <code>return</code>，本地测试那几行<strong>删掉</strong></td></tr>
+</table>
+</div>
+
+<h3 id="func-2">函数 6-2 使用函数求素数和 <span class="tag">一次通过 · 函数题 2/6</span></h3>
+
+<p><strong>要求</strong>：写<strong>两个</strong>函数 ——
+<code>Prime(p)</code>：<code>p</code> 是素数返回 <code>True</code>，否则返回 <code>False</code>；
+<code>PrimeSum(m,n)</code>：返回区间 <code>[m, n]</code> 内<strong>所有素数之和</strong>。
+保证 <code>1 ≤ m ≤ n</code>。20 分，第 6 章函数题第二道。</p>
+
+<div class="box warn">
+<strong>⚠️ 这题和 6-1 最大的不同：要写两个函数</strong><br>
+题面把 <code>Prime</code> 和 <code>PrimeSum</code> 都列进了「函数接口定义」。
+只写 <code>PrimeSum</code> 会在裁判调用 <code>Prime</code> 时报
+<code>NameError: name 'Prime' is not defined</code>，而 PTA 只显示<strong>「非零返回」</strong>，
+看不到具体是哪一行。<strong>题面列了几个函数就写几个。</strong>
+</div>
+
+<p><strong>裁判测试程序（题面给的，不交）</strong></p>
+<pre><code>m,n=input().split()                             裁判自己读输入，一次拿到两个（都是字符串）
+m=int(m)                                        ⚠️ 分两行转 int，因为 split() 给的是 str
+n=int(n)
+print(PrimeSum(m,n))                            只调 PrimeSum；Prime 由 PrimeSum 内部去调</code></pre>
+
+<p><strong>我的代码（PTA 判过 —— 一次通过）</strong></p>
+<pre><code>def Prime(p):                                   题面要求返回 True/False，不是「打印出素数」
+    if p<=1:return False                        0、1、负数都不是素数；先排除，后面的 √p 才对 p=1 安全
+    elif p==2:return True                       这一行其实可以省 —— 见下面「可以更干净」那张表
+    else:                                       走到这里 p ≥ 3
+        for i in range(2,int(p**0.5)+1):        试除到 √p：range 右端取不到，所以要 +1
+            if p%i==0:
+                return False                    找到一个因子就能断定不是素数
+        else:                                   for…else：循环里没 break 才走这里（本题更常用 return True）
+            return True                         一个因子都没找到 → 是素数
+def PrimeSum(m,n):                              两个函数都得写，少一个就 NameError → PTA 报非零返回
+    T=0                                         累加器
+    for i in range(m,n+1):                      闭区间 [m,n]，右端要 +1
+        if Prime(i)==True:                      ==True 可以省，直接写 if Prime(i):
+            T+=i
+    return T                                    返回和，不要 print</code></pre>
+
+<div class="box ok">
+<strong>★ 为什么试除到 √p 就够</strong><br>
+设 <code>d</code> 是 <code>p</code> 的一个因子，那么 <code>p/d</code> 也是因子，而
+<code>d</code> 和 <code>p/d</code> 里<strong>至少有一个 ≤ √p</strong>。
+所以只要把 <code>2 ~ √p</code> 试完都没找到因子，就一定是素数——不需要试到 <code>p-1</code>。
+<table>
+<tr><th>p</th><th><code>range(2, int(p**0.5)+1)</code></th><th>说明</th></tr>
+<tr><td>2</td><td><code>[]</code>（空）</td><td>一次都不试，直接 <code>return True</code></td></tr>
+<tr><td>3</td><td><code>[]</code>（空）</td><td>同上</td></tr>
+<tr><td>97</td><td><code>[2,3,4,5,6,7,8,9]</code></td><td>√97 ≈ 9.85，试到 9</td></tr>
+</table>
+<strong><code>+1</code> 不能省</strong>：<code>range</code> 右端取不到，<code>range(2, 9)</code> 只到 8，
+漏掉 <code>i = 9</code> 这种正好等于 ⌊√p⌋ 的因子（比如 <code>p = 81</code>）。
+</div>
+
+<div class="box warn">
+<strong>⚠️ 三个可以更干净的地方（都不影响结果，实测已验证）</strong>
+<table>
+<tr><th>现在</th><th>可以改成</th><th>理由</th></tr>
+<tr><td><code>elif p==2:return True</code></td><td>删掉</td>
+    <td><code>p=2</code> 时 <code>range(2, int(2**0.5)+1)</code> 是空列表，循环不进，
+        自然走到 <code>return True</code>，这一行是冗余</td></tr>
+<tr><td><code>for … else: return True</code></td><td>循环外直接 <code>return True</code></td>
+    <td>循环里用的是 <code>return</code> 而不是 <code>break</code>，所以 <code>else</code>
+        必然执行，等价于写在循环后面</td></tr>
+<tr><td><code>if Prime(i)==True:</code></td><td><code>if Prime(i):</code></td>
+    <td>布尔值本身就能当条件，比较 <code>==True</code> 是多余的</td></tr>
+</table>
+<strong>实测</strong>：删掉 <code>elif p==2</code> 和 <code>for…else</code> 之后的精简版，
+与埃氏筛对拍 <code>1 ~ 200000</code>，<strong>0 处不一致</strong>。
+</div>
+
+<p><strong>要点与实测证据</strong>：<code>py_compile</code> 通过；
+<code>Prime</code> 与埃氏筛对拍 <strong>−5 ~ 200000</strong>（含负数与 0），<strong>0 处不一致</strong>；
+按 PTA 的方式拼进裁判程序实跑，6 组全部符合：</p>
+
+<table>
+<tr><th>输入</th><th>期望</th><th>实得</th></tr>
+<tr><td><code>1 10</code></td><td>17（2+3+5+7）</td><td><strong>17</strong> ✅</td></tr>
+<tr><td><code>1 1</code></td><td>0（1 不是素数，区间内无素数）</td><td><strong>0</strong> ✅</td></tr>
+<tr><td><code>2 2</code></td><td>2</td><td><strong>2</strong> ✅</td></tr>
+<tr><td><code>10 20</code></td><td>60（11+13+17+19）</td><td><strong>60</strong> ✅</td></tr>
+<tr><td><code>1 100</code></td><td>1060</td><td><strong>1060</strong> ✅</td></tr>
+<tr><td><code>0 3</code>（题面保证 m≥1，额外多测一道）</td><td>5（0、1 都排除）</td><td><strong>5</strong> ✅</td></tr>
+</table>
+
+<div class="box warn">
+<strong>⚠️ 复杂度：n 太大就会超时</strong><br>
+现在这个写法是「外层遍历每个 i，内层试除到 √i」，总复杂度约 <strong>O(n√n)</strong>。
+<table>
+<tr><th>n</th><th>本写法（试除）</th><th>埃氏筛</th></tr>
+<tr><td>10⁴</td><td>0.0039 s</td><td>0.0002 s</td></tr>
+<tr><td>10⁵</td><td>0.0680 s</td><td>0.0020 s</td></tr>
+<tr><td>10⁶</td><td><strong>1.5833 s</strong></td><td><strong>0.0205 s</strong></td></tr>
+</table>
+限时 400 ms → 本写法在 <strong>n ≥ 10⁶ 时会被判超时</strong>；筛法快约 <strong>77 倍</strong>，
+且两者结果完全相同（<code>n = 10⁶</code> 时都是 <code>37550402023</code>）。
+本题实测能过，说明它的数据集不大；但遇到「n ≤ 10⁶」的题必须换筛法。
+</div>
+
+<div class="box ok">
+<strong>① 数据量大时的筛法写法（<code>Prime</code> 仍然保留，因为题面要求）</strong>
+<pre><code>import math
+def PrimeSum(m,n):                              同样的入口，内部换成筛表
+    if n<2: return 0                            n<2 时没有素数，连表都不用建
+    s=bytearray([1])*(n+1)                      下标 0..n，1 表示「暂时认为是素数」
+    s[0]=s[1]=0                                 0 和 1 不是素数
+    for i in range(2,math.isqrt(n)+1):          只筛到 √n 就够
+        if s[i]:
+            s[i*i::i]=bytearray(len(s[i*i::i]))  从 i*i 开始，每隔 i 个划掉
+    return sum(i for i in range(m,n+1) if s[i])  只累加 [m,n] 区间里的</code></pre>
+<p>实测 <code>1 10⁶</code> 用时 <strong>0.0205 s</strong>，与本写法结果一致。
+<code>math.isqrt(n)</code> 比 <code>int(n**0.5)</code> 更保险（不受浮点误差影响）——不过本题数据量下两者
+<strong>在 2 ~ 300000 范围内完全一致</strong>，不必为此改代码。</p>
+</div>
+
+<div class="box ok">
+<strong>② 6-1 那份函数题检查清单，这题再加一条</strong>
+<table>
+<tr><th>#</th><th>检查什么</th></tr>
+<tr><td>1</td><td>题面列了<strong>几个</strong>函数？一个都不能少（本题是两个）</td></tr>
+<tr><td>2</td><td>每个函数的<strong>返回值类型</strong>对上没有（本题 <code>Prime</code> 要布尔、<code>PrimeSum</code> 要整数）</td></tr>
+<tr><td>3</td><td>区间是开还是闭（本题 <code>[m, n]</code> 闭区间，<code>range(m, n+1)</code>）</td></tr>
+<tr><td>4</td><td>函数里不 <code>input()</code>、不 <code>print()</code></td></tr>
+<tr><td>5</td><td>本地调用代码照抄裁判程序，提交时删掉</td></tr>
 </table>
 </div>
 
