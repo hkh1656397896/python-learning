@@ -133,7 +133,7 @@
     </ol>
   </details>
   <details class="toc-g">
-    <summary>二、常用代码与拓展 <span class="toc-n" id="cs">44</span></summary>
+    <summary>二、常用代码与拓展 <span class="toc-n" id="cs">45</span></summary>
     <ol>
       <li><a onclick="return go('s1-1')">① 读一行数字</a></li>
       <li><a onclick="return go('s1-2')">② range()：生成数字序列</a></li>
@@ -179,6 +179,7 @@
       <li><a onclick="return go('s1-45')">㊷ operator 模块：把「运算符」变成能传来传去的函数</a></li>
       <li><a onclick="return go('s1-46')">㊸ 递归：函数里调用自己（什么时候非用不可）</a></li>
       <li><a onclick="return go('s1-47')">㊹ 判断类型：type() / isinstance()（「是数字」和「看着像数字」不是一回事）</a></li>
+      <li><a onclick="return go('s1-48')">㊺ 字符串插值：.format() / f-string / %（谁能替代谁）</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -320,6 +321,8 @@
       <li><a onclick="return go('func-2')">函数 6-2 使用函数求素数和</a></li>
       <li><a onclick="return go('func-3')">函数 6-3 使用函数统计指定数字的个数</a></li>
       <li><a onclick="return go('func-4')">函数 6-4 使用函数输出指定范围内 Fibonacci 数的个数</a></li>
+      <li><a onclick="return go('func-5')">函数 6-5 使用函数求余弦函数的近似值</a></li>
+      <li><a onclick="return go('func-6')">函数 6-6 缩写词</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -5671,6 +5674,152 @@ list(map(methodcaller('replace', 'a', 'X'), ['cat','bat'])) # ['cXt', 'bXt']</co
 </table>
 相关小节：<strong>㊸</strong> 递归（判据要正向写）、<strong>⑦</strong> 方法族对照（<code>type</code> / <code>hasattr</code> / <code>dir</code> 三件套）、
 速查总表 <strong>①</strong> 内置函数总表。
+</div>
+
+<h3 id="s1-48">㊺ 字符串插值：<code>.format()</code> / f-string / <code>%</code>（谁能替代谁）</h3>
+
+<p>三种写法干同一件事：把值填进一句话里。先看同一个结果（实测逐字符相同）：</p>
+
+<table>
+<tr><th>写法</th><th>对应代码</th><th>实测</th></tr>
+<tr><td><code>%</code> 老做法</td><td><code>"%s 有 %d 个词，π≈%.2f" % (name,c,x)</code></td><td><code>'词频 有 23 个词，π≈3.14'</code></td></tr>
+<tr><td><code>.format()</code></td><td><code>"{} 有 {} 个词，π≈{:.2f}".format(name,c,x)</code></td><td><code>'词频 有 23 个词，π≈3.14'</code></td></tr>
+<tr><td><strong>f-string</strong></td><td><code>f"{name} 有 {c} 个词，π≈{x:.2f}"</code></td><td><code>'词频 有 23 个词，π≈3.14'</code></td></tr>
+</table>
+
+<div class="box warn">
+<strong>⚠️ 先分清两个「format」—— 一个是内置函数，一个是字符串方法</strong>
+<table>
+<tr><th>写法</th><th>是什么</th><th>实测</th></tr>
+<tr><td><code>format(3.14159, ".2f")</code></td>
+    <td><strong>内置函数</strong>：把<strong>一个值</strong>按规格转成字符串</td><td><code>'3.14'</code></td></tr>
+<tr><td><code>"{:.2f}".format(3.14159)</code></td>
+    <td><strong>字符串的方法</strong>：把值填进模板里的 <code>{}</code></td><td><code>'3.14'</code></td></tr>
+</table>
+结果一样，但一个是「转换单个值」，一个是「往模板里填」。PTA 裁判程序里出现的
+<code>"fib({0}) = {1}".format(i,b)</code> 是<strong>后者</strong>。
+</div>
+
+<div class="box ok">
+<strong>★ <code>.format()</code> 的六种填法（全部实测）</strong>
+<table>
+<tr><th>写法</th><th>填法</th><th>实测</th><th>注意</th></tr>
+<tr><td><code>"{} {}".format(1,2)</code></td><td>按顺序填</td><td><code>'1 2'</code></td><td>最常用</td></tr>
+<tr><td><code>"{1}{0}".format(1,2)</code></td><td>按下标填</td><td><code>'21'</code></td><td>顺序可以打乱</td></tr>
+<tr><td><code>"{0}{0}".format(3)</code></td><td>同一下标重复用</td><td><code>'33'</code></td><td>参数只给一个就够</td></tr>
+<tr><td><code>"{a}-{b}".format(a=1,b=2)</code></td><td>按关键字填</td><td><code>'1-2'</code></td><td>名字对不上就 <code>KeyError</code></td></tr>
+<tr><td><code>"{0}-{x}".format(1,x=2)</code></td><td>下标 + 关键字混用</td><td><code>'1-2'</code></td><td>下标在前、关键字在后</td></tr>
+<tr><td><code>"{d[a]}".format(d={"a":1})</code></td><td>取字典里的键</td><td><code>'1'</code></td><td>方括号里的键名<strong>不加引号</strong></td></tr>
+</table>
+字典还有一招打散：<code>"{name} {n}".format(**d)</code>，配合 <code>d={"name":"黄康豪","n":89}</code>
+实测得 <code>'黄康豪 89'</code>——<code>**</code> 把字典的键变成了关键字参数。
+</div>
+
+<div class="box ok">
+<strong>★ 格式规格：冒号后面那一段（<code>{}</code> → <code>{:规格}</code>）</strong>
+<table>
+<tr><th>规格</th><th>输入的示例值</th><th>实测</th><th>意思</th></tr>
+<tr><td><code>{:.2f}</code></td><td>3.14159</td><td><code>'3.14'</code></td><td>保留 2 位小数</td></tr>
+<tr><td><code>{:10.3f}</code></td><td>3.14159</td><td><code>'     3.142'</code></td><td>总宽 10，数字默认<strong>右对齐</strong></td></tr>
+<tr><td><code>{:&lt;10.3f}|</code></td><td>3.14159</td><td><code>'3.142     |'</code></td><td>左对齐</td></tr>
+<tr><td><code>{:&gt;10.3f}|</code></td><td>3.14159</td><td><code>'     3.142|'</code></td><td>右对齐</td></tr>
+<tr><td><code>{:^10.3f}|</code></td><td>3.14159</td><td><code>'  3.142   |'</code></td><td>居中</td></tr>
+<tr><td><code>{:08.3f}</code></td><td>3.14159</td><td><code>'0003.142'</code></td><td>前面的 <code>0</code> = 用 0 补位</td></tr>
+<tr><td><code>{:d}</code> / <code>{:5d}</code> / <code>{:05d}</code> / <code>{:+d}</code></td><td>85</td>
+    <td><code>'85'</code> / <code>'   85'</code> / <code>'00085'</code> / <code>'+85'</code></td>
+    <td>整数宽度、补零、强制带符号</td></tr>
+<tr><td><code>{:x}</code> / <code>{:#x}</code> / <code>{:b}</code></td><td>255</td>
+    <td><code>'ff'</code> / <code>'0xff'</code> / <code>'11111111'</code></td>
+    <td>十六进制、带前缀、二进制</td></tr>
+<tr><td><code>{:,}</code></td><td>1234567</td><td><code>'1,234,567'</code></td><td>千分位逗号</td></tr>
+<tr><td><code>{:%}</code> / <code>{:.1%}</code></td><td>0.25 / 0.2567</td>
+    <td><code>'25.000000%'</code> / <code>'25.7%'</code></td><td>按百分数显示</td></tr>
+</table>
+<strong>顺序口诀</strong>：<code>{:[填充][对齐][符号][宽度][,][.精度][类型]}</code>——
+例如 <code>{:08.3f}</code> 就是「用 0 填、宽 8、精度 3、定点」。
+</div>
+
+<div class="box ok">
+<strong>★ f-string 能做到一样吗 —— 能，而且多几样</strong>
+<table>
+<tr><th><code>.format()</code> 写法</th><th>f-string 等价写法</th><th>实测</th></tr>
+<tr><td><code>"{} {}".format(1,2)</code></td><td><code>f"{1} {2}"</code></td><td><code>'1 2'</code></td></tr>
+<tr><td><code>"{:.2f}".format(x)</code></td><td><code>f"{x:.2f}"</code></td><td><code>'3.14'</code></td></tr>
+<tr><td><code>"fib({0}) = {1}".format(i,b)</code></td><td><code>f"fib({i}) = {b}"</code></td><td><code>'fib(6) = 13'</code></td></tr>
+<tr><td><code>"{:&gt;6}|".format("ab")</code></td><td><code>f"{'ab':&gt;6}|"</code></td><td><code>'    ab|'</code></td></tr>
+</table>
+f-string 额外能做的（实测）：
+<table>
+<tr><th>能力</th><th>写法</th><th>实测</th></tr>
+<tr><td>占位符里直接写表达式</td><td><code>f"{a+b}"</code></td><td><code>'3'</code></td></tr>
+<tr><td>整句混着算</td><td><code>f"{a} + {b} = {a+b}"</code></td><td><code>'1 + 2 = 3'</code></td></tr>
+<tr><td>自带调试写法（3.8+）</td><td><code>f"{x=}"</code></td><td><code>'x=3.14159'</code></td></tr>
+<tr><td>表达式也能带规格</td><td><code>f"{x*2:.3f}"</code></td><td><code>'6.283'</code></td></tr>
+</table>
+</div>
+
+<div class="box bad">
+<strong>⚠️ 插值能力上 f-string 是超集，但有三种场合 <code>.format()</code> 仍不可替代</strong>
+<table>
+<tr><th>场合</th><th>为什么 f-string 不行</th><th>实测</th></tr>
+<tr><td>模板存在<strong>变量</strong>里</td>
+    <td>f-string 的模板写在<strong>源码</strong>里，不能拿字符串变量的内容当模板</td>
+    <td><code>tpl = "{} 的 {}"</code><br>
+        <code>tpl.format("苹果","颜色")</code> → <code>'苹果 的 颜色'</code><br>
+        <code>f"{tpl}"</code> → <code>'{} 的 {}'</code> ← <strong>原样输出，没插值</strong></td></tr>
+<tr><td>同一个模板<strong>复用多次</strong></td>
+    <td>每用一次都得把整个 f-string 重写一遍</td>
+    <td><code>tpl.format("苹果","颜色")</code> → <code>'苹果 的 颜色'</code><br>
+        <code>tpl.format("香蕉","价格")</code> → <code>'香蕉 的 价格'</code></td></tr>
+<tr><td>下标要<strong>重复或乱序</strong></td>
+    <td>f-string 只能把表达式写多遍</td>
+    <td><code>"{0}{0}{1}".format("a","b")</code> → <code>'aab'</code></td></tr>
+</table>
+<strong>实际影响</strong>：刷题时几乎永远 f-string 更省事——不用数下标、不用管参数顺序。
+但如果模板是<strong>数据</strong>（从文件读进来、由函数传进来、从配置里取），
+<code>.format()</code> 才是唯一选择，而且这时候写成 <code>f"{tpl}"</code>
+<strong>不会报错</strong>，只会静默地不插值——最难查的那一类错。
+</div>
+
+<div class="box warn">
+<strong>⚠️ 想把花括号<strong>打出来</strong>时，两种写法规则一样</strong>
+<table>
+<tr><th>想要的结果</th><th><code>.format()</code> 写法</th><th>f-string 写法</th><th>实测</th></tr>
+<tr><td>输出一个 <code>{}</code></td><td><code>"{{}}".format()</code></td><td><code>f"{{}}"</code></td><td><code>'{}'</code></td></tr>
+<tr><td>输出 <code>{5}</code></td><td><code>"{{{0}}}".format(5)</code></td><td><code>f"{{{5}}}"</code></td><td><code>'{5}'</code></td></tr>
+</table>
+规则都是 <code>{{</code> 表示「这是一个真的左花括号」。写成单个 <code>{</code> 又配不上占位符，
+就会被当成模板解析——所以写 JSON、正则、<code>dict</code> 的字面量时特别容易撞上。
+</div>
+
+<div class="box warn">
+<strong>⚠️ 占位符和参数对不上会怎样（全部实测）</strong>
+<table>
+<tr><th>写法</th><th>实测结果</th></tr>
+<tr><td><code>"{}".format()</code></td>
+    <td><code>IndexError: Replacement index 0 out of range for positional args tuple</code></td></tr>
+<tr><td><code>"{} {} {}".format(1,2)</code></td><td>同上（少给第 3 个）</td></tr>
+<tr><td><code>"{2}".format(1,2)</code></td><td>同上（下标超了）</td></tr>
+<tr><td><code>"{c}".format(a=1)</code></td><td><code>KeyError: 'c'</code></td></tr>
+<tr><td><code>"{}".format(1,2)</code></td><td><strong>不报错</strong>，多给的被忽略 → <code>'1'</code></td></tr>
+</table>
+最后一行是关键：<strong>参数给多了不报错，给少了才报错</strong>。
+所以「多写一个参数」不会被提醒，而「少写一个」会直接抛出 <code>IndexError</code>。
+</div>
+
+<div class="box ok">
+<strong>★ 怎么选（结论表）</strong>
+<table>
+<tr><th>场景</th><th>用哪个</th></tr>
+<tr><td>变量就在内存里，马上要拼一句</td><td><strong>f-string</strong>——短、不用数下标</td></tr>
+<tr><td>模板是变量 / 从文件读 / 要反复复用</td><td><code>.format()</code></td></tr>
+<tr><td>读别人的老代码（含 PTA 裁判程序）</td><td>认得出 <code>.format()</code> 就够，不必改写成 f-string</td></tr>
+<tr><td>只想把一个值按规格转成字符串</td><td><code>format(x, ".2f")</code> 内置函数，或 <code>f"{x:.2f}"</code></td></tr>
+<tr><td>看到 <code>"%s %d" % (...)</code></td><td>能读懂即可，新代码不必再用</td></tr>
+</table>
+相关小节：<strong>③ 格式化输出</strong>、<strong>㊳ 输出的格式控制</strong>、速查总表 <strong>③ 格式化与输出参数</strong>。
+上一道函数题 6-4 的裁判程序里那句 <code>print("fib({0}) = {1}".format(i,b))</code>
+就是<strong>按下标填</strong>的写法。
 </div>
 
 <h2 id="star">三、符号速查：* 和 []</h2>
@@ -14146,6 +14295,192 @@ n = 2 时这个 c 是 2，而 <code>range(2)</code> 只到 1；n = 3 时是 3，
 <tr><td><code>2 2 2</code></td><td><code>fib(2) = 2</code></td><td><strong>1</strong></td></tr>
 <tr><td><code>1 10000 12</code></td><td><code>fib(12) = 233</code></td><td><strong>20</strong></td></tr>
 </table>
+</div>
+
+<h3 id="func-5">函数 6-5 使用函数求余弦函数的近似值 <span class="tag">改了两处才对 · 函数题 5/6</span></h3>
+
+<p><strong>要求</strong>：用级数求 <code>cos(x)</code> 的近似值——</p>
+<p style="text-align:center"><code>cos(x) = x⁰/0! − x²/2! + x⁴/4! − x⁶/6! + …</code></p>
+<p><strong>精确到最后一项的绝对值小于 eps（绝对值小于 eps 的项不加）</strong>。
+<code>funcos(eps, x)</code> 返回该近似值。20 分，第 6 章函数题第五道。</p>
+
+<p><strong>裁判测试程序（题面给的，不交）</strong></p>
+<pre><code>eps,x=input().split()                           裁判读两个，都是字符串
+eps,x=float(eps),float(x)                       一行同时转两个 float
+value=funcos(eps,x)                             ⚠️ 函数返回【数值】，不是打印好的字符串
+print("cos({0}) = {1:.4f}".format(x,value))     4 位小数由裁判格式化 —— 函数里不必自己 round</code></pre>
+
+<p><strong>我的代码（PTA 判过 —— 最终版）</strong></p>
+<pre><code>def funcos(eps,x):                              返回 cos(x) 的近似值
+    sign=-1                                     下一项（x²项）的符号是负
+    T=i=e=m=1                                   T=1 是 0! 那一项；m 记 (2k)!；e 只用来当循环开关
+    j=2
+    while abs(e)&gt;=eps:                       开关值：上一轮算出的项的绝对值
+        m*=(i*j)                                (2k)! = (2k-2)! × (2k-1) × (2k) —— 这里 i=2k-1、j=2k
+        e=(x**j)/m*sign                         算出新的一项
+        i+=2
+        j+=2
+        sign=-sign                              符号交替
+        if abs(e)&lt;eps:break                  ⚠️ 先判：绝对值小于 eps 的项【不加】
+        T+=e                                    判过了才加
+    return T</code></pre>
+
+<div class="box bad">
+<strong>⚠️ 这道题卡了两处，都在「什么时候停」上</strong>
+<table>
+<tr><th>版本</th><th>问题</th><th>后果</th></tr>
+<tr><td>第一版</td><td><code>while abs(e) &gt; eps:</code> 在循环头判，<code>T += e</code> 在循环里 —— <strong>先加后判</strong></td>
+    <td>「绝对值小于 eps 的那一项」<strong>已经被加进去了</strong>，违反题面口径</td></tr>
+<tr><td>第二版</td><td>改成 <code>&gt;=</code> 但仍先加后判</td><td>只是把「等于 eps」这种情况修正，主问题还在</td></tr>
+<tr><td><strong>最终版</strong></td><td>加了一句 <code>if abs(e) &lt; eps: break</code>，放在 <code>T += e</code> <strong>之前</strong></td>
+    <td>✅ 410 组网格与题面口径完全一致</td></tr>
+</table>
+</div>
+
+<div class="box warn">
+<strong>⚠️ 为什么 <code>while</code> 判的是「上一轮的 e」—— 这是本题最反直觉的地方</strong><br>
+把「判」和「加」的先后打印出来（eps=0.01、x=1）：
+<table>
+<tr><th>时点</th><th>条件看的是</th><th>发生了什么</th></tr>
+<tr><td>判第 1 次</td><td>e = 1（初始哨兵）</td><td>真 → 进循环</td></tr>
+<tr><td>轮 1</td><td>—</td><td>算出 e = −0.5，<strong>T += −0.5</strong></td></tr>
+<tr><td>判第 2 次</td><td>e = −0.5（刚加进去那个）</td><td>真 → 进循环</td></tr>
+<tr><td>轮 2</td><td>—</td><td>算出 e = +0.04167，<strong>T += 它</strong></td></tr>
+<tr><td>判第 3 次</td><td>e = 0.04167</td><td>真 → 进循环</td></tr>
+<tr><td>轮 3</td><td>—</td><td>算出 e = −0.00139，<strong>T += 它</strong> ← 小项在这里进了 T</td></tr>
+<tr><td>判第 4 次</td><td>e = −0.00139（|·| &lt; 0.01）</td><td><strong>假 → 退出</strong></td></tr>
+</table>
+退出时 T = <code>0.5402777778</code>；题面口径 = <code>0.5416666667</code>。<br><br>
+<strong>一句话原理</strong>：循环条件读的是<strong>变量当前的值</strong>。如果这个值在循环体里被更新过，
+那条件判到的永远是「上一次循环的结果」，而不是「这一次将要做的事」。<br>
+这版的 <code>e</code> 同时当<strong>数据</strong>和<strong>开关</strong>，两个角色叠在一个变量上，错位就看不见了。
+</div>
+
+<div class="box warn">
+<strong>⚠️ 对照 6-4：同样是 <code>while</code>，那里是对的</strong>
+<table>
+<tr><th>题</th><th>循环体顺序</th><th>结果</th></tr>
+<tr><td><strong>6-4</strong></td><td><code>T.append(a)</code> → <code>a,b=b,a+b</code>（<strong>先用，后更新</strong>）</td>
+    <td>判过的 a == 用掉的 a ✅</td></tr>
+<tr><td><strong>6-5</strong></td><td><code>e = 新值</code> → <code>T += e</code>（<strong>先更新，后用</strong>）</td>
+    <td>用掉的 e 从来没被判过 ❌</td></tr>
+</table>
+<strong>判据</strong>：一个变量如果既当循环开关、又当数据，就要确认「条件里判的那个值」和
+「循环体里用掉的那个值」<strong>是不是同一次赋值产生的</strong>。
+</div>
+
+<div class="box bad">
+<strong>⚠️ 样例区分不出来 —— 这是最坑的一点</strong>
+<table>
+<tr><th>口径</th><th>eps=1e-4, x=−3.1</th><th>输出</th></tr>
+<tr><td>先加后判（第一版）</td><td>−0.9991385205</td><td><code>-0.9991</code></td></tr>
+<tr><td>先判后加（正确）</td><td>−0.9990516934</td><td><code>-0.9991</code></td></tr>
+</table>
+<strong>两个都是 −0.9991</strong>，样例完全分辨不出来。但换 eps 就露：
+<table>
+<tr><th>eps</th><th>两种口径输出不同的组数（共 41 个 x）</th></tr>
+<tr><td>0.1</td><td><strong>40 / 41</strong></td></tr>
+<tr><td>0.01</td><td>40 / 41</td></tr>
+<tr><td>0.001</td><td>32 / 41</td></tr>
+<tr><td>0.0001</td><td>10 / 41</td></tr>
+</table>
+10 个 eps × 41 个 x = <strong>410 组里 312 组不同（76.1%）</strong>。
+</div>
+
+<div class="box warn">
+<strong>⚠️ 一个反直觉的事实：错的那版反而更接近真值</strong>
+<table>
+<tr><th>值</th><th>与 <code>math.cos(−3.1)</code> 的差</th></tr>
+<tr><td><code>math.cos(−3.1)</code> = −0.9991351503</td><td>—</td></tr>
+<tr><td>先加后判 = −0.9991385205</td><td><strong>3.4e-6</strong>（更准）</td></tr>
+<tr><td>先判后加 = −0.9990516934</td><td>8.3e-5（题面口径）</td></tr>
+</table>
+多补一项，截断误差自然更小。但<strong>判题是按题面口径生成的答案</strong>，不按真值。
+所以「算得更准」在这里是减分项——<strong>先按题面写</strong>。
+</div>
+
+<div class="box ok">
+<strong>★ 验收与边界</strong>
+<table>
+<tr><th>检查</th><th>结果</th></tr>
+<tr><td>题面样例 <code>0.0001 -3.1</code></td><td><code>cos(-3.1) = -0.9991</code> ✅ 逐字符一致</td></tr>
+<tr><td>10 个 eps × 41 个 x = 410 组，与题面口径对拍</td><td><strong>0 组不一致</strong> ✅</td></tr>
+<tr><td><code>eps = 1</code> 时</td><td>两边都得 <code>1.0</code>（0! 那一项）</td></tr>
+<tr><td><code>eps ≥ 2</code> 时</td><td>本写法返回 <code>1.0</code>；严格按题面口径应是 <code>0.0</code><br>
+（因为 <code>T</code> 预置了 0! 项；题面的 eps 都很小，PTA 不会这样测）</td></tr>
+</table>
+</div>
+
+<h3 id="func-6">函数 6-6 缩写词 <span class="tag">一次通过 · 函数题 6/6 收尾</span></h3>
+
+<p><strong>要求</strong>：输入一行英文短语，返回<strong>各单词首字母大写</strong>拼成的缩写词
+（<code>central processing unit</code> → <code>CPU</code>）。20 分，第 6 章函数题最后一道。</p>
+
+<p><strong>裁判测试程序（题面给的，不交）</strong></p>
+<pre><code>phrase=input()                                  整行读入，可能含空格与标点
+print(acronym(phrase))                          裁判负责打印，函数只返回字符串</code></pre>
+
+<p><strong>我的代码（PTA 判过 —— 一次通过）</strong></p>
+<pre><code>import re
+def acronym(phrase):                            返回首字母缩写（全大写、无分隔）
+    words=re.findall(r"[A-Za-z]+",phrase)       ① 一把切出所有「连续字母」，标点/空格/数字自动当分隔
+    T=[]                                        放首字母（② 建在循环外）
+    for w in words:
+        w=w[0].upper()                          ③ 取首字符并转大写
+        T.append(w)
+    s="".join(T)                                ④ 用空串拼接 —— 不要用 " ".join
+    return s</code></pre>
+
+<div class="box ok">
+<strong>★ 四个动作，一步不能少</strong>
+<table>
+<tr><th>#</th><th>动作</th><th>写成什么就错</th></tr>
+<tr><td>①</td><td>用正则 <code>[A-Za-z]+</code> 切词</td>
+    <td><code>phrase.split()</code> → 只按空白切，<code>state-of-the-art</code> 会被当成<strong>一个</strong>词，结果是 <code>S</code> 而不是 <code>SOTA</code></td></tr>
+<tr><td>②</td><td>列表建在<strong>循环外</strong></td><td>建在循环里 → 每轮清零，只剩最后一个字母</td></tr>
+<tr><td>③</td><td><code>w[0].upper()</code></td><td>忘了 <code>.upper()</code> → 输出小写 <code>cpu</code></td></tr>
+<tr><td>④</td><td><code>"".join(T)</code>（空串）</td><td>写成 <code>" ".join(T)</code> → 输出 <code>C P U</code></td></tr>
+</table>
+</div>
+
+<div class="box ok">
+<strong>★ 实测 10 组（含边界）</strong>
+<table>
+<tr><th>输入</th><th>实得</th><th>验什么</th></tr>
+<tr><td><code>central processing unit</code></td><td><code>CPU</code></td><td>题面样例</td></tr>
+<tr><td><code>state-of-the-art</code></td><td><code>SOTA</code></td><td>连字符也算分隔符</td></tr>
+<tr><td><code>  multiple   spaces  here </code></td><td><code>MSH</code></td><td>连续空格、首尾空格</td></tr>
+<tr><td>（空行）</td><td><code>''</code></td><td>空输入不报错</td></tr>
+<tr><td><code>a</code></td><td><code>A</code></td><td>单个词</td></tr>
+<tr><td><code>Hello World</code></td><td><code>HW</code></td><td>已有大写不重复转换</td></tr>
+<tr><td><code>ALL CAPS ALREADY</code></td><td><code>ACA</code></td><td>全大写输入</td></tr>
+<tr><td><code>e-mail / web-based  2024 guide</code></td><td><code>EMWBG</code></td><td>斜杠、数字、连字符混用</td></tr>
+<tr><td><code>one-two-three four</code></td><td><code>OTTF</code></td><td>连字符词</td></tr>
+<tr><td><code>3D printing</code></td><td><code>DP</code></td><td><strong>见下</strong></td></tr>
+</table>
+</div>
+
+<div class="box warn">
+<strong>⚠️ 一个残留口径问题：数字被当成分隔符</strong><br>
+正则 <code>[A-Za-z]+</code> 只认字母，所以 <code>3D</code> 里的 <code>3</code> 会把词切开，
+<code>3D printing</code> 得 <code>DP</code>（而不是 <code>3P</code> 或 <code>DP</code> 之外的什么）。
+本题能过，说明测试数据里没有这种词；但如果哪天遇到「数字算单词一部分」的题面，
+字符类要写成 <code>[A-Za-z0-9]+</code>。<strong>两种写法都合法，取决于题面怎么定义「单词」。</strong>
+</div>
+
+<div class="box ok">
+<strong>★ 函数题 6/6 全部完成 —— 这一章到此收尾</strong>
+<table>
+<tr><th>#</th><th>题目</th><th>结果</th><th>核心考点</th></tr>
+<tr><td>6-1</td><td>使用函数求特殊 a 串数列和</td><td>一次通过</td><td>裁判传 int，要 <code>int(str(x)*i)</code></td></tr>
+<tr><td>6-2</td><td>使用函数求素数和</td><td>一次通过</td><td>题面列两个函数就写两个；试除到 √p</td></tr>
+<tr><td>6-3</td><td>使用函数统计指定数字的个数</td><td>一次通过</td><td><code>count</code> 参数必须 str；负号天然安全</td></tr>
+<tr><td>6-4</td><td>使用函数输出指定范围内 Fibonacci 数的个数</td><td><strong>三版才对</strong></td><td>别猜上界：<code>for</code> 要次数、<code>while</code> 要状态</td></tr>
+<tr><td>6-5</td><td>使用函数求余弦函数的近似值</td><td><strong>改两处才对</strong></td><td>「判」和「用」必须是同一次赋值</td></tr>
+<tr><td>6-6</td><td>缩写词</td><td>一次通过</td><td><code>re.findall</code> 切词 + <code>"".join</code></td></tr>
+</table>
+<strong>六道里四道一次过，两道栽在「循环什么时候停」上。</strong>这不是巧合——它说明
+<strong>「循环边界」是这一章唯一的系统性弱点</strong>，比语法、比算法都重要。
 </div>
 
 <h2 id="quick">八、速查总表</h2>
