@@ -319,6 +319,7 @@
       <li><a onclick="return go('func-1')">函数 6-1 使用函数求特殊 a 串数列和</a></li>
       <li><a onclick="return go('func-2')">函数 6-2 使用函数求素数和</a></li>
       <li><a onclick="return go('func-3')">函数 6-3 使用函数统计指定数字的个数</a></li>
+      <li><a onclick="return go('func-4')">函数 6-4 使用函数输出指定范围内 Fibonacci 数的个数</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -14021,6 +14022,129 @@ print("Number of digit 2 in "+str(number)+":",count)  ⚠️ 这里的 "2" 是�
 <tr><td><code>11 1</code></td><td><code>Number of digit 2 in 11: 2</code></td><td>✅</td></tr>
 <tr><td><code>100 1</code></td><td><code>Number of digit 2 in 100: 1</code></td><td>✅</td></tr>
 <tr><td><code>999 9</code></td><td><code>Number of digit 2 in 999: 3</code></td><td>✅</td></tr>
+</table>
+</div>
+
+<h3 id="func-4">函数 6-4 使用函数输出指定范围内 Fibonacci 数的个数 <span class="tag">三次才对 · 函数题 4/6</span></h3>
+
+<p><strong>要求</strong>：写两个函数 ——
+<code>fib(n)</code>：返回第 n 个 Fibonacci 数（题面定义 <code>fib(0) = fib(1) = 1</code>，
+即 <code>1, 1, 2, 3, 5, 8, 13, …</code>）；
+<code>PrintFN(m, n)</code>：用<strong>列表</strong>返回 <code>[m, n]</code> 中的<strong>所有</strong> Fibonacci 数。
+<code>0 &lt; m ≤ n ≤ 10000</code>。20 分，第 6 章函数题第四道。</p>
+
+<p><strong>裁判测试程序（题面给的，不交）</strong></p>
+<pre><code>m,n,i=input().split()                           一次读三个，顺序是 m、n、i
+n=int(n)                                        三个都要转 int（split 给的是字符串）
+m=int(m)
+i=int(i)
+b=fib(i)                                        ⚠️ fib 必须返回【一个整数】
+print("fib({0}) = {1}".format(i,b))             ⚠️ 返回列表的话，这里会把整串打印出来
+fiblist=PrintFN(m,n)                            ⚠️ PrintFN 必须返回【列表】
+print(len(fiblist))                             最后只打印个数</code></pre>
+
+<p><strong>我的代码（PTA 判过 —— 第三版）</strong></p>
+<pre><code>def fib(n):                                     管「第 n 项」—— 编号有定义
+    if n==0 or n==1:
+        return 1                                题面：最开始两项都定义为 1
+    else:
+        a,b=1,1                                 锚点必须是 1,1；改成 0,1 或 1,2 会让 fib(6) 变 8 或 21
+        for _ in range(n-1):                    ⚠️ 这里用 for：第 n 项固定要滚 n-1 次
+            a,b=b,a+b                           同时后移一格（a 和 b 永远是相邻两项）
+    return b                                    返回 int，不能返回列表
+def PrintFN(m,n):                               管「区间里有哪些值」—— 不关心编号
+    T=[]                                        列表建在循环外，否则每轮清零
+    a,b=1,1
+    while a<=n:                                 ⚠️ 这里用 while：不知道要生成几项，值超过 n 自然停
+        if a>=m:                                收不收，条件写在这里
+            T.append(a)                         append 是原地修改，不要写 T = T.append(...)
+        a,b=b,a+b
+    return T                                    返回 list</code></pre>
+
+<div class="box ok">
+<strong>★ 这题真正的分水岭：同一个文件里，<code>for</code> 和 <code>while</code> 各用一次</strong>
+<table>
+<tr><th></th><th><code>for</code></th><th><code>while</code></th></tr>
+<tr><td>前提</td><td>事先知道<strong>跑几次</strong></td><td>只需要知道<strong>跑到什么状态就停</strong></td></tr>
+<tr><td>上界从哪来</td><td>需要猜</td><td>不用猜，值自己到那儿</td></tr>
+<tr><td>本题用在哪</td><td><code>fib(n)</code>：第 n 项固定滚 <code>n-1</code> 次</td>
+    <td><code>PrintFN(m,n)</code>：不知道要生成多少项</td></tr>
+<tr><td>主要风险</td><td>猜小漏数、猜大白算</td><td>条件不收敛 → 死循环</td></tr>
+</table>
+<strong>判断口诀</strong>：如果写循环之前要先「猜一个范围」，就该停下来想一想能不能改成
+<code>while</code>——循环条件应该是<strong>变量自己的状态</strong>，不是一个估计出来的数。
+</div>
+
+<div class="box bad">
+<strong>⚠️ 这道题前三版全死在「猜上界」上</strong>
+<table>
+<tr><th>版本</th><th>怎么猜的</th><th>错在哪</th><th>实测不一致</th></tr>
+<tr><td>第 1 版</td><td><code>range(n//2+1)</code></td><td>n ≤ 9 时覆盖不到</td>
+    <td><code>1~30</code> 的 465 组里 <strong>39 组</strong>错</td></tr>
+<tr><td>第 2 版</td><td><code>range(n)</code></td><td>n = 2、3 还差一位</td>
+    <td><code>1~40</code> 的 820 组里 <strong>5 组</strong>错</td></tr>
+<tr><td>第 3 版</td><td><code>while a &lt;= n</code></td><td>——</td><td>不需要上界</td></tr>
+</table>
+<strong>为什么 n = 2、3 还是错</strong>：需要覆盖到「使 <code>fib(c) ≤ n</code> 的最大 c」，
+n = 2 时这个 c 是 2，而 <code>range(2)</code> 只到 1；n = 3 时是 3，<code>range(3)</code> 只到 2。
+<br><br>
+<strong>这两版都能过一部分样例</strong>——第 1 版当时甚至通过了 PTA。所以「样例全过」不能当作正确性证据，
+<strong>要把小 n 全部扫一遍</strong>。
+</div>
+
+<div class="box warn">
+<strong>⚠️ <code>fib</code> 不能返回列表 —— 否则看起来像「fib(6) 不等于 13」</strong><br>
+裁判里是 <code>b=fib(i)</code> 然后 <code>print("fib({0}) = {1}".format(i,b))</code>。
+如果图省事让 <code>fib</code> 也滚出一整串，打印出来就是：
+<table>
+<tr><th><code>fib</code> 返回</th><th>实际输出</th></tr>
+<tr><td><code>13</code>（整数）✅</td><td><code>fib(6) = 13</code></td></tr>
+<tr><td><code>[1, 1, 2, 3, 5, 8, 13]</code>（列表）❌</td>
+    <td><code>fib(6) = [1, 1, 2, 3, 5, 8, 13]</code> —— 13 在末尾，看着像「不等于 13」</td></tr>
+</table>
+两个函数的返回值类型是分开的：<code>fib</code> → <strong>整数</strong>，<code>PrintFN</code> → <strong>列表</strong>。
+</div>
+
+<div class="box ok">
+<strong>★ 性能差到百万倍：老写法每拿一项就把整串重算一遍</strong>
+<table>
+<tr><th>写法</th><th><code>PrintFN(1, 10000)</code> 用时</th></tr>
+<tr><td><code>[fib(c) for c in range(n)]</code>（猜上界 + 每次重算）</td><td>6.7400 s</td></tr>
+<tr><td><code>range(n//2+1)</code> 那版</td><td>0.7772 s</td></tr>
+<tr><td><code>while a &lt;= n</code> 滚着生成</td><td><strong>0.0000015 s</strong></td></tr>
+</table>
+老写法要生成 n 项，而每项 <code>fib(c)</code> 都从头滚 c 次，总计约 <code>n²/2</code> 次加法；
+滚着生成只滚一遍，约 <strong>20 步</strong>就结束（n = 10000 时 Fibonacci 只到 10946）。
+</div>
+
+<div class="box warn">
+<strong>⚠️ 记录在案：<code>m = 1</code> 时 <code>1</code> 会出现两次</strong><br>
+因为 <code>fib(0) = fib(1) = 1</code>，滚出来的头两项都是 1，所以：
+<table>
+<tr><th>调用</th><th>返回</th><th>个数</th></tr>
+<tr><td><code>PrintFN(1, 100)</code></td><td><code>[1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89]</code></td><td><strong>11</strong>（去重后是 10）</td></tr>
+<tr><td><code>PrintFN(2, 100)</code></td><td><code>[2, 3, 5, 8, 13, 21, 34, 55, 89]</code></td><td>9</td></tr>
+</table>
+<strong>判题没有为此报错</strong>，说明测试用例里要么不含 <code>m = 1</code>，要么本来就按「项」计数。
+<strong>留个心眼</strong>：以后遇到明确要求「不重复」的同类题，在 <code>append</code> 那行加一个判断就够了，
+滚动部分一个字都不用改——去重和滚动是两件独立的事。
+</div>
+
+<div class="box ok">
+<strong>② 验收：<code>fib(0) ~ fib(12)</code> 逐个对</strong>
+<table>
+<tr><th>n</th><th>0</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th><th>10</th><th>11</th><th>12</th></tr>
+<tr><td><strong>fib(n)</strong></td><td>1</td><td>1</td><td>2</td><td>3</td><td>5</td><td>8</td><td><strong>13</strong></td><td>21</td><td>34</td><td>55</td><td>89</td><td>144</td><td>233</td></tr>
+</table>
+<strong>按本地测试方式实跑（输入是 m、n、i 三个值）</strong>
+<table>
+<tr><th>输入</th><th>第一行输出</th><th>第二行（个数）</th></tr>
+<tr><td><code>1 100 6</code></td><td><code>fib(6) = 13</code></td><td><strong>11</strong></td></tr>
+<tr><td><code>2 100 6</code></td><td><code>fib(6) = 13</code></td><td><strong>9</strong></td></tr>
+<tr><td><code>1 10 0</code></td><td><code>fib(0) = 1</code></td><td><strong>6</strong></td></tr>
+<tr><td><code>1 2 1</code></td><td><code>fib(1) = 1</code></td><td><strong>3</strong></td></tr>
+<tr><td><code>2 2 2</code></td><td><code>fib(2) = 2</code></td><td><strong>1</strong></td></tr>
+<tr><td><code>1 10000 12</code></td><td><code>fib(12) = 233</code></td><td><strong>20</strong></td></tr>
 </table>
 </div>
 
