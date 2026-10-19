@@ -109,7 +109,7 @@
 <nav id="toc">
   <div class="toc-head">目录　<span class="toc-hint">点标题展开 · 点条目直接跳</span></div>
   <details class="toc-g">
-    <summary>一、易错点 <span class="toc-n" id="ce">19</span></summary>
+    <summary>一、易错点 <span class="toc-n" id="ce">20</span></summary>
     <ol>
       <li><a onclick="return go('e1-1')">❌ 1. 输入分隔符猜错</a></li>
       <li><a onclick="return go('e1-2')">❌ 2. int 和 float 用错</a></li>
@@ -130,6 +130,7 @@
       <li><a onclick="return go('e1-18')">❌ 17. 手算循环上界：算错了不报错，只会「悄悄少打印几种」</a></li>
       <li><a onclick="return go('e1-19')">❌ 18. 「加起来等于 0」不等于「全是 0」 —— 正负会互相抵消</a></li>
       <li><a onclick="return go('e1-20')">❌ 19. 同一段代码会被执行很多次 —— 静态读代码看递归必然看错</a></li>
+      <li><a onclick="return go('e1-21')">❌ 20. 顺序错了不报错，只错边界 —— 「往前挪一格」和「收不收」谁在前</a></li>
     </ol>
   </details>
   <details class="toc-g">
@@ -1011,6 +1012,95 @@ any(M[i][j] != 0 for i in range(n) for j in range(i))    # 下三角有非 0？<
 <p>相关小节：<strong>㊸</strong> 递归（每层各一份 <code>T</code>、层号用参数传）、
 <strong>㊹</strong> 判断类型（分支的判据）、<strong>❌15</strong> 缩进 = 从属关系（空间维度的那一半）、
 <strong>review-95</strong>（6-4：<code>T</code> 与 <code>return</code> 的分工、父层 <code>T</code> 为什么存在）。</p>
+
+<h3 id="e1-21">❌ 20. 顺序错了不报错，只错边界 —— 「往前挪一格」和「收不收」谁在前 <span class="tag">函数 6-4</span></h3>
+<p>重做「七、函数题回顾」里的<strong>函数 6-4 输出指定范围内 Fibonacci 数的个数</strong>时，
+<code>a, b = b, a + b</code> 这一句被挪了三个位置，三次 <code>py_compile</code> <strong>全都通过</strong>，
+但三次的结果依次是：<strong>死循环</strong> → <strong>答案错</strong> → <strong>全对</strong>。<br>
+一句话概括：<strong>「往前挪一格」是每轮都必须做的；「收不收」才是要看条件的。</strong>
+把必须无条件做的事挂到条件下面、或者抢到判断前面，编译器不会说一个字 —— 错只错在边界上。</p>
+
+<div class="box bad">
+<strong>实测：同一句换了三个位置，三种结果</strong>
+<table>
+<tr><th>版本</th><th><code>a,b=b,a+b</code> 的位置</th><th>现象（实测）</th><th>判题会怎么报</th></tr>
+<tr><td>第 1 版</td><td>写在 <code>if a&gt;=m:</code> <strong>里面</strong></td>
+<td>「收不收」和「挪一格」绑在一起 → <code>a</code> 小于 <code>m</code> 时状态不前进 → <strong>4 秒未结束</strong></td>
+<td>运行超时</td></tr>
+<tr><td>第 2 版</td><td>抢到 <code>if</code> <strong>前面</strong></td>
+<td>检查的是<strong>下一项</strong> → <code>PrintFN(1,10)</code> 打出 <code>[1,2,3,5,8,13]</code>，多收了越界的 <code>13</code>、又丢掉了第一个 <code>1</code></td>
+<td>答案错（<code>2 10 6</code> 给 <code>5</code>，应为 <code>4</code>）</td></tr>
+<tr><td>第 3 版</td><td>在 <code>if</code> <strong>之后</strong>、与 <code>if</code> 同层</td>
+<td><code>m=1..59</code>、<code>n=m..119</code> 共 <strong>5310 组</strong>逐元素全同</td>
+<td>通过</td></tr>
+</table>
+</div>
+
+<p>第 1 版的写法（把两件事绑在同一层）：</p>
+<pre><code>def PrintFN(m, n):              # 返回 [m, n] 区间内的 Fibonacci 数
+    T = []                      # 收集结果
+    a, b = 1, 1                 # a 是当前项 F(k)，b 是下一项 F(k+1)
+    while a &lt;= n:               # 当前项还在范围内
+        if a &gt;= m:              # 收不收的判断
+            a, b = b, a + b     # ❌ 坑1：往前挪一格被关进了 if 里面
+            T.append(b)         # ❌ 坑2：收的是 b（下一项），不是 a（当前项）
+    return T                    # 交回列表</code></pre>
+<p>两个坑的后果不一样：<strong>坑 1</strong> 让「不符合条件」等于「时间静止」——
+<code>a</code> 永远是 1、永远小于 <code>m</code>，于是<strong>死循环</strong>；
+<strong>坑 2</strong> 是静默的 —— 收进来的每一项都往后错了一位，越界的项也一起收。</p>
+
+<p>第 3 版的写法（判断只读、挪一格无条件）：</p>
+<pre><code>def PrintFN(m, n):              # 返回 [m, n] 区间内的 Fibonacci 数
+    T = []                      # 收集结果
+    a, b = 1, 1                 # 进循环前 a 就是当前项 F(0)=1
+    while a &lt;= n:               # 循环条件 = 当前项还在范围内
+        if a &gt;= m:              # 先判断「收不收」——这一步只读，不改状态
+            T.append(a)         # 收的是当前项 a
+        a, b = b, a + b         # 再无条件往前挪一格（和 if 同层）
+    return T                    # 交回列表</code></pre>
+
+<div class="box ok">
+<strong>判据：循环变量的取值序列，必须正好是「想处理的那串值」</strong>
+<table>
+<tr><th>写法</th><th><code>a</code> 的取值序列</th><th>说明</th></tr>
+<tr><td>正确（先收 a、再挪）</td><td><code>1 1 2 3 5 8 13</code></td><td>正好是要检查的那些项，两个 <code>1</code> 都在</td></tr>
+<tr><td>挪一格抢在判断前面</td><td><code>1 2 3 5 8 13</code></td><td>丢掉 F(0)，每轮检查的都是下一项</td></tr>
+<tr><td>挪一格关在 <code>if</code> 里（<code>m=2</code>）</td><td><code>1 1 1 1 1</code></td><td>卡住不动 = 死循环</td></tr>
+</table>
+做法：在循环体第一行临时插一句 <code>print("a=", a)</code>，拿一组小数据跑一遍看序列，验完删掉那一句。
+<strong>序列对了边界才对；只看最后那个数，看不出差一格。</strong>
+</div>
+
+<div class="box warn">
+<strong>为什么「个数」会把这个错遮住</strong>
+<table>
+<tr><th>调用</th><th>第 2 版的个数</th><th>正确个数</th><th>第 2 版的内容</th></tr>
+<tr><td><code>PrintFN(1,10)</code></td><td>6 ✅</td><td>6</td><td><code>[1,2,3,5,8,13]</code> ❌</td></tr>
+<tr><td><code>PrintFN(1,1)</code></td><td>2 ✅</td><td>2</td><td><code>[1,2]</code> ❌</td></tr>
+<tr><td><code>PrintFN(1,100)</code></td><td>11 ✅</td><td>11</td><td>末位越界成 <code>144</code> ❌</td></tr>
+<tr><td><code>PrintFN(2,10)</code></td><td>5 ❌</td><td>4</td><td><code>[2,3,5,8,13]</code></td></tr>
+</table>
+<code>m</code> 不大于 1 时个数<strong>全部正确</strong>：少收一个 <code>1</code>、多收一个越界项，个数正好抵消；
+只有 <code>m</code> 大于 1 才露出来。而这道题的裁判<strong>只打印个数、不打印内容</strong>，
+所以样例和 <code>m=1</code> 的用例永远抓不到它。<br>
+同族记录：4-6 的末行换行、4-7 的 <code>N=0</code>、7-1 的 <code>#</code> 截断、函数 6-4 第 1 版漏数 ——
+都属于<strong>「判过 ≠ 对」</strong>。
+</div>
+
+<div class="box ok">
+<strong>和 ❌15 的分工：一个管「属于哪个块」，一个管「块里的顺序」</strong>
+<table>
+<tr><th>维度</th><th>问的是什么</th><th>出错的后果</th><th>在哪学过</th></tr>
+<tr><td><strong>缩进 = 从属关系</strong></td><td>这条语句属于哪个块、走不走</td><td>整段逻辑跑空 / 跑满</td><td>❌15</td></tr>
+<tr><td><strong>顺序 = 处理顺序</strong></td><td>同一个块里的两句，谁先谁后</td><td>差一项、差一个元素、或死循环</td><td><strong>本条</strong></td></tr>
+</table>
+两种错<strong>都编译通过</strong>，也都只能靠「把中间量打出来」发现。差别在发现的难度：
+❌15 的错一眼能看出整段跑歪，本条的错<strong>只错一个数</strong>，最难发现。
+</div>
+
+<p>相关小节：<strong>❌15</strong> 缩进 = 从属关系、<strong>❌19</strong> 同一段代码被执行很多次（另外两个「静态看代码会看错」的维度）、
+<strong>㊸</strong> 递归（循环的界由「自己」还是由「猜的数」决定）、<strong>㊹</strong> 判断类型（分支的判据），
+以及<strong>七、函数题回顾</strong>里的 <strong>函数 6-4</strong>（<code>PrintFN</code> 的原版与三层调用）。</p>
 
 <h2 id="s1">二、常用代码与拓展（每条都带输出）</h2>
 
