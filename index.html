@@ -13405,7 +13405,16 @@ print(s)</code></pre>
 样例 <code>[1,2,[3,4,[5,6],7],8]</code> → <code>15</code>；40 分。</p>
 
 <p><strong>我的代码（PTA 判过 —— 一次通过）</strong></p>
-<pre><code>@@BLOCK@@</code></pre>
+<pre><code>m=eval(input())                  读一行文本 → 列表（整行当表达式跑，得到嵌套结构）
+def weighted(x,k):               定义递归函数：x = 一样东西，k = 这一层的层号（从 0 起）
+    if isinstance(x,int):        出口①：是整数 → 只交「层号」，值是多少完全不参与
+        return k                 ★ 和 6-4 只差这一行：6-4 是 return x*k，本题是 return k
+    elif isinstance(x,list):     ② 是列表 → 进到里面去，层号往下加
+        T=0                      本层的累加器 —— 每层调用各有一份，互不干扰（❌19）
+        for i in x:              只看【当前这一层】的孩子
+            T+=weighted(i,k+1)   孩子往下走一层；容器本身不算个数（它只是个壳）
+        return T                 交货：把本层的合计交回上一层
+print(weighted(m,0))             起点给 0 → m 的孩子算第 1 层，样例得 15</code></pre>
 
 <div class="box ok">
 <strong>★ 和 6-4 只差出口那一行</strong>
@@ -13518,7 +13527,18 @@ print(sum(k*v for k,v in cnt.items()))    Σ 层号 × 该层元素个数</code>
 ⚠️ 这题的输入是<strong>两行</strong>，前几题（6-3 ~ 6-5）都只有一行。</p>
 
 <p><strong>我的代码（PTA 判过 —— 第二版）</strong></p>
-<pre><code>@@BLOCK@@</code></pre>
+<pre><code>m=eval(input())                      第一行：嵌套列表（⚠️ 本题输入是两行）
+n=int(input())                       第二行：要数的层号 n（从 1 数）
+def f(x,k):                          定义递归函数：k = 当前层号
+    if isinstance(x,int) and n==k:   出口①：是数字【且】正好在要数的那一层 → 算 1 个
+        return 1                     ★ 命中即交 1（题面只要「数字元素」，字符串不算）
+    elif isinstance(x,list):         ② 是列表 → 进到里面去
+        T=0                          本层累加器
+        for i in x:                  看当前这一层的每个孩子
+            T+=f(i,k+1)              孩子的层号 +1
+        return T                     ★ 第一版这里写成了 return 0 → 加对了却没交出去，样例打 0
+    else:return 0                    ③ 其它（字符串等）一律不算
+print(f(m,0))                        起点给 0 → m 的孩子是第 1 层（和 6-4、6-5 一致）</code></pre>
 
 <div class="box ok">
 <strong>★ 和 6-5 只差「出口的判断」</strong>
@@ -13644,7 +13664,15 @@ print(cnt.get(n,0))                 ⚠️ 用 get：n 超过深度时给 0，�
 <strong>题面保证这样的学生是唯一的</strong>。样例 → <code>zhangfeng 10001 258</code>；15 分。</p>
 
 <p><strong>我的代码（PTA 判过 —— 一次通过）</strong></p>
-<pre><code>@@BLOCK@@</code></pre>
+<pre><code>N=int(input())                            第一行：人数 N（≤10）
+L=[]                                      存每个人的总分
+m=[input().split() for _ in range(N)]     后面 N 行：每行切成「学号 姓名 成绩1 成绩2 成绩3」——学号一律不转 int，前导 0 才丢不了
+for i in range(N):                        第一趟：把每个人的总分算出来
+    t=sum(map(int,m[i][2:5]))             下标 2、3、4 才是三科成绩（0 是学号、1 是姓名）
+    L.append(t)                           按输入顺序存进 L
+for i in range(N):                        第二趟：找出总分等于最大值的那一个
+    if max(L)==sum(map(int,m[i][2:5])):   直接拿 max(L) 来比，相等就是最高分那个
+        print(m[i][1],m[i][0],max(L))     ★ 输出是「姓名 学号 总分」—— 和输入的顺序相反</code></pre>
 
 <div class="box ok">
 <strong>★ 这题真正的两个坑，都不在算法上</strong>
@@ -13740,7 +13768,12 @@ best=max(m, key=lambda r: sum(r[2:]))</code></pre>
 样例 n=3 → <code>123</code>/<code>132</code>/<code>213</code>/<code>231</code>/<code>312</code>/<code>321</code>；20 分。</p>
 
 <p><strong>我的代码（PTA 判过 —— 一次通过，第 6 章最后一题）</strong></p>
-<pre><code>@@BLOCK@@</code></pre>
+<pre><code>import itertools                                    标准库：permutations 负责生成全排列
+n=int(input())                                      一行输入 n（3 ≤ n ≤ 7）
+L=['1','2','3','4','5','6','7','8','9']             先备好 1~9 的【字符】——不能是数字，join 只吃字符串
+t=L[0:n]                                            取前 n 个 → 就是 1~n
+x=["".join(i) for i in itertools.permutations(t)]   每个排列是元组 → 用 "".join 拼成串（元素是 int 会 TypeError）
+print(*x,sep="\n")                                  ★ *x 把列表摊开 + sep="\n" 让每个占一行（㉗）</code></pre>
 
 <div class="box ok">
 <strong>★ 这题就三件事：生成 → 拼串 → 竖向输出</strong>
