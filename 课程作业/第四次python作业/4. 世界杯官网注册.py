@@ -1,8 +1,13 @@
 import re
-
-s = input().strip()
-# 一个正则同时管住两条规则：首字符是字母或下划线，之后只能是字母/数字/下划线
-if re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", s):
-    print("Yes")
+m=input()
+for i in m:
+    if re.fullmatch(r"[a-zA-Z0-9_]",i)==None:
+        print("No")
+        break
 else:
-    print("No")
+    if m[0].isnumeric():
+        print("No")
+    else:
+        print("Yes")
+
+
