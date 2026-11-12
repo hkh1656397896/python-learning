@@ -1,0 +1,6 @@
+f1=open("sample.txt", "r")
+s=f1.read()
+f1.close()
+f2=open("sample_copy.txt", "w")
+f2.write(s.upper())
+f2.close()

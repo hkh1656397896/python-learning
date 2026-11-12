@@ -1,0 +1,11 @@
+def  DEMO(para):
+    avg=sum(para)/len(para)
+    g=[]
+    g=[i for i  in para if  i>avg]
+    return  (avg,)+tuple(g)
+n=int(input("n="))
+score=[]
+for i  in range(n):
+    x=float(input())
+    score.append(x)
+print(DEM0(score))
